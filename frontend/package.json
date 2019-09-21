@@ -12,12 +12,12 @@
     "core-js": "^2.6.5",
     "vue": "^2.6.10",
     "vue-class-component": "^7.0.2",
-    "vue-property-decorator": "^8.1.0",
-    "vuelayers": "^0.11.4"
+    "vue-property-decorator": "^8.1.0"
   },
   "devDependencies": {
     "@types/chai": "^4.1.0",
     "@types/mocha": "^5.2.4",
+    "@types/ol": "^5.3.5",
     "@vue/cli-plugin-babel": "^3.11.0",
     "@vue/cli-plugin-typescript": "^3.11.0",
     "@vue/cli-plugin-unit-mocha": "^3.11.0",
@@ -26,6 +26,7 @@
     "chai": "^4.1.2",
     "lint-staged": "^8.1.5",
     "node-sass": "^4.9.0",
+    "ol": "^5.3.3",
     "sass-loader": "^7.1.0",
     "typescript": "^3.4.3",
     "vue-template-compiler": "^2.6.10"
