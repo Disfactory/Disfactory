@@ -47,6 +47,29 @@ export default class OSM extends Vue {
               '<a href="https://maps.nlsc.gov.tw/" target="_blank">國土測繪圖資服務雲</a>'
           }),
           opacity: 0.5
+        }),
+        new TileLayer({
+          source: new WMTS({
+            matrixSet: "EPSG:3857",
+            format: "image/png",
+            url: "https://wmts.nlsc.gov.tw/wmts/LUIMAP/{Style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}",
+            layer: "LUIMAP",
+            requestEncoding: 'REST',
+            tileGrid: new WMTSTileGrid({
+              origin: getTopLeft(projectionExtent),
+              resolutions: resolutions,
+              matrixIds: matrixIds
+            }),
+            tileLoadFunction: function (imageTile, src) {
+              // console.log(imageTile.getTileCoord());
+              (imageTile as any).getImage().src = src;
+            },
+            style: "default",
+            wrapX: true,
+            attributions:
+              '<a href="https://maps.nlsc.gov.tw/" target="_blank">國土測繪圖資服務雲</a>'
+          }),
+          opacity: 0.5
         })
       ],
       view: new View({
