@@ -28,7 +28,7 @@ export default class OSM extends Vue {
       matrixIds[z] = z;
     }
 
-    new Map({
+    const map = new Map({
       target: "map",
       layers: [
         new TileLayer({
@@ -85,6 +85,20 @@ export default class OSM extends Vue {
         zoom: 2
       })
     });
+
+    map.on('click', function (event) {
+      // console.log(event)
+      map.forEachLayerAtPixel(event.pixel, function (layer, data) {
+        const [r, g, b, a] = data
+        console.log(`rgba(${r}, ${g}, ${b}, ${a})`)
+        // console.log(layer.getProperties())
+      }, {
+        layerFilter: function (layer) {
+          // only handle click event on LUIMAP
+          return layer.getProperties().source.layer_ === 'LUIMAP'
+        }
+      })
+    })
   }
 }
 </script>
