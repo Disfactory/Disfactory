@@ -41,6 +41,7 @@ export default class OSM extends Vue {
               resolutions: resolutions,
               matrixIds: matrixIds
             }),
+            crossOrigin: 'Anonymous',
             style: "default",
             wrapX: true,
             attributions:
@@ -64,6 +65,7 @@ export default class OSM extends Vue {
               // console.log(imageTile.getTileCoord());
               (imageTile as any).getImage().src = src;
             },
+            crossOrigin: 'Anonymous',
             style: "default",
             wrapX: true,
             attributions:
