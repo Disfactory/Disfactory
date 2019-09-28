@@ -10,6 +10,7 @@ import WMTS from "ol/source/WMTS";
 import WMTSTileGrid from "ol/tilegrid/WMTS";
 import { get as getProjection } from "ol/proj";
 import { getWidth, getTopLeft } from "ol/extent";
+import { toTGrayScale } from '../lib/image'
 
 import "ol/ol.css";
 
@@ -63,7 +64,12 @@ export default class OSM extends Vue {
             }),
             tileLoadFunction: function (imageTile, src) {
               // console.log(imageTile.getTileCoord());
-              (imageTile as any).getImage().src = src;
+              // (imageTile as any).getImage().src = src
+
+              const image = (imageTile as any).getImage()
+              toTGrayScale(src).then(newSrc => {
+                image.src = newSrc;
+              })
             },
             crossOrigin: 'Anonymous',
             style: "default",
