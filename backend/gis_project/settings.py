@@ -81,11 +81,11 @@ WSGI_APPLICATION = "gis_project.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "postgres",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "db",
-        "PORT": 5432,
+        "NAME": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_NAME", "postgres"),
+        "USER": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_USER", "postgres"),
+        "PASSWORD": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD", "postgres"),,
+        "HOST": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_HOST", "db"),,
+        "PORT": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PORT", "5423"),,
     }
 }
 
