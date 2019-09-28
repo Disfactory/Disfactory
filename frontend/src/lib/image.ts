@@ -1,4 +1,4 @@
-export function toTGrayScale(src: string) {
+export function toGrayScale(src: string) {
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
 
