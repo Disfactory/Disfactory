@@ -85,7 +85,7 @@ DATABASES = {
         "USER": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_USER", "postgres"),
         "PASSWORD": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD", "postgres"),
         "HOST": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_HOST", "db"),
-        "PORT": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PORT", "5423"),
+        "PORT": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PORT", 5432),
     }
 }
 
