@@ -1,4 +1,4 @@
-"""gis_project URL Configuration
+"""API URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.2/topics/http/urls/
@@ -13,11 +13,19 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
+
+from .views import (
+    get_nearby_or_create_factories,
+    update_factory_attribute,
+    post_image,
+    post_factory_image,
+)
 
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("api/", include("api.urls")),
+    path("factories/", get_nearby_or_create_factories),
+    path("factories/<id>/", update_factory_attribute),
+    path("factories/<id>/image/", post_factory_image),
+    path("images/", post_image),
 ]
