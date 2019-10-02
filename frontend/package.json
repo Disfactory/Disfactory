@@ -18,12 +18,19 @@
     "@types/chai": "^4.1.0",
     "@types/mocha": "^5.2.4",
     "@types/ol": "^5.3.5",
+    "@typescript-eslint/parser": "^2.3.2",
     "@vue/cli-plugin-babel": "^3.11.0",
+    "@vue/cli-plugin-eslint": "^3.11.0",
     "@vue/cli-plugin-typescript": "^3.11.0",
     "@vue/cli-plugin-unit-mocha": "^3.11.0",
     "@vue/cli-service": "^3.11.0",
+    "@vue/eslint-config-standard": "^4.0.0",
+    "@vue/eslint-config-typescript": "^4.0.0",
     "@vue/test-utils": "1.0.0-beta.29",
+    "babel-eslint": "^10.0.1",
     "chai": "^4.1.2",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.0.0",
     "lint-staged": "^8.1.5",
     "node-sass": "^4.9.0",
     "ol": "^5.3.3",
@@ -40,6 +47,10 @@
       "git add"
     ],
     "*.vue": [
+      "vue-cli-service lint",
+      "git add"
+    ],
+    "*.{js,vue,ts}": [
       "vue-cli-service lint",
       "git add"
     ]

@@ -5,13 +5,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator';
-import OSM from './components/OSM.vue';
+import { Component, Vue } from 'vue-property-decorator'
+import OSM from './components/OSM.vue'
 
 @Component({
   components: {
-    OSM,
-  },
+    OSM
+  }
 })
 export default class App extends Vue {}
 </script>
