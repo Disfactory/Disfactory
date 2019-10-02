@@ -18,6 +18,7 @@
     "@types/chai": "^4.1.0",
     "@types/mocha": "^5.2.4",
     "@types/ol": "^5.3.5",
+    "@typescript-eslint/eslint-plugin": "^2.3.2",
     "@typescript-eslint/parser": "^2.3.2",
     "@vue/cli-plugin-babel": "^3.11.0",
     "@vue/cli-plugin-eslint": "^3.11.0",
