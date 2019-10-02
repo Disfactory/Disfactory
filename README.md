@@ -4,6 +4,7 @@
 
 - [hackfoldr](https://beta.hackfoldr.org/Disfactory)
 - [Disfactory 跳坑指南](https://g0v.hackmd.io/VqCrCpoQT4KQGVhbqR9r6A)
+- [第6次小聚筆記](https://g0v.hackmd.io/lDWc7EAgQu214i3Nhf7Sqg) 2019/10/02
 - [第五次小聚筆記](https://g0v.hackmd.io/3ah7-EB3SvmTNC4Mz_cNdg)
 - [第四次小聚筆記](https://g0v.hackmd.io/1w_44QhqTWKi2dcyzCitkA)
 - [開發文件](https://g0v.hackmd.io/FZFghtuoQ0aaGIl9xXzuKw)
