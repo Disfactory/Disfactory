@@ -1,6 +1,8 @@
 # Disfactory 違章工廠舉報系統
 
-![logo](./docs/images/Logo_Banner.png)
+![logo](https://github.com/yoyo930021/Disfactory/raw/master/docs/images/Logo_Banner.png)
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/yoyo930021/Disfactory)
 
 - [hackfoldr](https://beta.hackfoldr.org/Disfactory)
 - [Disfactory 跳坑指南](https://g0v.hackmd.io/VqCrCpoQT4KQGVhbqR9r6A)
