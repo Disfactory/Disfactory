@@ -1,4 +1,5 @@
 from django.contrib.gis.db import models
+from django.conf import settings
 
 # TODO: Design and implement these models
 
@@ -17,7 +18,7 @@ class Factory(models.Model):
 
     """
     # TODO: write a migration for data initialization, ref: https://docs.djangoproject.com/en/2.2/howto/initial-data/
-    pass
+    point = models.PointField(srid=settings.POSTGIS_SRID)
 
 
 class ReportRecord(models.Model):
