@@ -124,5 +124,5 @@ USE_TZ = True
 STATIC_URL = "/static/"
 AUTH_USER_MODEL = "users.CustomUser"
 
-POSTGIS_SRID = 3826  # TWD97
-# ref: https://epsg.io/3826
+POSTGIS_SRID = 3857
+# ref: https://epsg.io/3857

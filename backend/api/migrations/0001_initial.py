@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             name='Factory',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('point', django.contrib.gis.db.models.fields.PointField(srid=3826)),
+                ('point', django.contrib.gis.db.models.fields.PointField(srid=3857)),
             ],
         ),
         migrations.CreateModel(
