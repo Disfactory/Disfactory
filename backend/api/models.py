@@ -1,8 +1,9 @@
-from django.db import models
+from django.contrib.gis.db import models
+from django.conf import settings
 
 # TODO: Design and implement these models
 
-class Factory:
+class Factory(models.Model):
     """Factories that are potential to be illegal.
 
     This table should store information of a factory,
@@ -17,10 +18,10 @@ class Factory:
 
     """
     # TODO: write a migration for data initialization, ref: https://docs.djangoproject.com/en/2.2/howto/initial-data/
-    pass
+    point = models.PointField(srid=settings.POSTGIS_SRID)
 
 
-class ReportRecord:
+class ReportRecord(models.Model):
     """Report records send by users.
 
     This table should contain the report record after calling these API:
@@ -39,7 +40,7 @@ class ReportRecord:
     pass
 
 
-class Image:
+class Image(models.Model):
     """Images of factories that are uploaded by user
 
     We store the actual image files on Imgur, so this table
