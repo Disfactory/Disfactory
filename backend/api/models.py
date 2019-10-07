@@ -43,7 +43,7 @@ class Factory(models.Model):
     lat = models.FloatField(max_length=16)
     lng = models.FloatField(max_length=16)
     landcode = models.CharField (max_length=50, blank=True, null=True)
-    fact_type = models.CharField(max_length=1, choices=fact_type_list)
+    fact_type = models.CharField(max_length=3, choices=fact_type_list)
     status = models.CharField(max_length=1, choices=status_list)
     status_time = models.DateField()
     others = models.CharField(max_length=1024, blank=True)
