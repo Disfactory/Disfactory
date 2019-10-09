@@ -1,56 +1,92 @@
-from django.contrib.gis.db import models
-from django.conf import settings
+# -*- coding: utf-8 -*-
+import uuid
 
-# TODO: Design and implement these models
+from django.conf import settings
+from django.contrib.gis.db import models
+from django.contrib.postgres.fields import JSONField
+
 
 class Factory(models.Model):
-    """Factories that are potential to be illegal.
+    """Factories that are potential to be illegal."""
 
-    This table should store information of a factory,
-    containing:
-    - name
-    - type: Enum, ref: https://g0v.hackmd.io/1w_44QhqTWKi2dcyzCitkA#%E5%B7%A5%E5%BB%A0%E5%88%86%E9%A1%9E
-    - position(lat, long),
-    - land index
-    - status
-    - reported_at (aka created_at)
-    - etc...
+    # List of fact_type & status
+    factory_type_list = [
+        ('1','金屬'),
+        ('2-1','沖床、銑床、車床、鏜孔'),
+        ('2-2', '焊接、鑄造、熱處理'),
+        ('2-3', '金屬表面處理、噴漆'),
+        ('3', '塑膠加工、射出'),
+        ('4', '橡膠加工'),
+        ('5', '非金屬礦物（石材）'),
+        ('6', '食品'),
+        ('7', '皮革'),
+        ('8', '紡織'),
+        ('9', '其他')
+    ]
+    status_list = [
+        ('D','已舉報'),
+        ('F','資料不齊'),
+        ('A','待審核')
+    ]
 
-    """
-    # TODO: write a migration for data initialization, ref: https://docs.djangoproject.com/en/2.2/howto/initial-data/
+    # All  Features
+    id =  models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        verbose_name='ID',
+    )
+
+    lat = models.FloatField()
+    lng = models.FloatField()
     point = models.PointField(srid=settings.POSTGIS_SRID)
+    landcode = models.CharField (max_length=50, blank=True, null=True)
+
+    name = models.CharField(max_length=50, blank=True, null=True)
+    factory_type = models.CharField(max_length=3, choices=factory_type_list, default="9")
+    status = models.CharField(max_length=1, choices=status_list)
+    status_time = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # TODO: write a migration for data initialization, ref: https://docs.djangoproject.com/en/2.2/howto/initial-data/
 
 
 class ReportRecord(models.Model):
     """Report records send by users.
 
-    This table should contain the report record after calling these API:
-    - PUT /factories/{id}/{attribute}
-    - POST /factories
-    Necessary fields:
-    - foreign key to Factory
-    - foreign key to User (point to a null user at first)
-    - created_at
-    - etc...
-
     `ReportRecord` will be queried in advanced by admins from
     Citizen of the Earth, Taiwan. They will filter the most recent
     records out every a few weeks to catch the bad guys.
     """
-    pass
+
+    id = models.AutoField(primary_key=True)
+    factory = models.ForeignKey('Factory', on_delete=models.PROTECT)
+    user_ip = models.GenericIPAddressField(default='192.168.0.1', blank=True, null=True)
+    action_type = models.CharField(max_length=10)  # PUT, POST
+    action_body = JSONField()  # request body
+    created_at = models.DateTimeField(auto_now_add=True)
+    contact = models.CharField(max_length=64, blank=True, null=True)
+    others = models.CharField(max_length=1024, blank=True)
 
 
 class Image(models.Model):
-    """Images of factories that are uploaded by user
+    """Images of factories that are uploaded by user."""
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+    factory = models.ForeignKey('Factory', on_delete=models.PROTECT)
+    report_record = models.ForeignKey(
+        'ReportRecord',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
+    image_path = models.URLField(max_length=256)  # get from Imgur
+    created_at = models.DateTimeField(auto_now_add=True)
+    # the DB saving time
 
-    We store the actual image files on Imgur, so this table
-    should contains:
-    - hashed uuid (would be returned to user after calling POST /images)
-    - foreign key to `Factory`
-    - imgur path
-
-    Some optional fields:
-    - foreign key to user:
-    - foreign key to report record
-    """
-    pass
+    orig_time = models.DateTimeField(blank=True, null=True)
+    # the actual photo taken time
