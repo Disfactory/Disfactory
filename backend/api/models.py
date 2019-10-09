@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-from django.contrib.gis.db import models
+import uuid
+
 from django.conf import settings
+from django.contrib.gis.db import models
+from django.contrib.postgres.fields import JSONField
+
 
 class Factory(models.Model):
     """Factories that are potential to be illegal.
@@ -38,25 +42,26 @@ class Factory(models.Model):
     ]
 
     # All  Features
-    id =  models.UUIDField(max_length=36, primary_key=True, serialize=False, verbose_name='ID')
-    fact_name = models.CharField(max_length=50, blank=True, null=True)
-    lat = models.FloatField(max_length=16)
-    lng = models.FloatField(max_length=16)
+    id =  models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        verbose_name='ID',
+    )
+
+    lat = models.FloatField()
+    lng = models.FloatField()
+    point = models.PointField(srid=settings.POSTGIS_SRID)
     landcode = models.CharField (max_length=50, blank=True, null=True)
-    fact_type = models.CharField(max_length=3, choices=fact_type_list)
+
+    name = models.CharField(max_length=50, blank=True, null=True)
+    factory_type = models.CharField(max_length=3, choices=fact_type_list, default='9')
     status = models.CharField(max_length=1, choices=status_list)
     status_time = models.DateField()
-    others = models.CharField(max_length=1024, blank=True)
-    creat_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    # % Discussion!!
-    # fact_no = models.AutoField(max_length=36, unique=True, serialize=True, verbose_name='Factory No.')     Readable id (unique)
-    # update_time =  models.DateField(auto_now=True)   The last time of the change
-
-    # TODO: write a migration for data initialization, ref: https://docs.djangoproject.com/en/2.2/howto/initial-data/ 
-      # % I still have no idea about this step. I have to make a example by myself without using the command "makemigration" because the DB is not ready?
-    
-    point = models.PointField(srid=settings.POSTGIS_SRID)
+    # TODO: write a migration for data initialization, ref: https://docs.djangoproject.com/en/2.2/howto/initial-data/
 
 
 class ReportRecord(models.Model):
@@ -72,13 +77,14 @@ class ReportRecord(models.Model):
         - created_at
         - contect :  Could be emall, phone number, nick name and so on
        """
-    id = models.ForeignKey('Factory', on_delete=models.PROTECT)
+    id = models.AutoField(primary_key=True)
+    factory = models.ForeignKey('Factory', on_delete=models.PROTECT)
     user_ip = models.GenericIPAddressField(default='192.168.0.1', blank=True, null=True)
     action_type = models.CharField(max_length=10)
-    action_body = models.CharField(max_length=1024)
+    action_body = JSONField()
     created_at = models.DateTimeField(auto_now_add=True)
-    contect = models.CharField(max_length=64, blank=True, null=True)
-    pass
+    contact = models.CharField(max_length=64, blank=True, null=True)
+    others = models.CharField(max_length=1024, blank=True)
 
 
 class Image(models.Model):
@@ -91,9 +97,19 @@ class Image(models.Model):
         - created_at :  Uploading time
         - orig_time :  The time of taking the picture
         """
-    id = models.ForeignKey('Factory', on_delete=models.PROTECT)
-    image_id = models.CharField(max_length=128)
-    image_path = models.URLField(max_length=128)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+    )
+    factory = models.ForeignKey('Factory', on_delete=models.PROTECT)
+    report_record = models.ForeignKey(
+        'ReportRecord',
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
+    image_path = models.URLField(max_length=256)
     created_at = models.DateTimeField(auto_now_add=True)
     orig_time = models.DateTimeField(blank=True, null=True)
     pass
