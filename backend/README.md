@@ -34,6 +34,11 @@ CREATE EXTENSION postgis_topology;
 
 設定好之後，記得也要改環境變數，或是直接改動 `.env` 裡面的值。
 
+(optional) 如果要跑單元測試，需要一個可以 create extension 的 user。很可惜的是目前 PostgreSQL 只有 superuser 可以這樣做。
+```
+ALTER ROLE "disfactory" SUPERUSER;
+```
+
 ### 3. Environment variables
 使用環境變數來設定專案，用 `python-dotenv` 來讀取。請參考 `.env.sample` 並複製一份 `.env`。
 
