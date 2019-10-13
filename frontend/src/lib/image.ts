@@ -1,4 +1,6 @@
-export function toGrayScale (src: string) {
+type PixelMapper = (data: Uint8ClampedArray) => void
+
+export const createImageProcessor = (processor: PixelMapper) => (src: string) => {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')!
 
@@ -7,7 +9,7 @@ export function toGrayScale (src: string) {
     image.crossOrigin = ''
     image.src = src
     image.style.display = 'none'
-    image.onload = () => {
+    image.onload = async () => {
       canvas.width = image.width
       canvas.height = image.height
 
@@ -16,13 +18,7 @@ export function toGrayScale (src: string) {
       const imageData = ctx.getImageData(0, 0, image.width, image.height)
       const { data } = imageData
 
-      // doing grayscale operaion pixel by pixel
-      for (let i = 0; i < data.length; i += 4) {
-        const avg = (data[i] + data[i + 1] + data[i + 2]) / 3
-        data[i] = avg // red
-        data[i + 1] = avg // green
-        data[i + 2] = avg // blue
-      }
+      await Promise.resolve(processor(data))
 
       const tmpCanvas = document.createElement('canvas')
       const tmpCtx = tmpCanvas.getContext('2d')!
@@ -36,9 +32,16 @@ export function toGrayScale (src: string) {
       image.remove()
       canvas.remove()
       tmpCanvas.remove()
-
-      // ctx.putImageData(imageData, 0, 0);
-      // ctx.getImageData(0, 0, image.offsetWidth, image.offsetHeight);
     }
   })
 }
+
+export const toGrayScale = createImageProcessor(data => {
+  // doing grayscale operaion pixel by pixel
+  for (let i = 0; i < data.length; i += 4) {
+    const avg = (data[i] + data[i + 1] + data[i + 2]) / 3
+    data[i] = avg // red
+    data[i + 1] = avg // green
+    data[i + 2] = avg // blue
+  }
+})
