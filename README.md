@@ -4,6 +4,8 @@
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/yoyo930021/Disfactory)
 
+(↑ gitpod 怎麼用？[看這裡](./docs/gitpod.md))
+
 - [hackfoldr](https://beta.hackfoldr.org/Disfactory)
 - [Disfactory 跳坑指南](https://g0v.hackmd.io/VqCrCpoQT4KQGVhbqR9r6A)
 - [第7次小聚筆記](https://g0v.hackmd.io/lDWc7EAgQu214i3Nhf7Sqg) 2019/10/02
