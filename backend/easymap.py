@@ -16,9 +16,9 @@ def get_session():
     sess = requests.Session()
     # XXX don't need this?
     # sess.headers.update({"User-Agent": "Mozilla/5.0"})
-    sess.get(easymap_url)
+    resp = sess.get(easymap_url)
     if not "JSESSIONID" in sess.cookies:
-        raise RuntimeError("Failed getting session from easymap")
+        raise WebRequestError("Failed getting session from easymap", resp.status_code, resp.text)
     return sess
 
 
@@ -28,7 +28,10 @@ def get_point_city(sess, x, y):
     resp = sess.post(point_city_url, data=data)
     if resp.status_code != requests.codes.ok:
         raise WebRequestError("Failed getting city code", resp.status_code, resp.text)
-    return resp.json()
+    try:
+        return resp.json()
+    except:
+        raise WebRequestError("Failed parsing city code", resp.status_code, resp.text)
 
 
 def get_token(sess):
