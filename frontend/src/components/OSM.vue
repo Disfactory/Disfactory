@@ -10,7 +10,7 @@ import WMTS from 'ol/source/WMTS'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { get as getProjection } from 'ol/proj'
 import { getWidth, getTopLeft } from 'ol/extent'
-import { toGrayScale } from '../lib/image'
+import { flipArgriculturalLand } from '../lib/image'
 
 import 'ol/ol.css'
 
@@ -67,7 +67,7 @@ export default class OSM extends Vue {
               // (imageTile as any).getImage().src = src
 
               const image = (imageTile as any).getImage()
-              toGrayScale(src).then(newSrc => {
+              flipArgriculturalLand(src).then(newSrc => {
                 image.src = newSrc
               })
             },
