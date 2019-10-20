@@ -1,3 +1,4 @@
+import sys
 import csv
 from datetime import datetime
 
@@ -15,6 +16,9 @@ def forward_func(apps, schema_editor):
         reader = csv.DictReader(csvfile)
         seed_factories = []
         for idx, datum in enumerate(reader):
+            if ("test" in sys.argv) and (idx > 100):
+                # reduce the amount of seed data to speed up testing
+                break
             try:
                 lng = float(datum["經度"])
                 lat = float(datum["緯度"])
