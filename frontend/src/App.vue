@@ -5,15 +5,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-property-decorator'
 import OSM from './components/OSM.vue'
+import { createComponent } from '@vue/composition-api'
 
-@Component({
-  components: {
-    OSM
-  }
+export default createComponent({
+  components: { OSM },
+  setup () {}
 })
-export default class App extends Vue {}
 </script>
 
 <style lang="scss">
