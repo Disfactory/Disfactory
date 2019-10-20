@@ -13,7 +13,7 @@ unittest:
 	python manage.py test
 
 .PHONY: test
-check: lint unittest
+test: lint unittest
 
 .PHONY: clean
 clean:
