@@ -16,4 +16,8 @@ def _upload_image(f_image):
 
 def _get_nearby_factories(latitude, longitude, radius):
     """Return nearby factories based on position and search range."""
-    pass
+    # NOTE: if we use h3 for geoencoding in the future, we can use h3.k_ring():
+    # ref: https://observablehq.com/@nrabinowitz/h3-radius-lookup
+    pnt = Point(x=longitude, y=latitude, srid=4326)
+    pnt.transform(settings.POSTGIS_SRID)
+    return Factory.objects.filter(point__distance_lte=(pnt, D(km=radius)))
