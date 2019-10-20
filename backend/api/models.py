@@ -3,6 +3,7 @@ import uuid
 
 from django.conf import settings
 from django.contrib.gis.db import models
+from django.contrib.gis.geos import Point
 from django.contrib.postgres.fields import JSONField
 
 
@@ -40,7 +41,7 @@ class Factory(models.Model):
     lat = models.FloatField()
     lng = models.FloatField()
     point = models.PointField(srid=settings.POSTGIS_SRID)
-    landcode = models.CharField (max_length=50, blank=True, null=True)
+    landcode = models.CharField(max_length=50, blank=True, null=True)
 
     name = models.CharField(max_length=50, blank=True, null=True)
     factory_type = models.CharField(max_length=3, choices=factory_type_list, default="9")
@@ -49,7 +50,10 @@ class Factory(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    # TODO: write a migration for data initialization, ref: https://docs.djangoproject.com/en/2.2/howto/initial-data/
+    def save(self, *args, **kwargs):
+        self.point = Point(self.lng, self.lat, srid=4326)
+        self.point.transform(settings.POSTGIS_SRID)
+        super(Factory, self).save(*args, **kwargs)
 
 
 class ReportRecord(models.Model):
