@@ -12,22 +12,22 @@ class Factory(models.Model):
 
     # List of fact_type & status
     factory_type_list = [
-        ('1','金屬'),
-        ('2-1','沖床、銑床、車床、鏜孔'),
-        ('2-2', '焊接、鑄造、熱處理'),
-        ('2-3', '金屬表面處理、噴漆'),
-        ('3', '塑膠加工、射出'),
-        ('4', '橡膠加工'),
-        ('5', '非金屬礦物（石材）'),
-        ('6', '食品'),
-        ('7', '皮革'),
-        ('8', '紡織'),
-        ('9', '其他')
+        ("1","金屬"),
+        ("2-1","沖床、銑床、車床、鏜孔"),
+        ("2-2", "焊接、鑄造、熱處理"),
+        ("2-3", "金屬表面處理、噴漆"),
+        ("3", "塑膠加工、射出"),
+        ("4", "橡膠加工"),
+        ("5", "非金屬礦物（石材）"),
+        ("6", "食品"),
+        ("7", "皮革"),
+        ("8", "紡織"),
+        ("9", "其他")
     ]
     status_list = [
-        ('D','已舉報'),
-        ('F','資料不齊'),
-        ('A','待審核')
+        ("D","已舉報"),
+        ("F","資料不齊"),
+        ("A","待審核")
     ]
 
     # All  Features
@@ -35,7 +35,7 @@ class Factory(models.Model):
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
-        verbose_name='ID',
+        verbose_name="ID",
     )
 
     lat = models.FloatField()
@@ -65,8 +65,8 @@ class ReportRecord(models.Model):
     """
 
     id = models.AutoField(primary_key=True)
-    factory = models.ForeignKey('Factory', on_delete=models.PROTECT)
-    user_ip = models.GenericIPAddressField(default='192.168.0.1', blank=True, null=True)
+    factory = models.ForeignKey("Factory", on_delete=models.PROTECT)
+    user_ip = models.GenericIPAddressField(default="192.168.0.1", blank=True, null=True)
     action_type = models.CharField(max_length=10)  # PUT, POST
     action_body = JSONField()  # request body
     created_at = models.DateTimeField(auto_now_add=True)
@@ -81,9 +81,13 @@ class Image(models.Model):
         default=uuid.uuid4,
         editable=False,
     )
-    factory = models.ForeignKey('Factory', on_delete=models.PROTECT)
+    factory = models.ForeignKey(
+        "Factory",
+        on_delete=models.PROTECT,
+        related_name="images",
+    )
     report_record = models.ForeignKey(
-        'ReportRecord',
+        "ReportRecord",
         on_delete=models.PROTECT,
         blank=True,
         null=True,

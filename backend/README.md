@@ -45,10 +45,18 @@ ALTER ROLE "disfactory" SUPERUSER;
 ### 4. Install python packages
 `pipenv install --dev`
 
+### 5. DB migration
+```
+python manage.py migrate
+```
+
 
 ## Usage
 
 ### Run server
+```
+python manage.py runserver
+```
 ### API
 https://g0v.hackmd.io/FZFghtuoQ0aaGIl9xXzuKw#API
 
