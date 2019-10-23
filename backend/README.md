@@ -15,6 +15,11 @@ sudo su postgres
 psql
 ```
 
+如果你用 Docker Compose 建立開發環境，你可以這樣子進 PostgreSQL（密碼是 cop）：
+```
+docker-compose run db psql -h db -U postgres
+```
+
 建立一個可以開 DB 的 user 給 server
 ```
 CREATE USER "disfactory" CREATEDB;
@@ -43,7 +48,11 @@ ALTER ROLE "disfactory" SUPERUSER;
 使用環境變數來設定專案，用 `python-dotenv` 來讀取。請參考 `.env.sample` 並複製一份 `.env`。
 
 ### 4. Install python packages
-`pipenv install --dev`
+```
+apt-get install binutils libproj-dev gdal-bin
+pipenv install --dev --python=$(which python3)`
+pipenv shell
+```
 
 ### 5. DB migration
 ```
