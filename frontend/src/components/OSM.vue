@@ -1,9 +1,9 @@
 <template>
-  <div ref="root" />
+  <div ref="root" id="map" />
 </template>
 
 <script lang="ts">
-// import { Component, Prop, Vue } from 'vue-property-decorator'
+import { createComponent, onMounted, ref } from '@vue/composition-api'
 import { Map, View } from 'ol'
 import TileLayer from 'ol/layer/Tile'
 import WMTS from 'ol/source/WMTS'
@@ -13,7 +13,6 @@ import { getWidth, getTopLeft } from 'ol/extent'
 import { flipArgriculturalLand } from '../lib/image'
 
 import 'ol/ol.css'
-import { createComponent, onMounted, ref } from '@vue/composition-api'
 
 export default createComponent({
   setup () {
