@@ -6,7 +6,7 @@ import sys
 from dotenv import load_dotenv
 
 def main():
-    load_dotenv(verbose=True)
+    load_dotenv(verbose=True, override=True)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "gis_project.settings")
     try:
         from django.core.management import execute_from_command_line
