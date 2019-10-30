@@ -77,16 +77,17 @@ export const flipArgriculturalLand = createImageProcessor(data => {
     const color = Array.from(data.slice(i, i + 3))
 
     if (isArgriculturalLand(color)) {
-      // set to approximately transparent black
+      // set to transparent
       data[i] = 0
       data[i + 1] = 0
       data[i + 2] = 0
-      data[i + 3] = 1 // prevent map.forEachLayerAtPixel skip map layer
+      data[i + 3] = 0
     } else {
       // set to black
       data[i] = 0
       data[i + 1] = 0
       data[i + 2] = 0
+      data[i + 3] = 255
     }
   }
 })
