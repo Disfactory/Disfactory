@@ -4,12 +4,19 @@
 
 <script lang="ts">
 import { createComponent, onMounted, ref } from '@vue/composition-api'
+
 import { Map, View } from 'ol'
-import TileLayer from 'ol/layer/Tile'
 import WMTS from 'ol/source/WMTS'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { get as getProjection } from 'ol/proj'
 import { getWidth, getTopLeft } from 'ol/extent'
+
+import { Draw, Modify, Snap } from 'ol/interaction'
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
+import { OSM, Vector as VectorSource } from 'ol/source'
+import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style'
+import GeometryType from 'ol/geom/GeometryType'
+
 import { flipArgriculturalLand } from '../lib/image'
 
 import 'ol/ol.css'
@@ -83,11 +90,28 @@ export default createComponent({
     onMounted(() => {
       const tileGrid = getWMTSTileGrid()
 
+      const source = new VectorSource()
+      const vector = new VectorLayer({
+        source,
+        style: new Style({
+          fill: new Fill({
+            color: 'rgba(255, 255, 255, 0.2)'
+          }),
+          image: new CircleStyle({
+            radius: 7,
+            fill: new Fill({
+              color: '#ffcc33'
+            })
+          })
+        })
+      })
+
       const map = new Map({
         target: root.value!,
         layers: [
           getBaseLayer(tileGrid),
-          getLUIMapLayer(tileGrid)
+          getLUIMapLayer(tileGrid),
+          vector
         ],
         view: new View({
           center: [0, 0],
@@ -108,6 +132,20 @@ export default createComponent({
           }
         })
       })
+
+      const modify = new Modify({ source })
+      map.addInteraction(modify)
+
+      const draw = new Draw({
+        source,
+        type: GeometryType.POINT,
+        condition: (e) => {
+          return false
+        }
+      })
+      map.addInteraction(draw)
+      const snap = new Snap({ source })
+      map.addInteraction(snap)
     })
 
     return { root }
