@@ -1,16 +1,20 @@
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
+import requests
 
 from ..models import Factory
 
 
-def _upload_image(f_image):
-    """Upload Image to certain service."""
-    # TODO
-    # image_binary = f_image.read()
-    # resp = requests.post(...)
-    path = "path to image cdn"
+def _upload_image(f_image, client_id):
+    headers = {'Authorization': f'Client-ID {client_id}'}
+    data = {'image': f_image.read()}
+    resp = requests.post(
+        'https://api.imgur.com/3/upload',
+        data=data,
+        headers=headers,
+    )
+    path = resp.json()['data']['link']
     return path
 
 
