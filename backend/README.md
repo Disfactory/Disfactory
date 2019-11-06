@@ -17,6 +17,7 @@ psql
 
 如果你用 Docker Compose 建立開發環境，你可以這樣子進 PostgreSQL（密碼是 cop）：
 ```
+docker-compose up
 docker-compose run db psql -h db -U postgres
 ```
 
