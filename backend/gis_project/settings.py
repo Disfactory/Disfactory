@@ -129,3 +129,6 @@ AUTH_USER_MODEL = "users.CustomUser"
 
 POSTGIS_SRID = 3857
 # ref: https://epsg.io/3857
+
+IMGUR_CLIENT_ID = os.environ["DISFACTORY_IMGUR_CLIENT_ID"]
+IMGUR_SECRET = os.environ["DISFACTORY_IMGUR_SECRET"]
