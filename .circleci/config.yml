@@ -1,0 +1,83 @@
+version: 2
+jobs:
+  frontend-lint:
+    docker:
+      - image: circleci/node:lts
+    
+    working_directory: ~/Disfactory
+
+    steps:
+      - checkout
+      - run: cd frontend
+
+      - restore_cache:
+          keys:
+            - dependency-cache-{{ checksum "frontend/package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: npm ci
+      - save_cache:
+          paths:
+            - node_modules
+          key: dependency-cache-{{ checksum "frontend/package-lock.json" }}
+
+      - run: npm run lint
+  frontend-build:
+    docker:
+      - image: circleci/node:lts
+
+    working_directory: ~/Disfactory
+
+    steps:
+      - checkout
+      - run: cd frontend
+
+      - restore_cache:
+          keys:
+            - dependency-cache-{{ checksum "frontend/package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: npm ci
+      - save_cache:
+          paths:
+            - node_modules
+          key: dependency-cache-{{ checksum "frontend/package-lock.json" }}
+
+      - run: npm run build
+      - persist_to_workspace:
+          root: frontend
+          paths:
+            - dist
+  frontend-deploy:
+    docker:
+      - image: circleci/node:lts
+    steps:
+      - checkout
+      - attach_workspace:
+          at: frontend
+      - run:
+          name: Install and configure dependencies
+          command: |
+            npm install -g --silent gh-pages@2.0.1
+            git config user.email "ci-build@disfactory.tw"
+            git config user.name "ci-build"
+      - add_ssh_keys:
+          fingerprints:
+            - "15:64:e1:a2:bf:d0:8e:4b:4f:f1:22:2d:62:18:1b:ad"
+      - run:
+          name: Deploy docs to gh-pages branch
+          command: gh-pages --dist frontend/dist
+
+workflows:
+  version: 2
+  build:
+    jobs:
+      - frontend-lint
+      - frontend-build
+      - frontend-deploy
+          requires:
+            - frontend-lint
+            - frontend-build
+          filters:
+            branches:
+              only: master
