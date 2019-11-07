@@ -85,6 +85,11 @@ jobs:
           name: Install
           command: sudo pipenv install --dev --system
       - run:
+          name: Install GDAL
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y gdal-bin python3-gdal
+      - run:
           name: Setup .env
           command: cp .env.sample .env
       # - run:
