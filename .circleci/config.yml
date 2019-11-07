@@ -1,9 +1,13 @@
-version: 2
-jobs:
-  frontend-lint:
+ref:
+  frontend_docker_default: &frontend_docker_default
     docker:
       - image: circleci/node:lts
     working_directory: ~/Disfactory
+
+version: 2
+jobs:
+  frontend-lint:
+    <<: *frontend_docker_default
     steps:
       - checkout
       - restore_cache:
@@ -19,9 +23,7 @@ jobs:
 
       - run: cd frontend && npm run lint
   frontend-build:
-    docker:
-      - image: circleci/node:lts
-    working_directory: ~/Disfactory
+    <<: *frontend_docker_default
     steps:
       - checkout
       - restore_cache:
@@ -41,9 +43,7 @@ jobs:
           paths:
             - dist
   frontend-deploy:
-    docker:
-      - image: circleci/node:lts
-    working_directory: ~/Disfactory
+    <<: *frontend_docker_default
     steps:
       - checkout
       - attach_workspace:
