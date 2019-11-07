@@ -3,6 +3,17 @@ ref:
     docker:
       - image: circleci/node:lts
     working_directory: ~/Disfactory
+  backend_docker_default: &backend_docker_default
+    docker:
+      - image: circleci/python:3.7.5
+      - image: circleci/postgres:11-alpine-postgis-ram
+        name: db
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: disfactory_data
+    working_directory: ~/Disfactory/backend
+    environment:
+      WORKON_HOME: ~/Disfactory/backend/.venv
 
 version: 2
 jobs:
@@ -61,6 +72,32 @@ jobs:
       - run:
           name: Deploy docs to gh-pages branch
           command: npx gh-pages --dist frontend/dist
+  backend-all:
+    <<: *backend_docker_default
+    steps:
+      - checkout:
+         path: ~/Disfactory
+      - restore_cache:
+          keys:
+            - disfactory-backend-cache-191107-{{ checksum "Pipfile.lock" }}
+            - disfactory-backend-cache-191107
+      - run:
+          name: Install
+          command: sudo pipenv install --dev --system
+      - run:
+          name: Setup .env
+          command: cp .env.sample .env
+      - run:
+          name: Run Linter
+          command: make lint
+      - run:
+          name: Unittest
+          command: make unittest
+      - save_cache:
+          paths:
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.7/site-packages"
+          key: disfactory-backend-cache-191107-{{ checksum "Pipfile.lock" }}
 
 workflows:
   version: 2
@@ -75,3 +112,4 @@ workflows:
           filters:
             branches:
               only: master
+      - backend-all
