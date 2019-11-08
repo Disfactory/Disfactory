@@ -1,9 +1,24 @@
-version: 2
-jobs:
-  frontend-lint:
+ref:
+  frontend_docker_default: &frontend_docker_default
     docker:
       - image: circleci/node:lts
     working_directory: ~/Disfactory
+  backend_docker_default: &backend_docker_default
+    docker:
+      - image: circleci/python:3.7.5
+      - image: circleci/postgres:11-alpine-postgis-ram
+        name: db
+        environment:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: disfactory_data
+    working_directory: ~/Disfactory/backend
+    environment:
+      WORKON_HOME: ~/Disfactory/backend/.venv
+
+version: 2
+jobs:
+  frontend-lint:
+    <<: *frontend_docker_default
     steps:
       - checkout
       - restore_cache:
@@ -19,9 +34,7 @@ jobs:
 
       - run: cd frontend && npm run lint
   frontend-build:
-    docker:
-      - image: circleci/node:lts
-    working_directory: ~/Disfactory
+    <<: *frontend_docker_default
     steps:
       - checkout
       - restore_cache:
@@ -41,9 +54,7 @@ jobs:
           paths:
             - dist
   frontend-deploy:
-    docker:
-      - image: circleci/node:lts
-    working_directory: ~/Disfactory
+    <<: *frontend_docker_default
     steps:
       - checkout
       - attach_workspace:
@@ -61,6 +72,38 @@ jobs:
       - run:
           name: Deploy docs to gh-pages branch
           command: npx gh-pages --dist frontend/dist
+  backend-all:
+    <<: *backend_docker_default
+    steps:
+      - checkout:
+         path: ~/Disfactory
+      - restore_cache:
+          keys:
+            - disfactory-backend-cache-191107-{{ checksum "Pipfile.lock" }}
+            - disfactory-backend-cache-191107
+      - run:
+          name: Install
+          command: sudo pipenv install --dev --system
+      - run:
+          name: Install GDAL
+          command: |
+            sudo apt-get update
+            sudo apt-get install -y gdal-bin python3-gdal
+      - run:
+          name: Setup .env
+          command: cp .env.sample .env
+      # - run:
+      #     name: Run Linter
+      #     command: make lint
+      # TODO: fuck you black. Use flake8 or pylint instead
+      - run:
+          name: Unittest
+          command: make unittest
+      - save_cache:
+          paths:
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.7/site-packages"
+          key: disfactory-backend-cache-191107-{{ checksum "Pipfile.lock" }}
 
 workflows:
   version: 2
@@ -75,3 +118,4 @@ workflows:
           filters:
             branches:
               only: master
+      - backend-all
