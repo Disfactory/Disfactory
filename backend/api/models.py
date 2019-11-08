@@ -85,6 +85,8 @@ class Image(models.Model):
         "Factory",
         on_delete=models.PROTECT,
         related_name="images",
+        blank=True,
+        null=True,
     )
     report_record = models.ForeignKey(
         "ReportRecord",
