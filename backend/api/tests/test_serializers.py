@@ -6,7 +6,21 @@ from ..serializers import FactorySerializer, ImageSerializer
 from ..models import Factory, ReportRecord, Image
 
 
-class SerializersTestCase(TestCase):
+class FactorySerializersTestCase(TestCase):
+
+    def setUp(self):
+        self.im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
+        self.im2 = Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
+        self.request_body = {
+            "name": "a new factory",
+            "type": "2-3",
+            "images": [self.im1.id, self.im2.id],
+            "other": "這個工廠實在太臭啦，趕緊檢舉吧",
+            "lat": 23.234,
+            "lng": 120.1,
+            "nickname": "路過的家庭主婦",
+            "contact": "07-7533967",
+        }
 
     def test_factory_serializer_correct_report_date(self):
         factory = Factory(
@@ -72,26 +86,29 @@ class SerializersTestCase(TestCase):
         ])
 
     def test_factory_serializer_validate_body(self):
-        im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
-        im2 = Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
-        request_body = {
-            "name": "a new factory",
-            "type": "2-3",
-            "images": [im1.id, im2.id],
-            "other": "這個工廠實在太臭啦，趕緊檢舉吧",
-            "lat": 23.234,
-            "lng": 120.1,
-            "nickname": "路過的家庭主婦",
-            "contact": "07-7533967",
-        }
-        serializer = FactorySerializer(data=request_body)
+        serializer = FactorySerializer(data=self.request_body)
         self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.errors, {})
+
+    def test_factory_serializer_validate_body_with_wrong_lat(self):
+        wrong_request_body = self.request_body.copy()
+        wrong_request_body["lat"] = 70
+        serializer = FactorySerializer(data=wrong_request_body)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("lat", serializer.errors)
+
+    def test_factory_serializer_validate_body_with_wrong_lng(self):
+        wrong_request_body = self.request_body.copy()
+        wrong_request_body["lng"] = -10
+        serializer = FactorySerializer(data=wrong_request_body)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn("lng", serializer.errors)
+
+
+class ImageSerializersTestCase(TestCase):
 
     def test_image_serializer_coorect_url(self):
         img = Image(image_path="https://imgur.com/qwer")
         serialized_img = ImageSerializer(img)
 
         self.assertEqual(serialized_img.data['url'], img.image_path)
-
-
-
