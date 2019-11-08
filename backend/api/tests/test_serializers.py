@@ -71,6 +71,22 @@ class SerializersTestCase(TestCase):
             ImageSerializer(im2).data,
         ])
 
+    def test_factory_serializer_validate_body(self):
+        im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
+        im2 = Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
+        request_body = {
+            "name": "a new factory",
+            "type": "2-3",
+            "images": [im1.id, im2.id],
+            "other": "這個工廠實在太臭啦，趕緊檢舉吧",
+            "lat": 23.234,
+            "lng": 120.1,
+            "nickname": "路過的家庭主婦",
+            "contact": "07-7533967",
+        }
+        serializer = FactorySerializer(data=request_body)
+        self.assertTrue(serializer.is_valid())
+
     def test_image_serializer_coorect_url(self):
         img = Image(image_path="https://imgur.com/qwer")
         serialized_img = ImageSerializer(img)
