@@ -1,9 +1,9 @@
 type PixelMapper = (data: Uint8ClampedArray) => void
 
-export const createImageProcessor = (processor: PixelMapper) => (src: string) => {
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')!
+const canvas = (window.OffscreenCanvas) ? new OffscreenCanvas(500, 500) : document.createElement('canvas')
+const ctx = canvas.getContext('2d')!
 
+export const createImageProcessor = (processor: PixelMapper) => (src: string) => {
   return new Promise((resolve) => {
     const image = new Image()
     image.crossOrigin = ''
@@ -12,6 +12,7 @@ export const createImageProcessor = (processor: PixelMapper) => (src: string) =>
     image.onload = async () => {
       canvas.width = image.width
       canvas.height = image.height
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
 
       ctx.drawImage(image, 0, 0)
 
@@ -30,7 +31,6 @@ export const createImageProcessor = (processor: PixelMapper) => (src: string) =>
       resolve(tmpCanvas.toDataURL())
 
       image.remove()
-      canvas.remove()
       tmpCanvas.remove()
     }
   })
