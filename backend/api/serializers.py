@@ -2,6 +2,7 @@ from rest_framework.serializers import (
     ModelSerializer,
     CharField,
     SerializerMethodField,
+    ValidationError,
 )
 
 from .models import Factory, Image, ReportRecord
@@ -43,3 +44,12 @@ class FactorySerializer(ModelSerializer):
             return None
         reported_date = [record.created_at for record in report_records]
         return sorted(reported_date, reverse=True)[0]
+
+    def validate_lat(self, value):
+        if value < 22 or value > 25:
+            raise ValidationError(f"latitude should be within 22 ~ 25, but got {value}")
+
+    def validate_lng(self, value):
+        if value < 120 or value > 122:
+            raise ValidationError(f"longitude should be within 120 ~ 122, but got {value}")
+
