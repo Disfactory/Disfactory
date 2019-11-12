@@ -25,3 +25,15 @@ def _get_nearby_factories(latitude, longitude, radius):
     pnt = Point(x=longitude, y=latitude, srid=4326)
     pnt.transform(settings.POSTGIS_SRID)
     return Factory.objects.filter(point__distance_lte=(pnt, D(km=radius)))
+
+
+def _get_client_ip(request):
+    # ref: https://stackoverflow.com/a/30558984
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[-1].strip()
+    elif request.META.get('HTTP_X_REAL_IP'):
+        ip = request.META.get('HTTP_X_REAL_IP')
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
