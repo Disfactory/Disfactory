@@ -175,6 +175,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
             "lat": -23.234,
             "lng": 120.1,
             "nickname": "",
+            "contact": "07-7533967",
         }
         resp = self.cli.post("/api/factories", data=request_body, content_type="application/json")
 
