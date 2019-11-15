@@ -13,6 +13,7 @@ django = "==2.2.4"
 djangorestframework = "==3.9.2"
 python-dotenv = "==0.10.3"
 requests = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.7"
