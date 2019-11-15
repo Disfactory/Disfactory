@@ -79,8 +79,8 @@ jobs:
          path: ~/Disfactory
       - restore_cache:
           keys:
-            - disfactory-backend-cache-191107-{{ checksum "Pipfile.lock" }}
-            - disfactory-backend-cache-191107
+            - disfactory-backend-cache-191112-{{ checksum "Pipfile.lock" }}
+            - disfactory-backend-cache-191112
       - run:
           name: Install
           command: sudo pipenv install --dev --system
@@ -103,7 +103,7 @@ jobs:
           paths:
             - "/usr/local/bin"
             - "/usr/local/lib/python3.7/site-packages"
-          key: disfactory-backend-cache-191107-{{ checksum "Pipfile.lock" }}
+          key: disfactory-backend-cache-191112-{{ checksum "Pipfile.lock" }}
 
 workflows:
   version: 2

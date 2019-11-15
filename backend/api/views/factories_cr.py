@@ -1,11 +1,18 @@
+from typing import List
+import json
+import datetime
+
 from django.http import HttpResponse, JsonResponse
 from django.utils.datastructures import MultiValueDictKeyError
+from django.db import transaction
 
 from rest_framework.decorators import api_view
 
-from .utils import _get_nearby_factories
-from ..models import Factory
+from .utils import _get_nearby_factories, _get_client_ip
+from ..models import Factory, Image, ReportRecord
 from ..serializers import FactorySerializer
+
+import easymap
 
 
 def _not_in_taiwan(lat, lng):
@@ -17,6 +24,11 @@ def _not_in_taiwan(lat, lng):
 def _radius_strange(radius):
     # NOTE: need discussion about it
     return radius > 100 or radius < 0.01
+
+
+def _all_image_id_exist(image_ids: List[str]) -> bool:
+    images = Image.objects.only("id").filter(id__in=image_ids)
+    return len(images) == len(image_ids)
 
 
 @api_view(["GET", "POST"])
@@ -66,4 +78,64 @@ def get_nearby_or_create_factories(request):
         serializer = FactorySerializer(nearby_factories, many=True)
         return JsonResponse(serializer.data, safe=False)
     elif request.method == "POST":
-        pass
+        post_body = json.loads(request.body)
+        # print(post_body)
+        serializer = FactorySerializer(data=post_body)
+
+        if not serializer.is_valid():
+            return JsonResponse(
+                serializer.errors,
+                status=400,
+            )
+        longitude = post_body['lng']
+        latitude = post_body['lat']
+        image_ids = post_body.get('images', [])
+
+        if not _all_image_id_exist(image_ids):
+            return HttpResponse(
+                "please check if every image id exist",
+                status=400,
+            )
+
+        if 'contact' not in post_body:
+            return HttpResponse(
+                "please provide `contact`",
+                status=400,
+            )
+
+        try:
+            land_number = easymap.get_land_number(longitude, latitude)['landno']
+        except Exception:
+            return HttpResponse(
+                "Something wrong happened when getting land number, please try later.",
+                status=400,
+            )
+        user_ip = _get_client_ip(request)
+        new_factory_field = {
+            'name': post_body["name"],
+            'lat': post_body["lat"],
+            'lng': post_body["lng"],
+            'factory_type': post_body["type"],
+            'status_time': datetime.datetime.now(),
+            'landcode': land_number,
+        }
+        new_report_record_field = {
+            'user_ip': user_ip,
+            'action_type': "POST",
+            "action_body": post_body,
+            'contact': post_body["contact"],
+            "others": post_body.get("others", ""),
+        }
+
+        with transaction.atomic():
+            new_factory = Factory.objects.create(**new_factory_field)
+            report_record = ReportRecord.objects.create(
+                factory=new_factory,
+                **new_report_record_field,
+            )
+            Image.objects.filter().update(
+                factory=new_factory,
+                report_record=report_record
+            )
+        serializer = FactorySerializer(new_factory)
+        return JsonResponse(serializer.data, safe=False)

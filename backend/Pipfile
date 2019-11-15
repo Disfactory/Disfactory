@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 black = "==19.3b0"
+freezegun = "*"
 
 [packages]
 django = "==2.2.4"

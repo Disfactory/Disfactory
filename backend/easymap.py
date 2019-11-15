@@ -66,6 +66,7 @@ def get_land_number(x, y):
     city = get_point_city(sess, x=x, y=y)
     token = get_token(sess)
     land_number = get_door_info(sess, x=x, y=y, city=city, token=token)
+    sess.close()
     return land_number
 
 
