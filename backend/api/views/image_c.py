@@ -14,7 +14,9 @@ from .utils import (
 def post_image(request):
     f_image = request.FILES['image']
     if _is_image(f_image):
+        f_image.seek(0)
         path = _upload_image(f_image, settings.IMGUR_CLIENT_ID)
+        f_image.seek(0)
         image_original_date = _get_image_original_date(f_image)
         args = {
             'image_path': path,
