@@ -26,6 +26,6 @@ from .views import (
 urlpatterns = [
     path("factories", get_nearby_or_create_factories),
     path("factories/<id>/", update_factory_attribute),
-    path("factories/<id>/image/", post_factory_image),
+    path("factories/<id>/images", post_factory_image),
     path("images", post_image),
 ]
