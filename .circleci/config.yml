@@ -14,6 +14,7 @@ ref:
     working_directory: ~/Disfactory/backend
     environment:
       WORKON_HOME: ~/Disfactory/backend/.venv
+      PIPENV_VENV_IN_PROJECT: true
 
 version: 2
 jobs:
@@ -83,7 +84,7 @@ jobs:
             - disfactory-backend-cache-191118-{{ .Branch }}
       - run:
           name: Install
-          command: pipenv install --dev --system
+          command: pipenv install --dev
       - run:
           name: Install GDAL
           command: |
@@ -98,11 +99,10 @@ jobs:
       # TODO: fuck you black. Use flake8 or pylint instead
       - run:
           name: Unittest
-          command: make unittest
+          command: pipenv run make unittest
       - save_cache:
           paths:
-            - "/usr/local/bin"
-            - "/usr/local/lib/python3.7/site-packages"
+            - ".venv"
           key: disfactory-backend-cache-191118-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
 
 workflows:
