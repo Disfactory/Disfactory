@@ -64,6 +64,12 @@ class ViewsUtilsTestCase(TestCase):
             img_date = _get_image_original_date(f_img)
         self.assertEqual(img_date, datetime(2018, 3, 11, 13, 21, 33))
 
+    def test_get_image_original_date_if_no_exif(self):
+        img_path = HERE / "20180311_132133_noexif.jpg"
+        with open(img_path, "rb") as f_img:
+            img_date = _get_image_original_date(f_img)
+        self.assertIsNone(img_date)
+
     def test_is_image(self):
         img_path = HERE / "20180311_132133.jpg"
         with open(img_path, "rb") as f_img:
