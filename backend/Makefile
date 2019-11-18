@@ -10,7 +10,7 @@ lint:
 
 .PHONY: unittest
 unittest:
-	python manage.py test
+	python manage.py test -v 2
 
 .PHONY: test
 test: lint unittest
