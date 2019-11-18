@@ -54,3 +54,11 @@ def _get_image_original_date(f_image):
         return datetime.strptime(exif["DateTimeOriginal"], "%Y:%m:%d %H:%M:%S")
     except:
         return None
+
+
+def _is_image(f_image):
+    try:
+        Image.open(f_image)
+        return True
+    except IOError:
+        return False
