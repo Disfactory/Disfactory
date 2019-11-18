@@ -150,7 +150,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         self.assertEqual(resp.content, b'please check if every image id exist')
 
     @patch("easymap.get_land_number", return_value={"landno": "some_random_land_number"})
-    def test_create_new_factory_raise_if_no_contact(self, _):
+    def test_create_new_factory_allow_no_contact(self, _):
         request_body = {
             "name": "a new factory",
             "type": "2-3",
@@ -162,8 +162,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         }
         resp = self.cli.post("/api/factories", data=request_body, content_type="application/json")
 
-        self.assertEqual(resp.status_code, 400)
-        self.assertEqual(resp.content, b'please provide `contact`')
+        self.assertEqual(resp.status_code, 200)
 
     @patch("easymap.get_land_number", return_value={"landno": "some_random_land_number"})
     def test_create_new_factory_raise_if_not_in_Taiwan(self, _):

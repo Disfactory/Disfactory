@@ -97,12 +97,6 @@ def get_nearby_or_create_factories(request):
                 status=400,
             )
 
-        if 'contact' not in post_body:
-            return HttpResponse(
-                "please provide `contact`",
-                status=400,
-            )
-
         try:
             land_number = easymap.get_land_number(longitude, latitude)['landno']
         except Exception:
@@ -123,7 +117,7 @@ def get_nearby_or_create_factories(request):
             'user_ip': user_ip,
             'action_type': "POST",
             "action_body": post_body,
-            'contact': post_body["contact"],
+            'contact': post_body.get("contact"),
             "others": post_body.get("others", ""),
         }
 
