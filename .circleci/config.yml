@@ -83,7 +83,7 @@ jobs:
             - disfactory-backend-cache-191118
       - run:
           name: Install
-          command: sudo pipenv install --dev --system
+          command: pipenv install --dev --system
       - run:
           name: Install GDAL
           command: |
