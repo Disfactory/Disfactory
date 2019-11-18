@@ -1,14 +1,21 @@
 from io import BytesIO
+from datetime import datetime
+from pathlib import Path
 
 from unittest.mock import patch
 
 from django.test import TestCase
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
-
-from ..utils import _get_nearby_factories, _upload_image
-
 import requests
+
+from ..utils import (
+    _get_nearby_factories,
+    _upload_image,
+    _get_image_original_date,
+)
+
+HERE = Path(__file__).resolve().parent
 
 
 class MockResponse:
@@ -49,3 +56,9 @@ class ViewsUtilsTestCase(TestCase):
                 headers={'Authorization': f'Client-ID {fake_client_id}'},
             )
             self.assertEqual(path, mock_imgur_return.json()['data']['link'])
+
+    def test_get_image_original_date(self):
+        img_path = HERE / "20180311_132133.jpg"
+        with open(img_path, "rb") as f_img:
+            img_date = _get_image_original_date(f_img)
+        self.assertEqual(img_date, datetime(2018, 3, 11, 13, 21, 33))

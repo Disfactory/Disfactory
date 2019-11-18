@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from django.conf import settings
 from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 import requests
+from PIL import Image, ExifTags
 
 from ..models import Factory
 
@@ -37,3 +40,17 @@ def _get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
+
+
+def _get_image_original_date(f_image):
+    img = Image.open(f_image)
+
+    exif = {}
+    for k, v in img._getexif().items():
+        if k in ExifTags.TAGS:
+            exif[ExifTags.TAGS[k]] = v
+
+    try:
+        return datetime.strptime(exif["DateTimeOriginal"], "%Y:%m:%d %H:%M:%S")
+    except:
+        return None
