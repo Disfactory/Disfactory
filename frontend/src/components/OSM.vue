@@ -126,10 +126,10 @@ export default createComponent({
         const zoom = view.getZoom()
 
         // resolution in meter
-        const resolution = view.getResolutionForZoom(zoom)
+        const resolution = view.getResolutionForZoom(zoom!)
         const range = Math.ceil(resolution)
 
-        const [lng, lat] = transform(view.getCenter(), 'EPSG:3857', 'EPSG:4326')
+        const [lng, lat] = transform(view.getCenter()!, 'EPSG:3857', 'EPSG:4326')
 
         const res = await fetch(`/server/api/factories?range=${range}&lng=${lng}&lat=${lat}`)
         const data = await res.json() as FactoriesResponse
