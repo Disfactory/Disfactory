@@ -5,7 +5,7 @@
 <script lang="ts">
 import { createComponent, onMounted, ref } from '@vue/composition-api'
 
-import { Map, View, Feature } from 'ol'
+import { Map as OlMap, View, Feature } from 'ol'
 import WMTS from 'ol/source/WMTS'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { get as getProjection, transform } from 'ol/proj'
@@ -92,28 +92,11 @@ export default createComponent({
     onMounted(() => {
       const tileGrid = getWMTSTileGrid()
 
-      const source = new VectorSource()
-      const vector = new VectorLayer({
-        source,
-        style: new Style({
-          fill: new Fill({
-            color: 'rgba(255, 255, 255, 0.2)'
-          }),
-          image: new CircleStyle({
-            radius: 7,
-            fill: new Fill({
-              color: '#ffcc33'
-            })
-          })
-        })
-      })
-
-      const map = new Map({
+      const map = new OlMap({
         target: root.value!,
         layers: [
           getBaseLayer(tileGrid),
-          getLUIMapLayer(tileGrid),
-          vector
+          getLUIMapLayer(tileGrid)
         ],
         view: new View({
           center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
@@ -135,46 +118,47 @@ export default createComponent({
         })
       })
 
-      const modify = new Modify({ source })
-      map.addInteraction(modify)
+      let factoriesLayerSource: VectorSource
+      let factoryMap = new Map()
 
-      const draw = new Draw({
-        source,
-        type: GeometryType.POINT,
-        condition: (e) => {
-          return false
-        }
-      })
-      map.addInteraction(draw)
-      const snap = new Snap({ source })
-      map.addInteraction(snap)
+      map.on('moveend', async function (event) {
+        const view = map.getView()
+        const zoom = view.getZoom()
 
-      fetch('/server/api/factories?range=1&lng=120.1&lat=23.234', {
-        mode: 'no-cors'
-      }).then(async res => {
+        // resolution in meter
+        const resolution = view.getResolutionForZoom(zoom)
+        const range = Math.ceil(resolution)
+
+        const [lng, lat] = transform(view.getCenter(), 'EPSG:3857', 'EPSG:4326')
+
+        const res = await fetch(`/server/api/factories?range=${range}&lng=${lng}&lat=${lat}`)
         const data = await res.json() as FactoriesResponse
 
-        const features = data.map(data => {
+        const features = data.filter(factory => !factoryMap.has(factory.id)).map(data => {
           const feature = new Feature({
             geometry: new Point(transform([data.lng, data.lat], 'EPSG:4326', 'EPSG:3857'))
           })
           feature.setId(data.id)
+          factoryMap.set(data.id, data)
           return feature
         })
 
-        const markers = new VectorSource({
-          features
-        })
+        if (!factoriesLayerSource) {
+          factoriesLayerSource = new VectorSource({
+            features
+          })
+          const vectorLayer = new VectorLayer({
+            source: factoriesLayerSource
+          })
 
-        var markerVectorLayer = new VectorLayer({
-          source: markers
-        })
-
-        map.addLayer(markerVectorLayer)
-
-        // TODO: remove this
-        ;(window as any).map = map
+          map.addLayer(vectorLayer)
+        } else {
+          factoriesLayerSource.addFeatures(features)
+        }
       })
+
+      // TODO: remove this
+      ;(window as any).map = map
     })
 
     return { root }

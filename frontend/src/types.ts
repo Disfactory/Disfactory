@@ -29,7 +29,8 @@ export type FactoryData = {
   type: keyof typeof FACTORY_STATUS,
   images: string[],
   // eslint-disable-next-line
-  reported_at: null | number
+  // TODO: can be one of https://docs.djangoproject.com/en/2.2/ref/settings/#datetime-input-formats
+  reported_at: null | string
 }
 
 export type FactoriesResponse = Array<FactoryData>
