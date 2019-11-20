@@ -14,7 +14,7 @@ import { getWidth, getTopLeft } from 'ol/extent'
 import { Draw, Modify, Snap } from 'ol/interaction'
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
 import { OSM, Vector as VectorSource } from 'ol/source'
-import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style'
+import { Circle as CircleStyle, Fill, Stroke, Style, Icon, Image } from 'ol/style'
 import GeometryType from 'ol/geom/GeometryType'
 import { Point } from 'ol/geom'
 import { FactoriesResponse } from '../types'
@@ -121,6 +121,14 @@ export default createComponent({
       let factoriesLayerSource: VectorSource
       let factoryMap = new Map()
 
+      const iconStyle = new Style({
+        image: new Icon({
+          anchorXUnits: 'fraction',
+          anchorYUnits: 'pixels',
+          src: '/images/marker-red.png'
+        })
+      })
+
       map.on('moveend', async function (event) {
         const view = map.getView()
         const zoom = view.getZoom()
@@ -139,7 +147,10 @@ export default createComponent({
             geometry: new Point(transform([data.lng, data.lat], 'EPSG:4326', 'EPSG:3857'))
           })
           feature.setId(data.id)
+          feature.setStyle(iconStyle)
+
           factoryMap.set(data.id, data)
+
           return feature
         })
 
