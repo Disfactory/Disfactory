@@ -5,10 +5,10 @@
 <script lang="ts">
 import { createComponent, onMounted, ref } from '@vue/composition-api'
 
-import { Map, View } from 'ol'
+import { Map, View, Feature } from 'ol'
 import WMTS from 'ol/source/WMTS'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
-import { get as getProjection } from 'ol/proj'
+import { get as getProjection, transform } from 'ol/proj'
 import { getWidth, getTopLeft } from 'ol/extent'
 
 import { Draw, Modify, Snap } from 'ol/interaction'
@@ -16,6 +16,7 @@ import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
 import { OSM, Vector as VectorSource } from 'ol/source'
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style'
 import GeometryType from 'ol/geom/GeometryType'
+import { Point } from 'ol/geom'
 
 import { flipArgriculturalLand } from '../lib/image'
 
@@ -114,8 +115,8 @@ export default createComponent({
           vector
         ],
         view: new View({
-          center: [0, 0],
-          zoom: 2
+          center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
+          zoom: 15
         })
       })
 
@@ -146,6 +147,28 @@ export default createComponent({
       map.addInteraction(draw)
       const snap = new Snap({ source })
       map.addInteraction(snap)
+
+      fetch('/server/api/factories?range=1&lng=120.1&lat=23.234', {
+        mode: 'no-cors'
+      }).then(async res => {
+        const data = await res.json()
+
+        const features = (data as any[]).map(data => {
+          return new Feature({
+            geometry: new Point(transform([data.lng, data.lat], 'EPSG:4326', 'EPSG:3857'))
+          })
+        })
+
+        const markers = new VectorSource({
+          features
+        })
+
+        var markerVectorLayer = new VectorLayer({
+          source: markers
+        })
+
+        map.addLayer(markerVectorLayer)
+      })
     })
 
     return { root }
