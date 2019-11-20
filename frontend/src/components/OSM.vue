@@ -17,6 +17,7 @@ import { OSM, Vector as VectorSource } from 'ol/source'
 import { Circle as CircleStyle, Fill, Stroke, Style } from 'ol/style'
 import GeometryType from 'ol/geom/GeometryType'
 import { Point } from 'ol/geom'
+import { FactoriesResponse } from '../types'
 
 import { flipArgriculturalLand } from '../lib/image'
 
@@ -151,9 +152,9 @@ export default createComponent({
       fetch('/server/api/factories?range=1&lng=120.1&lat=23.234', {
         mode: 'no-cors'
       }).then(async res => {
-        const data = await res.json()
+        const data = await res.json() as FactoriesResponse
 
-        const features = (data as any[]).map(data => {
+        const features = data.map(data => {
           const feature = new Feature({
             geometry: new Point(transform([data.lng, data.lat], 'EPSG:4326', 'EPSG:3857'))
           })
