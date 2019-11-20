@@ -154,9 +154,11 @@ export default createComponent({
         const data = await res.json()
 
         const features = (data as any[]).map(data => {
-          return new Feature({
+          const feature = new Feature({
             geometry: new Point(transform([data.lng, data.lat], 'EPSG:4326', 'EPSG:3857'))
           })
+          feature.setId(data.id)
+          return feature
         })
 
         const markers = new VectorSource({
@@ -168,6 +170,9 @@ export default createComponent({
         })
 
         map.addLayer(markerVectorLayer)
+
+        // TODO: remove this
+        ;(window as any).map = map
       })
     })
 
