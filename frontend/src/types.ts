@@ -28,8 +28,8 @@ export type FactoryData = {
   factory_type: keyof typeof FACTORY_TYPE,
   type: keyof typeof FACTORY_STATUS,
   images: string[],
-  // eslint-disable-next-line
   // TODO: can be one of https://docs.djangoproject.com/en/2.2/ref/settings/#datetime-input-formats
+  // eslint-disable-next-line
   reported_at: null | string
 }
 
