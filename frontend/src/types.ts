@@ -24,10 +24,12 @@ export type FactoryData = {
   lng: number,
   name: string,
   landcode: string,
+  // eslint-disable-next-line
   factory_type: keyof typeof FACTORY_TYPE,
   type: keyof typeof FACTORY_STATUS,
   images: string[],
-  reported: null | number
+  // eslint-disable-next-line
+  reported_at: null | number
 }
 
 export type FactoriesResponse = Array<FactoryData>
