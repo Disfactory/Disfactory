@@ -86,6 +86,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         factory_type = "2-3"
         im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
         im2 = Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
+        im_not_related = Image.objects.create(image_path="https://i.imgur.com/T3pdEyR.jpg")
         request_body = {
             "name": "a new factory",
             "type": factory_type,
@@ -128,6 +129,11 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         self.assertEqual(
             set([str(img.factory_id) for img in related_images]),
             set([new_factory_id]),
+        )
+        not_related_images = Image.objects.only("factory_id").filter(id__in=[im_not_related.id])
+        self.assertEqual(
+            set([str(img.factory_id) for img in not_related_images]),
+            set(['None']),
         )
 
     @patch("easymap.get_land_number", return_value={"landno": "some_random_land_number"})

@@ -133,7 +133,7 @@ def get_nearby_or_create_factories(request):
                 factory=new_factory,
                 **new_report_record_field,
             )
-            Image.objects.filter().update(
+            Image.objects.filter(id__in=image_ids).update(
                 factory=new_factory,
                 report_record=report_record
             )
