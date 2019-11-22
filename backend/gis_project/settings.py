@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import warnings
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -131,5 +132,9 @@ AUTH_USER_MODEL = "users.CustomUser"
 POSTGIS_SRID = 3857
 # ref: https://epsg.io/3857
 
-IMGUR_CLIENT_ID = os.environ["DISFACTORY_IMGUR_CLIENT_ID"]
-IMGUR_SECRET = os.environ["DISFACTORY_IMGUR_SECRET"]
+IMGUR_CLIENT_ID = os.environ.get("DISFACTORY_IMGUR_CLIENT_ID")
+if IMGUR_CLIENT_ID is None:
+    warnings.warn(
+        "Imgur Client ID is not provided, some image related API may not work. "
+        "To enable it, provide DISFACTORY_IMGUR_CLIENT_ID as a environment variable."
+    )
