@@ -28,6 +28,7 @@ DEBUG = os.environ.get("DISFACTORY_BACKEND_DEBUG", "true").lower() == "true"
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
+    os.environ.get("DISFACTORY_ALLOWED_HOST"),
 ]
 
 
