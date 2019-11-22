@@ -46,7 +46,7 @@ class Factory(models.Model):
     name = models.CharField(max_length=50, blank=True, null=True)
     factory_type = models.CharField(max_length=3, choices=factory_type_list, default="9")
     status = models.CharField(max_length=1, choices=status_list, default="A")
-    status_time = models.DateField()
+    status_time = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
