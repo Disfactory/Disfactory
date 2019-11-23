@@ -11,12 +11,10 @@ import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { get as getProjection, transform } from 'ol/proj'
 import { getWidth, getTopLeft } from 'ol/extent'
 
-import { Draw, Modify, Snap } from 'ol/interaction'
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
-import { OSM, Vector as VectorSource } from 'ol/source'
-import { Circle as CircleStyle, Fill, Stroke, Style, Icon, Image } from 'ol/style'
+import { Vector as VectorSource } from 'ol/source'
+import { Style, Icon } from 'ol/style'
 import IconAnchorUnits from 'ol/style/IconAnchorUnits'
-import GeometryType from 'ol/geom/GeometryType'
 import { Point } from 'ol/geom'
 import { FactoriesResponse } from '../types'
 
@@ -75,7 +73,8 @@ export default createComponent({
           requestEncoding: 'REST',
           tileGrid: wmtsTileGrid,
           tileLoadFunction: function (imageTile, src) {
-            const image = (imageTile as any).getImage()
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const image: HTMLImageElement = (imageTile as any).getImage()
             flipArgriculturalLand(src).then(newSrc => {
               image.src = newSrc
             })
@@ -94,6 +93,7 @@ export default createComponent({
       const tileGrid = getWMTSTileGrid()
 
       const map = new OlMap({
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         target: root.value!,
         layers: [
           getBaseLayer(tileGrid),
@@ -120,7 +120,7 @@ export default createComponent({
       })
 
       let factoriesLayerSource: VectorSource
-      let factoryMap = new Map()
+      const factoryMap = new Map()
 
       const iconStyle = new Style({
         image: new Icon({
@@ -129,14 +129,17 @@ export default createComponent({
         })
       })
 
-      map.on('moveend', async function (event) {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      map.on('moveend', async function () {
         const view = map.getView()
         const zoom = view.getZoom()
 
         // resolution in meter
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const resolution = view.getResolutionForZoom(zoom!)
         const range = Math.ceil(resolution)
 
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const [lng, lat] = transform(view.getCenter()!, 'EPSG:3857', 'EPSG:4326')
 
         const res = await fetch(`/server/api/factories?range=${range}&lng=${lng}&lat=${lat}`)
@@ -169,6 +172,7 @@ export default createComponent({
       })
 
       // TODO: remove this
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(window as any).map = map
     })
 

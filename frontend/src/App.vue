@@ -9,8 +9,7 @@ import OSM from './components/OSM.vue'
 import { createComponent } from '@vue/composition-api'
 
 export default createComponent({
-  components: { OSM },
-  setup () {}
+  components: { OSM }
 })
 </script>
 
