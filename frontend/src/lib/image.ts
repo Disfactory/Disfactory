@@ -77,7 +77,7 @@ export const flipArgriculturalLand = createImageProcessor(data => {
     const color = Array.from(data.slice(i, i + 3))
 
     if (isArgriculturalLand(color)) {
-      // set to transparent dark
+      // set to transparent
       data[i] = 0
       data[i + 1] = 0
       data[i + 2] = 0
@@ -87,6 +87,7 @@ export const flipArgriculturalLand = createImageProcessor(data => {
       data[i] = 0
       data[i + 1] = 0
       data[i + 2] = 0
+      data[i + 3] = 255
     }
   }
 })

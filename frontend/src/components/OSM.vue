@@ -1,19 +1,28 @@
 <template>
-  <div ref="root" />
+  <div ref="root" class="map" />
 </template>
 
 <script lang="ts">
-// import { Component, Prop, Vue } from 'vue-property-decorator'
-import { Map, View } from 'ol'
-import TileLayer from 'ol/layer/Tile'
+import { createComponent, onMounted, ref } from '@vue/composition-api'
+
+import { Map as OlMap, View, Feature } from 'ol'
 import WMTS from 'ol/source/WMTS'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
-import { get as getProjection } from 'ol/proj'
+import { get as getProjection, transform } from 'ol/proj'
 import { getWidth, getTopLeft } from 'ol/extent'
+
+import { Draw, Modify, Snap } from 'ol/interaction'
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
+import { OSM, Vector as VectorSource } from 'ol/source'
+import { Circle as CircleStyle, Fill, Stroke, Style, Icon, Image } from 'ol/style'
+import IconAnchorUnits from 'ol/style/IconAnchorUnits'
+import GeometryType from 'ol/geom/GeometryType'
+import { Point } from 'ol/geom'
+import { FactoriesResponse } from '../types'
+
 import { flipArgriculturalLand } from '../lib/image'
 
 import 'ol/ol.css'
-import { createComponent, onMounted, ref } from '@vue/composition-api'
 
 export default createComponent({
   setup () {
@@ -84,15 +93,15 @@ export default createComponent({
     onMounted(() => {
       const tileGrid = getWMTSTileGrid()
 
-      const map = new Map({
+      const map = new OlMap({
         target: root.value!,
         layers: [
           getBaseLayer(tileGrid),
           getLUIMapLayer(tileGrid)
         ],
         view: new View({
-          center: [0, 0],
-          zoom: 2
+          center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
+          zoom: 15
         })
       })
 
@@ -109,6 +118,58 @@ export default createComponent({
           }
         })
       })
+
+      let factoriesLayerSource: VectorSource
+      let factoryMap = new Map()
+
+      const iconStyle = new Style({
+        image: new Icon({
+          anchorYUnits: IconAnchorUnits.PIXELS,
+          src: '/images/marker-red.png'
+        })
+      })
+
+      map.on('moveend', async function (event) {
+        const view = map.getView()
+        const zoom = view.getZoom()
+
+        // resolution in meter
+        const resolution = view.getResolutionForZoom(zoom!)
+        const range = Math.ceil(resolution)
+
+        const [lng, lat] = transform(view.getCenter()!, 'EPSG:3857', 'EPSG:4326')
+
+        const res = await fetch(`/server/api/factories?range=${range}&lng=${lng}&lat=${lat}`)
+        const data = await res.json() as FactoriesResponse
+
+        const features = data.filter(factory => !factoryMap.has(factory.id)).map(data => {
+          const feature = new Feature({
+            geometry: new Point(transform([data.lng, data.lat], 'EPSG:4326', 'EPSG:3857'))
+          })
+          feature.setId(data.id)
+          feature.setStyle(iconStyle)
+
+          factoryMap.set(data.id, data)
+
+          return feature
+        })
+
+        if (!factoriesLayerSource) {
+          factoriesLayerSource = new VectorSource({
+            features
+          })
+          const vectorLayer = new VectorLayer({
+            source: factoriesLayerSource
+          })
+
+          map.addLayer(vectorLayer)
+        } else {
+          factoriesLayerSource.addFeatures(features)
+        }
+      })
+
+      // TODO: remove this
+      ;(window as any).map = map
     })
 
     return { root }
@@ -117,7 +178,7 @@ export default createComponent({
 </script>
 
 <style lang="scss" scoped>
-#map {
+.map {
   position: absolute;
   top: 0;
   bottom: 0;
