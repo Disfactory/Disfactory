@@ -15,6 +15,7 @@ import { Draw, Modify, Snap } from 'ol/interaction'
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
 import { OSM, Vector as VectorSource } from 'ol/source'
 import { Circle as CircleStyle, Fill, Stroke, Style, Icon, Image } from 'ol/style'
+import IconAnchorUnits from 'ol/style/IconAnchorUnits'
 import GeometryType from 'ol/geom/GeometryType'
 import { Point } from 'ol/geom'
 import { FactoriesResponse } from '../types'
@@ -123,8 +124,7 @@ export default createComponent({
 
       const iconStyle = new Style({
         image: new Icon({
-          anchorXUnits: 'fraction',
-          anchorYUnits: 'pixels',
+          anchorYUnits: IconAnchorUnits.PIXELS,
           src: '/images/marker-red.png'
         })
       })
