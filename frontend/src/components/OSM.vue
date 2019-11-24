@@ -1,5 +1,5 @@
 <template>
-  <div ref="root" id="map" />
+  <div ref="root" class="map" />
 </template>
 
 <script lang="ts">
@@ -178,7 +178,7 @@ export default createComponent({
 </script>
 
 <style lang="scss" scoped>
-#map {
+.map {
   position: absolute;
   top: 0;
   bottom: 0;
