@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 type PixelMapper = (data: Uint8ClampedArray) => void
 
 const canvas = (window.OffscreenCanvas) ? new OffscreenCanvas(500, 500) : document.createElement('canvas')
 const ctx = canvas.getContext('2d')!
 
-export const createImageProcessor = (processor: PixelMapper) => (src: string) => {
+export const createImageProcessor = (processor: PixelMapper) => (src: string): Promise<string> => {
   return new Promise((resolve) => {
     const image = new Image()
     image.crossOrigin = ''
