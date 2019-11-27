@@ -16,9 +16,10 @@ import { Vector as VectorSource } from 'ol/source'
 import { Style, Icon } from 'ol/style'
 import IconAnchorUnits from 'ol/style/IconAnchorUnits'
 import { Point } from 'ol/geom'
-import { FactoriesResponse } from '../types'
+import { FactoriesResponse, FactoryData } from '../types'
 
 import { flipArgriculturalLand } from '../lib/image'
+import { addFactories } from '../lib/map'
 
 import 'ol/ol.css'
 
@@ -119,16 +120,6 @@ export default createComponent({
         })
       })
 
-      let factoriesLayerSource: VectorSource
-      const factoryMap = new Map()
-
-      const iconStyle = new Style({
-        image: new Icon({
-          anchorYUnits: IconAnchorUnits.PIXELS,
-          src: '/images/marker-red.png'
-        })
-      })
-
       // eslint-disable-next-line @typescript-eslint/no-misused-promises
       map.on('moveend', async function () {
         const view = map.getView()
@@ -145,30 +136,7 @@ export default createComponent({
         const res = await fetch(`/server/api/factories?range=${range}&lng=${lng}&lat=${lat}`)
         const data = await res.json() as FactoriesResponse
 
-        const features = data.filter(factory => !factoryMap.has(factory.id)).map(data => {
-          const feature = new Feature({
-            geometry: new Point(transform([data.lng, data.lat], 'EPSG:4326', 'EPSG:3857'))
-          })
-          feature.setId(data.id)
-          feature.setStyle(iconStyle)
-
-          factoryMap.set(data.id, data)
-
-          return feature
-        })
-
-        if (!factoriesLayerSource) {
-          factoriesLayerSource = new VectorSource({
-            features
-          })
-          const vectorLayer = new VectorLayer({
-            source: factoriesLayerSource
-          })
-
-          map.addLayer(vectorLayer)
-        } else {
-          factoriesLayerSource.addFeatures(features)
-        }
+        addFactories(map, data)
       })
 
       // TODO: remove this
