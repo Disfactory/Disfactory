@@ -24,9 +24,7 @@ export default createComponent({
 <style lang="scss" scoped>
 @import '@/styles/variables';
 nav {
-  z-index: 1;
-  position: fixed;
-  width: 100vw;
+  width: 100%;
 
   user-select: none;
   font-size: 1.6rem;
