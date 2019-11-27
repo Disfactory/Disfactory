@@ -10,6 +10,9 @@ from .utils import (
     _get_client_ip,
 )
 
+import logging
+logger = logging.getLogger('django')
+
 
 @api_view(['POST'])
 def post_image(request):
