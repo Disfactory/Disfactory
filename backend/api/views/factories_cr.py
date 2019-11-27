@@ -80,17 +80,19 @@ def get_nearby_or_create_factories(request):
         )
         serializer = FactorySerializer(nearby_factories, many=True)
         return JsonResponse(serializer.data, safe=False)
+    
     elif request.method == "POST":
         user_ip = _get_client_ip(request)
         post_body = json.loads(request.body)
         # print(post_body)
         serializer = FactorySerializer(data=post_body)
         if not serializer.is_valid():
-            logger.WARNING(f" {client_ip} : <serializer.errors> ")
+            logger.WARNING(f" {client_ip} : <serializer errors> ")
             return JsonResponse(
                 serializer.errors,
                 status=400,
             )
+        
         longitude = post_body['lng']
         latitude = post_body['lat']
         image_ids = post_body.get('images', [])
@@ -100,6 +102,7 @@ def get_nearby_or_create_factories(request):
                 "please check if every image id exist",
                 status=400,
             )
+        
         try:
             land_number = easymap.get_land_number(longitude, latitude)['landno']
         except Exception:
@@ -135,6 +138,7 @@ def get_nearby_or_create_factories(request):
                 factory=new_factory,
                 report_record=report_record
             )
+            
         serializer = FactorySerializer(new_factory)
-        logger.INFO(f" {user_ip} : <Create factory> {new_factory_field['name']} {new_factory_field['factory_type']} {new_factory_field['landcode']} ")
+        logger.INFO(f" {user_ip} : <Create factory> {new_factory_field['name']} {new_factory_field['factory_type']} {new_factory_field['landcode']} {post_body} ")
         return JsonResponse(serializer.data, safe=False)
