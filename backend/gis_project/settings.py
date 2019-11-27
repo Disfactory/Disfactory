@@ -138,3 +138,36 @@ if IMGUR_CLIENT_ID is None:
         "Imgur Client ID is not provided, some image related API may not work. "
         "To enable it, provide DISFACTORY_IMGUR_CLIENT_ID as a environment variable."
     )
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(asctime)s [%(levelname)s] %(message)s (%(module)s %(lineno)d)',
+        },
+    },
+    
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+            'level': 'DEBUG',
+        },
+        'log_file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'formatter': 'verbose',
+            'filename': '/tmp/django.log',
+            'maxBytes': 4194304,  # 4 MB
+            'backupCount': 2,
+            'level': 'DEBUG',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console', 'file'],
+            'level': os.getenv('DJANGO_LOG_LEVEL', 'DEBUG'),
+            'propagate': False,
+        },
+    },
+}
