@@ -11,12 +11,14 @@ export const FACTORY_TYPE = {
   '8': '紡織',
   '9': '其他'
 }
+export type FactoryType = keyof typeof FACTORY_TYPE
 
 export const FACTORY_STATUS = {
   'D': '已舉報',
   'F': '資料不齊',
   'A': '待審核'
 }
+export type FactoryStatusType = keyof typeof FACTORY_STATUS
 
 export type FactoryData = {
   id: string,
@@ -25,8 +27,8 @@ export type FactoryData = {
   name: string,
   landcode: string,
   // eslint-disable-next-line
-  factory_type: keyof typeof FACTORY_TYPE,
-  type: keyof typeof FACTORY_STATUS,
+  factory_type: FactoryType,
+  type: FactoryStatusType,
   images: string[],
   // TODO: can be one of https://docs.djangoproject.com/en/2.2/ref/settings/#datetime-input-formats
   // eslint-disable-next-line
