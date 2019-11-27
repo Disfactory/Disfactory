@@ -9,26 +9,35 @@ import { getWidth, getTopLeft } from 'ol/extent'
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
 
-import { FactoriesResponse, FactoryData, FactoryStatusType } from '../types'
+import { FactoriesResponse, FactoryData, FactoryStatusType, FACTORY_STATUS } from '../types'
 
 import { flipArgriculturalLand } from '../lib/image'
 
 let factoriesLayerSource: VectorSource
 const factoryMap = new Map<string, FactoryData>()
 
-const iconStyle = new Style({
-  image: new Icon({
-    anchorYUnits: IconAnchorUnits.PIXELS,
-    src: '/images/marker-red.png'
+const factoryStatusImageMap = {
+  'D': '/images/marker-green.svg',
+  'F': '/images/marker-red.svg',
+  'A': '/images/marker-blue.svg'
+}
+
+const iconStyleMap = Object.entries(factoryStatusImageMap).reduce((acc, [status, src]) => ({
+  ...acc,
+  [status]: new Style({
+    image: new Icon({
+      anchorYUnits: IconAnchorUnits.PIXELS,
+      src
+    })
   })
-})
+}), {}) as {[key in FactoryStatusType]: Style}
 
 function createFactoryFeature (factory: FactoryData) {
   const feature = new Feature({
     geometry: new Point(transform([factory.lng, factory.lat], 'EPSG:4326', 'EPSG:3857'))
   })
   feature.setId(factory.id)
-  feature.setStyle(iconStyle)
+  feature.setStyle(iconStyleMap[factory.status])
 
   factoryMap.set(factory.id, factory)
 
@@ -79,7 +88,7 @@ export function setFactoryStatusFilter (map: OlMap, filters: FactoryStatusType[]
   }
 
   const allFactories = [...factoryMap.values()]
-  const filteredFactories = allFactories.filter(factory => filters.includes(factory.type))
+  const filteredFactories = allFactories.filter(factory => filters.includes(factory.status))
 
   const displayFactoryIds = factoriesLayerSource.getFeatures().map(fet => fet.getId() as string)
   const displayFactories = displayFactoryIds.map(id => factoryMap.get(id)!)

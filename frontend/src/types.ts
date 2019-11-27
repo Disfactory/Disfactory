@@ -27,8 +27,8 @@ export type FactoryData = {
   name: string,
   landcode: string,
   // eslint-disable-next-line
-  factory_type: FactoryType,
-  type: FactoryStatusType,
+  type: FactoryType,
+  status: FactoryStatusType,
   images: string[],
   // TODO: can be one of https://docs.djangoproject.com/en/2.2/ref/settings/#datetime-input-formats
   // eslint-disable-next-line
