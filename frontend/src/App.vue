@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <app-navbar>農地違章工廠舉報</app-navbar>
     <OSM />
     <app-button>確認</app-button>
     <app-text-field
@@ -18,6 +19,7 @@ import OSM from '@/components/OSM.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppSelect from '@/components/AppSelect.vue'
+import AppNavbar from '@/components/AppNavbar.vue'
 import { createComponent, ref } from '@vue/composition-api'
 
 export default createComponent({
@@ -26,7 +28,8 @@ export default createComponent({
     OSM,
     AppButton,
     AppTextField,
-    AppSelect
+    AppSelect,
+    AppNavbar
   },
   setup () {
     const factoryName = ref('')
