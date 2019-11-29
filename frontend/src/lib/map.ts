@@ -32,12 +32,19 @@ const iconStyleMap = Object.entries(factoryStatusImageMap).reduce((acc, [status,
   })
 }), {}) as {[key in FactoryStatusType]: Style}
 
+const nullStyle = new Style({})
+
+function getFactoryStyle (factory: FactoryData): Style {
+  const visible = isFactoryVisible(factory)
+  return visible ? iconStyleMap[factory.status] : nullStyle
+}
+
 function createFactoryFeature (factory: FactoryData) {
   const feature = new Feature({
     geometry: new Point(transform([factory.lng, factory.lat], 'EPSG:4326', 'EPSG:3857'))
   })
   feature.setId(factory.id)
-  feature.setStyle(iconStyleMap[factory.status])
+  feature.setStyle(getFactoryStyle(factory))
 
   factoryMap.set(factory.id, factory)
 
@@ -61,49 +68,59 @@ export function addFactories (map: OlMap, factories: FactoryData[]) {
   }
 }
 
-export function removeFactories (factories: FactoryData[]) {
+export function hideFactories (factories: FactoryData[]) {
   factories.forEach(factory => {
     const feature = factoriesLayerSource.getFeatureById(factory.id)
-    factoriesLayerSource.removeFeature(feature)
+    feature.setStyle(nullStyle)
   })
 }
 
-function displayAllFactory (map: OlMap) {
-  const displayFactoryIds = factoriesLayerSource.getFeatures().map(fet => fet.getId() as string)
-  const allFactories = [...factoryMap.values()]
+function forEachFeatureFactory (fn: (feature: Feature, factory: FactoryData) => any) {
+  factoriesLayerSource.getFeatures().forEach(feature => {
+    const id = feature.getId() as string
+    const factory = factoryMap.get(id) as FactoryData
 
-  const missingFactory = allFactories.filter(factory => !displayFactoryIds.includes(factory.id))
-  addFactories(map, missingFactory)
+    fn(feature, factory)
+  })
 }
 
+function displayAllFactory () {
+  forEachFeatureFactory((feature, factory) => {
+    feature.setStyle(iconStyleMap[factory.status])
+  })
+}
+
+let appliedFilters: FactoryStatusType[] = []
+
+function isFactoryVisible (factory: FactoryData) {
+  if (appliedFilters.length === 0) {
+    return true
+  } else {
+    return appliedFilters.includes(factory.status)
+  }
+}
+
+function updateFactoriesFeatureStyle () {
+  forEachFeatureFactory((feature, factory) => {
+    feature.setStyle(getFactoryStyle(factory))
+  })
+}
+
+// TODO: remove this
+(window as any).setFactoryStatusFilter = setFactoryStatusFilter
 export function setFactoryStatusFilter (map: OlMap, filters: FactoryStatusType[]) {
   // factory layer doesn't get initialized yet
   if (!factoriesLayerSource) {
     return
   }
+  appliedFilters = filters
 
   // reset filter if filters is an empty array
   if (filters.length === 0) {
-    return displayAllFactory(map)
+    return displayAllFactory()
   }
 
-  const allFactories = [...factoryMap.values()]
-  const filteredFactories = allFactories.filter(factory => filters.includes(factory.status))
-
-  const displayFactoryIds = factoriesLayerSource.getFeatures().map(fet => fet.getId() as string)
-  const displayFactories = displayFactoryIds.map(id => factoryMap.get(id)!)
-
-  // intersection calculation
-  const intersectionFactories = filteredFactories
-    .filter(factory => displayFactories.find(f => f.id === factory.id))
-  const factoriesToBeAdded = filteredFactories
-    .filter(factory => !intersectionFactories.find(f => f.id === factory.id))
-  const factoriesToBeRemoved = displayFactories
-    .filter(factory => !intersectionFactories.find(f => f.id === factory.id))
-
-  // add & remove features
-  removeFactories(factoriesToBeRemoved)
-  addFactories(map, factoriesToBeAdded)
+  updateFactoriesFeatureStyle()
 }
 
 const getWMTSTileGrid = () => {
