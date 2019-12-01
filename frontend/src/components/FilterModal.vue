@@ -17,7 +17,6 @@
   </app-modal>
 </template>
 
-
 <script lang="ts">
 import AppModal from '@/components/AppModal.vue'
 import AppButton from '@/components/AppButton.vue'
@@ -52,7 +51,7 @@ export default createComponent({
         setFactoryStatusFilter([
           filterF.value ? 'F' : false,
           filterA.value ? 'A' : false,
-          filterD.value ? 'D' : false,
+          filterD.value ? 'D' : false
         ].filter(Boolean) as ('D' | 'F' | 'A')[])
 
         if (typeof props.dismiss === 'function') {

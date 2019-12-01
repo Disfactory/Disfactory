@@ -17,9 +17,9 @@ let factoriesLayerSource: VectorSource
 const factoryMap = new Map<string, FactoryData>()
 
 const factoryStatusImageMap = {
-  'D': '/images/marker-green.svg',
-  'F': '/images/marker-red.svg',
-  'A': '/images/marker-blue.svg'
+  D: '/images/marker-green.svg',
+  F: '/images/marker-red.svg',
+  A: '/images/marker-blue.svg'
 }
 
 const iconStyleMap = Object.entries(factoryStatusImageMap).reduce((acc, [status, src]) => ({
@@ -33,6 +33,16 @@ const iconStyleMap = Object.entries(factoryStatusImageMap).reduce((acc, [status,
 }), {}) as {[key in FactoryStatusType]: Style}
 
 const nullStyle = new Style({})
+
+let appliedFilters: FactoryStatusType[] = []
+
+function isFactoryVisible (factory: FactoryData) {
+  if (appliedFilters.length === 0) {
+    return true
+  } else {
+    return appliedFilters.includes(factory.status)
+  }
+}
 
 function getFactoryStyle (factory: FactoryData): Style {
   const visible = isFactoryVisible(factory)
@@ -90,24 +100,12 @@ function displayAllFactory () {
   })
 }
 
-let appliedFilters: FactoryStatusType[] = []
-
-function isFactoryVisible (factory: FactoryData) {
-  if (appliedFilters.length === 0) {
-    return true
-  } else {
-    return appliedFilters.includes(factory.status)
-  }
-}
-
 function updateFactoriesFeatureStyle () {
   forEachFeatureFactory((feature, factory) => {
     feature.setStyle(getFactoryStyle(factory))
   })
 }
 
-// TODO: remove this
-(window as any).setFactoryStatusFilter = setFactoryStatusFilter
 export function setFactoryStatusFilter (filters: FactoryStatusType[]) {
   // factory layer doesn't get initialized yet
   if (!factoriesLayerSource) {
@@ -122,6 +120,8 @@ export function setFactoryStatusFilter (filters: FactoryStatusType[]) {
 
   updateFactoriesFeatureStyle()
 }
+// TODO: remove this
+(window as any).setFactoryStatusFilter = setFactoryStatusFilter
 
 const getWMTSTileGrid = () => {
   const projection = getProjection('EPSG:3857')
@@ -185,7 +185,6 @@ const getLUIMapLayer = (wmtsTileGrid: WMTSTileGrid) => {
     opacity: 0.5
   })
 }
-
 
 // internal map references
 let map: OlMap
