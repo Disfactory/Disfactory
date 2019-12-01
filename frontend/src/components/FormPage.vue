@@ -1,6 +1,6 @@
 <template>
   <div class="page-container">
-    <image-upload-modal :open="imageUploadModalOpen" :dismiss="closeImageUploadModal" />
+    <image-upload-modal :open="imageUploadModalOpen" :dismiss="closeImageUploadModal" :images="imagesToUpload" :finishImagesUpload="finishImagesUpload" />
 
     <div class="navbar-container">
       <app-navbar :dark="false" :fixed="true" @back="close">新增資訊</app-navbar>
@@ -18,7 +18,16 @@
           </label>
         </div>
         <div>
-          <app-button @click="openImageUploadModal">新增</app-button>
+          <label>
+            <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="display: none;">
+            <app-button @click="image.click()">新增</app-button>
+          </label>
+        </div>
+      </div>
+
+      <div class="images-grid">
+        <div class="image-card" :key="url" v-for="url in imageUrls" >
+          <img :src="url" />
         </div>
       </div>
 
@@ -49,7 +58,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, onMounted, ref } from '@vue/composition-api'
+import { createComponent, onMounted, ref, computed } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
@@ -88,6 +97,19 @@ export default createComponent({
       imageUploadModalOpen.value = true
     }
 
+    const imagesToUpload = ref([])
+    const uploadedImages = ref([])
+    const image = ref<HTMLElement>(null)
+
+    const imageUrls = computed(() => {
+      let urls = []
+      for (let file of imagesToUpload.value) {
+        urls.push(URL.createObjectURL(file))
+      }
+
+      return urls
+    })
+
     return {
       factoryName,
       factoryType,
@@ -98,15 +120,28 @@ export default createComponent({
       },
       imageUploadModalOpen,
       openImageUploadModal,
-      closeImageUploadModal
+      closeImageUploadModal,
+
+      imageUrls,
+      imagesToUpload,
+      image, // image upload input ref,
+      handleImagesUpload (e) {
+        imagesToUpload.value = e.target.files
+
+        openImageUploadModal()
+      },
+      finishImagesUpload (images) {
+        uploadedImages.value = images
+      }
     }
   }
 })
 </script>
 
 <style lang="scss" scoped>
-@import '../styles/utils';
-@import '../styles/page';
+@import '@/styles/utils';
+@import '@/styles/page';
+@import '@/styles/images-grid';
 
 .navbar-container {
   position: absolute;

@@ -2,6 +2,12 @@
   <app-modal :open="open" :dismiss="dismiss" class="page">
     <h2>工廠照片</h2>
 
+    <div class="images-grid">
+      <div class="image-card" :key="url" v-for="url in imageUrls" >
+        <img :src="url" />
+      </div>
+    </div>
+
     <h2>
       聯絡資訊（非必填）<br>
       <small style="font-size: 14px;">如果對於照片有疑問，我們會透過您提供的資訊聯絡你。</small>
@@ -20,7 +26,7 @@
     />
 
     <div style="margin-top: 35px;">
-      <app-button @click="onClick()">上傳照片</app-button>
+      <app-button @click="handleImagesUpload()">上傳照片</app-button>
     </div>
   </app-modal>
 </template>
@@ -29,7 +35,8 @@
 import AppModal from '@/components/AppModal.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
-import { createComponent, reactive, ref } from '@vue/composition-api'
+import { createComponent, reactive, ref, computed } from '@vue/composition-api'
+import { uploadImages } from '../api'
 
 export default createComponent({
   name: 'FilterModal',
@@ -45,17 +52,38 @@ export default createComponent({
     },
     dismiss: {
       type: Function
+    },
+    images: {
+      type: FileList
+    },
+    finishImagesUpload: {
+      type: Function
     }
   },
   setup (props, context) {
-    const images = ref([])
     const title = ref('')
     const phone = ref('')
 
+    const imageUrls = computed(() => {
+      let urls = []
+      for (let i = 0; i < props.images.length; i++) {
+        urls.push(URL.createObjectURL(props.images[i]))
+      }
+
+      return urls
+    })
+
     return {
-      images,
       title,
-      phone
+      phone,
+      imageUrls,
+      async handleImagesUpload () {
+        const images = await uploadImages(props.images)
+        props.finishImagesUpload(images)
+
+        // TODO: decorate dismiss method, clear images when dismiss
+        props.dismiss()
+      }
     }
   }
 })
@@ -63,4 +91,5 @@ export default createComponent({
 
 <style lang="scss" scoped>
 @import '../styles/page';
+@import '../styles/images-grid';
 </style>

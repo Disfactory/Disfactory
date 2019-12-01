@@ -62,13 +62,17 @@ export default createComponent({
 
 .app-modal {
   z-index: 999;
-  position: relative;
 
   border-radius: 3px;
   border: solid 2px $primary-color;
   background-color: $background-color;
 
   padding: 27px 22px;
+
+  position: absolute;
+  top: 90px;
+  max-height: calc(100vh - 110px);
+  overflow: auto;
 
   .close {
     position: absolute;
