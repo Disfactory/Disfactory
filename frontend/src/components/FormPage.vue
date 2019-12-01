@@ -1,5 +1,8 @@
 <template>
   <div class="page-container">
+    <div class="navbar-container">
+      <app-navbar :dark="false" :fixed="true">新增資訊</app-navbar>
+    </div>
     <div class="page">
       <h1>輸入資訊</h1>
 
@@ -47,6 +50,7 @@
 import { createComponent, onMounted, ref } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import AppNavbar from '@/components/AppNavbar.vue'
 import AppSelect from '@/components/AppSelect.vue'
 
 export default createComponent({
@@ -54,7 +58,8 @@ export default createComponent({
   components: {
     AppButton,
     AppTextField,
-    AppSelect
+    AppSelect,
+    AppNavbar
   },
   setup () {
     const factoryName = ref('')
@@ -82,4 +87,11 @@ export default createComponent({
 <style lang="scss" scoped>
 @import '../styles/utils';
 @import '../styles/page';
+
+.navbar-container {
+  position: absolute;
+  top: -47px;
+  left: 0;
+  z-index: 2;
+}
 </style>

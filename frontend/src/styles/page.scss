@@ -19,6 +19,7 @@
     font-size: 36px;
     font-weight: 500;
     line-height: 1.33;
+    margin-top: 0;
 
     color: $second-color;
 
@@ -26,6 +27,8 @@
     padding-bottom: 16px;
 
     border-bottom: solid 1px $primary-color;
+
+    display: inline-block;
   }
 
   h3 {
@@ -34,6 +37,14 @@
     font-weight: 500;
     line-height: 0.85;
     letter-spacing: 0.83px;
+  }
+
+  & > h3 {
+    margin-top: 40px;
+  }
+
+  h1 + h3 {
+    margin-top: 0;
   }
 }
 

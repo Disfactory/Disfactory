@@ -1,5 +1,5 @@
 <template>
-  <nav :class="{ dark }">
+  <nav :class="{ dark, fixed }">
     <slot />
   </nav>
 </template>
@@ -16,6 +16,10 @@ export default createComponent({
     dark: {
       type: Boolean,
       default: true
+    },
+    fixed: {
+      type: Boolean,
+      default: false
     }
   }
 })
@@ -26,11 +30,12 @@ export default createComponent({
 nav {
   width: 100%;
 
+  color: $second-color;
+
   user-select: none;
   font-size: 1.6rem;
   text-align: center;
   background-color: $dark-font-color;
-  color: $font-color;
 
   padding: 11px 0;
 
@@ -39,6 +44,10 @@ nav {
   &.dark {
     background-color: $primary-color;
     color: $dark-font-color;
+  }
+
+  &.fixed {
+    position: fixed;
   }
 }
 </style>
