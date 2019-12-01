@@ -25,5 +25,6 @@ export default createComponent({
   top: 0;
   bottom: 0;
   width: 100%;
+  height: calc(100vh - 47px);
 }
 </style>
