@@ -4,8 +4,10 @@
     <filter-modal :open="filterModalOpen" :dismiss="closeFilterModal" />
     <OSM />
     <div class="create-factory-button">
-      <app-button>我要新增違建工廠</app-button>
+      <app-button @click="toggleFactoryPage">我要新增違建工廠</app-button>
     </div>
+
+    <form-page v-if="createFactoryPageOpen"></form-page>
   </div>
 </template>
 
@@ -14,6 +16,9 @@ import OSM from '@/components/OSM.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppButton from '@/components/AppButton.vue'
 import FilterModal from '@/components/FilterModal.vue'
+
+import FormPage from '@/components/FormPage.vue'
+
 import { createComponent, ref } from '@vue/composition-api'
 
 export default createComponent({
@@ -22,7 +27,8 @@ export default createComponent({
     OSM,
     AppButton,
     AppNavbar,
-    FilterModal
+    FilterModal,
+    FormPage
   },
   setup () {
     const filterModalOpen = ref(false)
@@ -30,9 +36,17 @@ export default createComponent({
       filterModalOpen.value = false
     }
 
+    const createFactoryPageOpen = ref(false)
+    const toggleFactoryPage = () => {
+      createFactoryPageOpen.value = !createFactoryPageOpen.value
+    }
+
     return {
       filterModalOpen,
-      closeFilterModal
+      closeFilterModal,
+
+      createFactoryPageOpen,
+      toggleFactoryPage
     }
   }
 })

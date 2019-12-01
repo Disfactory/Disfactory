@@ -1,0 +1,39 @@
+@import './variables';
+
+.page-container {
+  position: fixed;
+
+  width: 100vw;
+  top: 47px;
+  left: 0;
+  height: calc(100vh - 47px);
+  background: white;
+  overflow: auto;
+}
+
+.page {
+  height: 100%;
+  padding: 29px 35px;
+
+  h1 {
+    font-size: 36px;
+    font-weight: 500;
+    line-height: 1.33;
+
+    color: $second-color;
+
+    padding-right: 27px;
+    padding-bottom: 16px;
+
+    border-bottom: solid 1px $primary-color;
+  }
+
+  h3 {
+    color: black;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 0.85;
+    letter-spacing: 0.83px;
+  }
+}
+

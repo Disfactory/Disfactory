@@ -41,6 +41,8 @@ input {
   padding: 10px 15px;
   outline: none;
 
+  width: 100%;
+
   font-size: $form-font-size;
 
   &::placeholder {
