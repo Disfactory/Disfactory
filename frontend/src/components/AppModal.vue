@@ -4,7 +4,7 @@
   >
     <div class="app-modal-backdrop" @click="dismiss" />
     <div class="app-modal">
-      <div class="close" />
+      <div class="close" @click="dismiss" />
       <slot />
     </div>
   </div>
