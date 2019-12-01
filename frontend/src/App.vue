@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <app-navbar>農地違章工廠舉報</app-navbar>
-    <filter-modal :open="true" />
+    <filter-modal :open="filterModalOpen" :dismiss="closeFilterModal" />
     <OSM />
     <app-text-field
       v-model="factoryName"
@@ -41,11 +41,18 @@ export default createComponent({
       { text: '高危險', value: 1 },
       { text: '低危險', value: 2 }
     ]
+    const filterModalOpen = ref(false)
+    const closeFilterModal = () => {
+      filterModalOpen.value = false
+    }
 
     return {
       factoryName,
       factoryType,
-      factoryTypeItems
+      factoryTypeItems,
+
+      filterModalOpen,
+      closeFilterModal
     }
   }
 })

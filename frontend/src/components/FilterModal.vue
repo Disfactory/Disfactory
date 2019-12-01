@@ -1,5 +1,5 @@
 <template>
-  <app-modal :open="open">
+  <app-modal :open="open" :dismiss="dismiss">
     <h1>篩選</h1>
     <label>
       <input type="checkbox" name="F" v-model="filterF">
@@ -34,6 +34,9 @@ export default createComponent({
     open: {
       type: Boolean,
       default: false
+    },
+    dismiss: {
+      type: Function
     }
   },
   setup (props, context) {
@@ -51,6 +54,10 @@ export default createComponent({
           filterA.value ? 'A' : false,
           filterD.value ? 'D' : false,
         ].filter(Boolean) as ('D' | 'F' | 'A')[])
+
+        if (typeof props.dismiss === 'function') {
+          props.dismiss()
+        }
       }
     }
   }
