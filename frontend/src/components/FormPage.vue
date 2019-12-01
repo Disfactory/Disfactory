@@ -1,5 +1,7 @@
 <template>
   <div class="page-container">
+    <image-upload-modal :open="imageUploadModalOpen" :dismiss="closeImageUploadModal" />
+
     <div class="navbar-container">
       <app-navbar :dark="false" :fixed="true" @back="close">新增資訊</app-navbar>
     </div>
@@ -16,7 +18,7 @@
           </label>
         </div>
         <div>
-          <app-button>新增</app-button>
+          <app-button @click="openImageUploadModal">新增</app-button>
         </div>
       </div>
 
@@ -52,6 +54,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppSelect from '@/components/AppSelect.vue'
+import ImageUploadModal from '@/components/ImageUploadModal.vue'
 
 export default createComponent({
   name: 'FormPage',
@@ -59,7 +62,8 @@ export default createComponent({
     AppButton,
     AppTextField,
     AppSelect,
-    AppNavbar
+    AppNavbar,
+    ImageUploadModal
   },
   props: {
     close: {
@@ -76,6 +80,14 @@ export default createComponent({
     ]
     const factoryDescription = ref('')
 
+    const imageUploadModalOpen = ref(false)
+    const closeImageUploadModal = () => {
+      imageUploadModalOpen.value = false
+    }
+    const openImageUploadModal = () => {
+      imageUploadModalOpen.value = true
+    }
+
     return {
       factoryName,
       factoryType,
@@ -83,7 +95,10 @@ export default createComponent({
       factoryDescription,
       containerStyle: {
         width: '100%'
-      }
+      },
+      imageUploadModalOpen,
+      openImageUploadModal,
+      closeImageUploadModal
     }
   }
 })
