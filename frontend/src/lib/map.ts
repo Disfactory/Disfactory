@@ -108,7 +108,7 @@ function updateFactoriesFeatureStyle () {
 
 // TODO: remove this
 (window as any).setFactoryStatusFilter = setFactoryStatusFilter
-export function setFactoryStatusFilter (map: OlMap, filters: FactoryStatusType[]) {
+export function setFactoryStatusFilter (filters: FactoryStatusType[]) {
   // factory layer doesn't get initialized yet
   if (!factoriesLayerSource) {
     return

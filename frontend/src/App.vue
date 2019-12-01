@@ -1,8 +1,8 @@
 <template>
   <div id="app">
     <app-navbar>農地違章工廠舉報</app-navbar>
+    <filter-modal :open="true" />
     <OSM />
-    <app-button>確認</app-button>
     <app-text-field
       v-model="factoryName"
       placeholder="請輸入工廠名稱"
@@ -20,6 +20,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppSelect from '@/components/AppSelect.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
+import FilterModal from '@/components/FilterModal.vue'
 import { createComponent, ref } from '@vue/composition-api'
 
 export default createComponent({
@@ -29,7 +30,8 @@ export default createComponent({
     AppButton,
     AppTextField,
     AppSelect,
-    AppNavbar
+    AppNavbar,
+    FilterModal
   },
   setup () {
     const factoryName = ref('')
