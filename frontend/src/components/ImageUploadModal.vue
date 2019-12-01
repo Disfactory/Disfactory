@@ -3,8 +3,8 @@
     <h2>工廠照片</h2>
 
     <h2>
-      聯絡資訊
-      <small>如果對於照片有疑問，我們會透過您提供的資訊聯絡你。</small>
+      聯絡資訊（非必填）<br>
+      <small style="font-size: 14px;">如果對於照片有疑問，我們會透過您提供的資訊聯絡你。</small>
     </h2>
 
     <h3>稱呼</h3>
@@ -19,7 +19,9 @@
       placeholder="例：0912345678"
     />
 
-    <app-button @click="onClick()">上傳照片</app-button>
+    <div style="margin-top: 35px;">
+      <app-button @click="onClick()">上傳照片</app-button>
+    </div>
   </app-modal>
 </template>
 

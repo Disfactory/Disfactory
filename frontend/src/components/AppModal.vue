@@ -41,6 +41,8 @@ export default createComponent({
   width: 100vw;
   height: 100vh;
 
+  padding: 45px 16px;
+
   display: none;
 
   &.open {
@@ -63,7 +65,7 @@ export default createComponent({
   position: relative;
 
   border-radius: 3px;
-  border: solid 1px $primary-color;
+  border: solid 2px $primary-color;
   background-color: $background-color;
 
   padding: 27px 22px;

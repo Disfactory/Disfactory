@@ -13,7 +13,6 @@
 
 .page {
   height: 100%;
-  padding: 29px 35px;
 
   h1 {
     font-size: 36px;
@@ -28,7 +27,15 @@
 
     border-bottom: solid 1px $primary-color;
 
-    display: inline-block;
+    margin-right: 65px;
+  }
+
+  h2 {
+    font-size: 24px;
+    color: $primary-color;
+    border-bottom: solid 1px $primary-color;
+    margin-right: 65px;
+    padding-bottom: 16px;
   }
 
   h3 {

@@ -62,8 +62,7 @@ export default createComponent({
 
 .create-factory-button {
   position: fixed;
-  left: 50vw;
   bottom: 48px;
-  transform: translateX(-50%);
+  transform: translateX(calc(50vw - 125.735px));
 }
 </style>

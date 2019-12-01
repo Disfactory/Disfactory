@@ -5,14 +5,14 @@
     <div class="navbar-container">
       <app-navbar :dark="false" :fixed="true" @back="close">新增資訊</app-navbar>
     </div>
-    <div class="page">
+    <div class="page" style="padding: 29px 35px;">
       <h1>輸入資訊</h1>
 
       <h3>工廠地點</h3>
 
-      <div class="flex justify-between">
+      <div class="flex justify-between" style="margin-top: 40px;">
         <div class="flex flex-column flex-auto">
-          <h3>工廠照片*</h3>
+          <h3 style="margin-top: 0;">工廠照片*</h3>
           <label>
             <small>請上傳至少一張照片</small>
           </label>

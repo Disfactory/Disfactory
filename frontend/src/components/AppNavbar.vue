@@ -51,10 +51,10 @@ export default createComponent({
 nav {
   width: 100%;
 
-  color: $second-color;
+  color: $primary-color;
 
   user-select: none;
-  font-size: 1.6rem;
+  font-size: 24px;
   text-align: center;
   background-color: $dark-font-color;
 
@@ -90,40 +90,40 @@ nav {
 
 .back-button {
   width: 30px;
-  height: 30px;
+  height: 20px;
   position: relative;
   cursor: pointer;
 
   span {
     position: absolute;
     width: 100%;
-    height: 5px;
+    height: 4px;
     border-radius: 5px;
-    background-color: $second-color;
+    background-color: $primary-color;
 
     left: 0;
   }
 
   span:nth-child(1) {
-    top: 14px;
+    top: 7px;
   }
   span:nth-child(2) {
     transform: rotate(-45deg);
-    width: 70%;
-    top: 8px;
-    left: -3px;
+    width: 65%;
+    top: 1px;
+    left: -4px;
   }
   span:nth-child(3) {
     transform: rotate(45deg);
-    width: 70%;
-    top: 20px;
-    left: -3px;
+    width: 65%;
+    top: 12px;
+    left: -4px;
   }
 }
 
 .menu-button {
   width: 30px;
-  height: 30px;
+  height: 25px;
   position: relative;
   cursor: pointer;
 
