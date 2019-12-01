@@ -65,7 +65,7 @@ export default createComponent({
     const phone = ref('')
 
     const imageUrls = computed(() => {
-      let urls = []
+      const urls = []
       for (let i = 0; i < props.images.length; i++) {
         urls.push(URL.createObjectURL(props.images[i]))
       }

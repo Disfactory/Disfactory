@@ -1,22 +1,22 @@
-import axios from 'axios';
+import axios from 'axios'
 
 const instance = axios.create({
   baseURL: '/server/api'
 })
 
 type ImageResponse = {
-  token: string
+  token: string;
 }
 
-type UploadedImages = {
-  token: string
-  src: string // used for preview images
+export type UploadedImages = {
+  token: string;
+  src: string; // used for preview images
 }[]
 
 export async function uploadImages (files: FileList): Promise<UploadedImages> {
   const results: UploadedImages = []
 
-  for (let file of files) {
+  for (const file of files) {
     const formData = new FormData()
     formData.append('image', file)
 
@@ -35,4 +35,3 @@ export async function uploadImages (files: FileList): Promise<UploadedImages> {
 
   return results
 }
-

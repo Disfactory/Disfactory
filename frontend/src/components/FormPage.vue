@@ -64,6 +64,7 @@ import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppSelect from '@/components/AppSelect.vue'
 import ImageUploadModal from '@/components/ImageUploadModal.vue'
+import { UploadedImages } from '../api'
 
 export default createComponent({
   name: 'FormPage',
@@ -97,14 +98,14 @@ export default createComponent({
       imageUploadModalOpen.value = true
     }
 
-    const imagesToUpload = ref([])
-    const uploadedImages = ref([])
+    const imagesToUpload = ref<FileList>([])
+    const uploadedImages = ref<UploadedImages>([])
     const image = ref<HTMLElement>(null)
 
     const imageUrls = computed(() => {
-      let urls = []
-      for (let file of imagesToUpload.value) {
-        urls.push(URL.createObjectURL(file))
+      const urls = []
+      for (let i = 0; i < imagesToUpload.value.length; i++) {
+        urls.push(URL.createObjectURL(imagesToUpload.value[i]))
       }
 
       return urls
@@ -125,12 +126,12 @@ export default createComponent({
       imageUrls,
       imagesToUpload,
       image, // image upload input ref,
-      handleImagesUpload (e) {
-        imagesToUpload.value = e.target.files
+      handleImagesUpload (e: Event) {
+        imagesToUpload.value = (e.target as HTMLInputElement).files!
 
         openImageUploadModal()
       },
-      finishImagesUpload (images) {
+      finishImagesUpload (images: UploadedImages) {
         uploadedImages.value = images
       }
     }
