@@ -1,7 +1,7 @@
 <template>
   <div class="page-container">
     <div class="navbar-container">
-      <app-navbar :dark="false" :fixed="true">新增資訊</app-navbar>
+      <app-navbar :dark="false" :fixed="true" @back="close">新增資訊</app-navbar>
     </div>
     <div class="page">
       <h1>輸入資訊</h1>
@@ -61,7 +61,12 @@ export default createComponent({
     AppSelect,
     AppNavbar
   },
-  setup () {
+  props: {
+    close: {
+      type: Function
+    }
+  },
+  setup (props) {
     const factoryName = ref('')
     const factoryType = ref(0)
     const factoryTypeItems = [

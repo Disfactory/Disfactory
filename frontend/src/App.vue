@@ -7,7 +7,7 @@
       <app-button @click="toggleFactoryPage">我要新增違建工廠</app-button>
     </div>
 
-    <form-page v-if="createFactoryPageOpen"></form-page>
+    <form-page v-if="createFactoryPageOpen" :close="closeFactoryPage"></form-page>
   </div>
 </template>
 
@@ -41,12 +41,17 @@ export default createComponent({
       createFactoryPageOpen.value = !createFactoryPageOpen.value
     }
 
+    const closeFactoryPage = () => {
+      createFactoryPageOpen.value = false
+    }
+
     return {
       filterModalOpen,
       closeFilterModal,
 
       createFactoryPageOpen,
-      toggleFactoryPage
+      toggleFactoryPage,
+      closeFactoryPage
     }
   }
 })
