@@ -51,13 +51,15 @@ export default createComponent({
       default: false
     },
     dismiss: {
-      type: Function
+      type: Function,
+      required: true
     },
     images: {
       type: FileList
     },
     finishImagesUpload: {
-      type: Function
+      type: Function,
+      required: true
     }
   },
   setup (props, context) {
@@ -66,8 +68,8 @@ export default createComponent({
 
     const imageUrls = computed(() => {
       const urls = []
-      for (let i = 0; i < props.images.length; i++) {
-        urls.push(URL.createObjectURL(props.images[i]))
+      for (let i = 0; i < props.images!.length; i++) {
+        urls.push(URL.createObjectURL(props.images![i]))
       }
 
       return urls
@@ -78,7 +80,7 @@ export default createComponent({
       phone,
       imageUrls,
       async handleImagesUpload () {
-        const images = await uploadImages(props.images)
+        const images = await uploadImages(props.images!)
         props.finishImagesUpload(images)
 
         // TODO: decorate dismiss method, clear images when dismiss
