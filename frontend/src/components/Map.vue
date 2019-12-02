@@ -44,7 +44,11 @@ export default createComponent({
     const root = ref<HTMLElement>(null)
 
     onMounted(() => {
-      initializeMap(root.value!)
+      initializeMap(root.value!, {
+        onMoved: function () {
+
+        }
+      })
     })
 
     return {

@@ -193,7 +193,11 @@ export function getMap () {
   return map
 }
 
-export function initializeMap (target: HTMLElement) {
+type MapEventHandler = {
+  onMoved?: Function
+}
+
+export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}) {
   const tileGrid = getWMTSTileGrid()
 
   map = new OlMap({
@@ -240,6 +244,10 @@ export function initializeMap (target: HTMLElement) {
     const data = await res.json() as FactoriesResponse
 
     addFactories(map, data)
+
+    if (handler.onMoved) {
+      handler.onMoved()
+    }
   })
 
   // TODO: remove this
