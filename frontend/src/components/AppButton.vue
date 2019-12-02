@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="{ outline }"
+    :class="{ outline, disabled }"
     @click="click"
   >
     <slot />
@@ -16,11 +16,17 @@ export default createComponent({
     outline: {
       type: Boolean,
       default: false
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
-  setup (_, context) {
+  setup (props, context) {
     const click = () => {
-      context.emit('click')
+      if (!props.disabled) {
+        context.emit('click')
+      }
     }
 
     return {
@@ -47,6 +53,10 @@ button {
   &:hover {
     cursor: pointer;
     opacity: 0.8;
+  }
+
+  &.disabled {
+    cursor: not-allowed;
   }
 }
 
