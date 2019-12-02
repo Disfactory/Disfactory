@@ -2,7 +2,7 @@
   <div id="app">
     <app-navbar>農地違章工廠舉報</app-navbar>
     <filter-modal :open="filterModalOpen" :dismiss="closeFilterModal" />
-    <OSM />
+    <Map />
     <div class="create-factory-button">
       <app-button @click="toggleFactoryPage">我要新增違建工廠</app-button>
     </div>
@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import OSM from '@/components/OSM.vue'
+import Map from '@/components/Map.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppButton from '@/components/AppButton.vue'
 import FilterModal from '@/components/FilterModal.vue'
@@ -24,7 +24,7 @@ import { createComponent, ref } from '@vue/composition-api'
 export default createComponent({
   name: 'App',
   components: {
-    OSM,
+    Map,
     AppButton,
     AppNavbar,
     FilterModal,
