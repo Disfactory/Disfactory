@@ -1,58 +1,63 @@
 <template>
-  <div class="page-container">
-    <image-upload-modal :open="imageUploadModalOpen" :dismiss="closeImageUploadModal" :images="imagesToUpload" :finishImagesUpload="finishImagesUpload" />
-
+  <div>
     <div class="navbar-container">
-      <app-navbar :dark="false" :fixed="true" @back="close">新增資訊</app-navbar>
+      <app-navbar :dark="false" :fixed="true" @back="onNavBack">新增資訊</app-navbar>
     </div>
-    <div class="page" style="padding: 29px 35px;">
-      <h1>輸入資訊</h1>
 
-      <h3>工廠地點</h3>
+    <div class="page-container" :class="{ hide: selectFactoryMode }">
+      <image-upload-modal :open="imageUploadModalOpen" :dismiss="closeImageUploadModal" :images="imagesToUpload" :finishImagesUpload="finishImagesUpload" />
 
-      <div class="flex justify-between" style="margin-top: 40px;">
-        <div class="flex flex-column flex-auto">
-          <h3 style="margin-top: 0;">工廠照片*</h3>
-          <label>
-            <small>請上傳至少一張照片</small>
-          </label>
+      <div class="page" style="padding: 29px 35px;">
+        <h1>輸入資訊</h1>
+
+        <h3>工廠地點</h3>
+
+        <app-button @click="enterSelectFactoryMode()">點我選擇</app-button>
+
+        <div class="flex justify-between" style="margin-top: 40px;">
+          <div class="flex flex-column flex-auto">
+            <h3 style="margin-top: 0;">工廠照片*</h3>
+            <label>
+              <small>請上傳至少一張照片</small>
+            </label>
+          </div>
+          <div>
+            <label>
+              <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="display: none;">
+              <app-button @click="image.click()">新增</app-button>
+            </label>
+          </div>
         </div>
-        <div>
-          <label>
-            <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="display: none;">
-            <app-button @click="image.click()">新增</app-button>
-          </label>
+
+        <div class="images-grid">
+          <div class="image-card" :key="url" v-for="url in imageUrls" >
+            <img :src="url" />
+          </div>
         </div>
-      </div>
 
-      <div class="images-grid">
-        <div class="image-card" :key="url" v-for="url in imageUrls" >
-          <img :src="url" />
+        <h3>工廠名稱</h3>
+        <app-text-field
+          v-model="factoryName"
+          placeholder="請輸入工廠名稱"
+        />
+
+        <h3>工廠類型</h3>
+        <app-select
+          v-model="factoryType"
+          :items="factoryTypeItems"
+        />
+
+        <h3>新增其它資訊</h3>
+        <app-text-field
+          v-model="factoryDescription"
+          placeholder="請填入其他資訊，如聲音、氣味等等。"
+        />
+
+        <div class="text-center width-auto" style="margin-top: 60px; margin-bottom: 55px;">
+          <app-button>送出</app-button>
         </div>
+
       </div>
-
-      <h3>工廠名稱</h3>
-      <app-text-field
-        v-model="factoryName"
-        placeholder="請輸入工廠名稱"
-      />
-
-      <h3>工廠類型</h3>
-      <app-select
-        v-model="factoryType"
-        :items="factoryTypeItems"
-      />
-
-      <h3>新增其它資訊</h3>
-      <app-text-field
-        v-model="factoryDescription"
-        placeholder="請填入其他資訊，如聲音、氣味等等。"
-      />
-
-      <div class="text-center width-auto" style="margin-top: 60px; margin-bottom: 55px;">
-        <app-button>送出</app-button>
-      </div>
-
     </div>
   </div>
 </template>
@@ -76,8 +81,22 @@ export default createComponent({
     ImageUploadModal
   },
   props: {
+    // close form page
     close: {
-      type: Function
+      type: Function,
+      required: true
+    },
+    selectFactoryMode: {
+      type: Boolean,
+      required: true
+    },
+    enterSelectFactoryMode: {
+      type: Function,
+      required: true
+    },
+    exitSelectFactoryMode: {
+      type: Function,
+      required: true
     }
   },
   setup (props) {
@@ -133,6 +152,10 @@ export default createComponent({
       },
       finishImagesUpload (images: UploadedImages) {
         uploadedImages.value = images
+      },
+      onNavBack () {
+        props.close()
+        props.exitSelectFactoryMode()
       }
     }
   }
@@ -143,6 +166,14 @@ export default createComponent({
 @import '@/styles/utils';
 @import '@/styles/page';
 @import '@/styles/images-grid';
+
+.page-container.hide {
+  display: none;
+
+  .navbar-container {
+    display: block;
+  }
+}
 
 .navbar-container {
   position: absolute;

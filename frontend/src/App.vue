@@ -1,13 +1,20 @@
 <template>
   <div id="app">
-    <app-navbar>農地違章工廠舉報</app-navbar>
+    <app-navbar :hide="createFactoryPageOpen" :fixed="true">農地違章工廠舉報</app-navbar>
     <filter-modal :open="filterModalOpen" :dismiss="closeFilterModal" />
-    <Map />
-    <div class="create-factory-button">
-      <app-button @click="toggleFactoryPage">我要新增違建工廠</app-button>
-    </div>
+    <Map
+      :toggleFactoryPage="toggleFactoryPage"
+      :selectFactoryMode="selectFactoryMode"
+      :exitSelectFactoryMode="exitSelectFactoryMode"
+    />
 
-    <form-page v-if="createFactoryPageOpen" :close="closeFactoryPage"></form-page>
+    <form-page
+      v-if="createFactoryPageOpen"
+      :close="closeFactoryPage"
+      :selectFactoryMode="selectFactoryMode"
+      :enterSelectFactoryMode="enterSelectFactoryMode"
+      :exitSelectFactoryMode="exitSelectFactoryMode"
+    />
   </div>
 </template>
 
@@ -45,13 +52,25 @@ export default createComponent({
       createFactoryPageOpen.value = false
     }
 
+    const selectFactoryMode = ref(false)
+    const enterSelectFactoryMode = () => {
+      selectFactoryMode.value = true
+    }
+    const exitSelectFactoryMode = () => {
+      selectFactoryMode.value = false
+    }
+
     return {
       filterModalOpen,
       closeFilterModal,
 
       createFactoryPageOpen,
       toggleFactoryPage,
-      closeFactoryPage
+      closeFactoryPage,
+
+      selectFactoryMode,
+      enterSelectFactoryMode,
+      exitSelectFactoryMode
     }
   }
 })
@@ -59,10 +78,4 @@ export default createComponent({
 
 <style lang="scss">
 @import '~@/styles/index';
-
-.create-factory-button {
-  position: fixed;
-  bottom: 48px;
-  transform: translateX(calc(50vw - 125.735px));
-}
 </style>

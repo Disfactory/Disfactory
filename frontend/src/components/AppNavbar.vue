@@ -1,5 +1,5 @@
 <template>
-  <nav :class="{ dark, fixed }">
+  <nav :class="{ dark, fixed, hide }">
     <div class="back-button" @click="onBackClick()" v-show="!dark">
       <span />
       <span />
@@ -31,6 +31,10 @@ export default createComponent({
     },
     back: {
       type: Function
+    },
+    hide: {
+      type: Boolean,
+      default: false
     }
   },
   setup ({ back }, { emit }) {
@@ -84,8 +88,13 @@ nav {
 
   &.fixed {
     position: fixed;
+    top: 0;
+    z-index: 1;
   }
 
+  &.hide {
+    display: none;
+  }
 }
 
 .back-button {
