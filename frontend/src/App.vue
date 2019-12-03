@@ -1,7 +1,13 @@
 <template>
   <div id="app">
     <app-navbar :hide="createFactoryPageOpen" :fixed="true">農地違章工廠舉報</app-navbar>
+
     <filter-modal :open="filterModalOpen" :dismiss="closeFilterModal" />
+    <create-factory-success-modal
+      :open="createFactorySuccessModalOpen"
+      :dismiss="() => setCreateFactorySuccessModal(false)"
+    />
+
     <Map
       :toggleFactoryPage="toggleFactoryPage"
       :selectFactoryMode="selectFactoryMode"
@@ -16,7 +22,9 @@
       :enterSelectFactoryMode="enterSelectFactoryMode"
       :exitSelectFactoryMode="exitSelectFactoryMode"
       :factoryLocation="factoryLocation"
+      :setCreateFactorySuccessModal="setCreateFactorySuccessModal"
     />
+
   </div>
 </template>
 
@@ -25,6 +33,7 @@ import Map from '@/components/Map.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppButton from '@/components/AppButton.vue'
 import FilterModal from '@/components/FilterModal.vue'
+import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
 
 import FormPage from '@/components/FormPage.vue'
 
@@ -37,6 +46,7 @@ export default createComponent({
     AppButton,
     AppNavbar,
     FilterModal,
+    CreateFactorySuccessModal,
     FormPage
   },
   setup () {
@@ -67,9 +77,15 @@ export default createComponent({
       selectFactoryMode.value = false
     }
 
+    const createFactorySuccessModalOpen = ref(false)
+    const setCreateFactorySuccessModal = open => createFactorySuccessModalOpen.value = open
+
     return {
       filterModalOpen,
       closeFilterModal,
+
+      createFactorySuccessModalOpen,
+      setCreateFactorySuccessModal,
 
       createFactoryPageOpen,
       toggleFactoryPage,

@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { FactoryPostData, FactoryData } from '@/types'
 
 const instance = axios.create({
   baseURL: '/server/api'
@@ -34,4 +35,19 @@ export async function uploadImages (files: FileList): Promise<UploadedImages> {
   }
 
   return results
+}
+
+export async function createFactory (factory: FactoryPostData): Promise<FactoryData> {
+  try {
+    const { data }: { data: FactoryData } = await instance.post('/factories', JSON.stringify(factory), {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+
+    return data
+  } catch (err) {
+    console.error(err)
+    throw new TypeError('Create factory failed')
+  }
 }

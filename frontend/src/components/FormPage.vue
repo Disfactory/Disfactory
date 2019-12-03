@@ -5,7 +5,13 @@
     </div>
 
     <div class="page-container" :class="{ hide: selectFactoryMode }">
-      <image-upload-modal :open="imageUploadModalOpen" :dismiss="closeImageUploadModal" :images="imagesToUpload" :finishImagesUpload="finishImagesUpload" />
+      <image-upload-modal
+        :open="imageUploadModalOpen"
+        :dismiss="closeImageUploadModal"
+        :images="imagesToUpload"
+        :finishImagesUpload="finishImagesUpload"
+        :finishUploaderForm="finishUploaderForm"
+      />
 
       <div class="page" style="padding: 29px 35px;">
         <h1>輸入資訊</h1>
@@ -55,7 +61,7 @@
         />
 
         <div class="text-center width-auto" style="margin-top: 60px; margin-bottom: 55px;">
-          <app-button>送出</app-button>
+          <app-button @click="submitFactory()">送出</app-button>
         </div>
 
       </div>
@@ -70,7 +76,8 @@ import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppSelect from '@/components/AppSelect.vue'
 import ImageUploadModal from '@/components/ImageUploadModal.vue'
-import { UploadedImages } from '../api'
+import { UploadedImages, createFactory } from '../api'
+import { FactoryPostData, FACTORY_TYPE, FactoryType } from '../types'
 
 export default createComponent({
   name: 'FormPage',
@@ -102,15 +109,18 @@ export default createComponent({
     factoryLocation: {
       type: Array,
       required: true
+    },
+    setCreateFactorySuccessModal: {
+      type: Function,
+      required: true
     }
   },
   setup (props) {
     const factoryName = ref('')
-    const factoryType = ref(0)
-    const factoryTypeItems = [
+    const factoryType = ref<FactoryType>(0)
+    const factoryTypeItems: any[] = [
       { text: '請選擇工廠類型', value: 0 },
-      { text: '高危險', value: 1 },
-      { text: '低危險', value: 2 }
+      ...Object.entries(FACTORY_TYPE).map(([value, text]) => ({ text, value }))
     ]
     const factoryDescription = ref('')
 
@@ -134,6 +144,14 @@ export default createComponent({
 
       return urls
     })
+
+    const nickname = ref('')
+    const contact = ref('')
+
+    const finishUploaderForm = (nickname, contact) => {
+      nickname.value = nickname
+      contact.value = contact
+    }
 
     return {
       factoryName,
@@ -161,7 +179,38 @@ export default createComponent({
       onNavBack () {
         props.close()
         props.exitSelectFactoryMode()
-      }
+      },
+      async submitFactory () {
+        try {
+          const [lng, lat] = props.factoryLocation as number[]
+          const factory: FactoryPostData = {
+            name: factoryName.value,
+            lng,
+            lat,
+            type: factoryType.value,
+            other: factoryDescription.value,
+            images: uploadedImages.value.map(image => image.token),
+            nickname: nickname.value,
+            contact: contact.value
+          }
+
+          console.log(factory)
+
+          // TODO: call the API
+          const resultFactory = await createFactory(factory)
+        } catch (e) {
+          // TODO: handle create failure
+        }
+
+        // TODO: add factory to map
+        // TODO: clear form
+
+        props.close()
+        props.exitSelectFactoryMode()
+        console.log(props.setCreateFactorySuccessModal)
+        props.setCreateFactorySuccessModal(true)
+      },
+      finishUploaderForm
     }
   }
 })

@@ -15,13 +15,13 @@
 
     <h3>稱呼</h3>
     <app-text-field
-      v-model="title"
+      v-model="nickname"
       placeholder="例：林先生"
     />
 
     <h3>聯絡資料</h3>
     <app-text-field
-      v-model="phone"
+      v-model="contact"
       placeholder="例：0912345678"
     />
 
@@ -60,11 +60,15 @@ export default createComponent({
     finishImagesUpload: {
       type: Function,
       required: true
+    },
+    finishUploaderForm: {
+      type: Function,
+      required: true
     }
   },
   setup (props, context) {
-    const title = ref('')
-    const phone = ref('')
+    const nickname = ref('')
+    const contact = ref('')
 
     const imageUrls = computed(() => {
       const urls = []
@@ -76,12 +80,14 @@ export default createComponent({
     })
 
     return {
-      title,
-      phone,
+      nickname,
+      contact,
       imageUrls,
       async handleImagesUpload () {
         const images = await uploadImages(props.images!)
         props.finishImagesUpload(images)
+
+        props.finishUploaderForm(nickname.value, contact.value)
 
         // TODO: decorate dismiss method, clear images when dismiss
         props.dismiss()

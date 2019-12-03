@@ -1,5 +1,5 @@
 export const FACTORY_TYPE = {
-  1: '1',
+  1: '金屬',
   '2-1': '沖床、銑床、車床、鏜孔',
   '2-2': '焊接、鑄造、熱處理',
   '2-3': '金屬表面處理、噴漆',
@@ -35,3 +35,14 @@ export type FactoryData = {
 }
 
 export type FactoriesResponse = Array<FactoryData>
+
+export type FactoryPostData = {
+  name: string;
+  type: FactoryType;
+  images?: string[];
+  other?: string;
+  lat: number;
+  lng: number;
+  nickname?: string;
+  contact?: string;
+}
