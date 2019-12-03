@@ -16,6 +16,10 @@ import { flipArgriculturalLand } from '../lib/image'
 let factoriesLayerSource: VectorSource
 const factoryMap = new Map<string, FactoryData>()
 
+// internal map references
+let map: OlMap
+let mapDom: HTMLElement
+
 const factoryStatusImageMap = {
   D: '/images/marker-green.svg',
   F: '/images/marker-red.svg',
@@ -61,7 +65,7 @@ function createFactoryFeature (factory: FactoryData) {
   return feature
 }
 
-export function addFactories (map: OlMap, factories: FactoryData[]) {
+export function addFactories (factories: FactoryData[]) {
   const features = factories.filter(factory => !factoryMap.has(factory.id)).map(createFactoryFeature)
 
   if (!factoriesLayerSource) {
@@ -186,10 +190,6 @@ const getLUIMapLayer = (wmtsTileGrid: WMTSTileGrid) => {
   })
 }
 
-// internal map references
-let map: OlMap
-let mapDom: HTMLElement
-
 export function getMap () {
   return map
 }
@@ -261,7 +261,7 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
     const res = await fetch(`/server/api/factories?range=${range}&lng=${lng}&lat=${lat}`)
     const data = await res.json() as FactoriesResponse
 
-    addFactories(map, data)
+    addFactories(data)
 
     if (handler.onMoved) {
       const { width, height } = mapDom.getBoundingClientRect()

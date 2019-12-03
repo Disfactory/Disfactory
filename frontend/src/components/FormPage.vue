@@ -78,6 +78,7 @@ import AppSelect from '@/components/AppSelect.vue'
 import ImageUploadModal from '@/components/ImageUploadModal.vue'
 import { UploadedImages, createFactory } from '../api'
 import { FactoryPostData, FACTORY_TYPE, FactoryType } from '../types'
+import { addFactories } from '../lib/map'
 
 export default createComponent({
   name: 'FormPage',
@@ -196,13 +197,12 @@ export default createComponent({
 
           console.log(factory)
 
-          // TODO: call the API
           const resultFactory = await createFactory(factory)
+          addFactories([resultFactory])
         } catch (e) {
           // TODO: handle create failure
         }
 
-        // TODO: add factory to map
         // TODO: clear form
 
         props.close()
