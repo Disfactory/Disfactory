@@ -78,7 +78,9 @@ export default createComponent({
     }
 
     const createFactorySuccessModalOpen = ref(false)
-    const setCreateFactorySuccessModal = (open: boolean) => createFactorySuccessModalOpen.value = open
+    const setCreateFactorySuccessModal = (open: boolean) => {
+      createFactorySuccessModalOpen.value = open
+    }
 
     return {
       filterModalOpen,

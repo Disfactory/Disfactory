@@ -195,7 +195,22 @@ export function getMap () {
 }
 
 type MapEventHandler = {
-  onMoved?: (location: [number, number], canPlaceFactory: boolean) => any
+  onMoved?: (location: [number, number], canPlaceFactory: boolean) => any;
+}
+
+function canPlaceFactory (pixel: MapBrowserEvent['pixel']): Promise<boolean> {
+  return new Promise(resolve => {
+    map.forEachLayerAtPixel(pixel, function (_, data) {
+      const [,,, a] = data
+
+      return resolve(a === 1)
+    }, {
+      layerFilter: function (layer) {
+        // only handle click event on LUIMAP
+        return layer.getProperties().source.layer_ === 'LUIMAP'
+      }
+    })
+  })
 }
 
 export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}) {
@@ -257,19 +272,4 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
   // TODO: remove this
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(window as any).map = map
-}
-
-function canPlaceFactory (pixel: MapBrowserEvent["pixel"]): Promise<boolean> {
-  return new Promise(resolve => {
-    map.forEachLayerAtPixel(pixel, function (_, data) {
-      const [,,, a] = data
-
-      return resolve(a === 1)
-    }, {
-      layerFilter: function (layer) {
-        // only handle click event on LUIMAP
-        return layer.getProperties().source.layer_ === 'LUIMAP'
-      }
-    })
-  })
 }
