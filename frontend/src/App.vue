@@ -1,58 +1,103 @@
 <template>
   <div id="app">
-    <app-navbar>農地違章工廠舉報</app-navbar>
+    <app-navbar :hide="createFactoryPageOpen" :fixed="true">農地違章工廠舉報</app-navbar>
+
     <filter-modal :open="filterModalOpen" :dismiss="closeFilterModal" />
-    <OSM />
-    <app-text-field
-      v-model="factoryName"
-      placeholder="請輸入工廠名稱"
+    <create-factory-success-modal
+      :open="createFactorySuccessModalOpen"
+      :dismiss="() => setCreateFactorySuccessModal(false)"
     />
-    <app-select
-      v-model="factoryType"
-      :items="factoryTypeItems"
+
+    <Map
+      :toggleFactoryPage="toggleFactoryPage"
+      :selectFactoryMode="selectFactoryMode"
+      :exitSelectFactoryMode="exitSelectFactoryMode"
+      :setFactoryLocation="setFactoryLocation"
     />
+
+    <form-page
+      v-if="createFactoryPageOpen"
+      :close="closeFactoryPage"
+      :selectFactoryMode="selectFactoryMode"
+      :enterSelectFactoryMode="enterSelectFactoryMode"
+      :exitSelectFactoryMode="exitSelectFactoryMode"
+      :factoryLocation="factoryLocation"
+      :setCreateFactorySuccessModal="setCreateFactorySuccessModal"
+    />
+
   </div>
 </template>
 
 <script lang="ts">
-import OSM from '@/components/OSM.vue'
-import AppButton from '@/components/AppButton.vue'
-import AppTextField from '@/components/AppTextField.vue'
-import AppSelect from '@/components/AppSelect.vue'
+import Map from '@/components/Map.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
+import AppButton from '@/components/AppButton.vue'
 import FilterModal from '@/components/FilterModal.vue'
+import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
+
+import FormPage from '@/components/FormPage.vue'
+
 import { createComponent, ref } from '@vue/composition-api'
 
 export default createComponent({
   name: 'App',
   components: {
-    OSM,
+    Map,
     AppButton,
-    AppTextField,
-    AppSelect,
     AppNavbar,
-    FilterModal
+    FilterModal,
+    CreateFactorySuccessModal,
+    FormPage
   },
   setup () {
-    const factoryName = ref('')
-    const factoryType = ref(0)
-    const factoryTypeItems = [
-      { text: '請選擇工廠類型', value: 0 },
-      { text: '高危險', value: 1 },
-      { text: '低危險', value: 2 }
-    ]
     const filterModalOpen = ref(false)
     const closeFilterModal = () => {
       filterModalOpen.value = false
     }
 
-    return {
-      factoryName,
-      factoryType,
-      factoryTypeItems,
+    const createFactoryPageOpen = ref(false)
+    const toggleFactoryPage = () => {
+      createFactoryPageOpen.value = !createFactoryPageOpen.value
+    }
 
+    const closeFactoryPage = () => {
+      createFactoryPageOpen.value = false
+    }
+
+    const factoryLocation = ref<number[]>([])
+    const setFactoryLocation = (value: [number, number]) => {
+      factoryLocation.value = value
+    }
+
+    const selectFactoryMode = ref(false)
+    const enterSelectFactoryMode = () => {
+      selectFactoryMode.value = true
+    }
+    const exitSelectFactoryMode = () => {
+      selectFactoryMode.value = false
+    }
+
+    const createFactorySuccessModalOpen = ref(false)
+    const setCreateFactorySuccessModal = (open: boolean) => {
+      createFactorySuccessModalOpen.value = open
+    }
+
+    return {
       filterModalOpen,
-      closeFilterModal
+      closeFilterModal,
+
+      createFactorySuccessModalOpen,
+      setCreateFactorySuccessModal,
+
+      createFactoryPageOpen,
+      toggleFactoryPage,
+      closeFactoryPage,
+
+      selectFactoryMode,
+      enterSelectFactoryMode,
+      exitSelectFactoryMode,
+      factoryLocation,
+      setFactoryLocation
     }
   }
 })

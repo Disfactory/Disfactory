@@ -1,0 +1,57 @@
+@import './variables';
+
+.page-container {
+  position: fixed;
+
+  width: 100vw;
+  top: 47px;
+  left: 0;
+  height: calc(100% - 47px);
+  background: white;
+  overflow: auto;
+}
+
+.page {
+  height: 100%;
+
+  h1 {
+    font-size: 36px;
+    font-weight: 500;
+    line-height: 1.33;
+    margin-top: 0;
+
+    color: $second-color;
+
+    padding-right: 27px;
+    padding-bottom: 16px;
+
+    border-bottom: solid 1px $primary-color;
+
+    margin-right: 65px;
+  }
+
+  h2 {
+    font-size: 24px;
+    color: $primary-color;
+    border-bottom: solid 1px $primary-color;
+    margin-right: 65px;
+    padding-bottom: 16px;
+  }
+
+  h3 {
+    color: black;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 0.85;
+    letter-spacing: 0.83px;
+  }
+
+  & > h3 {
+    margin-top: 40px;
+  }
+
+  h1 + h3 {
+    margin-top: 0;
+  }
+}
+

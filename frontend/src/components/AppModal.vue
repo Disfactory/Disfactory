@@ -4,7 +4,7 @@
   >
     <div class="app-modal-backdrop" @click="dismiss" />
     <div class="app-modal">
-      <div class="close" />
+      <div class="close" @click="dismiss" v-if="showCloseButon" />
       <slot />
     </div>
   </div>
@@ -22,6 +22,10 @@ export default createComponent({
     },
     dismiss: {
       type: Function
+    },
+    showCloseButon: {
+      type: Boolean,
+      default: true
     }
   }
 })
@@ -41,6 +45,8 @@ export default createComponent({
   width: 100vw;
   height: 100vh;
 
+  padding: 45px 16px;
+
   display: none;
 
   &.open {
@@ -54,19 +60,23 @@ export default createComponent({
   height: 100%;
   top: 0;
   left: 0;
-  background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.4);
   z-index: 998;
 }
 
 .app-modal {
   z-index: 999;
-  position: relative;
 
   border-radius: 3px;
-  border: solid 1px $primary-color;
+  border: solid 2px $primary-color;
   background-color: $background-color;
 
   padding: 27px 22px;
+
+  position: absolute;
+  top: 90px;
+  max-height: calc(100vh - 110px);
+  overflow: auto;
 
   .close {
     position: absolute;

@@ -83,7 +83,7 @@ export const flipArgriculturalLand = createImageProcessor(data => {
       data[i] = 0
       data[i + 1] = 0
       data[i + 2] = 0
-      data[i + 3] = 0
+      data[i + 3] = 1
     } else {
       // set to black
       data[i] = 0

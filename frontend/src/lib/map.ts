@@ -1,6 +1,6 @@
 import { Style, Icon } from 'ol/style'
 import IconAnchorUnits from 'ol/style/IconAnchorUnits'
-import { Map as OlMap, View, Feature } from 'ol'
+import { Map as OlMap, View, Feature, MapBrowserEvent } from 'ol'
 import { Point } from 'ol/geom'
 import WMTS from 'ol/source/WMTS'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
@@ -15,6 +15,10 @@ import { flipArgriculturalLand } from '../lib/image'
 
 let factoriesLayerSource: VectorSource
 const factoryMap = new Map<string, FactoryData>()
+
+// internal map references
+let map: OlMap
+let mapDom: HTMLElement
 
 const factoryStatusImageMap = {
   D: '/images/marker-green.svg',
@@ -61,7 +65,7 @@ function createFactoryFeature (factory: FactoryData) {
   return feature
 }
 
-export function addFactories (map: OlMap, factories: FactoryData[]) {
+export function addFactories (factories: FactoryData[]) {
   const features = factories.filter(factory => !factoryMap.has(factory.id)).map(createFactoryFeature)
 
   if (!factoriesLayerSource) {
@@ -186,15 +190,33 @@ const getLUIMapLayer = (wmtsTileGrid: WMTSTileGrid) => {
   })
 }
 
-// internal map references
-let map: OlMap
-
 export function getMap () {
   return map
 }
 
-export function initializeMap (target: HTMLElement) {
+type MapEventHandler = {
+  onMoved?: (location: [number, number], canPlaceFactory: boolean) => any;
+}
+
+function canPlaceFactory (pixel: MapBrowserEvent['pixel']): Promise<boolean> {
+  return new Promise(resolve => {
+    map.forEachLayerAtPixel(pixel, function (_, data) {
+      const [,,, a] = data
+
+      return resolve(a === 1)
+    }, {
+      layerFilter: function (layer) {
+        // only handle click event on LUIMAP
+        return layer.getProperties().source.layer_ === 'LUIMAP'
+      }
+    })
+  })
+}
+
+export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}) {
   const tileGrid = getWMTSTileGrid()
+
+  mapDom = target
 
   map = new OlMap({
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -239,7 +261,12 @@ export function initializeMap (target: HTMLElement) {
     const res = await fetch(`/server/api/factories?range=${range}&lng=${lng}&lat=${lat}`)
     const data = await res.json() as FactoriesResponse
 
-    addFactories(map, data)
+    addFactories(data)
+
+    if (handler.onMoved) {
+      const { width, height } = mapDom.getBoundingClientRect()
+      handler.onMoved([lng, lat], await canPlaceFactory([width / 2, height / 2]))
+    }
   })
 
   // TODO: remove this
