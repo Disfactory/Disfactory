@@ -45,8 +45,8 @@ export default createComponent({
 
     onMounted(() => {
       initializeMap(root.value!, {
-        onMoved: function () {
-
+        onMoved: function ([longitude, latitude], canPlaceFactory) {
+          console.log(`longitude: ${longitude}, latitude: ${latitude}, canPlaceFactory: ${canPlaceFactory}`)
         }
       })
     })
@@ -104,6 +104,6 @@ export default createComponent({
   left: 0;
   z-index: 2;
 
-  transform: translate(calc(50vw - 12.5px), calc(50vw + 47px - 12.5px));
+  transform: translate(calc(50vw - 12.5px), calc(50vh - 12.5px));
 }
 </style>

@@ -1,6 +1,6 @@
 import { Style, Icon } from 'ol/style'
 import IconAnchorUnits from 'ol/style/IconAnchorUnits'
-import { Map as OlMap, View, Feature } from 'ol'
+import { Map as OlMap, View, Feature, MapBrowserEvent } from 'ol'
 import { Point } from 'ol/geom'
 import WMTS from 'ol/source/WMTS'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
@@ -188,17 +188,20 @@ const getLUIMapLayer = (wmtsTileGrid: WMTSTileGrid) => {
 
 // internal map references
 let map: OlMap
+let mapDom: HTMLElement
 
 export function getMap () {
   return map
 }
 
 type MapEventHandler = {
-  onMoved?: Function
+  onMoved?: (location: [number, number], canPlaceFactory: boolean) => any
 }
 
 export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}) {
   const tileGrid = getWMTSTileGrid()
+
+  mapDom = target
 
   map = new OlMap({
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -246,11 +249,27 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
     addFactories(map, data)
 
     if (handler.onMoved) {
-      handler.onMoved()
+      const { width, height } = mapDom.getBoundingClientRect()
+      handler.onMoved([lng, lat], await canPlaceFactory([width / 2, height / 2]))
     }
   })
 
   // TODO: remove this
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(window as any).map = map
+}
+
+function canPlaceFactory (pixel: MapBrowserEvent["pixel"]): Promise<boolean> {
+  return new Promise(resolve => {
+    map.forEachLayerAtPixel(pixel, function (_, data) {
+      const [,,, a] = data
+
+      return resolve(a === 1)
+    }, {
+      layerFilter: function (layer) {
+        // only handle click event on LUIMAP
+        return layer.getProperties().source.layer_ === 'LUIMAP'
+      }
+    })
+  })
 }
