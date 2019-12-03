@@ -10,7 +10,12 @@
       </div>
 
       <div class="choose-location-button" v-if="selectFactoryMode">
-        <app-button @click="selectCenterPoint">選擇此地點</app-button>
+        <app-button
+          @click="selectCenterPoint"
+          :disabled="!factoryValid"
+        >
+          選擇此地點
+        </app-button>
       </div>
     </div>
   </div>
@@ -38,24 +43,33 @@ export default createComponent({
     exitSelectFactoryMode: {
       type: Function,
       required: true
+    },
+    setFactoryLocation: {
+      type: Function,
+      required: true
     }
   },
   setup (props) {
     const root = ref<HTMLElement>(null)
+    const factoryValid = ref(false)
+    const factoryLngLat = ref([])
 
     onMounted(() => {
       initializeMap(root.value!, {
         onMoved: function ([longitude, latitude], canPlaceFactory) {
-          console.log(`longitude: ${longitude}, latitude: ${latitude}, canPlaceFactory: ${canPlaceFactory}`)
+          factoryLngLat.value = [longitude, latitude]
+          factoryValid.value = canPlaceFactory
         }
+        // TODO: do on start move to lock selection
       })
     })
 
+
     return {
       root,
+      factoryValid,
       selectCenterPoint () {
-        // TODO: set center point lng/lat
-
+        props.setFactoryLocation(factoryLngLat.value)
         props.exitSelectFactoryMode()
       }
     }

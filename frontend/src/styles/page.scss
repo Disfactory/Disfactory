@@ -6,7 +6,7 @@
   width: 100vw;
   top: 47px;
   left: 0;
-  height: 100%;
+  height: calc(100% - 47px);
   background: white;
   overflow: auto;
 }

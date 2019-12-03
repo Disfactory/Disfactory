@@ -11,6 +11,7 @@
         <h1>輸入資訊</h1>
 
         <h3>工廠地點</h3>
+        {{ JSON.stringify(factoryLocation) }}
 
         <app-button @click="enterSelectFactoryMode()">點我選擇</app-button>
 
@@ -96,6 +97,10 @@ export default createComponent({
     },
     exitSelectFactoryMode: {
       type: Function,
+      required: true
+    },
+    factoryLocation: {
+      type: Array,
       required: true
     }
   },

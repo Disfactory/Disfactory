@@ -6,6 +6,7 @@
       :toggleFactoryPage="toggleFactoryPage"
       :selectFactoryMode="selectFactoryMode"
       :exitSelectFactoryMode="exitSelectFactoryMode"
+      :setFactoryLocation="setFactoryLocation"
     />
 
     <form-page
@@ -14,6 +15,7 @@
       :selectFactoryMode="selectFactoryMode"
       :enterSelectFactoryMode="enterSelectFactoryMode"
       :exitSelectFactoryMode="exitSelectFactoryMode"
+      :factoryLocation="factoryLocation"
     />
   </div>
 </template>
@@ -52,6 +54,11 @@ export default createComponent({
       createFactoryPageOpen.value = false
     }
 
+    const factoryLocation = ref([])
+    const setFactoryLocation = (value) => {
+      factoryLocation.value = value
+    }
+
     const selectFactoryMode = ref(false)
     const enterSelectFactoryMode = () => {
       selectFactoryMode.value = true
@@ -70,7 +77,9 @@ export default createComponent({
 
       selectFactoryMode,
       enterSelectFactoryMode,
-      exitSelectFactoryMode
+      exitSelectFactoryMode,
+      factoryLocation,
+      setFactoryLocation
     }
   }
 })
