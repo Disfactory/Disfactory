@@ -52,7 +52,7 @@ export default createComponent({
   setup (props) {
     const root = ref<HTMLElement>(null)
     const factoryValid = ref(false)
-    const factoryLngLat = ref([])
+    const factoryLngLat = ref<number[]>([])
 
     onMounted(() => {
       initializeMap(root.value!, {

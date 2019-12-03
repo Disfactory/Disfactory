@@ -148,9 +148,9 @@ export default createComponent({
     const nickname = ref('')
     const contact = ref('')
 
-    const finishUploaderForm = (nickname, contact) => {
-      nickname.value = nickname
-      contact.value = contact
+    const finishUploaderForm = (nik: string, con: string) => {
+      nickname.value = nik
+      contact.value = con
     }
 
     return {

@@ -64,8 +64,8 @@ export default createComponent({
       createFactoryPageOpen.value = false
     }
 
-    const factoryLocation = ref([])
-    const setFactoryLocation = (value) => {
+    const factoryLocation = ref<number[]>([])
+    const setFactoryLocation = (value: [number, number]) => {
       factoryLocation.value = value
     }
 
@@ -78,7 +78,7 @@ export default createComponent({
     }
 
     const createFactorySuccessModalOpen = ref(false)
-    const setCreateFactorySuccessModal = open => createFactorySuccessModalOpen.value = open
+    const setCreateFactorySuccessModal = (open: boolean) => createFactorySuccessModalOpen.value = open
 
     return {
       filterModalOpen,
