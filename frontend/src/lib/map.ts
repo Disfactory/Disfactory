@@ -12,6 +12,7 @@ import { Vector as VectorSource } from 'ol/source'
 import { FactoriesResponse, FactoryData, FactoryStatusType, FACTORY_STATUS } from '../types'
 
 import { flipArgriculturalLand } from '../lib/image'
+import { getFactories } from '@/api'
 
 let factoriesLayerSource: VectorSource
 const factoryMap = new Map<string, FactoryData>()
@@ -258,10 +259,8 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const [lng, lat] = transform(view.getCenter()!, 'EPSG:3857', 'EPSG:4326')
 
-    const res = await fetch(`/server/api/factories?range=${range}&lng=${lng}&lat=${lat}`)
-    const data = await res.json() as FactoriesResponse
-
-    addFactories(data)
+    const factories = await getFactories(range, lng, lat)
+    addFactories(factories)
 
     if (handler.onMoved) {
       const { width, height } = mapDom.getBoundingClientRect()
