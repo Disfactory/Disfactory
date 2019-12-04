@@ -47,6 +47,8 @@ INSTALLED_APPS = [
     "django.contrib.gis",
     # 3rd party
     "rest_framework",
+    "corsheaders",
+
     # Local
     "users.apps.UsersConfig",
     "api.apps.ApiConfig",
@@ -54,6 +56,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    'corsheaders.middleware.CorsMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -138,3 +141,7 @@ if IMGUR_CLIENT_ID is None:
         "Imgur Client ID is not provided, some image related API may not work. "
         "To enable it, provide DISFACTORY_IMGUR_CLIENT_ID as a environment variable."
     )
+
+CORS_ORIGIN_WHITELIST = [
+    "https://dev.disfactory.tw",
+]
