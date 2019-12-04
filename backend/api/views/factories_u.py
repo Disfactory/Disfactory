@@ -57,7 +57,7 @@ def update_factory_attribute(request, factory_id):
     }
 
     with transaction.atomic():
-        Factory.objects.filter(pk=factory_id).update(**upfactorydated_factory_fields)
+        Factory.objects.filter(pk=factory_id).update(**updated_factory_fields)
         ReportRecord.objects.create(**new_report_record_fields)
         factory = Factory.objects.get(pk=factory_id)
 
