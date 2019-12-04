@@ -19,14 +19,14 @@ logger = logging.getLogger('django')
 def post_factory_image(request, factory_id):
     client_ip = _get_client_ip(request)
     if not Factory.objects.filter(pk=factory_id).exists():
-        logger.WARNING(f" {client_ip} : <{factory_id} does not exist.> ")
+        logger.warning(f" {client_ip} : <{factory_id} does not exist.> ")
         return HttpResponse(
             f"Factory ID {factory_id} does not exist.",
             status=400,
         )
     f_image = request.FILES['image']
     if not _is_image(f_image):
-        logger.WARNING(f" {client_ip} : <The uploaded file cannot be parsed to Image> ")
+        logger.warning(f" {client_ip} : <The uploaded file cannot be parsed to Image> ")
         return HttpResponse(
             "The uploaded file cannot be parsed to Image",
             status=400,
@@ -51,6 +51,6 @@ def post_factory_image(request, factory_id):
             factory=factory,
             report_record=report_record,
         )
-    logger.INFO(f" {user_ip} : <Post Factory Image> {factory} {factory_id} {path} ")
+    logger.info(f" {user_ip} : <Post Factory Image> {factory} {factory_id} {path} ")
     img_serializer = ImageSerializer(img)
     return JsonResponse(img_serializer.data, safe=False)
