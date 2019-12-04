@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="{ outline }"
+    :class="{ outline, disabled }"
     @click="click"
   >
     <slot />
@@ -16,11 +16,17 @@ export default createComponent({
     outline: {
       type: Boolean,
       default: false
+    },
+    disabled: {
+      type: Boolean,
+      default: false
     }
   },
-  setup (_, context) {
+  setup (props, context) {
     const click = () => {
-      context.emit('click')
+      if (!props.disabled) {
+        context.emit('click')
+      }
     }
 
     return {
@@ -38,7 +44,7 @@ button {
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
   border: 1px solid #fff;
   border-radius: 24px;
-  padding: 10px;
+  padding: 10px 21px;
 
   color: $dark-font-color;
   font-size: 1.6rem;
@@ -47,6 +53,10 @@ button {
   &:hover {
     cursor: pointer;
     opacity: 0.8;
+  }
+
+  &.disabled {
+    cursor: not-allowed;
   }
 }
 
