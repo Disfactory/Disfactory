@@ -30,9 +30,9 @@ def post_image(request):
             'orig_time': image_original_date,
         }
         img = Image.objects.create(**args)
-        logger.INFO(f" {client_ip} : <post_image>  {args}  ")
+        logger.info(f" {client_ip} : <post_image>  {args}  ")
         return JsonResponse({"token": img.id})
-    logger.WARNING(f" {client_ip} : <uploaded file cannot be parsed to Image> ")
+    logger.warning(f" {client_ip} : <uploaded file cannot be parsed to Image> ")
     return HttpResponse(
         "The uploaded file cannot be parsed to Image",
         status=400,
