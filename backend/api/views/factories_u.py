@@ -61,6 +61,6 @@ def update_factory_attribute(request, factory_id):
         ReportRecord.objects.create(**new_report_record_fields)
         factory = Factory.objects.get(pk=factory_id)
 
-    logger.info(f" {user_ip} : <Update factory> {factory} {factory_id} {put_body} ")
+    logger.info(f" {client_ip} : <Update factory> {factory} {factory_id} {put_body} ")
     serializer = FactorySerializer(factory)
     return JsonResponse(serializer.data, safe=False)
