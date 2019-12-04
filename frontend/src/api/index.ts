@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { FactoryPostData, FactoryData } from '@/types'
+import { FactoryPostData, FactoryData, FactoriesResponse } from '@/types'
 
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://middle2.disfactory.tw/api' : '/server/api'
 
@@ -15,6 +15,12 @@ export type UploadedImages = {
   token: string;
   src: string; // used for preview images
 }[]
+
+export async function getFactories (range: number, lng: number, lat: number): Promise<FactoriesResponse> {
+  const { data } = await instance.get(`/factories?range=${range}&lng=${lng}&lat=${lat}`)
+
+  return data
+}
 
 export async function uploadImages (files: FileList): Promise<UploadedImages> {
   const results: UploadedImages = []
