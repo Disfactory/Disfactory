@@ -82,12 +82,12 @@ def get_nearby_or_create_factories(request):
         return JsonResponse(serializer.data, safe=False)
     
     elif request.method == "POST":
-        client_ip = _get_client_ip(request)
+        user_ip = _get_client_ip(request)
         post_body = json.loads(request.body)
         # print(post_body)
         serializer = FactorySerializer(data=post_body)
         if not serializer.is_valid():
-            logger.warning(f" {client_ip} : <serializer errors> ")
+            logger.warning(f" {user_ip} : <serializer errors> ")
             return JsonResponse(
                 serializer.errors,
                 status=400,
@@ -97,7 +97,7 @@ def get_nearby_or_create_factories(request):
         latitude = post_body['lat']
         image_ids = post_body.get('images', [])
         if not _all_image_id_exist(image_ids):
-            logger.warning(f" {client_ip} : <please check if every image id exist> ")
+            logger.warning(f" {user_ip} : <please check if every image id exist> ")
             return HttpResponse(
                 "please check if every image id exist",
                 status=400,
@@ -106,7 +106,7 @@ def get_nearby_or_create_factories(request):
         try:
             land_number = easymap.get_land_number(longitude, latitude)['landno']
         except Exception:
-            logger.warning(f" {client_ip} : <Something wrong happened when getting land numbe> ")
+            logger.warning(f" {user_ip} : <Something wrong happened when getting land numbe> ")
             return HttpResponse(
                 "Something wrong happened when getting land number, please try later.",
                 status=400,
@@ -140,5 +140,5 @@ def get_nearby_or_create_factories(request):
             )
             
         serializer = FactorySerializer(new_factory)
-        logger.info(f" {client_ip} : <Create factory> {new_factory_field['name']} {new_factory_field['factory_type']} {new_factory_field['landcode']} {post_body} ")
+        logger.info(f" {user_ip} : <Create factory> {new_factory_field['name']} {new_factory_field['factory_type']} {new_factory_field['landcode']} {post_body} ")
         return JsonResponse(serializer.data, safe=False)
