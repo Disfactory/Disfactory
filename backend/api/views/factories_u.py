@@ -13,13 +13,18 @@ from ..serializers import FactorySerializer
 
 from .utils import _get_client_ip
 
+import logging
+logger = logging.getLogger('django')
+
 
 #@api_view(['PUT'])
 def update_factory_attribute(request, factory_id):
+    client_ip = _get_client_ip(request)
     put_body = json.loads(request.body)
     serializer = FactorySerializer(data=put_body, partial=True)
 
     if not serializer.is_valid():
+        logger.warning(f" {client_ip} : <serializer errors> ")
         return JsonResponse(
             serializer.errors,
             status=400,
@@ -44,7 +49,7 @@ def update_factory_attribute(request, factory_id):
 
     new_report_record_fields = {
         "factory_id": factory_id,
-        "user_ip": _get_client_ip(request),
+        "user_ip": client_ip,
         "action_type": "UPDATE",
         "action_body": put_body,
         "contact": put_body.get("contact"),
@@ -56,5 +61,6 @@ def update_factory_attribute(request, factory_id):
         ReportRecord.objects.create(**new_report_record_fields)
         factory = Factory.objects.get(pk=factory_id)
 
+    logger.info(f" {client_ip} : <Update factory> {factory} {factory_id} {put_body} ")
     serializer = FactorySerializer(factory)
     return JsonResponse(serializer.data, safe=False)

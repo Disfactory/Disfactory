@@ -15,6 +15,10 @@ from ..serializers import FactorySerializer
 import easymap
 
 
+import logging
+logger = logging.getLogger('django')
+
+
 def _not_in_taiwan(lat, lng):
     lat_invalid = lat < 22 or lat > 25
     lng_invalid = lng < 120 or lng > 122
@@ -74,37 +78,40 @@ def get_nearby_or_create_factories(request):
             longitude=longitude,
             radius=radius,
         )
-
         serializer = FactorySerializer(nearby_factories, many=True)
         return JsonResponse(serializer.data, safe=False)
+    
     elif request.method == "POST":
+        user_ip = _get_client_ip(request)
         post_body = json.loads(request.body)
         # print(post_body)
         serializer = FactorySerializer(data=post_body)
-
         if not serializer.is_valid():
+            logger.warning(f" {user_ip} : <serializer errors> ")
             return JsonResponse(
                 serializer.errors,
                 status=400,
             )
+        
         longitude = post_body['lng']
         latitude = post_body['lat']
         image_ids = post_body.get('images', [])
-
         if not _all_image_id_exist(image_ids):
+            logger.warning(f" {user_ip} : <please check if every image id exist> ")
             return HttpResponse(
                 "please check if every image id exist",
                 status=400,
             )
-
+        
         try:
             land_number = easymap.get_land_number(longitude, latitude)['landno']
         except Exception:
+            logger.warning(f" {user_ip} : <Something wrong happened when getting land numbe> ")
             return HttpResponse(
                 "Something wrong happened when getting land number, please try later.",
                 status=400,
             )
-        user_ip = _get_client_ip(request)
+        
         new_factory_field = {
             'name': post_body["name"],
             'lat': post_body["lat"],
@@ -120,7 +127,7 @@ def get_nearby_or_create_factories(request):
             'contact': post_body.get("contact"),
             "others": post_body.get("others", ""),
         }
-
+        
         with transaction.atomic():
             new_factory = Factory.objects.create(**new_factory_field)
             report_record = ReportRecord.objects.create(
@@ -131,5 +138,7 @@ def get_nearby_or_create_factories(request):
                 factory=new_factory,
                 report_record=report_record
             )
+            
         serializer = FactorySerializer(new_factory)
+        logger.info(f" {user_ip} : <Create factory> {new_factory_field['name']} {new_factory_field['factory_type']} {new_factory_field['landcode']} {post_body} ")
         return JsonResponse(serializer.data, safe=False)
