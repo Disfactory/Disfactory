@@ -51,6 +51,6 @@ def post_factory_image(request, factory_id):
             factory=factory,
             report_record=report_record,
         )
-    logger.info(f" {user_ip} : <Post Factory Image> {factory} {factory_id} {path} ")
+    logger.info(f" {client_ip} : <Post Factory Image> {factory} {factory_id} {path} ")
     img_serializer = ImageSerializer(img)
     return JsonResponse(img_serializer.data, safe=False)
