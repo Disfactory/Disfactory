@@ -8,7 +8,7 @@ black = "==19.3b0"
 freezegun = "*"
 
 [packages]
-django = "==2.2.4"
+django = "==2.2.8"
 "psycopg2-binary" = "==2.8.3"
 djangorestframework = "==3.9.2"
 python-dotenv = "==0.10.3"
