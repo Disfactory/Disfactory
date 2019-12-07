@@ -24,7 +24,6 @@
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
 import { createComponent, onMounted, ref } from '@vue/composition-api'
-import 'ol/ol.css'
 import { initializeMap } from '../lib/map'
 
 export default createComponent({

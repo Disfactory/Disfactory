@@ -8,8 +8,9 @@ import { get as getProjection, transform } from 'ol/proj'
 import { getWidth, getTopLeft } from 'ol/extent'
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
+import { Zoom, ZoomToExtent, defaults } from 'ol/control'
 
-import { FactoriesResponse, FactoryData, FactoryStatusType, FACTORY_STATUS } from '../types'
+import { FactoryData, FactoryStatusType } from '../types'
 
 import { flipArgriculturalLand } from '../lib/image'
 import { getFactories } from '@/api'
@@ -26,6 +27,31 @@ const factoryStatusImageMap = {
   F: '/images/marker-red.svg',
   A: '/images/marker-blue.svg'
 }
+
+
+type ButtonElements = {
+  zoomIn: HTMLImageElement
+  zoomOut: HTMLImageElement
+  locate: HTMLImageElement
+}
+
+const mapControlButtons = Object.entries({
+  zoomIn: '/images/zoom-in.svg',
+  zoomOut: '/images/zoom-out.svg',
+  locate: '/images/locate.svg'
+}).reduce((acc, [key, image]) => {
+  const label = document.createElement('img')
+  label.setAttribute('src', image)
+
+  return {
+    ...acc,
+    [key]: label
+  }
+}, {}) as ButtonElements
+
+const zoomToExtendLabel = document.createElement('img')
+zoomToExtendLabel.setAttribute('src', '/images/locate.svg')
+
 
 const iconStyleMap = Object.entries(factoryStatusImageMap).reduce((acc, [status, src]) => ({
   ...acc,
@@ -229,12 +255,21 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
     view: new View({
       center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
       zoom: 15
-    })
+    }),
+    controls: [
+      new ZoomToExtent({
+        label: mapControlButtons.locate,
+      }),
+      new Zoom({
+        zoomInLabel: mapControlButtons.zoomIn,
+        zoomOutLabel: mapControlButtons.zoomOut,
+      })
+    ]
   })
 
   map.on('click', function (event) {
     // console.log(event)
-    map.forEachLayerAtPixel(event.pixel, function (layer, data) {
+    map.forEachLayerAtPixel(event.pixel, function (_, data) {
       const [r, g, b, a] = data
       console.log(`rgba(${r}, ${g}, ${b}, ${a})`)
       // console.log(layer.getProperties())
