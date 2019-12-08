@@ -1,6 +1,6 @@
+import { Map as OlMap, View, Feature, MapBrowserEvent } from 'ol'
 import { Style, Icon } from 'ol/style'
 import IconAnchorUnits from 'ol/style/IconAnchorUnits'
-import { Map as OlMap, View, Feature, MapBrowserEvent } from 'ol'
 import { Point } from 'ol/geom'
 import WMTS from 'ol/source/WMTS'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
@@ -12,11 +12,7 @@ import { Zoom } from 'ol/control'
 import Geolocation from 'ol/Geolocation'
 
 import { FactoryData, FactoryStatusType } from '../types'
-
 import { flipArgriculturalLand } from '../lib/image'
-
-// internal map references
-let mapInstance: OLMap
 
 const factoryStatusImageMap = {
   D: '/images/marker-green.svg',
@@ -362,6 +358,6 @@ export class OLMap {
 }
 
 export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}) {
-  mapInstance = new OLMap(target, handler)
+  const mapInstance = new OLMap(target, handler)
   return new MapFactoryController(mapInstance)
 }
