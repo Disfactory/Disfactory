@@ -21,14 +21,14 @@ export const FACTORY_STATUS = {
 export type FactoryStatusType = keyof typeof FACTORY_STATUS
 
 export type FactoryData = {
-  id: string;
-  lat: number;
-  lng: number;
-  name: string;
-  landcode: string;
-  type: FactoryType;
-  status: FactoryStatusType;
-  images: string[];
+  id: string,
+  lat: number,
+  lng: number,
+  name: string,
+  landcode: string,
+  type: FactoryType,
+  status: FactoryStatusType,
+  images: string[],
   // TODO: can be one of https://docs.djangoproject.com/en/2.2/ref/settings/#datetime-input-formats
   // eslint-disable-next-line
   reported_at: null | string
@@ -37,12 +37,12 @@ export type FactoryData = {
 export type FactoriesResponse = Array<FactoryData>
 
 export type FactoryPostData = {
-  name: string;
-  type: FactoryType;
-  images?: string[];
-  other?: string;
-  lat: number;
-  lng: number;
-  nickname?: string;
-  contact?: string;
+  name: string,
+  type: FactoryType,
+  images?: string[],
+  other?: string,
+  lat: number,
+  lng: number,
+  nickname?: string,
+  contact?: string
 }

@@ -70,7 +70,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, onMounted, ref, computed, inject } from '@vue/composition-api'
+import { createComponent, ref, computed, inject } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
@@ -121,9 +121,9 @@ export default createComponent({
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
     const factoryName = ref('')
-    const factoryType = ref<FactoryType>(0)
-    const factoryTypeItems: any[] = [
-      { text: '請選擇工廠類型', value: 0 },
+    const factoryType = ref<FactoryType>('0')
+    const factoryTypeItems: Array<{ text: string, value: string }> = [
+      { text: '請選擇工廠類型', value: '0' },
       ...Object.entries(FACTORY_TYPE).map(([value, text]) => ({ text, value }))
     ]
     const factoryDescription = ref('')
@@ -173,6 +173,7 @@ export default createComponent({
       imagesToUpload,
       image, // image upload input ref,
       handleImagesUpload (e: Event) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         imagesToUpload.value = (e.target as HTMLInputElement).files!
 
         openImageUploadModal()
@@ -201,7 +202,9 @@ export default createComponent({
           console.log(factory)
 
           const resultFactory = await createFactory(factory)
-          mapController.value!.addFactories([resultFactory])
+          if (mapController.value) {
+            mapController.value.addFactories([resultFactory])
+          }
         } catch (e) {
           // TODO: handle create failure
         }

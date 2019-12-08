@@ -27,7 +27,7 @@ export default createComponent({
     },
     items: {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      type: Array as PropType<{ text: string; value: any }[]>,
+      type: Array as PropType<{ text: string, value: any }[]>,
       required: true
     }
   },

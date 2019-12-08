@@ -21,8 +21,8 @@ const factoryStatusImageMap = {
 }
 
 type ButtonElements = {
-  zoomIn: HTMLImageElement;
-  zoomOut: HTMLImageElement;
+  zoomIn: HTMLImageElement,
+  zoomOut: HTMLImageElement
 }
 
 const mapControlButtons = Object.entries({
@@ -131,7 +131,7 @@ export class MapFactoryController {
     return feature
   }
 
-  private forEachFeatureFactory (fn: (feature: Feature, factory: FactoryData) => any) {
+  private forEachFeatureFactory (fn: (feature: Feature, factory: FactoryData) => void) {
     this.factoriesLayerSource.getFeatures().forEach(feature => {
       const id = feature.getId() as string
       const factory = this.factoryMap.get(id) as FactoryData
@@ -217,7 +217,7 @@ const getLUIMapLayer = (wmtsTileGrid: WMTSTileGrid) => {
 }
 
 type MapEventHandler = {
-  onMoved?: (location: [number, number, number], canPlaceFactory: boolean) => any;
+  onMoved?: (location: [number, number, number], canPlaceFactory: boolean) => void
 }
 
 export class OLMap {

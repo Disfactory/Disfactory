@@ -36,7 +36,7 @@
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
 import { createComponent, onMounted, ref, inject } from '@vue/composition-api'
-import { initializeMap, OLMap, MapFactoryController } from '../lib/map'
+import { initializeMap, MapFactoryController } from '../lib/map'
 import { getFactories } from '../api'
 import { MainMapControllerSymbol } from '../symbols'
 
@@ -73,6 +73,7 @@ export default createComponent({
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
     onMounted(() => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const mapController = initializeMap(root.value!, {
         onMoved: async function ([longitude, latitude, range], canPlaceFactory) {
           try {

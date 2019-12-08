@@ -35,7 +35,7 @@
 import AppModal from '@/components/AppModal.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
-import { createComponent, reactive, ref, computed } from '@vue/composition-api'
+import { createComponent, ref, computed } from '@vue/composition-api'
 import { uploadImages } from '../api'
 
 export default createComponent({
@@ -55,7 +55,8 @@ export default createComponent({
       required: true
     },
     images: {
-      type: FileList
+      type: FileList,
+      default: () => new FileList()
     },
     finishImagesUpload: {
       type: Function,
@@ -66,14 +67,14 @@ export default createComponent({
       required: true
     }
   },
-  setup (props, context) {
+  setup (props) {
     const nickname = ref('')
     const contact = ref('')
 
     const imageUrls = computed(() => {
       const urls = []
-      for (let i = 0; i < props.images!.length; i++) {
-        urls.push(URL.createObjectURL(props.images![i]))
+      for (let i = 0; i < props.images.length; i++) {
+        urls.push(URL.createObjectURL(props.images[i]))
       }
 
       return urls
@@ -84,7 +85,7 @@ export default createComponent({
       contact,
       imageUrls,
       async handleImagesUpload () {
-        const images = await uploadImages(props.images!)
+        const images = await uploadImages(props.images)
         props.finishImagesUpload(images)
 
         props.finishUploaderForm(nickname.value, contact.value)

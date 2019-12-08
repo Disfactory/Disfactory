@@ -8,12 +8,12 @@ const instance = axios.create({
 })
 
 type ImageResponse = {
-  token: string;
+  token: string
 }
 
 export type UploadedImages = {
-  token: string;
-  src: string; // used for preview images
+  token: string,
+  src: string // used for preview images
 }[]
 
 export async function getFactories (range: number, lng: number, lat: number): Promise<FactoriesResponse> {
