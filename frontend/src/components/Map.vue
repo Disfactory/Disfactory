@@ -133,6 +133,6 @@ export default createComponent({
   left: 0;
   z-index: 2;
 
-  transform: translate(calc(50vw - 12.5px), calc(50vh - 12.5px + 47px));
+  transform: translate(calc(50vw - 12.5px), calc(50vh - 12.5px + 47px - 25px));
 }
 </style>
