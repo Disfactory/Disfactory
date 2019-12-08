@@ -34,7 +34,7 @@
 import AppModal from '@/components/AppModal.vue'
 import AppButton from '@/components/AppButton.vue'
 import { setFactoryStatusFilter } from '../lib/map'
-import { createComponent, reactive, ref } from '@vue/composition-api'
+import { createComponent, ref } from '@vue/composition-api'
 
 export default createComponent({
   name: 'FilterModal',
@@ -51,7 +51,7 @@ export default createComponent({
       type: Function
     }
   },
-  setup (props, context) {
+  setup (props) {
     const filterF = ref(false)
     const filterA = ref(false)
     const filterD = ref(false)

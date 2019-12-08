@@ -30,15 +30,14 @@ const factoryStatusImageMap = {
   A: '/images/marker-blue.svg'
 }
 
-
 type ButtonElements = {
-  zoomIn: HTMLImageElement
+  zoomIn: HTMLImageElement,
   zoomOut: HTMLImageElement
 }
 
 const mapControlButtons = Object.entries({
   zoomIn: '/images/zoom-in.svg',
-  zoomOut: '/images/zoom-out.svg',
+  zoomOut: '/images/zoom-out.svg'
 }).reduce((acc, [key, image]) => {
   const label = document.createElement('img')
   label.setAttribute('src', image)
@@ -112,6 +111,7 @@ export function hideFactories (factories: FactoryData[]) {
   })
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function forEachFeatureFactory (fn: (feature: Feature, factory: FactoryData) => any) {
   factoriesLayerSource.getFeatures().forEach(feature => {
     const id = feature.getId() as string
@@ -216,7 +216,7 @@ export function getMap () {
 }
 
 type MapEventHandler = {
-  onMoved?: (location: [number, number], canPlaceFactory: boolean) => any;
+  onMoved?: (location: [number, number], canPlaceFactory: boolean) => void
 }
 
 function canPlaceFactory (pixel: MapBrowserEvent['pixel']): Promise<boolean> {
@@ -265,7 +265,7 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
   geolocation.setTracking(true)
 
   const positionFeature = new Feature()
-  geolocation.on('change:position', function() {
+  geolocation.on('change:position', function () {
     const coordinates = geolocation.getPosition()
     positionFeature.setGeometry(coordinates ? new Point(coordinates) : undefined)
   })
@@ -302,7 +302,7 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
     controls: [
       new Zoom({
         zoomInLabel: mapControlButtons.zoomIn,
-        zoomOutLabel: mapControlButtons.zoomOut,
+        zoomOutLabel: mapControlButtons.zoomOut
       })
     ]
   })

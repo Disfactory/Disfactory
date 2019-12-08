@@ -8,7 +8,7 @@
 <script lang="ts">
 import AppModal from '@/components/AppModal.vue'
 import AppButton from '@/components/AppButton.vue'
-import { createComponent, ref } from '@vue/composition-api'
+import { createComponent } from '@vue/composition-api'
 
 export default createComponent({
   name: 'CreateFactorySuccessModal',

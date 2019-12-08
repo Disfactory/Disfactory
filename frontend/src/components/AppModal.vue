@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, PropType, computed } from '@vue/composition-api'
+import { createComponent } from '@vue/composition-api'
 
 export default createComponent({
   name: 'AppModal',

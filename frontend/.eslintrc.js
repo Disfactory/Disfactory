@@ -19,6 +19,7 @@ module.exports = {
     '@typescript-eslint/semi': ['error', 'never'],
     'no-unused-expressions': 'off',
     '@typescript-eslint/no-unused-expressions': 'error',
+    '@typescript-eslint/member-delimiter-style': ['error', { multiline: { delimiter: 'comma', requireLast: false }, singleline: { delimiter: 'comma', requireLast: false }, overrides: { interface: { multiline: { delimiter: 'none' } } } }],
     '@typescript-eslint/require-await': 'off', // TODO: can remove on 11/25
   },
   parser: 'vue-eslint-parser',
