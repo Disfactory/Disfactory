@@ -87,7 +87,7 @@ export default createComponent({
 
           factoryLngLat.value = [longitude, latitude]
           factoryValid.value = canPlaceFactory
-        },
+        }
         // TODO: do on start move to lock selection
       })
 

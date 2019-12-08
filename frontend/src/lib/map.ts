@@ -21,13 +21,13 @@ const factoryStatusImageMap = {
 }
 
 type ButtonElements = {
-  zoomIn: HTMLImageElement
-  zoomOut: HTMLImageElement
+  zoomIn: HTMLImageElement;
+  zoomOut: HTMLImageElement;
 }
 
 const mapControlButtons = Object.entries({
   zoomIn: '/images/zoom-in.svg',
-  zoomOut: '/images/zoom-out.svg',
+  zoomOut: '/images/zoom-out.svg'
 }).reduce((acc, [key, image]) => {
   const label = document.createElement('img')
   label.setAttribute('src', image)
@@ -80,9 +80,10 @@ export class MapFactoryController {
   }
 
   public addFactories (factories: FactoryData[]) {
+    const createFactoryFeature = this.createFactoryFeature.bind(this)
     const features = factories
       .filter(factory => !this.factoryMap.has(factory.id))
-      .map(this.createFactoryFeature)
+      .map(createFactoryFeature)
 
     this.factoriesLayerSource.addFeatures(features)
   }
@@ -238,6 +239,7 @@ export class OLMap {
   }
 
   private setupEventListeners (map: OlMap, handler: MapEventHandler) {
+    // eslint-disable-next-line
     map.on('moveend', async () => {
       const view = map.getView()
       const zoom = view.getZoom()
@@ -276,7 +278,7 @@ export class OLMap {
       controls: [
         new Zoom({
           zoomInLabel: mapControlButtons.zoomIn,
-          zoomOutLabel: mapControlButtons.zoomOut,
+          zoomOutLabel: mapControlButtons.zoomOut
         })
       ]
     })
@@ -303,7 +305,7 @@ export class OLMap {
 
   private setupgeolocationLayer (geolocation: Geolocation) {
     const positionFeature = new Feature()
-    geolocation.on('change:position', function() {
+    geolocation.on('change:position', function () {
       const coordinates = geolocation.getPosition()
       positionFeature.setGeometry(coordinates ? new Point(coordinates) : undefined)
     })
