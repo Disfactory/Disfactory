@@ -14,13 +14,8 @@ import Geolocation from 'ol/Geolocation'
 import { FactoryData, FactoryStatusType } from '../types'
 
 import { flipArgriculturalLand } from '../lib/image'
-import { getFactories } from '@/api'
-
-let factoriesLayerSource: VectorSource
-const factoryMap = new Map<string, FactoryData>()
 
 // internal map references
-let map: OlMap
 let mapInstance: OLMap
 
 const factoryStatusImageMap = {
@@ -59,91 +54,106 @@ const iconStyleMap = Object.entries(factoryStatusImageMap).reduce((acc, [status,
 
 const nullStyle = new Style({})
 
-let appliedFilters: FactoryStatusType[] = []
+export class MapFactoryController {
+  private _map: OLMap
+  private appliedFilters: FactoryStatusType[] = []
+  private _factoriesLayerSource?: VectorSource
+  private factoryMap = new Map<string, FactoryData>()
 
-function isFactoryVisible (factory: FactoryData) {
-  if (appliedFilters.length === 0) {
-    return true
-  } else {
-    return appliedFilters.includes(factory.status)
+  constructor (map: OLMap) {
+    this._map = map
   }
-}
 
-function getFactoryStyle (factory: FactoryData): Style {
-  const visible = isFactoryVisible(factory)
-  return visible ? iconStyleMap[factory.status] : nullStyle
-}
+  get mapInstance () {
+    return this._map
+  }
 
-function createFactoryFeature (factory: FactoryData) {
-  const feature = new Feature({
-    geometry: new Point(transform([factory.lng, factory.lat], 'EPSG:4326', 'EPSG:3857'))
-  })
-  feature.setId(factory.id)
-  feature.setStyle(getFactoryStyle(factory))
+  get factoriesLayerSource () {
+    // create or return _factoriesLayerSource
+    if (!this._factoriesLayerSource) {
+      this._factoriesLayerSource = new VectorSource({ features: [] })
 
-  factoryMap.set(factory.id, factory)
+      const vectorLayer = new VectorLayer({
+        source: this._factoriesLayerSource
+      })
 
-  return feature
-}
+      this.mapInstance.map.addLayer(vectorLayer)
+    }
 
-export function addFactories (factories: FactoryData[]) {
-  const features = factories.filter(factory => !factoryMap.has(factory.id)).map(createFactoryFeature)
+    return this._factoriesLayerSource
+  }
 
-  if (!factoriesLayerSource) {
-    factoriesLayerSource = new VectorSource({
-      features
+  public addFactories (factories: FactoryData[]) {
+    const features = factories
+      .filter(factory => !this.factoryMap.has(factory.id))
+      .map(this.createFactoryFeature)
+
+    this.factoriesLayerSource.addFeatures(features)
+  }
+
+  public hideFactories (factories: FactoryData[]) {
+    factories.forEach(factory => {
+      const feature = this.factoriesLayerSource.getFeatureById(factory.id)
+      feature.setStyle(nullStyle)
     })
-    const vectorLayer = new VectorLayer({
-      source: factoriesLayerSource
+  }
+
+  public setFactoryStatusFilter (filters: FactoryStatusType[]) {
+    this.appliedFilters = filters
+
+    // reset filter if filters is an empty array
+    if (filters.length === 0) {
+      return this.displayAllFactory()
+    } else {
+      this.updateFactoriesFeatureStyle()
+    }
+  }
+
+  private isFactoryVisible (factory: FactoryData) {
+    if (this.appliedFilters.length === 0) {
+      return true
+    } else {
+      return this.appliedFilters.includes(factory.status)
+    }
+  }
+
+  private getFactoryStyle (factory: FactoryData): Style {
+    const visible = this.isFactoryVisible(factory)
+    return visible ? iconStyleMap[factory.status] : nullStyle
+  }
+
+  private createFactoryFeature (factory: FactoryData) {
+    const feature = new Feature({
+      geometry: new Point(transform([factory.lng, factory.lat], 'EPSG:4326', 'EPSG:3857'))
     })
+    feature.setId(factory.id)
+    feature.setStyle(this.getFactoryStyle(factory))
 
-    map.addLayer(vectorLayer)
-  } else {
-    factoriesLayerSource.addFeatures(features)
-  }
-}
+    this.factoryMap.set(factory.id, factory)
 
-export function hideFactories (factories: FactoryData[]) {
-  factories.forEach(factory => {
-    const feature = factoriesLayerSource.getFeatureById(factory.id)
-    feature.setStyle(nullStyle)
-  })
-}
-
-function forEachFeatureFactory (fn: (feature: Feature, factory: FactoryData) => any) {
-  factoriesLayerSource.getFeatures().forEach(feature => {
-    const id = feature.getId() as string
-    const factory = factoryMap.get(id) as FactoryData
-
-    fn(feature, factory)
-  })
-}
-
-function displayAllFactory () {
-  forEachFeatureFactory((feature, factory) => {
-    feature.setStyle(iconStyleMap[factory.status])
-  })
-}
-
-function updateFactoriesFeatureStyle () {
-  forEachFeatureFactory((feature, factory) => {
-    feature.setStyle(getFactoryStyle(factory))
-  })
-}
-
-export function setFactoryStatusFilter (filters: FactoryStatusType[]) {
-  // factory layer doesn't get initialized yet
-  if (!factoriesLayerSource) {
-    return
-  }
-  appliedFilters = filters
-
-  // reset filter if filters is an empty array
-  if (filters.length === 0) {
-    return displayAllFactory()
+    return feature
   }
 
-  updateFactoriesFeatureStyle()
+  private forEachFeatureFactory (fn: (feature: Feature, factory: FactoryData) => any) {
+    this.factoriesLayerSource.getFeatures().forEach(feature => {
+      const id = feature.getId() as string
+      const factory = this.factoryMap.get(id) as FactoryData
+
+      fn(feature, factory)
+    })
+  }
+
+  private displayAllFactory () {
+    this.forEachFeatureFactory((feature, factory) => {
+      feature.setStyle(iconStyleMap[factory.status])
+    })
+  }
+
+  private updateFactoriesFeatureStyle () {
+    this.forEachFeatureFactory((feature, factory) => {
+      feature.setStyle(this.getFactoryStyle(factory))
+    })
+  }
 }
 
 const getWMTSTileGrid = () => {
@@ -213,7 +223,7 @@ type MapEventHandler = {
   onMoved?: (location: [number, number, number], canPlaceFactory: boolean) => any;
 }
 
-class OLMap {
+export class OLMap {
   private _map: OlMap
   private mapDom: HTMLElement
   private geolocation: Geolocation
@@ -351,11 +361,7 @@ class OLMap {
   }
 }
 
-export function zoomToGeolocation () {
-  mapInstance.zoomToGeolocation()
-}
-
 export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}) {
   mapInstance = new OLMap(target, handler)
-  map = mapInstance.map
+  return new MapFactoryController(mapInstance)
 }

@@ -36,7 +36,7 @@
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
 import { createComponent, onMounted, ref } from '@vue/composition-api'
-import { initializeMap, zoomToGeolocation, addFactories } from '../lib/map'
+import { initializeMap, OLMap } from '../lib/map'
 import { getFactories } from '../api'
 
 export default createComponent({
@@ -69,14 +69,15 @@ export default createComponent({
     const root = ref<HTMLElement>(null)
     const factoryValid = ref(false)
     const factoryLngLat = ref<number[]>([])
+    const mapInstance = ref<OLMap>(null)
 
     onMounted(() => {
-      initializeMap(root.value!, {
+      const mapController = initializeMap(root.value!, {
         onMoved: async function ([longitude, latitude, range], canPlaceFactory) {
           try {
             const factories = await getFactories(range, longitude, latitude)
             if (Array.isArray(factories)) {
-              addFactories(factories)
+              mapController.addFactories(factories)
             }
           } catch (e) {
             console.error(e)
@@ -87,6 +88,8 @@ export default createComponent({
         },
         // TODO: do on start move to lock selection
       })
+
+      mapInstance.value = mapController.mapInstance
     })
 
     return {
@@ -96,7 +99,11 @@ export default createComponent({
         props.setFactoryLocation(factoryLngLat.value)
         props.exitSelectFactoryMode()
       },
-      zoomToGeolocation
+      zoomToGeolocation: function () {
+        if (mapInstance.value) {
+          mapInstance.value.zoomToGeolocation()
+        }
+      }
     }
   }
 })
