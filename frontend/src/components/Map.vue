@@ -2,6 +2,12 @@
   <div class="map-container">
     <div ref="root" class="map" />
 
+    <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal">
+      <button>
+        <img src="/images/search.svg" alt="search">
+      </button>
+    </div>
+
     <div class="center-point" v-if="selectFactoryMode" />
 
     <div class="factory-button-group">
@@ -46,6 +52,10 @@ export default createComponent({
     setFactoryLocation: {
       type: Function,
       required: true
+    },
+    openFilterModal: {
+      type: Function,
+      required: true
     }
   },
   setup (props) {
@@ -69,7 +79,7 @@ export default createComponent({
       selectCenterPoint () {
         props.setFactoryLocation(factoryLngLat.value)
         props.exitSelectFactoryMode()
-      }
+      },
     }
   }
 })
