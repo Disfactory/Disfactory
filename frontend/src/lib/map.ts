@@ -21,15 +21,13 @@ const factoryMap = new Map<string, FactoryData>()
 
 // internal map references
 let map: OlMap
-let mapDom: HTMLElement
-let geolocation: Geolocation
+let mapInstance: OLMap
 
 const factoryStatusImageMap = {
   D: '/images/marker-green.svg',
   F: '/images/marker-red.svg',
   A: '/images/marker-blue.svg'
 }
-
 
 type ButtonElements = {
   zoomIn: HTMLImageElement
@@ -211,139 +209,163 @@ const getLUIMapLayer = (wmtsTileGrid: WMTSTileGrid) => {
   })
 }
 
-export function getMap () {
-  return map
-}
-
 type MapEventHandler = {
   onMoved?: (location: [number, number], canPlaceFactory: boolean) => any;
 }
 
-function canPlaceFactory (pixel: MapBrowserEvent['pixel']): Promise<boolean> {
-  return new Promise(resolve => {
-    map.forEachLayerAtPixel(pixel, function (_, data) {
-      const [,,, a] = data
+class OLMap {
+  private _map: OlMap
+  private mapDom: HTMLElement
+  private geolocation: Geolocation
 
-      return resolve(a === 1)
-    }, {
-      layerFilter: function (layer) {
-        // only handle click event on LUIMAP
-        return layer.getProperties().source.layer_ === 'LUIMAP'
-      }
-    })
-  })
-}
+  constructor (target: HTMLElement, handler: MapEventHandler = {}) {
+    this.mapDom = target
 
-export function zoomToGeolocation () {
-  const location = geolocation.getPosition()
-  if (!location) {
-    return
+    this._map = this.instantiateOLMap(this.mapDom)
+    this.geolocation = this.setupGeolocationTracking(this._map)
+
+    this.setupEventListeners(this._map, handler)
   }
 
-  const view = map.getView()
-  view.setCenter(location)
-  view.setZoom(16)
-}
+  get map () {
+    return this._map
+  }
 
-export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}) {
-  const tileGrid = getWMTSTileGrid()
+  private setupEventListeners (map: OlMap, handler: MapEventHandler) {
+    map.on('moveend', async () => {
+      const view = map.getView()
+      const zoom = view.getZoom()
 
-  mapDom = target
+      // resolution in meter
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const resolution = view.getResolutionForZoom(zoom!)
+      const range = Math.ceil(resolution)
 
-  const view = new View({
-    center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
-    zoom: 16
-  })
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const [lng, lat] = transform(view.getCenter()!, 'EPSG:3857', 'EPSG:4326')
 
-  geolocation = new Geolocation({
-    // enableHighAccuracy must be set to true to have the heading value.
-    trackingOptions: {
-      enableHighAccuracy: true
-    },
-    projection: view.getProjection()
-  })
-  geolocation.setTracking(true)
+      // TODO: move factory related feature out
+      try {
+        const factories = await getFactories(range, lng, lat)
+        if (Array.isArray(factories)) {
+          addFactories(factories)
+        }
+      } catch (e) {
+        console.error(e)
+      }
 
-  const positionFeature = new Feature()
-  geolocation.on('change:position', function() {
-    const coordinates = geolocation.getPosition()
-    positionFeature.setGeometry(coordinates ? new Point(coordinates) : undefined)
-  })
+      if (handler.onMoved) {
+        const { width, height } = this.mapDom.getBoundingClientRect()
+        const canPlace = await this.canPlaceFactory([width / 2, height / 2])
+        handler.onMoved([lng, lat], canPlace)
+      }
+    })
+  }
 
-  let run = false
-  geolocation.on('change', function () {
-    if (run) {
+  private instantiateOLMap (target: HTMLElement) {
+    const tileGrid = getWMTSTileGrid()
+    const view = new View({
+      center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
+      zoom: 16
+    })
+
+    return new OlMap({
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      target,
+      layers: [
+        getBaseLayer(tileGrid),
+        getLUIMapLayer(tileGrid)
+      ],
+      view,
+      controls: [
+        new Zoom({
+          zoomInLabel: mapControlButtons.zoomIn,
+          zoomOutLabel: mapControlButtons.zoomOut,
+        })
+      ]
+    })
+  }
+
+  private setupGeolocationTracking (map: OlMap) {
+    const view = map.getView()
+
+    const geolocation = new Geolocation({
+      trackingOptions: {
+        enableHighAccuracy: true
+      },
+      projection: view.getProjection()
+    })
+
+    geolocation.setTracking(true)
+
+    const positionLayer = this.setupgeolocationLayer(geolocation)
+
+    map.addLayer(positionLayer)
+
+    return geolocation
+  }
+
+  private setupgeolocationLayer (geolocation: Geolocation) {
+    const positionFeature = new Feature()
+    geolocation.on('change:position', function() {
+      const coordinates = geolocation.getPosition()
+      positionFeature.setGeometry(coordinates ? new Point(coordinates) : undefined)
+    })
+
+    let run = false
+    geolocation.on('change', () => {
+      if (run) {
+        return
+      }
+
+      const position = geolocation.getPosition()
+      if (position) {
+        this.zoomToGeolocation()
+        run = true
+      }
+    })
+
+    const positionLayer = new VectorLayer({
+      source: new VectorSource({
+        features: [positionFeature]
+      })
+    })
+
+    return positionLayer
+  }
+
+  public zoomToGeolocation () {
+    const location = this.geolocation.getPosition()
+    if (!location) {
       return
     }
 
-    const position = geolocation.getPosition()
-    if (position) {
-      zoomToGeolocation()
-      run = true
-    }
-  })
+    const view = this._map.getView()
+    view.setCenter(location)
+    view.setZoom(16)
+  }
 
-  const positionLayer = new VectorLayer({
-    map,
-    source: new VectorSource({
-      features: [positionFeature]
-    })
-  })
+  public canPlaceFactory (pixel: MapBrowserEvent['pixel']): Promise<boolean> {
+    return new Promise(resolve => {
+      this._map.forEachLayerAtPixel(pixel, function (_, data) {
+        const [,,, a] = data
 
-  map = new OlMap({
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    target,
-    layers: [
-      getBaseLayer(tileGrid),
-      getLUIMapLayer(tileGrid),
-      positionLayer
-    ],
-    view,
-    controls: [
-      new Zoom({
-        zoomInLabel: mapControlButtons.zoomIn,
-        zoomOutLabel: mapControlButtons.zoomOut,
+        return resolve(a === 1)
+      }, {
+        layerFilter: function (layer) {
+          // only handle click event on LUIMAP
+          return layer.getProperties().source.layer_ === 'LUIMAP'
+        }
       })
-    ]
-  })
-
-  map.on('click', function (event) {
-    // console.log(event)
-    map.forEachLayerAtPixel(event.pixel, function (_, data) {
-      const [r, g, b, a] = data
-      console.log(`rgba(${r}, ${g}, ${b}, ${a})`)
-      // console.log(layer.getProperties())
-    }, {
-      layerFilter: function (layer) {
-        // only handle click event on LUIMAP
-        return layer.getProperties().source.layer_ === 'LUIMAP'
-      }
     })
-  })
+  }
+}
 
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  map.on('moveend', async function () {
-    const view = map.getView()
-    const zoom = view.getZoom()
+export function zoomToGeolocation () {
+  mapInstance.zoomToGeolocation()
+}
 
-    // resolution in meter
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const resolution = view.getResolutionForZoom(zoom!)
-    const range = Math.ceil(resolution)
-
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    const [lng, lat] = transform(view.getCenter()!, 'EPSG:3857', 'EPSG:4326')
-
-    const factories = await getFactories(range, lng, lat)
-    addFactories(factories)
-
-    if (handler.onMoved) {
-      const { width, height } = mapDom.getBoundingClientRect()
-      handler.onMoved([lng, lat], await canPlaceFactory([width / 2, height / 2]))
-    }
-  })
-
-  // TODO: remove this
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ;(window as any).map = map
+export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}) {
+  mapInstance = new OLMap(target, handler)
+  map = mapInstance.map
 }
