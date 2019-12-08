@@ -70,11 +70,12 @@ export default createComponent({
     const factoryLngLat = ref<number[]>([])
 
     onMounted(() => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       initializeMap(root.value!, {
         onMoved: function ([longitude, latitude], canPlaceFactory) {
           factoryLngLat.value = [longitude, latitude]
           factoryValid.value = canPlaceFactory
-        },
+        }
         // TODO: do on start move to lock selection
       })
     })
