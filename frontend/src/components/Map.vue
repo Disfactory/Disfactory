@@ -70,7 +70,6 @@ export default createComponent({
     const root = ref<HTMLElement>(null)
     const factoryValid = ref(false)
     const factoryLngLat = ref<number[]>([])
-    const mapInstance = ref<OLMap>(null)
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
     onMounted(() => {
@@ -91,7 +90,6 @@ export default createComponent({
         // TODO: do on start move to lock selection
       })
 
-      mapInstance.value = mapController.mapInstance
       mapControllerRef.value = mapController
     })
 
@@ -103,8 +101,8 @@ export default createComponent({
         props.exitSelectFactoryMode()
       },
       zoomToGeolocation: function () {
-        if (mapInstance.value) {
-          mapInstance.value.zoomToGeolocation()
+        if (mapControllerRef.value) {
+          mapControllerRef.value.mapInstance.zoomToGeolocation()
         }
       }
     }
