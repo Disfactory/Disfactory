@@ -53,5 +53,57 @@
   h1 + h3 {
     margin-top: 0;
   }
-}
 
+  label.checkbox-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: point;
+    user-select: none;
+    padding-left: 30px;
+    height: 24px;
+    font-size: 20px;
+
+    &:not(:last-child) {
+      margin-bottom: 25px;
+    }
+
+    input {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+      height: 0;
+      width: 0;
+
+      &:checked ~ .checkbox {
+        background-color: black;
+      }
+    }
+
+    .checkbox {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 24px;
+      width: 24px;
+      background-color: transparent;
+
+      border-radius: 3px;
+      border: solid 2px #000000;
+    }
+
+    span.line {
+      display: inline-flex;
+      min-width: 50px;
+      flex: 1;
+      height: 1px;
+      background-color: black;
+      margin: 0 10px;
+    }
+
+    img {
+      height: 23px;
+    }
+  }
+
+}

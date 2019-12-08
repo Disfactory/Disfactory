@@ -1,19 +1,32 @@
 <template>
   <app-modal :open="open" :dismiss="dismiss">
-    <h1>篩選</h1>
-    <label>
-      <input type="checkbox" name="F" v-model="filterF">
-      資料不全
-    </label>
-    <label>
-      <input type="checkbox" name="A" v-model="filterA">
-      資料齊全
-    </label>
-    <label>
-      <input type="checkbox" name="D" v-model="filterD">
-      已舉報
-    </label>
-    <app-button @click="onClick()">確認</app-button>
+    <div class="page">
+      <div class="page-inner">
+        <h2 style="margin-right: 30px;">篩選</h2>
+        <label class="checkbox-container">
+          <input type="checkbox" name="F" v-model="filterF">
+          <span class="checkbox" />
+          資料不全
+          <span class="line" />
+          <img src="/images/marker-red.svg">
+        </label>
+        <label class="checkbox-container">
+          <input type="checkbox" name="A" v-model="filterA">
+          <span class="checkbox" />
+          資料齊全
+          <span class="line" />
+          <img src="/images/marker-blue.svg">
+        </label>
+        <label class="checkbox-container">
+          <input type="checkbox" name="D" v-model="filterD">
+          <span class="checkbox" />
+          已舉報
+          <span class="line" />
+          <img src="/images/marker-green.svg">
+        </label>
+      </div>
+      <app-button @click="onClick()">確認</app-button>
+    </div>
   </app-modal>
 </template>
 
@@ -62,3 +75,12 @@ export default createComponent({
   }
 })
 </script>
+
+<style lang="scss" scoped>
+@import '@/styles/page';
+
+.page-inner {
+  margin-bottom: 20px;
+  padding: 0 10px;
+}
+</style>
