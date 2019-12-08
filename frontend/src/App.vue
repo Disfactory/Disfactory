@@ -30,15 +30,17 @@
 </template>
 
 <script lang="ts">
+import { createComponent, ref, provide } from '@vue/composition-api'
+
 import Map from '@/components/Map.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppButton from '@/components/AppButton.vue'
 import FilterModal from '@/components/FilterModal.vue'
 import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
-
 import FormPage from '@/components/FormPage.vue'
 
-import { createComponent, ref } from '@vue/composition-api'
+import { MapFactoryController } from './lib/map'
+import { MainMapControllerSymbol } from './symbols'
 
 export default createComponent({
   name: 'App',
@@ -85,6 +87,9 @@ export default createComponent({
     const setCreateFactorySuccessModal = (open: boolean) => {
       createFactorySuccessModalOpen.value = open
     }
+
+    // register global accessible map instance
+    provide(MainMapControllerSymbol, ref<MapFactoryController>(null))
 
     return {
       filterModalOpen,

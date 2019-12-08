@@ -35,9 +35,10 @@
 
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
-import { createComponent, onMounted, ref } from '@vue/composition-api'
-import { initializeMap, OLMap } from '../lib/map'
+import { createComponent, onMounted, ref, inject } from '@vue/composition-api'
+import { initializeMap, OLMap, MapFactoryController } from '../lib/map'
 import { getFactories } from '../api'
+import { MainMapControllerSymbol } from '../symbols'
 
 export default createComponent({
   components: {
@@ -70,6 +71,7 @@ export default createComponent({
     const factoryValid = ref(false)
     const factoryLngLat = ref<number[]>([])
     const mapInstance = ref<OLMap>(null)
+    const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
     onMounted(() => {
       const mapController = initializeMap(root.value!, {
@@ -90,6 +92,7 @@ export default createComponent({
       })
 
       mapInstance.value = mapController.mapInstance
+      mapControllerRef.value = mapController
     })
 
     return {
