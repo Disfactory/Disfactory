@@ -13,6 +13,7 @@
       :selectFactoryMode="selectFactoryMode"
       :exitSelectFactoryMode="exitSelectFactoryMode"
       :setFactoryLocation="setFactoryLocation"
+      :openFilterModal="openFilterModal"
     />
 
     <form-page
@@ -54,6 +55,9 @@ export default createComponent({
     const closeFilterModal = () => {
       filterModalOpen.value = false
     }
+    const openFilterModal = () => {
+      filterModalOpen.value = true
+    }
 
     const createFactoryPageOpen = ref(false)
     const toggleFactoryPage = () => {
@@ -84,6 +88,7 @@ export default createComponent({
 
     return {
       filterModalOpen,
+      openFilterModal,
       closeFilterModal,
 
       createFactorySuccessModalOpen,

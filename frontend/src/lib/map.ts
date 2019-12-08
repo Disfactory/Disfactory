@@ -6,10 +6,12 @@ import WMTS from 'ol/source/WMTS'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { get as getProjection, transform } from 'ol/proj'
 import { getWidth, getTopLeft } from 'ol/extent'
-import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
+import { Tile as TileLayer, Vector as VectorLayer, Vector } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
+import { Zoom, ZoomToExtent, defaults } from 'ol/control'
+import Geolocation from 'ol/Geolocation'
 
-import { FactoriesResponse, FactoryData, FactoryStatusType, FACTORY_STATUS } from '../types'
+import { FactoryData, FactoryStatusType } from '../types'
 
 import { flipArgriculturalLand } from '../lib/image'
 import { getFactories } from '@/api'
@@ -20,12 +22,32 @@ const factoryMap = new Map<string, FactoryData>()
 // internal map references
 let map: OlMap
 let mapDom: HTMLElement
+let geolocation: Geolocation
 
 const factoryStatusImageMap = {
   D: '/images/marker-green.svg',
   F: '/images/marker-red.svg',
   A: '/images/marker-blue.svg'
 }
+
+
+type ButtonElements = {
+  zoomIn: HTMLImageElement
+  zoomOut: HTMLImageElement
+}
+
+const mapControlButtons = Object.entries({
+  zoomIn: '/images/zoom-in.svg',
+  zoomOut: '/images/zoom-out.svg',
+}).reduce((acc, [key, image]) => {
+  const label = document.createElement('img')
+  label.setAttribute('src', image)
+
+  return {
+    ...acc,
+    [key]: label
+  }
+}, {}) as ButtonElements
 
 const iconStyleMap = Object.entries(factoryStatusImageMap).reduce((acc, [status, src]) => ({
   ...acc,
@@ -125,8 +147,6 @@ export function setFactoryStatusFilter (filters: FactoryStatusType[]) {
 
   updateFactoriesFeatureStyle()
 }
-// TODO: remove this
-(window as any).setFactoryStatusFilter = setFactoryStatusFilter
 
 const getWMTSTileGrid = () => {
   const projection = getProjection('EPSG:3857')
@@ -214,27 +234,65 @@ function canPlaceFactory (pixel: MapBrowserEvent['pixel']): Promise<boolean> {
   })
 }
 
+export function zoomToGeolocation () {
+  const view = map.getView()
+  view.setCenter(geolocation.getPosition())
+  view.setZoom(15)
+}
+
 export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}) {
   const tileGrid = getWMTSTileGrid()
 
   mapDom = target
+
+  const view = new View({
+    center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
+    zoom: 15
+  })
+
+  geolocation = new Geolocation({
+    // enableHighAccuracy must be set to true to have the heading value.
+    trackingOptions: {
+      enableHighAccuracy: true
+    },
+    projection: view.getProjection()
+  })
+  geolocation.setTracking(true)
+
+  const positionFeature = new Feature()
+  geolocation.on('change:position', function() {
+  const coordinates = geolocation.getPosition();
+  positionFeature.setGeometry(coordinates ?
+    new Point(coordinates) : undefined);
+  })
+
+  const positionLayer = new VectorLayer({
+    map,
+    source: new VectorSource({
+      features: [positionFeature]
+    })
+  })
 
   map = new OlMap({
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     target,
     layers: [
       getBaseLayer(tileGrid),
-      getLUIMapLayer(tileGrid)
+      getLUIMapLayer(tileGrid),
+      positionLayer
     ],
-    view: new View({
-      center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
-      zoom: 15
-    })
+    view,
+    controls: [
+      new Zoom({
+        zoomInLabel: mapControlButtons.zoomIn,
+        zoomOutLabel: mapControlButtons.zoomOut,
+      })
+    ]
   })
 
   map.on('click', function (event) {
     // console.log(event)
-    map.forEachLayerAtPixel(event.pixel, function (layer, data) {
+    map.forEachLayerAtPixel(event.pixel, function (_, data) {
       const [r, g, b, a] = data
       console.log(`rgba(${r}, ${g}, ${b}, ${a})`)
       // console.log(layer.getProperties())
@@ -271,4 +329,6 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
   // TODO: remove this
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(window as any).map = map
+
+  window.setTimeout(zoomToGeolocation, 1500)
 }

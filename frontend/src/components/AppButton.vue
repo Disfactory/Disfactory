@@ -57,6 +57,7 @@ button {
 
   &.disabled {
     cursor: not-allowed;
+    background-color: #aaa;
   }
 }
 
