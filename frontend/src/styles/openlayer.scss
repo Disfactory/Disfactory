@@ -21,20 +21,22 @@
   border: solid 1px #ffffff;
 }
 
-.ol-zoom {
-  top: 78px;
-
+.ol-zoom, .ol-zoom-extent {
   background-color: $primary-color;
+  border-radius: 9px;
+  left: 21px;
 
   &:hover {
     background-color: $primary-color;
   }
-  border-radius: 9px;
+}
+
+.ol-zoom {
+  top: 78px;
 
   .ol-zoom-in,
   .ol-zoom-out {
     border-radius: 0;
-
     background: none;
 
     &:hover, &:active, &:visited {
@@ -50,20 +52,10 @@
 
 .ol-zoom-extent {
   top: 161px;
-  background-color: $primary-color;
-
-  &:hover {
-    background-color: $primary-color;
-  }
-  border-radius: 9px;
 
   &.ol-control button {
     padding: 2px;
   }
-}
-
-.ol-zoom, .ol-zoom-extent {
-  left: 21px;
 }
 
 .ol-control button {
