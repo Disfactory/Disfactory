@@ -80,6 +80,10 @@ export class MapFactoryController {
     return this._map
   }
 
+  get factories () {
+    return [...this.factoryMap.values()]
+  }
+
   get factoriesLayerSource () {
     // create or return _factoriesLayerSource
     if (!this._factoriesLayerSource) {
@@ -466,7 +470,8 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
   return new MapFactoryController(mapInstance)
 }
 
-export function initializeMinimap (target: HTMLElement) {
+export function initializeMinimap (target: HTMLElement, center: number[]) {
   const mapInstance = new OLMap(target, {}, { minimap: true })
+  mapInstance.map.getView().setCenter(center)
   return new MapFactoryController(mapInstance)
 }

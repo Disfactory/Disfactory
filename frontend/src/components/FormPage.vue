@@ -244,8 +244,13 @@ export default createComponent({
     const minimap = ref<HTMLElement>(null)
 
     onMounted(() => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      initializeMinimap(minimap.value!)
+      if (mapController.value) {
+        const controller = mapController.value
+        const center = controller.mapInstance.map.getView().getCenter() as number[]
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const minimapController = initializeMinimap(minimap.value!, center)
+        minimapController.addFactories(controller.factories)
+      }
     })
 
     return {
