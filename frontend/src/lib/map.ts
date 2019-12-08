@@ -14,6 +14,7 @@ import Geolocation from 'ol/Geolocation'
 import { FactoryData, FactoryStatusType } from '../types'
 import { flipArgriculturalLand } from '../lib/image'
 import RenderFeature from 'ol/render/Feature'
+import { MapOptions } from 'ol/PluggableMap'
 
 const factoryStatusImageMap = {
   D: '/images/marker-green.svg',
@@ -38,18 +39,20 @@ type ButtonElements = {
   zoomOut: HTMLImageElement
 }
 
-const mapControlButtons = Object.entries({
-  zoomIn: '/images/zoom-in.svg',
-  zoomOut: '/images/zoom-out.svg'
-}).reduce((acc, [key, image]) => {
-  const label = document.createElement('img')
-  label.setAttribute('src', image)
+const makeMapButtons = () => {
+  return Object.entries({
+    zoomIn: '/images/zoom-in.svg',
+    zoomOut: '/images/zoom-out.svg'
+  }).reduce((acc, [key, image]) => {
+    const label = document.createElement('img')
+    label.setAttribute('src', image)
 
-  return {
-    ...acc,
-    [key]: label
-  }
-}, {}) as ButtonElements
+    return {
+      ...acc,
+      [key]: label
+    }
+  }, {}) as ButtonElements
+}
 
 const iconStyleMap = Object.entries(factoryStatusImageMap).reduce((acc, [status, src]) => ({
   ...acc,
@@ -278,19 +281,27 @@ type MapEventHandler = {
   onClicked?: (location: [number, number], feature?: Feature | RenderFeature) => void
 }
 
+type OLMapOptions = {
+  minimap?: boolean
+}
+
 export class OLMap {
   private _map: OlMap
   private mapDom: HTMLElement
-  private geolocation: Geolocation
+  private geolocation?: Geolocation
   private baseLayer: TileLayer
   private tileGrid: WMTSTileGrid = getWMTSTileGrid()
 
-  constructor (target: HTMLElement, handler: MapEventHandler = {}) {
+  constructor (target: HTMLElement, handler: MapEventHandler = {}, options: OLMapOptions = {}) {
     this.mapDom = target
 
     this.baseLayer = getBaseLayer(BASE_MAP.OSM, this.tileGrid)
     this._map = this.instantiateOLMap(this.mapDom, this.baseLayer)
     this.geolocation = this.setupGeolocationTracking(this._map)
+
+    if (!options.minimap) {
+      this.geolocation = this.setupGeolocationTracking(this._map)
+    }
 
     this.setupEventListeners(this._map, handler)
   }
@@ -330,15 +341,17 @@ export class OLMap {
     })
   }
 
-  private instantiateOLMap (target: HTMLElement, baseLayer: TileLayer) {
+  private instantiateOLMap (target: HTMLElement, baseLayer: TileLayer, options: OLMapOptions = {}) {
     const tileGrid = getWMTSTileGrid()
     const view = new View({
       center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
       zoom: 16
     })
 
-    return new OlMap({
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const mapControlButtons = makeMapButtons()
+
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const mapOptions: MapOptions = {
       target,
       layers: [
         baseLayer,
@@ -351,7 +364,14 @@ export class OLMap {
           zoomOutLabel: mapControlButtons.zoomOut
         })
       ]
-    })
+    }
+
+    if (options.minimap) {
+      mapOptions.controls = []
+      mapOptions.interactions = []
+    }
+
+    return new OlMap(mapOptions)
   }
 
   private setupGeolocationTracking (map: OlMap) {
@@ -403,6 +423,10 @@ export class OLMap {
   }
 
   public zoomToGeolocation () {
+    if (!this.geolocation) {
+      return
+    }
+
     const location = this.geolocation.getPosition()
     if (!location) {
       return
@@ -439,5 +463,10 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
   const mapInstance = new OLMap(target, handler);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).changeBaseMap = mapInstance.changeBaseMap.bind(mapInstance)
+  return new MapFactoryController(mapInstance)
+}
+
+export function initializeMinimap (target: HTMLElement) {
+  const mapInstance = new OLMap(target, {}, { minimap: true })
   return new MapFactoryController(mapInstance)
 }

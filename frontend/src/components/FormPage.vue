@@ -21,9 +21,7 @@
         </h1>
 
         <h3>工廠地點</h3>
-        {{ JSON.stringify(factoryLocation) }}
-
-        <app-button v-if="isCreateMode" @click="enterSelectFactoryMode()">點我選擇</app-button>
+        <div class="minimap" ref="minimap" @click="enterSelectFactoryMode()" />
 
         <div class="flex justify-between" style="margin-top: 40px;">
           <div class="flex flex-column flex-auto">
@@ -98,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, computed, inject, Ref } from '@vue/composition-api'
+import { createComponent, ref, computed, inject, Ref, onMounted } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
@@ -106,7 +104,7 @@ import AppSelect from '@/components/AppSelect.vue'
 import ImageUploadModal from '@/components/ImageUploadModal.vue'
 import { UploadedImages, createFactory, updateFactory } from '../api'
 import { FactoryPostData, FACTORY_TYPE, FactoryType } from '../types'
-import { MapFactoryController } from '../lib/map'
+import { MapFactoryController, initializeMinimap } from '../lib/map'
 import { MainMapControllerSymbol } from '../symbols'
 
 export default createComponent({
@@ -243,7 +241,16 @@ export default createComponent({
       }
     }
 
+    const minimap = ref<HTMLElement>(null)
+
+    onMounted(() => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      initializeMinimap(minimap.value!)
+    })
+
     return {
+      minimap,
+
       factoryName,
       factoryType,
       factoryTypeItems,
