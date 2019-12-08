@@ -35,8 +35,10 @@
 
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
-import { createComponent, onMounted, ref } from '@vue/composition-api'
-import { initializeMap, zoomToGeolocation } from '../lib/map'
+import { createComponent, onMounted, ref, inject } from '@vue/composition-api'
+import { initializeMap, MapFactoryController } from '../lib/map'
+import { getFactories } from '../api'
+import { MainMapControllerSymbol } from '../symbols'
 
 export default createComponent({
   components: {
@@ -68,16 +70,28 @@ export default createComponent({
     const root = ref<HTMLElement>(null)
     const factoryValid = ref(false)
     const factoryLngLat = ref<number[]>([])
+    const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
     onMounted(() => {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      initializeMap(root.value!, {
-        onMoved: function ([longitude, latitude], canPlaceFactory) {
+      const mapController = initializeMap(root.value!, {
+        onMoved: async function ([longitude, latitude, range], canPlaceFactory) {
+          try {
+            const factories = await getFactories(range, longitude, latitude)
+            if (Array.isArray(factories)) {
+              mapController.addFactories(factories)
+            }
+          } catch (e) {
+            console.error(e)
+          }
+
           factoryLngLat.value = [longitude, latitude]
           factoryValid.value = canPlaceFactory
         }
         // TODO: do on start move to lock selection
       })
+
+      mapControllerRef.value = mapController
     })
 
     return {
@@ -87,7 +101,11 @@ export default createComponent({
         props.setFactoryLocation(factoryLngLat.value)
         props.exitSelectFactoryMode()
       },
-      zoomToGeolocation
+      zoomToGeolocation: function () {
+        if (mapControllerRef.value) {
+          mapControllerRef.value.mapInstance.zoomToGeolocation()
+        }
+      }
     }
   }
 })
@@ -134,6 +152,6 @@ export default createComponent({
   left: 0;
   z-index: 2;
 
-  transform: translate(calc(50vw - 12.5px), calc(50vh - 12.5px + 47px));
+  transform: translate(calc(50vw - 12.5px), calc(50vh - 12.5px + 47px - 25px));
 }
 </style>

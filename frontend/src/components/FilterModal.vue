@@ -33,8 +33,9 @@
 <script lang="ts">
 import AppModal from '@/components/AppModal.vue'
 import AppButton from '@/components/AppButton.vue'
-import { setFactoryStatusFilter } from '../lib/map'
-import { createComponent, ref } from '@vue/composition-api'
+import { MapFactoryController } from '../lib/map'
+import { createComponent, ref, inject } from '@vue/composition-api'
+import { MainMapControllerSymbol } from '../symbols'
 
 export default createComponent({
   name: 'FilterModal',
@@ -56,12 +57,18 @@ export default createComponent({
     const filterA = ref(false)
     const filterD = ref(false)
 
+    const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
+
     return {
       filterF,
       filterA,
       filterD,
       onClick () {
-        setFactoryStatusFilter([
+        if (!mapController.value) {
+          return
+        }
+
+        mapController.value.setFactoryStatusFilter([
           filterF.value ? 'F' : false,
           filterA.value ? 'A' : false,
           filterD.value ? 'D' : false

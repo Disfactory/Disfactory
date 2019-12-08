@@ -70,7 +70,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, computed } from '@vue/composition-api'
+import { createComponent, ref, computed, inject } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
@@ -78,7 +78,8 @@ import AppSelect from '@/components/AppSelect.vue'
 import ImageUploadModal from '@/components/ImageUploadModal.vue'
 import { UploadedImages, createFactory } from '../api'
 import { FactoryPostData, FACTORY_TYPE, FactoryType } from '../types'
-import { addFactories } from '../lib/map'
+import { MapFactoryController } from '../lib/map'
+import { MainMapControllerSymbol } from '../symbols'
 
 export default createComponent({
   name: 'FormPage',
@@ -117,6 +118,8 @@ export default createComponent({
     }
   },
   setup (props) {
+    const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
+
     const factoryName = ref('')
     const factoryType = ref<FactoryType>('0')
     const factoryTypeItems: Array<{ text: string, value: string }> = [
@@ -199,7 +202,9 @@ export default createComponent({
           console.log(factory)
 
           const resultFactory = await createFactory(factory)
-          addFactories([resultFactory])
+          if (mapController.value) {
+            mapController.value.addFactories([resultFactory])
+          }
         } catch (e) {
           // TODO: handle create failure
         }
