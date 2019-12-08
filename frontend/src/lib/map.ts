@@ -210,7 +210,7 @@ const getLUIMapLayer = (wmtsTileGrid: WMTSTileGrid) => {
 }
 
 type MapEventHandler = {
-  onMoved?: (location: [number, number], canPlaceFactory: boolean) => any;
+  onMoved?: (location: [number, number, number], canPlaceFactory: boolean) => any;
 }
 
 class OLMap {
@@ -244,20 +244,10 @@ class OLMap {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const [lng, lat] = transform(view.getCenter()!, 'EPSG:3857', 'EPSG:4326')
 
-      // TODO: move factory related feature out
-      try {
-        const factories = await getFactories(range, lng, lat)
-        if (Array.isArray(factories)) {
-          addFactories(factories)
-        }
-      } catch (e) {
-        console.error(e)
-      }
-
       if (handler.onMoved) {
         const { width, height } = this.mapDom.getBoundingClientRect()
         const canPlace = await this.canPlaceFactory([width / 2, height / 2])
-        handler.onMoved([lng, lat], canPlace)
+        handler.onMoved([lng, lat, range], canPlace)
       }
     })
   }
