@@ -6,9 +6,9 @@ import WMTS from 'ol/source/WMTS'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { get as getProjection, transform } from 'ol/proj'
 import { getWidth, getTopLeft } from 'ol/extent'
-import { Tile as TileLayer, Vector as VectorLayer, Vector } from 'ol/layer'
+import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
 import { Vector as VectorSource } from 'ol/source'
-import { Zoom, ZoomToExtent, defaults } from 'ol/control'
+import { Zoom } from 'ol/control'
 import Geolocation from 'ol/Geolocation'
 
 import { FactoryData, FactoryStatusType } from '../types'
@@ -235,9 +235,14 @@ function canPlaceFactory (pixel: MapBrowserEvent['pixel']): Promise<boolean> {
 }
 
 export function zoomToGeolocation () {
+  const location = geolocation.getPosition()
+  if (!location) {
+    return
+  }
+
   const view = map.getView()
-  view.setCenter(geolocation.getPosition())
-  view.setZoom(15)
+  view.setCenter(location)
+  view.setZoom(16)
 }
 
 export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}) {
@@ -247,7 +252,7 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
 
   const view = new View({
     center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
-    zoom: 15
+    zoom: 16
   })
 
   geolocation = new Geolocation({
@@ -261,9 +266,21 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
 
   const positionFeature = new Feature()
   geolocation.on('change:position', function() {
-  const coordinates = geolocation.getPosition();
-  positionFeature.setGeometry(coordinates ?
-    new Point(coordinates) : undefined);
+    const coordinates = geolocation.getPosition()
+    positionFeature.setGeometry(coordinates ? new Point(coordinates) : undefined)
+  })
+
+  let run = false
+  geolocation.on('change', function () {
+    if (run) {
+      return
+    }
+
+    const position = geolocation.getPosition()
+    if (position) {
+      zoomToGeolocation()
+      run = true
+    }
   })
 
   const positionLayer = new VectorLayer({
@@ -329,6 +346,4 @@ export function initializeMap (target: HTMLElement, handler: MapEventHandler = {
   // TODO: remove this
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ;(window as any).map = map
-
-  window.setTimeout(zoomToGeolocation, 1500)
 }
