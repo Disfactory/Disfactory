@@ -8,6 +8,12 @@
       </button>
     </div>
 
+    <div class="ol-fit-location ol-unselectable ol-control" @click="zoomToGeolocation">
+      <button>
+        <img src="/images/locate.svg" alt="locate">
+      </button>
+    </div>
+
     <div class="center-point" v-if="selectFactoryMode" />
 
     <div class="factory-button-group">
@@ -30,7 +36,7 @@
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
 import { createComponent, onMounted, ref } from '@vue/composition-api'
-import { initializeMap } from '../lib/map'
+import { initializeMap, zoomToGeolocation } from '../lib/map'
 
 export default createComponent({
   components: {
@@ -68,7 +74,7 @@ export default createComponent({
         onMoved: function ([longitude, latitude], canPlaceFactory) {
           factoryLngLat.value = [longitude, latitude]
           factoryValid.value = canPlaceFactory
-        }
+        },
         // TODO: do on start move to lock selection
       })
     })
@@ -80,6 +86,7 @@ export default createComponent({
         props.setFactoryLocation(factoryLngLat.value)
         props.exitSelectFactoryMode()
       },
+      zoomToGeolocation
     }
   }
 })

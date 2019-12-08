@@ -21,7 +21,7 @@
   border: solid 1px #ffffff;
 }
 
-.ol-zoom, .ol-zoom-extent, .ol-map-search {
+.ol-zoom, .ol-fit-location, .ol-map-search {
   background-color: $primary-color;
   border-radius: 9px;
   left: 21px;
@@ -50,7 +50,7 @@
   }
 }
 
-.ol-zoom-extent {
+.ol-fit-location {
   top: 161px;
 
   &.ol-control button {
