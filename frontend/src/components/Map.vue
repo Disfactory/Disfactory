@@ -1,6 +1,14 @@
 <template>
   <div class="map-container">
     <div ref="root" class="map" />
+    <div ref="popup" :class="['popup', { show: popupData.show }]" :style="{ borderColor: popupData.color }">
+      <div class="close" @click="popupData.show = false" />
+      <h3>{{ popupData.name }}</h3>
+      <p :style="{ color: popupData.color }">{{ popupData.status }}</p>
+      <app-button outline>
+        補充資料
+      </app-button>
+    </div>
 
     <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal">
       <button>
@@ -36,9 +44,12 @@
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
 import { createComponent, onMounted, ref, inject } from '@vue/composition-api'
-import { initializeMap, MapFactoryController } from '../lib/map'
+import { initializeMap, MapFactoryController, factoryBorderColor } from '../lib/map'
 import { getFactories } from '../api'
 import { MainMapControllerSymbol } from '../symbols'
+import { Overlay } from 'ol'
+import OverlayPositioning from 'ol/OverlayPositioning'
+import { FACTORY_STATUS } from '../types'
 
 export default createComponent({
   components: {
@@ -68,11 +79,38 @@ export default createComponent({
   },
   setup (props) {
     const root = ref<HTMLElement>(null)
+    const popup = ref<HTMLDivElement>(null)
     const factoryValid = ref(false)
     const factoryLngLat = ref<number[]>([])
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
+    const popupData = ref({
+      show: false,
+      id: '',
+      name: '',
+      color: '',
+      status: ''
+    })
+    const setPopup = (id: string) => {
+      if (!mapControllerRef.value) return
+      const factory = mapControllerRef.value.getFactory(id)
+      if (factory) {
+        popupData.value.id = factory.id
+        popupData.value.name = factory.name
+        popupData.value.color = factoryBorderColor[factory.status]
+        popupData.value.status = FACTORY_STATUS[factory.status]
+        popupData.value.show = true
+      }
+    }
+
     onMounted(() => {
+      const popupOverlay = new Overlay({
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        element: popup.value!,
+        positioning: OverlayPositioning.BOTTOM_LEFT,
+        stopEvent: true
+      })
+
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const mapController = initializeMap(root.value!, {
         onMoved: async function ([longitude, latitude, range], canPlaceFactory) {
@@ -87,15 +125,23 @@ export default createComponent({
 
           factoryLngLat.value = [longitude, latitude]
           factoryValid.value = canPlaceFactory
+        }, // TODO: do on start move to lock selection
+        onClicked: async function (_, feature) {
+          if (feature) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            popupOverlay.setPosition((feature.getGeometry() as any).getCoordinates())
+            setPopup(feature.getId() as string)
+          }
         }
-        // TODO: do on start move to lock selection
       })
 
+      mapController.mapInstance.map.addOverlay(popupOverlay)
       mapControllerRef.value = mapController
     })
 
     return {
       root,
+      popup,
       factoryValid,
       selectCenterPoint () {
         props.setFactoryLocation(factoryLngLat.value)
@@ -105,7 +151,8 @@ export default createComponent({
         if (mapControllerRef.value) {
           mapControllerRef.value.mapInstance.zoomToGeolocation()
         }
-      }
+      },
+      popupData
     }
   }
 })
@@ -153,5 +200,61 @@ export default createComponent({
   z-index: 2;
 
   transform: translate(calc(50vw - 12.5px), calc(50vh - 12.5px + 47px - 25px));
+}
+
+.popup {
+  opacity: 0;
+  transition: opacity 0.2s linear;
+  transform: translate(-16px, 25px);
+  border-radius: 3px;
+  border: solid 3px #a22929;
+  background-color: #ffffff;
+  min-width: 240px;
+  padding: 20px;
+  position: relative;
+
+  .close {
+    position: absolute;
+    top: 30px;
+    right: 20px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+
+    &::before, &::after {
+      display: block;
+      content: '';
+      width: 100%;
+      height: 3px;
+      background: #000;
+      transform-origin: center;
+      position: absolute;
+      border-radius: 5px;
+    }
+
+    &::before {
+      transform: rotate(45deg);
+    }
+
+    &::after {
+      transform: rotate(-45deg);
+    }
+  }
+
+  h3 {
+    margin: 0;
+    font-size: 20px;
+    line-height: 1.8;
+  }
+
+  p {
+    margin: 5px 0;
+    font-size: 14px;
+    line-height: 2;
+  }
+}
+
+.popup.show {
+  opacity: 1;
 }
 </style>
