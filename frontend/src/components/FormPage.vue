@@ -19,7 +19,7 @@
         <h3>工廠地點</h3>
         {{ JSON.stringify(factoryLocation) }}
 
-        <app-button @click="enterSelectFactoryMode()">點我選擇</app-button>
+        <app-button v-if="isCreateMode" @click="enterSelectFactoryMode()">點我選擇</app-button>
 
         <div class="flex justify-between" style="margin-top: 40px;">
           <div class="flex flex-column flex-auto">
@@ -31,7 +31,7 @@
           <div>
             <label>
               <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="display: none;">
-              <app-button @click="image.click()">新增</app-button>
+              <app-button disabled="!isCreateMode" @click="image.click()">新增</app-button>
             </label>
           </div>
         </div>
@@ -49,16 +49,32 @@
         />
 
         <h3>工廠類型</h3>
-        <app-select
-          v-model="factoryType"
-          :items="factoryTypeItems"
-        />
+        <div class="flex align-items-center">
+          <div class="flex-auto">
+            <app-select
+              v-model="factoryType"
+              :items="factoryTypeItems"
+            />
+          </div>
+
+          <div style="width: 100px;">
+            <app-button>確認</app-button>
+          </div>
+        </div>
 
         <h3>新增其它資訊</h3>
-        <app-text-field
-          v-model="factoryDescription"
-          placeholder="請填入其他資訊，如聲音、氣味等等。"
-        />
+        <div class="flex align-items-center">
+          <div class="flex-auto">
+            <app-text-field
+              v-model="factoryDescription"
+              placeholder="請填入其他資訊，如聲音、氣味等等。"
+            />
+          </div>
+
+          <div style="width: 100px;">
+            <app-button>確認</app-button>
+          </div>
+        </div>
 
         <div class="text-center width-auto" style="margin-top: 60px; margin-bottom: 55px;">
           <app-button @click="submitFactory()">送出</app-button>
@@ -115,6 +131,12 @@ export default createComponent({
     setCreateFactorySuccessModal: {
       type: Function,
       required: true
+    },
+    mode: {
+      type: String,
+      required: true,
+      defaultValue: 'create',
+      validator: value => ['create', 'edit'].includes(value)
     }
   },
   setup (props) {
@@ -156,6 +178,10 @@ export default createComponent({
       nickname.value = nik
       contact.value = con
     }
+
+    // mode helpers
+    const isEditMode = props.mode === 'edit'
+    const isCreateMode = props.mode === 'create'
 
     return {
       factoryName,
@@ -216,7 +242,10 @@ export default createComponent({
         console.log(props.setCreateFactorySuccessModal)
         props.setCreateFactorySuccessModal(true)
       },
-      finishUploaderForm
+      finishUploaderForm,
+
+      isEditMode,
+      isCreateMode
     }
   }
 })
