@@ -113,8 +113,6 @@ export default createComponent({
         return
       }
 
-      console.log(popupData.value.factory)
-
       props.openEditFactoryForm(popupData.value.factory)
     }
 

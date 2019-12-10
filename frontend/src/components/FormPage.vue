@@ -56,7 +56,7 @@
           </div>
 
           <div style="width: 100px;" v-if="isEditMode">
-            <app-button>確認</app-button>
+            <app-button @click="updateFactoryFieldsFor('name', factoryName)">確認</app-button>
           </div>
         </div>
 
@@ -70,7 +70,7 @@
           </div>
 
           <div style="width: 100px;" v-if="isEditMode">
-            <app-button>確認</app-button>
+            <app-button @click="updateFactoryFieldsFor('factory_type', factoryType)">確認</app-button>
           </div>
         </div>
 
@@ -84,7 +84,7 @@
           </div>
 
           <div style="width: 100px;" v-if="isEditMode">
-            <app-button>確認</app-button>
+            <app-button @click="updateFactoryFieldsFor('others', factoryDescription)">確認</app-button>
           </div>
         </div>
 
@@ -104,7 +104,7 @@ import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppSelect from '@/components/AppSelect.vue'
 import ImageUploadModal from '@/components/ImageUploadModal.vue'
-import { UploadedImages, createFactory } from '../api'
+import { UploadedImages, createFactory, updateFactory } from '../api'
 import { FactoryPostData, FACTORY_TYPE, FactoryType } from '../types'
 import { MapFactoryController } from '../lib/map'
 import { MainMapControllerSymbol } from '../symbols'
@@ -226,6 +226,17 @@ export default createComponent({
       contact.value = _contact
     }
 
+    const updateFactoryFieldsFor = (field, value) => {
+      if (!isEditMode) {
+        return
+      }
+
+      const { factoryData } = props
+      updateFactory(factoryData.id, {
+        [field]: value
+      })
+    }
+
     return {
       factoryName,
       factoryType,
@@ -281,13 +292,13 @@ export default createComponent({
 
         props.close()
         props.exitSelectFactoryMode()
-        console.log(props.setCreateFactorySuccessModal)
         props.setCreateFactorySuccessModal(true)
       },
       finishUploaderForm,
 
       isEditMode,
-      isCreateMode
+      isCreateMode,
+      updateFactoryFieldsFor
     }
   }
 })
