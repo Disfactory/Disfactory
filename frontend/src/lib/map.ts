@@ -13,11 +13,18 @@ import Geolocation from 'ol/Geolocation'
 
 import { FactoryData, FactoryStatusType } from '../types'
 import { flipArgriculturalLand } from '../lib/image'
+import RenderFeature from 'ol/render/Feature'
 
 const factoryStatusImageMap = {
   D: '/images/marker-green.svg',
   F: '/images/marker-red.svg',
   A: '/images/marker-blue.svg'
+}
+
+export const factoryBorderColor = {
+  D: '#6D8538',
+  F: '#A22929',
+  A: '#447287'
 }
 
 type ButtonElements = {
@@ -77,6 +84,10 @@ export class MapFactoryController {
     }
 
     return this._factoriesLayerSource
+  }
+
+  public getFactory (id: string) {
+    return this.factoryMap.get(id)
   }
 
   public addFactories (factories: FactoryData[]) {
@@ -217,7 +228,8 @@ const getLUIMapLayer = (wmtsTileGrid: WMTSTileGrid) => {
 }
 
 type MapEventHandler = {
-  onMoved?: (location: [number, number, number], canPlaceFactory: boolean) => void
+  onMoved?: (location: [number, number, number], canPlaceFactory: boolean) => void,
+  onClicked?: (location: [number, number], feature?: Feature | RenderFeature) => void
 }
 
 export class OLMap {
@@ -239,7 +251,7 @@ export class OLMap {
   }
 
   private setupEventListeners (map: OlMap, handler: MapEventHandler) {
-    // eslint-disable-next-line
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     map.on('moveend', async () => {
       const view = map.getView()
       const zoom = view.getZoom()
@@ -256,6 +268,15 @@ export class OLMap {
         const { width, height } = this.mapDom.getBoundingClientRect()
         const canPlace = await this.canPlaceFactory([width / 2, height / 2])
         handler.onMoved([lng, lat, range], canPlace)
+      }
+    })
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    map.on('click', async (event) => {
+      if (handler.onClicked) {
+        const [lng, lat] = transform(event.coordinate, 'EPSG:3857', 'EPSG:4326')
+        const feature = map.forEachFeatureAtPixel(event.pixel, (feature) => feature)
+        handler.onClicked([lng, lat], feature)
       }
     })
   }
