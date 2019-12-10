@@ -147,12 +147,11 @@ export default createComponent({
     mode: {
       type: String,
       required: true,
-      defaultValue: 'create',
-      validator: value => ['create', 'edit'].includes(value)
+      defaultValue: 'create'
     },
     factoryData: {
       type: Object,
-      required: false // should be given if when edit mode
+      required: true
     }
   },
   setup (props) {
@@ -225,15 +224,23 @@ export default createComponent({
       contact.value = _contact
     }
 
-    const updateFactoryFieldsFor = (field: string, value: string) => {
-      if (!isEditMode) {
+    const updateFactoryFieldsFor = async (field: string, value: string) => {
+      const { factoryData } = props
+      if (!isEditMode || !factoryData) {
         return
       }
 
-      const { factoryData } = props
-      updateFactory(factoryData.id, {
-        [field]: value
-      })
+      try {
+        const factory = await updateFactory(factoryData.id, {
+          [field]: value
+        })
+
+        if (mapController.value) {
+          mapController.value.updateFactory(factoryData.id, factory)
+        }
+      } catch (err) {
+        console.error(err)
+      }
     }
 
     return {
