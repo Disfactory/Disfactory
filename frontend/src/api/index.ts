@@ -4,7 +4,10 @@ import { FactoryPostData, FactoryData, FactoriesResponse } from '@/types'
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://middle2.disfactory.tw/api' : '/server/api'
 
 const instance = axios.create({
-  baseURL
+  baseURL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
 })
 
 type ImageResponse = {
@@ -47,15 +50,28 @@ export async function uploadImages (files: FileList): Promise<UploadedImages> {
 
 export async function createFactory (factory: FactoryPostData): Promise<FactoryData> {
   try {
-    const { data }: { data: FactoryData } = await instance.post('/factories', JSON.stringify(factory), {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
+    const { data }: { data: FactoryData } = await instance.post('/factories', JSON.stringify(factory))
 
     return data
   } catch (err) {
     console.error(err)
     throw new TypeError('Create factory failed')
+  }
+}
+
+// !FIXME: add more factory fields
+type UpdatableFactoryFields = {
+  contact: string,
+  others: string
+}
+
+export async function updateFactory (factoryId: string, factoryData: Partial<UpdatableFactoryFields>): Promise<FactoryData> {
+  try {
+    const { data }: { data: FactoryData } = await instance.put(`/factories/${factoryId}`, JSON.stringify(factoryData))
+
+    return data
+  } catch (err) {
+    console.error(err)
+    throw new TypeError('Update factory failed')
   }
 }
