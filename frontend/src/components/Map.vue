@@ -49,7 +49,7 @@ import { getFactories } from '../api'
 import { MainMapControllerSymbol } from '../symbols'
 import { Overlay } from 'ol'
 import OverlayPositioning from 'ol/OverlayPositioning'
-import { FACTORY_STATUS } from '../types'
+import { FACTORY_STATUS, FactoryData } from '../types'
 
 export default createComponent({
   components: {
@@ -93,9 +93,10 @@ export default createComponent({
       id: '',
       name: '',
       color: '',
-      status: '',
-      factory: null
+      status: ''
     })
+    const popupFactoryData = ref<FactoryData>(null)
+
     const setPopup = (id: string) => {
       if (!mapControllerRef.value) return
       const factory = mapControllerRef.value.getFactory(id)
@@ -105,15 +106,15 @@ export default createComponent({
         popupData.value.color = factoryBorderColor[factory.status]
         popupData.value.status = FACTORY_STATUS[factory.status]
         popupData.value.show = true
-        popupData.value.factory = factory
+        popupFactoryData.value = factory
       }
     }
     const onClickEditFactoryData = () => {
-      if (!popupData.value.factory) {
+      if (!popupFactoryData.value) {
         return
       }
 
-      props.openEditFactoryForm(popupData.value.factory)
+      props.openEditFactoryForm(popupFactoryData.value)
     }
 
     onMounted(() => {

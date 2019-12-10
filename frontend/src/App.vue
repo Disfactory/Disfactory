@@ -45,6 +45,7 @@ import FormPage from '@/components/FormPage.vue'
 
 import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
+import { FactoryData } from './types'
 
 export default createComponent({
   name: 'App',
@@ -66,12 +67,9 @@ export default createComponent({
     }
 
     const formMode = ref('create')
-    const editingFactory = ref(null)
+    const editingFactory = ref<FactoryData>(null)
 
     const createFactoryPageOpen = ref(false)
-    const toggleFactoryPage = () => {
-      createFactoryPageOpen.value = !createFactoryPageOpen.value
-    }
 
     const openCreateFactoryForm = () => {
       editingFactory.value = null
@@ -79,7 +77,7 @@ export default createComponent({
       createFactoryPageOpen.value = true
     }
 
-    const openEditFactoryForm = (factory) => {
+    const openEditFactoryForm = (factory: FactoryData) => {
       editingFactory.value = factory
       formMode.value = 'edit'
       createFactoryPageOpen.value = true

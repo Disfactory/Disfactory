@@ -180,11 +180,10 @@ export default createComponent({
     }
     let factoryName: Ref<string>
     let factoryType: Ref<FactoryType>
-    let factoryDescription = ref('')
+    const factoryDescription = ref('')
     let images: Ref<string[]>
-    let nickname = ref('')
-    let other = ref('')
-    let contact = ref('')
+    const nickname = ref('')
+    const contact = ref('')
 
     // initialize factory values
     if (isCreateMode) {
@@ -226,7 +225,7 @@ export default createComponent({
       contact.value = _contact
     }
 
-    const updateFactoryFieldsFor = (field, value) => {
+    const updateFactoryFieldsFor = (field: string, value: string) => {
       if (!isEditMode) {
         return
       }
@@ -274,7 +273,7 @@ export default createComponent({
             lng,
             lat,
             type: factoryType.value,
-            other: factoryDescription.value,
+            others: factoryDescription.value,
             images: uploadedImages.value.map(image => image.token),
             nickname: nickname.value,
             contact: contact.value
