@@ -55,8 +55,7 @@ export default createComponent({
       required: true
     },
     images: {
-      type: FileList,
-      default: () => new FileList()
+      type: [FileList, Array]
     },
     finishImagesUpload: {
       type: Function,

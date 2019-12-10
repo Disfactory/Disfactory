@@ -31,7 +31,7 @@
           <div>
             <label>
               <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="display: none;">
-              <app-button disabled="!isCreateMode" @click="image.click()">新增</app-button>
+              <app-button :disabled="!isCreateMode" @click="image.click()">新增</app-button>
             </label>
           </div>
         </div>
@@ -76,7 +76,7 @@
           </div>
         </div>
 
-        <div class="text-center width-auto" style="margin-top: 60px; margin-bottom: 55px;">
+        <div class="text-center width-auto" style="margin-top: 60px; margin-bottom: 55px;" v-if="isCreateMode">
           <app-button @click="submitFactory()">送出</app-button>
         </div>
 
@@ -86,7 +86,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, computed, inject } from '@vue/composition-api'
+import { createComponent, ref, computed, inject, Ref } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
@@ -137,18 +137,65 @@ export default createComponent({
       required: true,
       defaultValue: 'create',
       validator: value => ['create', 'edit'].includes(value)
+    },
+    factoryData: {
+      type: Object,
+      required: false // should be given if when edit mode
     }
   },
   setup (props) {
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
-    const factoryName = ref('')
-    const factoryType = ref<FactoryType>('0')
+    // mode helpers
+    const isEditMode = props.mode === 'edit'
+    const isCreateMode = props.mode === 'create'
+
     const factoryTypeItems: Array<{ text: string, value: string }> = [
       { text: '請選擇工廠類型', value: '0' },
       ...Object.entries(FACTORY_TYPE).map(([value, text]) => ({ text, value }))
     ]
-    const factoryDescription = ref('')
+
+    const initialFactoryValue = {
+      factoryName: '',
+      factoryType: '0',
+      factoryDescription: '',
+      images: [],
+      lng: 0,
+      lat: 0,
+      nickname: '',
+      other: '',
+      contact: ''
+    }
+    let factoryName: Ref<string>
+    let factoryType: Ref<FactoryType>
+    let factoryDescription: Ref<string>
+    let images: Ref<string[]>
+    let nickname: Ref<string>
+    let other: Ref<string>
+    let contact: Ref<string>
+
+    // initialize factory values
+    if (isCreateMode) {
+      factoryName = ref(initialFactoryValue.factoryName)
+      factoryType = ref(initialFactoryValue.factoryType)
+      factoryDescription = ref(initialFactoryValue.factoryDescription)
+      images = ref(initialFactoryValue.images)
+      nickname = ref(initialFactoryValue.nickname)
+      other = ref(initialFactoryValue.other)
+      contact = ref(initialFactoryValue.contact)
+    } else if (isEditMode) {
+      const { factoryData } = props
+
+      factoryName = ref(factoryData.factoryName)
+      factoryType = ref(factoryData.factoryType)
+      factoryDescription = ref(factoryData.factoryDescription)
+      images = ref(factoryData.images)
+      nickname = ref(factoryData.nickname)
+      other = ref(factoryData.other)
+      contact = ref(factoryData.contact)
+    } else {
+      throw new TypeError('Invalid mode!')
+    }
 
     const imageUploadModalOpen = ref(false)
     const closeImageUploadModal = () => {
@@ -171,17 +218,10 @@ export default createComponent({
       return urls
     })
 
-    const nickname = ref('')
-    const contact = ref('')
-
-    const finishUploaderForm = (nik: string, con: string) => {
-      nickname.value = nik
-      contact.value = con
+    const finishUploaderForm = (_nickname: string, _contact: string) => {
+      nickname.value = _nickname
+      contact.value = _contact
     }
-
-    // mode helpers
-    const isEditMode = props.mode === 'edit'
-    const isCreateMode = props.mode === 'create'
 
     return {
       factoryName,
@@ -204,8 +244,9 @@ export default createComponent({
 
         openImageUploadModal()
       },
-      finishImagesUpload (images: UploadedImages) {
-        uploadedImages.value = images
+      finishImagesUpload (_images: UploadedImages) {
+        uploadedImages.value = _images
+        images.value = _images.map(image => image.token)
       },
       onNavBack () {
         props.close()
@@ -224,8 +265,6 @@ export default createComponent({
             nickname: nickname.value,
             contact: contact.value
           }
-
-          console.log(factory)
 
           const resultFactory = await createFactory(factory)
           if (mapController.value) {

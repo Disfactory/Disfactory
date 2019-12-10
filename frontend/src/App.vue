@@ -18,6 +18,8 @@
 
     <form-page
       v-if="createFactoryPageOpen"
+      :mode="formMode"
+      :factoryData="editingFactory"
       :close="closeFactoryPage"
       :selectFactoryMode="selectFactoryMode"
       :enterSelectFactoryMode="enterSelectFactoryMode"
@@ -88,6 +90,9 @@ export default createComponent({
       createFactorySuccessModalOpen.value = open
     }
 
+    const formMode = ref('create')
+    const editingFactory = ref(null)
+
     // register global accessible map instance
     provide(MainMapControllerSymbol, ref<MapFactoryController>(null))
 
@@ -107,7 +112,10 @@ export default createComponent({
       enterSelectFactoryMode,
       exitSelectFactoryMode,
       factoryLocation,
-      setFactoryLocation
+      setFactoryLocation,
+
+      formMode,
+      editingFactory
     }
   }
 })
