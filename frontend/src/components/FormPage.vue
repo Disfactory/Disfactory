@@ -47,10 +47,18 @@
         </div>
 
         <h3>工廠名稱</h3>
-        <app-text-field
-          v-model="factoryName"
-          placeholder="請輸入工廠名稱"
-        />
+        <div class="flex align-items-center">
+          <div class="flex-auto">
+            <app-text-field
+              v-model="factoryName"
+              placeholder="請輸入工廠名稱"
+            />
+          </div>
+
+          <div style="width: 100px;" v-if="isEditMode">
+            <app-button>確認</app-button>
+          </div>
+        </div>
 
         <h3>工廠類型</h3>
         <div class="flex align-items-center">
@@ -61,7 +69,7 @@
             />
           </div>
 
-          <div style="width: 100px;">
+          <div style="width: 100px;" v-if="isEditMode">
             <app-button>確認</app-button>
           </div>
         </div>
@@ -75,7 +83,7 @@
             />
           </div>
 
-          <div style="width: 100px;">
+          <div style="width: 100px;" v-if="isEditMode">
             <app-button>確認</app-button>
           </div>
         </div>
