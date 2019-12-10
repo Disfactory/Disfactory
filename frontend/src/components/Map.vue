@@ -5,7 +5,7 @@
       <div class="close" @click="popupData.show = false" />
       <h3>{{ popupData.name }}</h3>
       <p :style="{ color: popupData.color }">{{ popupData.status }}</p>
-      <app-button outline>
+      <app-button outline @click="onClickEditFactoryData">
         補充資料
       </app-button>
     </div>
@@ -26,7 +26,7 @@
 
     <div class="factory-button-group">
       <div class="create-factory-button" v-if="!selectFactoryMode">
-        <app-button @click="toggleFactoryPage">我要新增違建工廠</app-button>
+        <app-button @click="openCreateFactoryForm">我要新增違建工廠</app-button>
       </div>
 
       <div class="choose-location-button" v-if="selectFactoryMode">
@@ -56,7 +56,11 @@ export default createComponent({
     AppButton
   },
   props: {
-    toggleFactoryPage: {
+    openCreateFactoryForm: {
+      type: Function,
+      required: true
+    },
+    openEditFactoryForm: {
       type: Function,
       required: true
     },
@@ -89,7 +93,8 @@ export default createComponent({
       id: '',
       name: '',
       color: '',
-      status: ''
+      status: '',
+      factory: null
     })
     const setPopup = (id: string) => {
       if (!mapControllerRef.value) return
@@ -100,7 +105,17 @@ export default createComponent({
         popupData.value.color = factoryBorderColor[factory.status]
         popupData.value.status = FACTORY_STATUS[factory.status]
         popupData.value.show = true
+        popupData.value.factory = factory
       }
+    }
+    const onClickEditFactoryData = () => {
+      if (!popupData.value.factory) {
+        return
+      }
+
+      console.log(popupData.value.factory)
+
+      props.openEditFactoryForm(popupData.value.factory)
     }
 
     onMounted(() => {
@@ -152,7 +167,8 @@ export default createComponent({
           mapControllerRef.value.mapInstance.zoomToGeolocation()
         }
       },
-      popupData
+      popupData,
+      onClickEditFactoryData
     }
   }
 })

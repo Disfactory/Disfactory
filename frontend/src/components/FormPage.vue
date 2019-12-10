@@ -1,7 +1,9 @@
 <template>
   <div>
     <div class="navbar-container">
-      <app-navbar :dark="false" :fixed="true" @back="onNavBack">新增資訊</app-navbar>
+      <app-navbar :dark="false" :fixed="true" @back="onNavBack">
+        {{ isCreateMode ? '新增資訊' : '補充資訊' }}
+      </app-navbar>
     </div>
 
     <div class="page-container" :class="{ hide: selectFactoryMode }">
@@ -14,7 +16,9 @@
       />
 
       <div class="page" style="padding: 29px 35px;">
-        <h1>輸入資訊</h1>
+        <h1>
+          {{ isCreateMode ? '輸入資訊' : '輸入補充資訊' }}
+        </h1>
 
         <h3>工廠地點</h3>
         {{ JSON.stringify(factoryLocation) }}
@@ -168,31 +172,22 @@ export default createComponent({
     }
     let factoryName: Ref<string>
     let factoryType: Ref<FactoryType>
-    let factoryDescription: Ref<string>
+    let factoryDescription = ref('')
     let images: Ref<string[]>
-    let nickname: Ref<string>
-    let other: Ref<string>
-    let contact: Ref<string>
+    let nickname = ref('')
+    let other = ref('')
+    let contact = ref('')
 
     // initialize factory values
     if (isCreateMode) {
       factoryName = ref(initialFactoryValue.factoryName)
       factoryType = ref(initialFactoryValue.factoryType)
-      factoryDescription = ref(initialFactoryValue.factoryDescription)
       images = ref(initialFactoryValue.images)
-      nickname = ref(initialFactoryValue.nickname)
-      other = ref(initialFactoryValue.other)
-      contact = ref(initialFactoryValue.contact)
     } else if (isEditMode) {
       const { factoryData } = props
-
-      factoryName = ref(factoryData.factoryName)
-      factoryType = ref(factoryData.factoryType)
-      factoryDescription = ref(factoryData.factoryDescription)
+      factoryName = ref(factoryData.name)
+      factoryType = ref(factoryData.factory_type)
       images = ref(factoryData.images)
-      nickname = ref(factoryData.nickname)
-      other = ref(factoryData.other)
-      contact = ref(factoryData.contact)
     } else {
       throw new TypeError('Invalid mode!')
     }

@@ -9,11 +9,13 @@
     />
 
     <Map
-      :toggleFactoryPage="toggleFactoryPage"
+      :openCreateFactoryForm="openCreateFactoryForm"
+      :openEditFactoryForm="openEditFactoryForm"
       :selectFactoryMode="selectFactoryMode"
       :exitSelectFactoryMode="exitSelectFactoryMode"
       :setFactoryLocation="setFactoryLocation"
       :openFilterModal="openFilterModal"
+
     />
 
     <form-page
@@ -63,9 +65,24 @@ export default createComponent({
       filterModalOpen.value = true
     }
 
+    const formMode = ref('create')
+    const editingFactory = ref(null)
+
     const createFactoryPageOpen = ref(false)
     const toggleFactoryPage = () => {
       createFactoryPageOpen.value = !createFactoryPageOpen.value
+    }
+
+    const openCreateFactoryForm = () => {
+      editingFactory.value = null
+      formMode.value = 'create'
+      createFactoryPageOpen.value = true
+    }
+
+    const openEditFactoryForm = (factory) => {
+      editingFactory.value = factory
+      formMode.value = 'edit'
+      createFactoryPageOpen.value = true
     }
 
     const closeFactoryPage = () => {
@@ -90,9 +107,6 @@ export default createComponent({
       createFactorySuccessModalOpen.value = open
     }
 
-    const formMode = ref('create')
-    const editingFactory = ref(null)
-
     // register global accessible map instance
     provide(MainMapControllerSymbol, ref<MapFactoryController>(null))
 
@@ -105,7 +119,8 @@ export default createComponent({
       setCreateFactorySuccessModal,
 
       createFactoryPageOpen,
-      toggleFactoryPage,
+      openCreateFactoryForm,
+      openEditFactoryForm,
       closeFactoryPage,
 
       selectFactoryMode,
