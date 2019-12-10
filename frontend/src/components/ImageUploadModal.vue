@@ -55,8 +55,7 @@ export default createComponent({
       required: true
     },
     images: {
-      type: FileList,
-      default: () => new FileList()
+      type: FileList
     },
     finishImagesUpload: {
       type: Function,
@@ -73,8 +72,10 @@ export default createComponent({
 
     const imageUrls = computed(() => {
       const urls = []
-      for (let i = 0; i < props.images.length; i++) {
-        urls.push(URL.createObjectURL(props.images[i]))
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      for (let i = 0; i < props.images!.length; i++) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        urls.push(URL.createObjectURL(props.images![i]))
       }
 
       return urls
@@ -85,7 +86,8 @@ export default createComponent({
       contact,
       imageUrls,
       async handleImagesUpload () {
-        const images = await uploadImages(props.images)
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const images = await uploadImages(props.images!)
         props.finishImagesUpload(images)
 
         props.finishUploaderForm(nickname.value, contact.value)

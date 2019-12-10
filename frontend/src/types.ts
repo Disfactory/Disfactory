@@ -40,7 +40,7 @@ export type FactoryPostData = {
   name: string,
   type: FactoryType,
   images?: string[],
-  other?: string,
+  others?: string,
   lat: number,
   lng: number,
   nickname?: string,

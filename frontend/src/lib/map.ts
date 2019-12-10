@@ -90,6 +90,10 @@ export class MapFactoryController {
     return this.factoryMap.get(id)
   }
 
+  public updateFactory (id: string, factory: FactoryData) {
+    this.factoryMap.set(id, factory)
+  }
+
   public addFactories (factories: FactoryData[]) {
     const createFactoryFeature = this.createFactoryFeature.bind(this)
     const features = factories

@@ -9,15 +9,19 @@
     />
 
     <Map
-      :toggleFactoryPage="toggleFactoryPage"
+      :openCreateFactoryForm="openCreateFactoryForm"
+      :openEditFactoryForm="openEditFactoryForm"
       :selectFactoryMode="selectFactoryMode"
       :exitSelectFactoryMode="exitSelectFactoryMode"
       :setFactoryLocation="setFactoryLocation"
       :openFilterModal="openFilterModal"
+
     />
 
     <form-page
       v-if="createFactoryPageOpen"
+      :mode="formMode"
+      :factoryData="editingFactory"
       :close="closeFactoryPage"
       :selectFactoryMode="selectFactoryMode"
       :enterSelectFactoryMode="enterSelectFactoryMode"
@@ -41,6 +45,7 @@ import FormPage from '@/components/FormPage.vue'
 
 import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
+import { FactoryData } from './types'
 
 export default createComponent({
   name: 'App',
@@ -61,9 +66,21 @@ export default createComponent({
       filterModalOpen.value = true
     }
 
+    const formMode = ref('create')
+    const editingFactory = ref<FactoryData>(null)
+
     const createFactoryPageOpen = ref(false)
-    const toggleFactoryPage = () => {
-      createFactoryPageOpen.value = !createFactoryPageOpen.value
+
+    const openCreateFactoryForm = () => {
+      editingFactory.value = null
+      formMode.value = 'create'
+      createFactoryPageOpen.value = true
+    }
+
+    const openEditFactoryForm = (factory: FactoryData) => {
+      editingFactory.value = factory
+      formMode.value = 'edit'
+      createFactoryPageOpen.value = true
     }
 
     const closeFactoryPage = () => {
@@ -100,14 +117,18 @@ export default createComponent({
       setCreateFactorySuccessModal,
 
       createFactoryPageOpen,
-      toggleFactoryPage,
+      openCreateFactoryForm,
+      openEditFactoryForm,
       closeFactoryPage,
 
       selectFactoryMode,
       enterSelectFactoryMode,
       exitSelectFactoryMode,
       factoryLocation,
-      setFactoryLocation
+      setFactoryLocation,
+
+      formMode,
+      editingFactory
     }
   }
 })

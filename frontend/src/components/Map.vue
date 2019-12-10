@@ -5,7 +5,7 @@
       <div class="close" @click="popupData.show = false" />
       <h3>{{ popupData.name }}</h3>
       <p :style="{ color: popupData.color }">{{ popupData.status }}</p>
-      <app-button outline>
+      <app-button outline @click="onClickEditFactoryData">
         補充資料
       </app-button>
     </div>
@@ -26,7 +26,7 @@
 
     <div class="factory-button-group">
       <div class="create-factory-button" v-if="!selectFactoryMode">
-        <app-button @click="toggleFactoryPage">我要新增違建工廠</app-button>
+        <app-button @click="openCreateFactoryForm">我要新增違建工廠</app-button>
       </div>
 
       <div class="choose-location-button" v-if="selectFactoryMode">
@@ -49,14 +49,18 @@ import { getFactories } from '../api'
 import { MainMapControllerSymbol } from '../symbols'
 import { Overlay } from 'ol'
 import OverlayPositioning from 'ol/OverlayPositioning'
-import { FACTORY_STATUS } from '../types'
+import { FACTORY_STATUS, FactoryData } from '../types'
 
 export default createComponent({
   components: {
     AppButton
   },
   props: {
-    toggleFactoryPage: {
+    openCreateFactoryForm: {
+      type: Function,
+      required: true
+    },
+    openEditFactoryForm: {
       type: Function,
       required: true
     },
@@ -91,6 +95,8 @@ export default createComponent({
       color: '',
       status: ''
     })
+    const popupFactoryData = ref<FactoryData>(null)
+
     const setPopup = (id: string) => {
       if (!mapControllerRef.value) return
       const factory = mapControllerRef.value.getFactory(id)
@@ -100,7 +106,15 @@ export default createComponent({
         popupData.value.color = factoryBorderColor[factory.status]
         popupData.value.status = FACTORY_STATUS[factory.status]
         popupData.value.show = true
+        popupFactoryData.value = factory
       }
+    }
+    const onClickEditFactoryData = () => {
+      if (!popupFactoryData.value) {
+        return
+      }
+
+      props.openEditFactoryForm(popupFactoryData.value)
     }
 
     onMounted(() => {
@@ -152,7 +166,8 @@ export default createComponent({
           mapControllerRef.value.mapInstance.zoomToGeolocation()
         }
       },
-      popupData
+      popupData,
+      onClickEditFactoryData
     }
   }
 })
