@@ -3,7 +3,7 @@ module.exports = {
   devServer: {
     proxy: {
       '/server': {
-        target: 'https://middle2.disfactory.tw',
+        target: 'https://api.disfactory.tw',
         changeOrigin: true,
         pathRewrite: {
           '^/server': ''
