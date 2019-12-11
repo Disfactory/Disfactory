@@ -1,3 +1,4 @@
+import random
 from datetime import datetime
 
 from django.conf import settings
@@ -21,13 +22,21 @@ def _upload_image(f_image, client_id):
     return path
 
 
+def _sample(objs, k):
+    random.shuffle(list(objs))
+    return objs[:k]
+
+
 def _get_nearby_factories(latitude, longitude, radius):
     """Return nearby factories based on position and search range."""
     # NOTE: if we use h3 for geoencoding in the future, we can use h3.k_ring():
     # ref: https://observablehq.com/@nrabinowitz/h3-radius-lookup
     pnt = Point(x=longitude, y=latitude, srid=4326)
     pnt.transform(settings.POSTGIS_SRID)
-    return Factory.objects.filter(point__distance_lte=(pnt, D(km=radius)))
+    ids = Factory.objects.only("id").filter(point__distance_lte=(pnt, D(km=radius)))
+    if len(ids) > settings.MAX_FACTORY_PER_GET:
+        ids = _sample(ids, settings.MAX_FACTORY_PER_GET)
+    return Factory.objects.filter(id__in=[obj.id for obj in ids])
 
 
 def _get_client_ip(request):
