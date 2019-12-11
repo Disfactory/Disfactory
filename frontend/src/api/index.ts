@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { FactoryPostData, FactoryData, FactoriesResponse } from '@/types'
 
-const baseURL = process.env.NODE_ENV === 'production' ? 'https://middle2.disfactory.tw/api' : '/server/api'
+const baseURL = process.env.NODE_ENV === 'production' ? 'https://api.disfactory.tw/api' : '/server/api'
 
 const instance = axios.create({
   baseURL,
