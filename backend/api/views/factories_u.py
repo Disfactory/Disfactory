@@ -14,7 +14,7 @@ from ..serializers import FactorySerializer
 from .utils import _get_client_ip
 
 
-#@api_view(['PUT'])
+@api_view(['PUT'])
 def update_factory_attribute(request, factory_id):
     put_body = json.loads(request.body)
     serializer = FactorySerializer(data=put_body, partial=True)
