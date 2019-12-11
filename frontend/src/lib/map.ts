@@ -7,7 +7,7 @@ import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { get as getProjection, transform } from 'ol/proj'
 import { getWidth, getTopLeft } from 'ol/extent'
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
-import { Vector as VectorSource } from 'ol/source'
+import { Vector as VectorSource, OSM } from 'ol/source'
 import { Zoom } from 'ol/control'
 import Geolocation from 'ol/Geolocation'
 
@@ -25,6 +25,12 @@ export const factoryBorderColor = {
   D: '#6D8538',
   F: '#A22929',
   A: '#447287'
+}
+
+export enum BASE_MAP {
+  OSM,
+  TAIWAN,
+  SATELITE
 }
 
 type ButtonElements = {
@@ -77,7 +83,8 @@ export class MapFactoryController {
       this._factoriesLayerSource = new VectorSource({ features: [] })
 
       const vectorLayer = new VectorLayer({
-        source: this._factoriesLayerSource
+        source: this._factoriesLayerSource,
+        zIndex: 3
       })
 
       this.mapInstance.map.addLayer(vectorLayer)
@@ -171,10 +178,10 @@ export class MapFactoryController {
 const getWMTSTileGrid = () => {
   const projection = getProjection('EPSG:3857')
   const projectionExtent = projection.getExtent()
-  const resolutions = new Array(20)
+  const resolutions = new Array(21)
   const size = getWidth(projectionExtent) / 256
-  const matrixIds = new Array(20)
-  for (let z = 0; z < 20; ++z) {
+  const matrixIds = new Array(21)
+  for (let z = 0; z < 21; ++z) {
     // generate resolutions and matrixIds arrays for this WMTS
     resolutions[z] = size / Math.pow(2, z)
     matrixIds[z] = z
@@ -187,21 +194,55 @@ const getWMTSTileGrid = () => {
   })
 }
 
-const getBaseLayer = (wmtsTileGrid: WMTSTileGrid) => {
+const getBaseLayer = (type: BASE_MAP, wmtsTileGrid: WMTSTileGrid) => {
+  const source = (() => {
+    switch (type) {
+      case BASE_MAP.OSM:
+        return new OSM({
+          crossOrigin: 'Anonymous',
+          attributions:
+            '<a href="https://osm.tw/" target="_blank">OpenStreetMap 台灣</a>'
+        })
+      case BASE_MAP.TAIWAN:
+        return new WMTS({
+          matrixSet: 'EPSG:3857',
+          format: 'image/png',
+          url: 'https://wmts.nlsc.gov.tw/wmts',
+          layer: 'EMAP',
+          tileGrid: wmtsTileGrid,
+          crossOrigin: 'Anonymous',
+          style: 'default',
+          wrapX: true,
+          attributions:
+            '<a href="https://maps.nlsc.gov.tw/" target="_blank">國土測繪圖資服務雲</a>'
+        })
+      case BASE_MAP.SATELITE:
+        return new WMTS({
+          matrixSet: 'EPSG:3857',
+          format: 'image/png',
+          url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO_MIX/default/EPSG:3857/{TileMatrix}/{TileRow}/{TileCol}',
+          layer: 'EMAP',
+          tileGrid: wmtsTileGrid,
+          requestEncoding: "REST",
+          crossOrigin: 'Anonymous',
+          style: 'default',
+          wrapX: true,
+          attributions:
+            '<a href="https://maps.nlsc.gov.tw/" target="_blank">國土測繪圖資服務雲</a>'
+        })
+      default:
+        return new OSM({
+          crossOrigin: 'Anonymous',
+          attributions:
+            '<a href="https://osm.tw/" target="_blank">OpenStreetMap 台灣</a>'
+        })
+    }
+  })()
+
   return new TileLayer({
-    source: new WMTS({
-      matrixSet: 'EPSG:3857',
-      format: 'image/png',
-      url: 'https://wmts.nlsc.gov.tw/wmts',
-      layer: 'EMAP',
-      tileGrid: wmtsTileGrid,
-      crossOrigin: 'Anonymous',
-      style: 'default',
-      wrapX: true,
-      attributions:
-        '<a href="https://maps.nlsc.gov.tw/" target="_blank">國土測繪圖資服務雲</a>'
-    }),
-    opacity: 0.5
+    source,
+    opacity: 0.6,
+    zIndex: 1
   })
 }
 
@@ -210,7 +251,7 @@ const getLUIMapLayer = (wmtsTileGrid: WMTSTileGrid) => {
     source: new WMTS({
       matrixSet: 'EPSG:3857',
       format: 'image/png',
-      url: 'https://wmts.nlsc.gov.tw/wmts/LUIMAP/{Style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}',
+      url: 'https://wmts.nlsc.gov.tw/wmts/nURBAN2/default/EPSG:3857/{TileMatrix}/{TileRow}/{TileCol}',
       layer: 'LUIMAP',
       requestEncoding: 'REST',
       tileGrid: wmtsTileGrid,
@@ -227,7 +268,8 @@ const getLUIMapLayer = (wmtsTileGrid: WMTSTileGrid) => {
       attributions:
         '<a href="https://maps.nlsc.gov.tw/" target="_blank">國土測繪圖資服務雲</a>'
     }),
-    opacity: 0.5
+    opacity: 0.5,
+    zIndex: 2
   })
 }
 
@@ -240,11 +282,14 @@ export class OLMap {
   private _map: OlMap
   private mapDom: HTMLElement
   private geolocation: Geolocation
+  private baseLayer: TileLayer
+  private tileGrid: WMTSTileGrid = getWMTSTileGrid()
 
   constructor (target: HTMLElement, handler: MapEventHandler = {}) {
     this.mapDom = target
 
-    this._map = this.instantiateOLMap(this.mapDom)
+    this.baseLayer = getBaseLayer(BASE_MAP.OSM, this.tileGrid)
+    this._map = this.instantiateOLMap(this.mapDom, this.baseLayer)
     this.geolocation = this.setupGeolocationTracking(this._map)
 
     this.setupEventListeners(this._map, handler)
@@ -285,7 +330,7 @@ export class OLMap {
     })
   }
 
-  private instantiateOLMap (target: HTMLElement) {
+  private instantiateOLMap (target: HTMLElement, baseLayer: TileLayer) {
     const tileGrid = getWMTSTileGrid()
     const view = new View({
       center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
@@ -296,7 +341,7 @@ export class OLMap {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       target,
       layers: [
-        getBaseLayer(tileGrid),
+        baseLayer,
         getLUIMapLayer(tileGrid)
       ],
       view,
@@ -368,6 +413,12 @@ export class OLMap {
     view.setZoom(16)
   }
 
+  public changeBaseMap (type: BASE_MAP) {
+    this._map.removeLayer(this.baseLayer)
+    this.baseLayer = getBaseLayer(type, this.tileGrid)
+    this._map.addLayer(this.baseLayer)
+  }
+
   public canPlaceFactory (pixel: MapBrowserEvent['pixel']): Promise<boolean> {
     return new Promise(resolve => {
       this._map.forEachLayerAtPixel(pixel, function (_, data) {
@@ -385,6 +436,8 @@ export class OLMap {
 }
 
 export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}) {
-  const mapInstance = new OLMap(target, handler)
+  const mapInstance = new OLMap(target, handler);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (window as any).changeBaseMap = mapInstance.changeBaseMap.bind(mapInstance)
   return new MapFactoryController(mapInstance)
 }
