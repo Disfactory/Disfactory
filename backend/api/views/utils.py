@@ -23,8 +23,9 @@ def _upload_image(f_image, client_id):
 
 
 def _sample(objs, k):
-    random.shuffle(list(objs))
-    return objs[:k]
+    list_of_objs = list(objs)
+    random.shuffle(list_of_objs)
+    return list_of_objs[:k]
 
 
 def _get_nearby_factories(latitude, longitude, radius):
