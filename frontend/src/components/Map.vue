@@ -145,6 +145,8 @@ export default createComponent({
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             popupOverlay.setPosition((feature.getGeometry() as any).getCoordinates())
             setPopup(feature.getId() as string)
+          } else {
+            popupData.value.show = false
           }
         }
       })
@@ -218,8 +220,9 @@ export default createComponent({
 }
 
 .popup {
+  visibility: hidden;
   opacity: 0;
-  transition: opacity 0.2s linear;
+  transition: visibility,opacity 0.5s linear;
   transform: translate(-16px, 25px);
   border-radius: 3px;
   border: solid 3px #a22929;
@@ -257,6 +260,7 @@ export default createComponent({
   }
 
   h3 {
+    width: calc(100% - 24px);
     margin: 0;
     font-size: 20px;
     line-height: 1.8;
@@ -270,6 +274,8 @@ export default createComponent({
 }
 
 .popup.show {
+  visibility: visible;
   opacity: 1;
+  transition: visibility,opacity 0.5s linear;
 }
 </style>
