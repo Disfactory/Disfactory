@@ -45,6 +45,7 @@ button {
   border: 1px solid #fff;
   border-radius: 24px;
   padding: 10px 21px;
+  user-select: none;
 
   color: $dark-font-color;
   font-size: 1.6rem;

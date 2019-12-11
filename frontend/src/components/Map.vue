@@ -128,17 +128,16 @@ export default createComponent({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const mapController = initializeMap(root.value!, {
         onMoved: async function ([longitude, latitude, range], canPlaceFactory) {
+          factoryValid.value = canPlaceFactory
+          factoryLngLat.value = [longitude, latitude]
           try {
             const factories = await getFactories(range, longitude, latitude)
             if (Array.isArray(factories)) {
               mapController.addFactories(factories)
             }
           } catch (e) {
-            console.error(e)
+            // TODO: handle here
           }
-
-          factoryLngLat.value = [longitude, latitude]
-          factoryValid.value = canPlaceFactory
         }, // TODO: do on start move to lock selection
         onClicked: async function (_, feature) {
           if (feature) {

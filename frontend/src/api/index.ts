@@ -20,9 +20,13 @@ export type UploadedImages = {
 }[]
 
 export async function getFactories (range: number, lng: number, lat: number): Promise<FactoriesResponse> {
-  const { data } = await instance.get(`/factories?range=${range}&lng=${lng}&lat=${lat}`)
-
-  return data
+  try {
+    const { data } = await instance.get(`/factories?range=${range}&lng=${lng}&lat=${lat}`)
+    return data
+  } catch (err) {
+    console.error(err)
+    throw new TypeError('Get factory failed')
+  }
 }
 
 export async function uploadImages (files: FileList): Promise<UploadedImages> {
