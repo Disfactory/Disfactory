@@ -16,8 +16,8 @@ import easymap
 
 
 def _not_in_taiwan(lat, lng):
-    lat_invalid = lat < 22 or lat > 25
-    lng_invalid = lng < 120 or lng > 122
+    lat_invalid = lat <  21.896900 or lat > 25.298401
+    lng_invalid = lng < 120.035141  or lng > 122.007164
     return lat_invalid or lng_invalid
 
 
@@ -57,8 +57,8 @@ def get_nearby_or_create_factories(request):
             return HttpResponse(
                 "The query position is not in the range of Taiwan."
                 "Valid query parameters should be: "
-                "120 < lng < 122, "
-                "22 < lat < 25.",
+                "120.035141 < lng < 122.007164 , "
+                "21.896900 < lat < 25.298401.",
                 status=400,
             )
 
