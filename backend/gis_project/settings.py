@@ -146,4 +146,4 @@ CORS_ORIGIN_WHITELIST = [
     "https://dev.disfactory.tw",
 ]
 
-MAX_FACTORY_PER_GET = os.environ.get("DISFACTORY_BACKEND_MAX_FACTORY_PER_GET", 50)
+MAX_FACTORY_PER_GET = int(os.environ.get("DISFACTORY_BACKEND_MAX_FACTORY_PER_GET", 50))
