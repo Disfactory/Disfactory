@@ -7,7 +7,7 @@ import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { get as getProjection, transform } from 'ol/proj'
 import { getWidth, getTopLeft } from 'ol/extent'
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
-import { Vector as VectorSource } from 'ol/source'
+import { Vector as VectorSource, OSM } from 'ol/source'
 import { Zoom } from 'ol/control'
 import Geolocation from 'ol/Geolocation'
 
@@ -171,10 +171,10 @@ export class MapFactoryController {
 const getWMTSTileGrid = () => {
   const projection = getProjection('EPSG:3857')
   const projectionExtent = projection.getExtent()
-  const resolutions = new Array(20)
+  const resolutions = new Array(21)
   const size = getWidth(projectionExtent) / 256
-  const matrixIds = new Array(20)
-  for (let z = 0; z < 20; ++z) {
+  const matrixIds = new Array(21)
+  for (let z = 0; z < 21; ++z) {
     // generate resolutions and matrixIds arrays for this WMTS
     resolutions[z] = size / Math.pow(2, z)
     matrixIds[z] = z
@@ -187,21 +187,14 @@ const getWMTSTileGrid = () => {
   })
 }
 
-const getBaseLayer = (wmtsTileGrid: WMTSTileGrid) => {
+const getBaseLayer = () => {
   return new TileLayer({
-    source: new WMTS({
-      matrixSet: 'EPSG:3857',
-      format: 'image/png',
-      url: 'https://wmts.nlsc.gov.tw/wmts',
-      layer: 'EMAP',
-      tileGrid: wmtsTileGrid,
+    source: new OSM({
       crossOrigin: 'Anonymous',
-      style: 'default',
-      wrapX: true,
       attributions:
-        '<a href="https://maps.nlsc.gov.tw/" target="_blank">國土測繪圖資服務雲</a>'
+        '<a href="https://osm.tw/" target="_blank">OpenStreetMap 台灣</a>'
     }),
-    opacity: 0.5
+    opacity: 0.6
   })
 }
 
@@ -296,7 +289,7 @@ export class OLMap {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       target,
       layers: [
-        getBaseLayer(tileGrid),
+        getBaseLayer(),
         getLUIMapLayer(tileGrid)
       ],
       view,
