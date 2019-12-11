@@ -134,11 +134,10 @@ export default createComponent({
               mapController.addFactories(factories)
             }
           } catch (e) {
-            console.error(e)
+            // TODO: handle here
           }
-
-          factoryLngLat.value = [longitude, latitude]
           factoryValid.value = canPlaceFactory
+          factoryLngLat.value = [longitude, latitude]
         }, // TODO: do on start move to lock selection
         onClicked: async function (_, feature) {
           if (feature) {
