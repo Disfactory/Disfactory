@@ -122,7 +122,7 @@ export default createComponent({
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         element: popup.value!,
         positioning: OverlayPositioning.BOTTOM_LEFT,
-        stopEvent: true
+        stopEvent: false
       })
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
