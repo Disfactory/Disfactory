@@ -9,7 +9,7 @@
 (↑ gitpod 怎麼用？[看這裡](./docs/gitpod.md))
 
 - [跳坑首頁 (hackfoldr)](https://beta.hackfoldr.org/Disfactory)
-- [跳坑首頁 (HackMD)](https://g0v.hackmd.io/@yukaii/Disfactoy)
+- [跳坑首頁 (HackMD)](https://g0v.hackmd.io/@yukaii/Disfactory)
 - [Disfactory 跳坑指南](https://g0v.hackmd.io/VqCrCpoQT4KQGVhbqR9r6A)
 - [開發文件](https://g0v.hackmd.io/FZFghtuoQ0aaGIl9xXzuKw)
 - [g0v slack](https://g0v-tw.slack.com) channel `#disfactory`
