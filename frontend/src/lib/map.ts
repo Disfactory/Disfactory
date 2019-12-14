@@ -479,9 +479,11 @@ export class OLMap {
   }
 
   public setMinimapPin (longitude: number, latitude: number) {
+    const coordinate = transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857')
+
     if (!this.minimapPinFeature) {
       const feature = new Feature({
-        geometry: new Point(transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857'))
+        geometry: new Point(coordinate)
       })
       feature.setStyle(minimapPinStyle)
 
@@ -496,10 +498,10 @@ export class OLMap {
 
       this.map.addLayer(vectorLayer)
     } else {
-      this.minimapPinFeature.setGeometry(new Point(
-        transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857')
-      ))
+      this.minimapPinFeature.setGeometry(new Point(coordinate))
     }
+
+    this._map.getView().setCenter(coordinate)
   }
 }
 
