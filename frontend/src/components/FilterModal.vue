@@ -6,26 +6,28 @@
         <label class="checkbox-container">
           <input type="checkbox" name="F" v-model="filterF">
           <span class="checkbox" />
-          資料不全
+          <span class="data-type">資料不全</span>
           <span class="line" />
           <img src="/images/marker-red.svg">
         </label>
         <label class="checkbox-container">
           <input type="checkbox" name="A" v-model="filterA">
           <span class="checkbox" />
-          資料齊全
+          <span class="data-type">資料齊全</span>
           <span class="line" />
           <img src="/images/marker-blue.svg">
         </label>
         <label class="checkbox-container">
           <input type="checkbox" name="D" v-model="filterD">
           <span class="checkbox" />
-          已舉報
+          <span class="data-type">已舉報</span>
           <span class="line" />
           <img src="/images/marker-green.svg">
         </label>
       </div>
-      <app-button @click="onClick()">確認</app-button>
+      <div style="margin-bottom: 10px;">
+        <app-button @click="onClick()">確認</app-button>
+      </div>
     </div>
   </app-modal>
 </template>
@@ -89,5 +91,9 @@ export default createComponent({
 .page-inner {
   margin-bottom: 20px;
   padding: 0 10px;
+}
+
+.data-type {
+  min-width: 80px;
 }
 </style>
