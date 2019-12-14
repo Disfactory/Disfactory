@@ -34,8 +34,8 @@
           </div>
           <div>
             <label>
-              <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="display: none;">
-              <app-button :disabled="!isCreateMode" @click="image.click()">新增</app-button>
+              <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="visibility: hidden; position: absolute; pointer-events: none;">
+              <app-button :disabled="!isCreateMode">新增</app-button>
             </label>
           </div>
         </div>
