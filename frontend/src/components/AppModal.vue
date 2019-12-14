@@ -75,7 +75,7 @@ export default createComponent({
 
   position: absolute;
   top: 90px;
-  max-height: calc(100vh - 110px);
+  max-height: calc(100% - 110px);
   overflow: auto;
 
   .close {
