@@ -1,5 +1,5 @@
 import { Map as OlMap, View, Feature, MapBrowserEvent } from 'ol'
-import { Style, Icon } from 'ol/style'
+import { Style, Icon, Circle, Fill, Stroke } from 'ol/style'
 import IconAnchorUnits from 'ol/style/IconAnchorUnits'
 import { Point } from 'ol/geom'
 import WMTS from 'ol/source/WMTS'
@@ -15,6 +15,7 @@ import { FactoryData, FactoryStatusType } from '../types'
 import { flipArgriculturalLand } from '../lib/image'
 import RenderFeature from 'ol/render/Feature'
 import { MapOptions } from 'ol/PluggableMap'
+import IconOrigin from 'ol/style/IconOrigin'
 
 const factoryStatusImageMap = {
   D: '/images/marker-green.svg',
@@ -59,12 +60,26 @@ const iconStyleMap = Object.entries(factoryStatusImageMap).reduce((acc, [status,
   [status]: new Style({
     image: new Icon({
       anchorYUnits: IconAnchorUnits.PIXELS,
+      anchorOrigin: IconOrigin.BOTTOM_LEFT,
       src
     })
   })
 }), {}) as {[key in FactoryStatusType]: Style}
 
 const nullStyle = new Style({})
+
+const minimapPinStyle = new Style({
+  image: new Circle({
+    fill: new Fill({
+      color: '#A22929',
+    }),
+    radius: 15,
+    stroke: new Stroke({
+      color: '#FFFFFF',
+      width: 1
+    })
+  })
+})
 
 export class MapFactoryController {
   private _map: OLMap
@@ -295,6 +310,7 @@ export class OLMap {
   private geolocation?: Geolocation
   private baseLayer: TileLayer
   private tileGrid: WMTSTileGrid = getWMTSTileGrid()
+  private minimapPinFeature?: Feature
 
   constructor (target: HTMLElement, handler: MapEventHandler = {}, options: OLMapOptions = {}) {
     this.mapDom = target
@@ -460,6 +476,30 @@ export class OLMap {
         }
       })
     })
+  }
+
+  public setMinimapPin (longitude: number, latitude: number) {
+    if (!this.minimapPinFeature) {
+      const feature = new Feature({
+        geometry: new Point(transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857'))
+      })
+      feature.setStyle(minimapPinStyle)
+
+      const source = new VectorSource({ features: [
+        feature
+      ]})
+
+      const vectorLayer = new VectorLayer({
+        source,
+        zIndex: 4
+      })
+
+      this.map.addLayer(vectorLayer)
+    } else {
+      this.minimapPinFeature.setGeometry(new Point(
+        transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857')
+      ))
+    }
   }
 }
 

@@ -21,7 +21,7 @@
         </h1>
 
         <h3>工廠地點</h3>
-        <div class="minimap" ref="minimap" @click="enterSelectFactoryMode()" />
+        <div class="minimap" ref="minimap" @click="onClickMinimap()" />
 
         <div class="flex justify-between" style="margin-top: 40px;">
           <div class="flex flex-column flex-auto">
@@ -250,11 +250,21 @@ export default createComponent({
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const minimapController = initializeMinimap(minimap.value!, center)
         minimapController.addFactories(controller.factories)
+
+        if (isEditMode) {
+          const { factoryData } = props
+          minimapController.mapInstance.setMinimapPin(factoryData.lng, factoryData.lat)
+        }
       }
     })
 
     return {
       minimap,
+      onClickMinimap: () => {
+        if (isCreateMode) {
+          props.enterSelectFactoryMode()
+        }
+      },
 
       factoryName,
       factoryType,
