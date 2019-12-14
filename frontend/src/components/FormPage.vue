@@ -345,4 +345,8 @@ export default createComponent({
   left: 0;
   z-index: 2;
 }
+
+.minimap {
+  cursor: pointer;
+}
 </style>
