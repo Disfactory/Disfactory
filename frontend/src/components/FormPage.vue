@@ -88,7 +88,7 @@
           </div>
         </div>
 
-        <div class="text-center width-auto" style="margin-top: 60px; margin-bottom: 55px;" v-if="isCreateMode">
+        <div class="text-center width-auto" style="margin-top: 60px;" v-if="isCreateMode">
           <app-button @click="submitFactory()">送出</app-button>
         </div>
 
@@ -321,6 +321,10 @@ export default createComponent({
   .navbar-container {
     display: block;
   }
+}
+
+.page-container {
+  overflow-x: hidden;
 }
 
 .navbar-container {
