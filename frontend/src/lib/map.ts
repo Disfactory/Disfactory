@@ -300,7 +300,7 @@ export class OLMap {
     this.mapDom = target
 
     this.baseLayer = getBaseLayer(BASE_MAP.OSM, this.tileGrid)
-    this._map = this.instantiateOLMap(this.mapDom, this.baseLayer)
+    this._map = this.instantiateOLMap(this.mapDom, this.baseLayer, options)
     this.geolocation = this.setupGeolocationTracking(this._map)
 
     if (!options.minimap) {
