@@ -21,9 +21,7 @@
         </h1>
 
         <h3>工廠地點</h3>
-        {{ JSON.stringify(factoryLocation) }}
-
-        <app-button v-if="isCreateMode" @click="enterSelectFactoryMode()">點我選擇</app-button>
+        <div class="minimap" ref="minimap" @click="onClickMinimap()" />
 
         <div class="flex justify-between" style="margin-top: 40px;">
           <div class="flex flex-column flex-auto">
@@ -98,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, computed, inject, Ref } from '@vue/composition-api'
+import { createComponent, ref, computed, inject, Ref, onMounted } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
@@ -106,7 +104,7 @@ import AppSelect from '@/components/AppSelect.vue'
 import ImageUploadModal from '@/components/ImageUploadModal.vue'
 import { UploadedImages, createFactory, updateFactory } from '../api'
 import { FactoryPostData, FACTORY_TYPE, FactoryType } from '../types'
-import { MapFactoryController } from '../lib/map'
+import { MapFactoryController, initializeMinimap } from '../lib/map'
 import { MainMapControllerSymbol } from '../symbols'
 
 export default createComponent({
@@ -243,7 +241,31 @@ export default createComponent({
       }
     }
 
+    const minimap = ref<HTMLElement>(null)
+
+    onMounted(() => {
+      if (mapController.value) {
+        const controller = mapController.value
+        const center = controller.mapInstance.map.getView().getCenter() as number[]
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const minimapController = initializeMinimap(minimap.value!, center)
+        minimapController.addFactories(controller.factories)
+
+        if (isEditMode) {
+          const { factoryData } = props
+          minimapController.mapInstance.setMinimapPin(factoryData.lng, factoryData.lat)
+        }
+      }
+    })
+
     return {
+      minimap,
+      onClickMinimap: () => {
+        if (isCreateMode) {
+          props.enterSelectFactoryMode()
+        }
+      },
+
       factoryName,
       factoryType,
       factoryTypeItems,
@@ -332,5 +354,9 @@ export default createComponent({
   top: -47px;
   left: 0;
   z-index: 2;
+}
+
+.minimap {
+  cursor: pointer;
 }
 </style>
