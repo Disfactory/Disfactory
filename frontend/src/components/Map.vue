@@ -222,7 +222,7 @@ export default createComponent({
   visibility: hidden;
   opacity: 0;
   transition: visibility,opacity 0.5s linear;
-  transform: translate(-16px, 25px);
+  transform: translate(-17px, -18px);
   border-radius: 3px;
   border: solid 3px #a22929;
   background-color: #ffffff;
