@@ -125,8 +125,7 @@ export default createComponent({
       const popupOverlay = new Overlay({
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         element: popup.value!,
-        positioning: OverlayPositioning.BOTTOM_LEFT,
-        stopEvent: false
+        positioning: OverlayPositioning.BOTTOM_LEFT
       })
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -239,10 +238,21 @@ export default createComponent({
   transform: translate(calc(50vw - 12.5px), 12.5px);
 }
 
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 .popup {
-  visibility: hidden;
+  display: none;
   opacity: 0;
-  transition: visibility,opacity 0.5s linear;
+  animation-name: fadein;
+  animation-duration: 500ms;
   transform: translate(-17px, -18px);
   border-radius: 3px;
   border: solid 3px #a22929;
@@ -294,8 +304,7 @@ export default createComponent({
 }
 
 .popup.show {
-  visibility: visible;
+  display: block;
   opacity: 1;
-  transition: visibility,opacity 0.5s linear;
 }
 </style>
