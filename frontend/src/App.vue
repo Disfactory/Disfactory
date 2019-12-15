@@ -2,7 +2,7 @@
   <div id="app">
     <app-navbar :hide="createFactoryPageOpen" :fixed="true">農地違章工廠舉報</app-navbar>
 
-    <filter-modal :open="filterModalOpen" :dismiss="closeFilterModal" />
+    <filter-modal :open="appState.filterModalOpen" :dismiss="closeFilterModal" />
     <create-factory-success-modal
       :open="createFactorySuccessModalOpen"
       :dismiss="() => setCreateFactorySuccessModal(false)"
@@ -15,7 +15,6 @@
       :exitSelectFactoryMode="exitSelectFactoryMode"
       :setFactoryLocation="setFactoryLocation"
       :openFilterModal="openFilterModal"
-
     />
 
     <form-page
@@ -34,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, provide } from '@vue/composition-api'
+import { createComponent, ref, provide, reactive } from '@vue/composition-api'
 
 import Map from '@/components/Map.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
@@ -58,12 +57,16 @@ export default createComponent({
     FormPage
   },
   setup () {
-    const filterModalOpen = ref(false)
-    const closeFilterModal = () => {
-      filterModalOpen.value = false
+    const appState = reactive({
+      filterModalOpen: false,
+    })
+
+    function closeFilterModal () {
+      appState.filterModalOpen = false
     }
-    const openFilterModal = () => {
-      filterModalOpen.value = true
+
+    function openFilterModal () {
+      appState.filterModalOpen = true
     }
 
     const formMode = ref('create')
@@ -109,7 +112,8 @@ export default createComponent({
     provide(MainMapControllerSymbol, ref<MapFactoryController>(null))
 
     return {
-      filterModalOpen,
+      appState,
+
       openFilterModal,
       closeFilterModal,
 
