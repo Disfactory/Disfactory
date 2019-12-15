@@ -68,8 +68,8 @@ export default createComponent({
       // TODO: should be rewritten with vue router?
       formMode: 'create',
       factoryFormOpen: false,
-      factoryData: null,
-      factoryLocation: [],
+      factoryData: null as FactoryData | null,
+      factoryLocation: [] as number[],
 
       // Map state
       selectFactoryMode: false
