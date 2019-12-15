@@ -152,6 +152,8 @@ export default createComponent({
 
       mapController.mapInstance.map.addOverlay(popupOverlay)
       mapControllerRef.value = mapController
+
+      mapController.mapInstance.setLUILayerVisible(false)
     })
 
     return {
