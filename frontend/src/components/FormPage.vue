@@ -96,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, computed, inject, Ref, onMounted } from '@vue/composition-api'
+import { createComponent, ref, computed, inject, Ref, onMounted, watch } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
@@ -154,6 +154,7 @@ export default createComponent({
   },
   setup (props) {
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
+    let minimapController: MapFactoryController
 
     // mode helpers
     const isEditMode = props.mode === 'edit'
@@ -248,20 +249,31 @@ export default createComponent({
         const controller = mapController.value
         const center = controller.mapInstance.map.getView().getCenter() as number[]
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const minimapController = initializeMinimap(minimap.value!, center)
+        minimapController = initializeMinimap(minimap.value!, center)
         minimapController.addFactories(controller.factories)
 
         if (isEditMode) {
           const { factoryData } = props
           minimapController.mapInstance.setMinimapPin(factoryData.lng, factoryData.lat)
+        } else if (isCreateMode) {
+          const [lng, lat] = props.factoryLocation as number[]
+          minimapController.mapInstance.setMinimapPin(lng, lat)
         }
+      }
+    })
+
+    watch(() => props.factoryLocation, () => {
+      if (isCreateMode && minimapController) {
+        const [lng, lat] = props.factoryLocation as number[]
+        minimapController.mapInstance.setMinimapPin(lng, lat)
       }
     })
 
     return {
       minimap,
       onClickMinimap: () => {
-        if (isCreateMode) {
+        if (isCreateMode && mapController.value) {
+          mapController.value.mapInstance.setLUILayerVisible(true)
           props.enterSelectFactoryMode()
         }
       },
@@ -291,8 +303,11 @@ export default createComponent({
         images.value = _images.map(image => image.token)
       },
       onNavBack () {
-        props.close()
-        props.exitSelectFactoryMode()
+        if (mapController.value) {
+          mapController.value.mapInstance.setLUILayerVisible(false)
+          props.close()
+          props.exitSelectFactoryMode()
+        }
       },
       async submitFactory () {
         try {

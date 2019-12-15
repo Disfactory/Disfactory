@@ -1,32 +1,33 @@
 <template>
   <div id="app">
-    <app-navbar :hide="createFactoryPageOpen" :fixed="true">農地違章工廠舉報</app-navbar>
+    <app-navbar :hide="appState.factoryFormOpen" :fixed="true">農地違章工廠舉報</app-navbar>
 
-    <filter-modal :open="filterModalOpen" :dismiss="closeFilterModal" />
+    <filter-modal :open="appState.filterModalOpen" :dismiss="closeFilterModal" />
     <create-factory-success-modal
-      :open="createFactorySuccessModalOpen"
+      :open="appState.createFactorySuccessModalOpen"
       :dismiss="() => setCreateFactorySuccessModal(false)"
     />
 
     <Map
       :openCreateFactoryForm="openCreateFactoryForm"
       :openEditFactoryForm="openEditFactoryForm"
-      :selectFactoryMode="selectFactoryMode"
+      :selectFactoryMode="appState.selectFactoryMode"
+      :enterSelectFactoryMode="enterSelectFactoryMode"
       :exitSelectFactoryMode="exitSelectFactoryMode"
       :setFactoryLocation="setFactoryLocation"
       :openFilterModal="openFilterModal"
-
     />
 
     <form-page
-      v-if="createFactoryPageOpen"
-      :mode="formMode"
-      :factoryData="editingFactory"
+      v-if="appState.factoryFormOpen"
+
+      :mode="appState.formMode"
+      :factoryData="appState.factoryData"
       :close="closeFactoryPage"
-      :selectFactoryMode="selectFactoryMode"
+      :selectFactoryMode="appState.selectFactoryMode"
       :enterSelectFactoryMode="enterSelectFactoryMode"
       :exitSelectFactoryMode="exitSelectFactoryMode"
-      :factoryLocation="factoryLocation"
+      :factoryLocation="appState.factoryLocation"
       :setCreateFactorySuccessModal="setCreateFactorySuccessModal"
     />
 
@@ -34,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, provide } from '@vue/composition-api'
+import { createComponent, ref, provide, reactive } from '@vue/composition-api'
 
 import Map from '@/components/Map.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
@@ -58,77 +59,81 @@ export default createComponent({
     FormPage
   },
   setup () {
-    const filterModalOpen = ref(false)
-    const closeFilterModal = () => {
-      filterModalOpen.value = false
+    const appState = reactive({
+      // Modal open states
+      filterModalOpen: false,
+      createFactorySuccessModalOpen: false,
+
+      // Page State
+      // TODO: should be rewritten with vue router?
+      formMode: 'create',
+      factoryFormOpen: false,
+      factoryData: null as FactoryData | null,
+      factoryLocation: [] as number[],
+
+      // Map state
+      selectFactoryMode: false
+    })
+
+    // Modal state utilities
+    function closeFilterModal () {
+      appState.filterModalOpen = false
     }
-    const openFilterModal = () => {
-      filterModalOpen.value = true
+
+    function openFilterModal () {
+      appState.filterModalOpen = true
     }
 
-    const formMode = ref('create')
-    const editingFactory = ref<FactoryData>(null)
+    function setCreateFactorySuccessModal (open: boolean) {
+      appState.createFactorySuccessModalOpen = open
+    }
 
-    const createFactoryPageOpen = ref(false)
-
+    // Form Editing functions
     const openCreateFactoryForm = () => {
-      editingFactory.value = null
-      formMode.value = 'create'
-      createFactoryPageOpen.value = true
+      appState.factoryData = null
+      appState.formMode = 'create'
+      appState.factoryFormOpen = true
     }
 
     const openEditFactoryForm = (factory: FactoryData) => {
-      editingFactory.value = factory
-      formMode.value = 'edit'
-      createFactoryPageOpen.value = true
+      appState.factoryData = factory
+      appState.formMode = 'edit'
+      appState.factoryFormOpen = true
     }
 
-    const closeFactoryPage = () => {
-      createFactoryPageOpen.value = false
+    function closeFactoryPage () {
+      appState.factoryFormOpen = false
     }
 
-    const factoryLocation = ref<number[]>([])
     const setFactoryLocation = (value: [number, number]) => {
-      factoryLocation.value = value
+      appState.factoryLocation = value
     }
 
-    const selectFactoryMode = ref(false)
-    const enterSelectFactoryMode = () => {
-      selectFactoryMode.value = true
+    function enterSelectFactoryMode () {
+      appState.selectFactoryMode = true
     }
-    const exitSelectFactoryMode = () => {
-      selectFactoryMode.value = false
-    }
-
-    const createFactorySuccessModalOpen = ref(false)
-    const setCreateFactorySuccessModal = (open: boolean) => {
-      createFactorySuccessModalOpen.value = open
+    function exitSelectFactoryMode () {
+      appState.selectFactoryMode = false
     }
 
     // register global accessible map instance
     provide(MainMapControllerSymbol, ref<MapFactoryController>(null))
 
     return {
-      filterModalOpen,
+      appState,
+
+      // Modal state utilities
       openFilterModal,
       closeFilterModal,
-
-      createFactorySuccessModalOpen,
       setCreateFactorySuccessModal,
 
-      createFactoryPageOpen,
       openCreateFactoryForm,
       openEditFactoryForm,
       closeFactoryPage,
 
-      selectFactoryMode,
       enterSelectFactoryMode,
       exitSelectFactoryMode,
-      factoryLocation,
       setFactoryLocation,
-
-      formMode,
-      editingFactory
     }
   }
 })

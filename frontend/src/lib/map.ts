@@ -6,7 +6,7 @@ import WMTS from 'ol/source/WMTS'
 import WMTSTileGrid from 'ol/tilegrid/WMTS'
 import { get as getProjection, transform } from 'ol/proj'
 import { getWidth, getTopLeft } from 'ol/extent'
-import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer'
+import { Tile as TileLayer, Vector as VectorLayer, Layer } from 'ol/layer'
 import { Vector as VectorSource, OSM } from 'ol/source'
 import { Zoom } from 'ol/control'
 import Geolocation from 'ol/Geolocation'
@@ -73,7 +73,7 @@ const minimapPinStyle = new Style({
     fill: new Fill({
       color: '#A22929',
     }),
-    radius: 15,
+    radius: 12,
     stroke: new Stroke({
       color: '#FFFFFF',
       width: 1
@@ -475,7 +475,30 @@ export class OLMap {
           return layer.getProperties().source.layer_ === 'LUIMAP'
         }
       })
+
+      resolve(false)
     })
+  }
+
+  private getLUIMAPLayer (): Promise<Layer> {
+    return new Promise((resolve, reject) => {
+      let layer
+      this._map.getLayers().forEach(_layer => {
+        if (_layer.getProperties().source.layer_ === 'LUIMAP') {
+          layer = _layer
+          resolve(_layer as Layer)
+        }
+      })
+
+      if (!layer) {
+        reject(new TypeError('LUIMAP Layer not found'))
+      }
+    })
+  }
+
+  public async setLUILayerVisible (visible: boolean) {
+    const layer = await this.getLUIMAPLayer()
+    layer.setVisible(visible)
   }
 
   public setMinimapPin (longitude: number, latitude: number) {
@@ -486,6 +509,7 @@ export class OLMap {
         geometry: new Point(coordinate)
       })
       feature.setStyle(minimapPinStyle)
+      this.minimapPinFeature = feature
 
       const source = new VectorSource({ features: [
         feature
