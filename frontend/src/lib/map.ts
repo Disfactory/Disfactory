@@ -509,6 +509,7 @@ export class OLMap {
         geometry: new Point(coordinate)
       })
       feature.setStyle(minimapPinStyle)
+      this.minimapPinFeature = feature
 
       const source = new VectorSource({ features: [
         feature

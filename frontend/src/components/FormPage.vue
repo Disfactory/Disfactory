@@ -154,7 +154,7 @@ export default createComponent({
   },
   setup (props) {
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
-    const minimapController = ref<MapFactoryController>()
+    let minimapController: MapFactoryController
 
     // mode helpers
     const isEditMode = props.mode === 'edit'
@@ -249,25 +249,23 @@ export default createComponent({
         const controller = mapController.value
         const center = controller.mapInstance.map.getView().getCenter() as number[]
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const _minimapController = initializeMinimap(minimap.value!, center)
-        // minimapController.value = _minimapController
-        _minimapController.addFactories(controller.factories)
+        minimapController = initializeMinimap(minimap.value!, center)
+        minimapController.addFactories(controller.factories)
 
         if (isEditMode) {
           const { factoryData } = props
-          _minimapController.mapInstance.setMinimapPin(factoryData.lng, factoryData.lat)
+          minimapController.mapInstance.setMinimapPin(factoryData.lng, factoryData.lat)
         } else if (isCreateMode) {
           const [lng, lat] = props.factoryLocation as number[]
-          _minimapController.mapInstance.setMinimapPin(lng, lat)
+          minimapController.mapInstance.setMinimapPin(lng, lat)
         }
       }
     })
 
-    watch(() => {
-      console.log('yo')
-      if (isCreateMode) {
-        // const [lng, lat] = props.factoryLocation as number[]
-        // minimapController.value.mapInstance.setMinimapPin(lng, lat)
+    watch(() => props.factoryLocation, () => {
+      if (isCreateMode && minimapController) {
+        const [lng, lat] = props.factoryLocation as number[]
+        minimapController.mapInstance.setMinimapPin(lng, lat)
       }
     })
 
