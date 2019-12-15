@@ -26,12 +26,12 @@
 
     <div class="factory-button-group">
       <div class="create-factory-button" v-if="!selectFactoryMode">
-        <app-button @click="openCreateFactoryForm">我要新增違建工廠</app-button>
+        <app-button @click="onClickCreateFactoryButton">我要新增違建工廠</app-button>
       </div>
 
       <div class="choose-location-button" v-if="selectFactoryMode">
         <app-button
-          @click="selectCenterPoint"
+          @click="onClickFinishSelectFactoryPositionButton"
           :disabled="!factoryValid"
         >
           選擇此地點
@@ -66,6 +66,10 @@ export default createComponent({
     },
     selectFactoryMode: {
       type: Boolean,
+      required: true
+    },
+    enterSelectFactoryMode: {
+      type: Function,
       required: true
     },
     exitSelectFactoryMode: {
@@ -156,21 +160,36 @@ export default createComponent({
       mapController.mapInstance.setLUILayerVisible(false)
     })
 
+    function onClickCreateFactoryButton () {
+      if (!mapControllerRef.value) return
+
+      mapControllerRef.value.mapInstance.setLUILayerVisible(true)
+      props.enterSelectFactoryMode()
+    }
+
+    function onClickFinishSelectFactoryPositionButton () {
+      if (!mapControllerRef.value) return
+
+      mapControllerRef.value.mapInstance.setLUILayerVisible(false)
+
+      props.setFactoryLocation(factoryLngLat.value)
+      props.exitSelectFactoryMode()
+      props.openCreateFactoryForm()
+    }
+
     return {
       root,
       popup,
       factoryValid,
-      selectCenterPoint () {
-        props.setFactoryLocation(factoryLngLat.value)
-        props.exitSelectFactoryMode()
-      },
       zoomToGeolocation: function () {
         if (mapControllerRef.value) {
           mapControllerRef.value.mapInstance.zoomToGeolocation()
         }
       },
       popupData,
-      onClickEditFactoryData
+      onClickEditFactoryData,
+      onClickCreateFactoryButton,
+      onClickFinishSelectFactoryPositionButton,
     }
   }
 })
