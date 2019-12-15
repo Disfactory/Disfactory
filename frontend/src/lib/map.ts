@@ -475,6 +475,8 @@ export class OLMap {
           return layer.getProperties().source.layer_ === 'LUIMAP'
         }
       })
+
+      resolve(false)
     })
   }
 
