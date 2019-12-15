@@ -73,7 +73,7 @@ const minimapPinStyle = new Style({
     fill: new Fill({
       color: '#A22929',
     }),
-    radius: 15,
+    radius: 12,
     stroke: new Stroke({
       color: '#FFFFFF',
       width: 1
