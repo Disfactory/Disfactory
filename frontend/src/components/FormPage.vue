@@ -8,7 +8,7 @@
 
     <div class="page-container" :class="{ hide: selectFactoryMode }">
       <image-upload-modal
-        :open="imageUploadModalOpen"
+        :open="formPageState.imageUploadModalOpen"
         :dismiss="closeImageUploadModal"
         :images="imagesToUpload"
         :finishImagesUpload="finishImagesUpload"
@@ -49,7 +49,7 @@
         <div class="flex align-items-center">
           <div class="flex-auto">
             <app-text-field
-              v-model="factoryName"
+              v-model="factoryFormState.name"
               placeholder="請輸入工廠名稱"
             />
           </div>
@@ -63,7 +63,7 @@
         <div class="flex align-items-center">
           <div class="flex-auto">
             <app-select
-              v-model="factoryType"
+              v-model="factoryFormState.type"
               :items="factoryTypeItems"
             />
           </div>
@@ -77,7 +77,7 @@
         <div class="flex align-items-center">
           <div class="flex-auto">
             <app-text-field
-              v-model="factoryDescription"
+              v-model="factoryFormState.others"
               placeholder="請填入其他資訊，如聲音、氣味等等。"
             />
           </div>
@@ -97,7 +97,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, computed, inject, Ref, onMounted, watch } from '@vue/composition-api'
+import { createComponent, ref, computed, inject, Ref, onMounted, watch, reactive } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
@@ -167,44 +167,42 @@ export default createComponent({
       ...Object.entries(FACTORY_TYPE).map(([value, text]) => ({ text, value }))
     ]
 
-    const initialFactoryValue = {
-      factoryName: '',
-      factoryType: '0',
-      factoryDescription: '',
-      images: [],
+    const initialFactoryState = {
+      name: '',
+      others: '', // description
+      type: '0' as FactoryType,
       lng: 0,
       lat: 0,
+
+      // image upload data
+      images: [] as string[],
       nickname: '',
-      other: '',
       contact: ''
     }
-    let factoryName: Ref<string>
-    let factoryType: Ref<FactoryType>
-    const factoryDescription = ref('')
-    let images: Ref<string[]>
-    const nickname = ref('')
-    const contact = ref('')
 
-    // initialize factory values
-    if (isCreateMode) {
-      factoryName = ref(initialFactoryValue.factoryName)
-      factoryType = ref(initialFactoryValue.factoryType)
-      images = ref(initialFactoryValue.images)
-    } else if (isEditMode) {
+    // merge state
+    if (isEditMode) {
       const { factoryData } = props
-      factoryName = ref(factoryData.name)
-      factoryType = ref(factoryData.factory_type)
-      images = ref(factoryData.images)
-    } else {
-      throw new TypeError('Invalid mode!')
+
+      initialFactoryState.name = factoryData.name
+      initialFactoryState.type = factoryData.factory_type
+      initialFactoryState.others = factoryData.others
+      initialFactoryState.images = factoryData.images
+      initialFactoryState.lng = factoryData.lng
+      initialFactoryState.lat = factoryData.lat
     }
 
-    const imageUploadModalOpen = ref(false)
+    const factoryFormState = reactive(initialFactoryState)
+
+    const formPageState = reactive({
+      imageUploadModalOpen: false
+    })
+
     const closeImageUploadModal = () => {
-      imageUploadModalOpen.value = false
+      formPageState.imageUploadModalOpen = false
     }
     const openImageUploadModal = () => {
-      imageUploadModalOpen.value = true
+      formPageState.imageUploadModalOpen = true
     }
 
     const imagesToUpload = ref<FileList>([])
@@ -220,9 +218,9 @@ export default createComponent({
       return urls
     })
 
-    const finishUploaderForm = (_nickname: string, _contact: string) => {
-      nickname.value = _nickname
-      contact.value = _contact
+    const finishUploaderForm = (nickname: string, contact: string) => {
+      factoryFormState.nickname = nickname
+      factoryFormState.contact = contact
     }
 
     const updateFactoryFieldsFor = async (field: string, value: string) => {
@@ -279,15 +277,12 @@ export default createComponent({
           props.enterSelectFactoryMode()
         }
       },
-
-      factoryName,
-      factoryType,
+      factoryFormState,
+      formPageState,
       factoryTypeItems,
-      factoryDescription,
       containerStyle: {
         width: '100%'
       },
-      imageUploadModalOpen,
       openImageUploadModal,
       closeImageUploadModal,
 
@@ -308,7 +303,7 @@ export default createComponent({
       },
       finishImagesUpload (_images: UploadedImages) {
         uploadedImages.value = _images
-        images.value = _images.map(image => image.token)
+        factoryFormState.images = _images.map(image => image.token)
       },
       onNavBack () {
         if (mapController.value) {
@@ -321,14 +316,14 @@ export default createComponent({
         try {
           const [lng, lat] = props.factoryLocation as number[]
           const factory: FactoryPostData = {
-            name: factoryName.value,
+            name: factoryFormState.name,
+            others: factoryFormState.others,
+            type: factoryFormState.type,
             lng,
             lat,
-            type: factoryType.value,
-            others: factoryDescription.value,
-            images: uploadedImages.value.map(image => image.token),
-            nickname: nickname.value,
-            contact: contact.value
+            images: factoryFormState.images,
+            nickname: factoryFormState.nickname,
+            contact: factoryFormState.contact
           }
 
           const resultFactory = await createFactory(factory)
