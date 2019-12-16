@@ -296,6 +296,7 @@ export default createComponent({
       image, // image upload input ref,
       isSafari,
       onClickImageUpload () {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         image.value!.click()
       },
       handleImagesUpload (e: Event) {
