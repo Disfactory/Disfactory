@@ -23,7 +23,7 @@
         <h3>工廠地點</h3>
         <div class="minimap" ref="minimap" @click="onClickMinimap()" />
 
-        <div class="flex justify-between" style="margin-top: 40px;">
+        <div class="flex justify-between" style="margin-top: 40px; margin-bottom: 20px;">
           <div class="flex flex-column flex-auto">
             <h3 style="margin-top: 0;">工廠照片*</h3>
             <label>
@@ -32,8 +32,9 @@
           </div>
           <div>
             <label>
-              <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="visibility: hidden; position: absolute; pointer-events: none;">
-              <app-button :disabled="!isCreateMode">新增</app-button>
+              <input name="factory-image" multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="visibility: hidden; position: absolute;">
+              <app-button v-if="isSafari" :disabled="!isCreateMode">新增</app-button>
+              <app-button v-else :disabled="!isCreateMode" @click="onClickImageUpload">新增</app-button>
             </label>
           </div>
         </div>
@@ -105,6 +106,7 @@ import ImageUploadModal from '@/components/ImageUploadModal.vue'
 import { UploadedImages, createFactory, updateFactory } from '../api'
 import { FactoryPostData, FACTORY_TYPE, FactoryType } from '../types'
 import { MapFactoryController, initializeMinimap } from '../lib/map'
+import { isSafari } from '../lib/browserCheck'
 import { MainMapControllerSymbol } from '../symbols'
 
 export default createComponent({
@@ -292,6 +294,10 @@ export default createComponent({
       imageUrls,
       imagesToUpload,
       image, // image upload input ref,
+      isSafari,
+      onClickImageUpload () {
+        image.value!.click()
+      },
       handleImagesUpload (e: Event) {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         imagesToUpload.value = (e.target as HTMLInputElement).files!
