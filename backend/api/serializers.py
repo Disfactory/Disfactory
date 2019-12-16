@@ -6,6 +6,7 @@ from rest_framework.serializers import (
 )
 
 from .models import Factory, Image, ReportRecord
+from django.conf import settings
 
 
 class ImageSerializer(ModelSerializer):
@@ -46,10 +47,10 @@ class FactorySerializer(ModelSerializer):
         return sorted(reported_date, reverse=True)[0]
 
     def validate_lat(self, value):
-        if value < 22 or value > 25:
+        if value < TAIWAN_MIN_LATITUDE or value > TAIWAN_MAX_LATITUDE:
             raise ValidationError(f"latitude should be within 22 ~ 25, but got {value}")
 
     def validate_lng(self, value):
-        if value < 120 or value > 122:
+        if value < TAIWAN_MIN_LONGITUDE or value > TAIWAN_MAX_LONGITUDE:
             raise ValidationError(f"longitude should be within 120 ~ 122, but got {value}")
 

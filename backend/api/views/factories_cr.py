@@ -11,13 +11,14 @@ from rest_framework.decorators import api_view
 from .utils import _get_nearby_factories, _get_client_ip
 from ..models import Factory, Image, ReportRecord
 from ..serializers import FactorySerializer
+from django.conf import settings
 
 import easymap
 
 
 def _not_in_taiwan(lat, lng):
-    lat_invalid = lat <  21.896900 or lat > 25.298401
-    lng_invalid = lng < 120.035141  or lng > 122.007164
+    lat_invalid = TAIWAN_MIN_LATITUDE or TAIWAN_MAX_LATITUDE
+    lng_invalid = TAIWAN_MIN_LONGITUDE or TAIWAN_MAX_LONGITUDE
     return lat_invalid or lng_invalid
 
 
