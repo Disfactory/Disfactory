@@ -32,8 +32,8 @@
           </div>
           <div>
             <label>
-              <input name="factory-image" multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="visibility: hidden; position: absolute;">
-              <app-button v-if="isSafari" :disabled="!isCreateMode">新增</app-button>
+              <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="visibility: hidden; position: absolute; pointer-events: none; left: -1000px;">
+              <app-button v-if="isiOS || isSafari" :disabled="!isCreateMode">新增</app-button>
               <app-button v-else :disabled="!isCreateMode" @click="onClickImageUpload">新增</app-button>
             </label>
           </div>
@@ -106,7 +106,7 @@ import ImageUploadModal from '@/components/ImageUploadModal.vue'
 import { UploadedImages, createFactory, updateFactory } from '../api'
 import { FactoryPostData, FACTORY_TYPE, FactoryType } from '../types'
 import { MapFactoryController, initializeMinimap } from '../lib/map'
-import { isSafari } from '../lib/browserCheck'
+import { isiOS, isSafari } from '../lib/browserCheck'
 import { MainMapControllerSymbol } from '../symbols'
 
 export default createComponent({
@@ -294,6 +294,7 @@ export default createComponent({
       imageUrls,
       imagesToUpload,
       image, // image upload input ref,
+      isiOS,
       isSafari,
       onClickImageUpload () {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
