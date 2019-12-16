@@ -40,7 +40,7 @@
         </div>
 
         <div class="images-grid">
-          <div class="image-card" :key="url" v-for="url in imageUrls" >
+          <div class="image-card" :key="url" v-for="url in factoryFormState.imageUrls" >
             <img :src="url" />
           </div>
         </div>
@@ -176,8 +176,9 @@ export default createComponent({
 
       // image upload data
       images: [] as string[],
+      imageUrls: [] as string[],
       nickname: '',
-      contact: ''
+      contact: '',
     }
 
     // merge state
@@ -221,17 +222,7 @@ export default createComponent({
     }
 
     const imagesToUpload = ref<FileList>([])
-    const uploadedImages = ref<UploadedImages>([])
     const image = ref<HTMLElement>(null)
-
-    const imageUrls = computed(() => {
-      const urls = []
-      for (let i = 0; i < imagesToUpload.value.length; i++) {
-        urls.push(URL.createObjectURL(imagesToUpload.value[i]))
-      }
-
-      return urls
-    })
 
     const finishUploaderForm = (nickname: string, contact: string) => {
       factoryFormState.nickname = nickname
@@ -301,7 +292,6 @@ export default createComponent({
       openImageUploadModal,
       closeImageUploadModal,
 
-      imageUrls,
       imagesToUpload,
       image, // image upload input ref,
       isiOS,
@@ -316,8 +306,8 @@ export default createComponent({
 
         openImageUploadModal()
       },
-      finishImagesUpload (_images: UploadedImages) {
-        uploadedImages.value = _images
+      finishImagesUpload (_images: UploadedImages, imageUrls: string[]) {
+        factoryFormState.imageUrls = imageUrls
         factoryFormState.images = _images.map(image => image.token)
       },
       onNavBack () {
@@ -333,7 +323,7 @@ export default createComponent({
           const factory: FactoryPostData = {
             name: factoryFormState.name,
             others: factoryFormState.others,
-            type: factoryFormState.type,
+            type: factoryFormState.type as FactoryType,
             lng,
             lat,
             images: factoryFormState.images,
