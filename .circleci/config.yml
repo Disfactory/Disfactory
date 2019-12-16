@@ -110,8 +110,16 @@ workflows:
   version: 2
   build:
     jobs:
-      - frontend-lint
-      - frontend-build
+      - frontend-lint:
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+      - frontend-build:
+          filters:
+            branches:
+              ignore:
+                - gh-pages
       - frontend-deploy:
           requires:
             - frontend-lint
