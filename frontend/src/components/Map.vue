@@ -1,41 +1,49 @@
 <template>
-  <div class="map-container">
-    <div ref="root" class="map" />
-    <div ref="popup" :class="['popup', { show: popupData.show }]" :style="{ borderColor: popupData.color }">
-      <div class="close" @click="popupData.show = false" />
-      <h3>{{ popupData.name }}</h3>
-      <p :style="{ color: popupData.color }">{{ popupData.status }}</p>
-      <app-button outline @click="onClickEditFactoryData">
-        補充資料
-      </app-button>
+  <div>
+    <div class="navbar-container" v-if="selectFactoryMode">
+      <app-navbar :dark="false" :fixed="true" @back="onNavBack">
+        新增資訊
+      </app-navbar>
     </div>
 
-    <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal">
-      <button>
-        <img src="/images/search.svg" alt="search">
-      </button>
-    </div>
-
-    <div class="ol-fit-location ol-unselectable ol-control" @click="zoomToGeolocation">
-      <button>
-        <img src="/images/locate.svg" alt="locate">
-      </button>
-    </div>
-
-    <div class="center-point" v-if="selectFactoryMode" />
-
-    <div class="factory-button-group">
-      <div class="create-factory-button" v-if="!selectFactoryMode">
-        <app-button @click="onClickCreateFactoryButton">我要新增違建工廠</app-button>
+    <div class="map-container">
+      <div ref="root" class="map" />
+      <div ref="popup" :class="['popup', { show: popupData.show }]" :style="{ borderColor: popupData.color }">
+        <div class="close" @click="popupData.show = false" />
+        <h3>{{ popupData.name }}</h3>
+        <p :style="{ color: popupData.color }">{{ popupData.status }}</p>
+        <app-button outline @click="onClickEditFactoryData">
+          補充資料
+        </app-button>
       </div>
 
-      <div class="choose-location-button" v-if="selectFactoryMode">
-        <app-button
-          @click="onClickFinishSelectFactoryPositionButton"
-          :disabled="!factoryValid"
-        >
-          選擇此地點
-        </app-button>
+      <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal">
+        <button>
+          <img src="/images/search.svg" alt="search">
+        </button>
+      </div>
+
+      <div class="ol-fit-location ol-unselectable ol-control" @click="zoomToGeolocation">
+        <button>
+          <img src="/images/locate.svg" alt="locate">
+        </button>
+      </div>
+
+      <div class="center-point" v-if="selectFactoryMode" />
+
+      <div class="factory-button-group">
+        <div class="create-factory-button" v-if="!selectFactoryMode">
+          <app-button @click="onClickCreateFactoryButton">我要新增違建工廠</app-button>
+        </div>
+
+        <div class="choose-location-button" v-if="selectFactoryMode">
+          <app-button
+            @click="onClickFinishSelectFactoryPositionButton"
+            :disabled="!factoryValid"
+          >
+            選擇此地點
+          </app-button>
+        </div>
       </div>
     </div>
   </div>
@@ -43,6 +51,7 @@
 
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
+import AppNavbar from '@/components/AppNavbar.vue'
 import { createComponent, onMounted, ref, inject } from '@vue/composition-api'
 import { initializeMap, MapFactoryController, factoryBorderColor } from '../lib/map'
 import { getFactories } from '../api'
@@ -53,7 +62,8 @@ import { FACTORY_STATUS, FactoryData } from '../types'
 
 export default createComponent({
   components: {
-    AppButton
+    AppButton,
+    AppNavbar,
   },
   props: {
     openCreateFactoryForm: {
@@ -185,6 +195,9 @@ export default createComponent({
           mapControllerRef.value.mapInstance.zoomToGeolocation()
         }
       },
+      onNavBack () {
+        props.exitSelectFactoryMode()
+      },
       popupData,
       onClickEditFactoryData,
       onClickCreateFactoryButton,
@@ -283,5 +296,12 @@ export default createComponent({
 .popup.show {
   display: block;
   opacity: 1;
+}
+
+.navbar-container {
+  position: absolute;
+  top: -47px;
+  left: 0;
+  z-index: 2;
 }
 </style>
