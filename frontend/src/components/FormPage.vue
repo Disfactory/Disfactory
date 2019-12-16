@@ -211,7 +211,7 @@ export default createComponent({
       const typeValid = type !== '0'
       const imagesValid = images.length > 0
 
-      formPageState.valid = textFieldsValid && typeValid && imagesValid
+      formPageState.valid = !!(textFieldsValid && typeValid && imagesValid)
     })
 
     const closeImageUploadModal = () => {
