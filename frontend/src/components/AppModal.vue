@@ -33,6 +33,7 @@ export default createComponent({
 
 <style lang="scss" scoped>
 @import '../styles/variables';
+@import '~@/styles/utils';
 
 .app-modal-component {
   z-index: 1;
@@ -79,33 +80,7 @@ export default createComponent({
   overflow: auto;
 
   .close {
-    position: absolute;
-    top: 24px;
-    right: 22px;
-
-    width: 24px;
-    height: 24px;
-    padding-top: 12px;
-    cursor: pointer;
-
-    &::before, &::after {
-      display: block;
-      content: '';
-      width: 100%;
-      height: 3px;
-      background: #000;
-      transform-origin: center;
-      position: absolute;
-      border-radius: 5px;
-    }
-
-    &::before {
-      transform: rotate(45deg);
-    }
-
-    &::after {
-      transform: rotate(-45deg);
-    }
+    @include close-button;
   }
 }
 </style>

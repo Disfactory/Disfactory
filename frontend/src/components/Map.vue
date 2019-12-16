@@ -188,14 +188,15 @@ export default createComponent({
       popupData,
       onClickEditFactoryData,
       onClickCreateFactoryButton,
-      onClickFinishSelectFactoryPositionButton,
+      onClickFinishSelectFactoryPositionButton
     }
   }
 })
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/variables';
+@import '~@/styles/variables';
+@import '~@/styles/utils';
 
 .map-container {
   top: 47px;
@@ -262,31 +263,7 @@ export default createComponent({
   position: relative;
 
   .close {
-    position: absolute;
-    top: 30px;
-    right: 20px;
-    width: 24px;
-    height: 24px;
-    cursor: pointer;
-
-    &::before, &::after {
-      display: block;
-      content: '';
-      width: 100%;
-      height: 3px;
-      background: #000;
-      transform-origin: center;
-      position: absolute;
-      border-radius: 5px;
-    }
-
-    &::before {
-      transform: rotate(45deg);
-    }
-
-    &::after {
-      transform: rotate(-45deg);
-    }
+    @include close-button;
   }
 
   h3 {
