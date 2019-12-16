@@ -88,7 +88,7 @@
         </div>
 
         <div class="text-center width-auto" style="margin-top: 60px;" v-if="isCreateMode">
-          <app-button @click="submitFactory()">送出</app-button>
+          <app-button @click="submitFactory()" :disabled="!formPageState.valid">送出</app-button>
         </div>
 
       </div>
@@ -170,7 +170,7 @@ export default createComponent({
     const initialFactoryState = {
       name: '',
       others: '', // description
-      type: '0' as FactoryType,
+      type: '0' as FactoryType | '0',
       lng: 0,
       lat: 0,
 
@@ -195,7 +195,22 @@ export default createComponent({
     const factoryFormState = reactive(initialFactoryState)
 
     const formPageState = reactive({
-      imageUploadModalOpen: false
+      imageUploadModalOpen: false,
+      valid: false
+    })
+
+    watch(() => {
+      const {
+        name,
+        others,
+        type,
+        images,
+      } = factoryFormState
+      const textFieldsValid = name && others && name.length > 0 && others.length > 0
+      const typeValid = type !== '0'
+      const imagesValid = images.length > 0
+
+      formPageState.valid = textFieldsValid && typeValid && imagesValid
     })
 
     const closeImageUploadModal = () => {
