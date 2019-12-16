@@ -174,6 +174,7 @@ export default createComponent({
 
       mapControllerRef.value.mapInstance.setLUILayerVisible(true)
       props.enterSelectFactoryMode()
+      popupData.value.show = false
     }
 
     function onClickFinishSelectFactoryPositionButton () {
