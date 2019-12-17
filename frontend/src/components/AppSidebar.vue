@@ -68,7 +68,7 @@ export default createComponent({
     max-width: 400px;
     color: #fff;
     background-color: #6d8538;
-    padding: 60px 120px 20px 30px;
+    padding: 60px 30px 20px 30px;
     transform: translateX(100%);
     opacity: 0;
     transition: all 0.5s cubic-bezier(.4,0,.2,1);
@@ -95,7 +95,7 @@ export default createComponent({
 
     hr {
       border: none;
-      width: 100%;
+      width: 60%;
       height: 1px;
       background-color: #ffffff;
     }

@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <app-navbar :hide="appState.factoryFormOpen" :fixed="true" @menu="toggleSidebar">農地違章工廠舉報</app-navbar>
-    <app-sidebar v-model="sidebarStatus" />
+    <app-sidebar v-model="appState.sidebarOpen" />
 
     <filter-modal :open="appState.filterModalOpen" :dismiss="closeFilterModal" />
     <create-factory-success-modal
@@ -62,17 +62,15 @@ export default createComponent({
     FormPage
   },
   setup () {
-    const sidebarStatus = ref(false)
-    const toggleSidebar = () => {
-      sidebarStatus.value = !sidebarStatus.value
-    }
-
     const appState = reactive({
+      // Sidebar state
+      sidebarOpen: false,
+
       // Modal open states
       filterModalOpen: false,
       createFactorySuccessModalOpen: false,
 
-      // Page State
+      // Page state
       // TODO: should be rewritten with vue router?
       formMode: 'create',
       factoryFormOpen: false,
@@ -82,6 +80,10 @@ export default createComponent({
       // Map state
       selectFactoryMode: false
     })
+
+    const toggleSidebar = () => {
+      appState.sidebarOpen = !appState.sidebarOpen
+    }
 
     // Modal state utilities
     function closeFilterModal () {
@@ -129,7 +131,8 @@ export default createComponent({
 
     return {
       appState,
-      sidebarStatus,
+
+      // Sidebar state
       toggleSidebar,
 
       // Modal state utilities
