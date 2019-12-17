@@ -146,7 +146,7 @@ export default createComponent({
 
       enterSelectFactoryMode,
       exitSelectFactoryMode,
-      setFactoryLocation,
+      setFactoryLocation
     }
   }
 })

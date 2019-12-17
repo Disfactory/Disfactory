@@ -107,7 +107,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, computed, inject, Ref, onMounted, watch, reactive } from '@vue/composition-api'
+import { createComponent, ref, inject, onMounted, watch, reactive } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
@@ -188,7 +188,7 @@ export default createComponent({
       images: [] as string[],
       imageUrls: [] as string[],
       nickname: '',
-      contact: '',
+      contact: ''
     }
 
     // merge state
@@ -212,8 +212,11 @@ export default createComponent({
     })
 
     const fieldSubmittingState = reactive({
+      // eslint-disable-next-line @typescript-eslint/camelcase
       name_submitting: false,
+      // eslint-disable-next-line @typescript-eslint/camelcase
       factory_type_submitting: false,
+      // eslint-disable-next-line @typescript-eslint/camelcase
       others_submitting: false
     })
 
@@ -222,7 +225,7 @@ export default createComponent({
         name,
         others,
         type,
-        images,
+        images
       } = factoryFormState
       const textFieldsValid = name && others && name.length > 0 && others.length > 0
       const typeValid = type !== '0'
@@ -246,7 +249,7 @@ export default createComponent({
       factoryFormState.contact = contact
     }
 
-    const updateFactoryFieldsFor = async (field: string , value: string) => {
+    const updateFactoryFieldsFor = async (field: string, value: string) => {
       const { factoryData } = props
       if (!isEditMode || !factoryData) {
         return
@@ -344,7 +347,7 @@ export default createComponent({
               contact: factoryFormState.contact
             })
             */
-           const factory = {...props.factoryData} as FactoryData
+            const factory = { ...props.factoryData } as FactoryData
 
             factoryFormState.imageUrls = factoryFormState.imageUrls.concat((_images as FactoryImage[]).map(image => image.image_path))
 

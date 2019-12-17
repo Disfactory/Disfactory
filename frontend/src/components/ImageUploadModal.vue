@@ -37,7 +37,7 @@
 import AppModal from '@/components/AppModal.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
-import { createComponent, ref, computed, reactive } from '@vue/composition-api'
+import { createComponent, computed, reactive } from '@vue/composition-api'
 import { uploadImages, updateFactoryImages } from '../api'
 
 export default createComponent({

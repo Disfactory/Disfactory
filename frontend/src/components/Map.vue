@@ -63,7 +63,7 @@ import { FACTORY_STATUS, FactoryData } from '../types'
 export default createComponent({
   components: {
     AppButton,
-    AppNavbar,
+    AppNavbar
   },
   props: {
     openCreateFactoryForm: {
