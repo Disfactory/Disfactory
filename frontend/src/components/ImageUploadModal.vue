@@ -1,5 +1,5 @@
 <template>
-  <app-modal :open="open" :dismiss="dismiss" class="page">
+  <app-modal :open="open" :dismiss="closeModal" class="page">
     <h2>工廠照片</h2>
 
     <div class="images-grid">
@@ -15,18 +15,20 @@
 
     <h3>稱呼</h3>
     <app-text-field
-      v-model="nickname"
+      v-model="formState.nickname"
       placeholder="例：林先生"
     />
 
     <h3>聯絡資料</h3>
     <app-text-field
-      v-model="contact"
+      v-model="formState.contact"
       placeholder="例：0912345678"
     />
 
     <div style="margin-top: 35px;">
-      <app-button @click="handleImagesUpload()">上傳照片</app-button>
+      <app-button @click="handleImagesUpload()" :disabled="formState.uploading">
+        {{ formState.uploading ? '上傳中' : '上傳照片' }}
+      </app-button>
     </div>
   </app-modal>
 </template>
@@ -35,7 +37,7 @@
 import AppModal from '@/components/AppModal.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
-import { createComponent, ref, computed } from '@vue/composition-api'
+import { createComponent, ref, computed, reactive } from '@vue/composition-api'
 import { uploadImages } from '../api'
 
 export default createComponent({
@@ -67,8 +69,11 @@ export default createComponent({
     }
   },
   setup (props) {
-    const nickname = ref('')
-    const contact = ref('')
+    const formState = reactive({
+      nickname: '',
+      contact: '',
+      uploading: false
+    })
 
     const imageUrls = computed(() => {
       const urls = []
@@ -82,18 +87,33 @@ export default createComponent({
     })
 
     return {
-      nickname,
-      contact,
+      formState,
       imageUrls,
       async handleImagesUpload () {
+        formState.uploading = true
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const images = await uploadImages(props.images!)
-        props.finishImagesUpload(images)
+        try {
+          const images = await uploadImages(props.images!)
 
-        props.finishUploaderForm(nickname.value, contact.value)
+          formState.uploading = false
 
-        // TODO: decorate dismiss method, clear images when dismiss
-        props.dismiss()
+          props.finishImagesUpload(images, imageUrls)
+          props.finishUploaderForm(formState.nickname, formState.contact)
+
+          props.dismiss()
+        } catch (err) {
+          formState.uploading = false
+
+          // TODO: show me some error
+          console.error(err)
+        }
+      },
+      closeModal () {
+        if (!formState.uploading) {
+          props.finishImagesUpload([])
+          props.finishUploaderForm('', '')
+          props.dismiss()
+        }
       }
     }
   }
