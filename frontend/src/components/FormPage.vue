@@ -57,7 +57,9 @@
           </div>
 
           <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('name', factoryName)" rect>更新</app-button>
+            <app-button @click="updateFactoryFieldsFor('name', factoryName)" rect :disabled="fieldSubmittingState.name_submitting">
+              {{ fieldSubmittingState.name_submitting ? '更新中' : '更新' }}
+            </app-button>
           </div>
         </div>
 
@@ -71,7 +73,9 @@
           </div>
 
           <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('factory_type', factoryType)" rect>更新</app-button>
+            <app-button @click="updateFactoryFieldsFor('factory_type', factoryType)" rect :disabled="fieldSubmittingState.factory_type_submitting">
+              {{ fieldSubmittingState.factory_type_submitting ? '更新中' : '更新' }}
+            </app-button>
           </div>
         </div>
 
@@ -85,7 +89,9 @@
           </div>
 
           <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('others', factoryDescription)" rect>更新</app-button>
+            <app-button @click="updateFactoryFieldsFor('others', factoryDescription)" rect :disabled="fieldSubmittingState.others_submitting">
+              {{ fieldSubmittingState.others_submitting ? '更新中' : '更新' }}
+            </app-button>
           </div>
         </div>
 
@@ -205,6 +211,12 @@ export default createComponent({
       submitting: false
     })
 
+    const fieldSubmittingState = reactive({
+      name_submitting: false,
+      factory_type_submitting: false,
+      others_submitting: false
+    })
+
     watch(() => {
       const {
         name,
@@ -234,16 +246,22 @@ export default createComponent({
       factoryFormState.contact = contact
     }
 
-    const updateFactoryFieldsFor = async (field: string, value: string) => {
+    const updateFactoryFieldsFor = async (field: string , value: string) => {
       const { factoryData } = props
       if (!isEditMode || !factoryData) {
         return
       }
 
+      const updateKey = `${field}_submitting` as keyof typeof fieldSubmittingState
+
       try {
+        fieldSubmittingState[updateKey] = true
+
         const factory = await updateFactory(factoryData.id, {
           [field]: value
         })
+
+        fieldSubmittingState[updateKey] = false
 
         if (mapController.value) {
           mapController.value.updateFactory(factoryData.id, factory)
@@ -290,6 +308,7 @@ export default createComponent({
       },
       factoryFormState,
       formPageState,
+      fieldSubmittingState,
       factoryTypeItems,
       containerStyle: {
         width: '100%'

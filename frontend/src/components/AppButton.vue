@@ -86,5 +86,6 @@ button {
   border-radius: 4px;
   box-shadow: none;
   height: 100%;
+  font-size: 16px;
 }
 </style>

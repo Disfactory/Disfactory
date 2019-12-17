@@ -84,6 +84,7 @@ export async function createFactory (factory: FactoryPostData): Promise<FactoryD
 
 // !FIXME: add more factory fields
 type UpdatableFactoryFields = {
+  name: string,
   nickname: string,
   contact: string,
   others: string,
