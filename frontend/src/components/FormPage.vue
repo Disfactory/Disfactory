@@ -54,8 +54,8 @@
             />
           </div>
 
-          <div style="width: 100px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('name', factoryName)">確認</app-button>
+          <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
+            <app-button @click="updateFactoryFieldsFor('name', factoryName)" rect>確認</app-button>
           </div>
         </div>
 
@@ -68,8 +68,8 @@
             />
           </div>
 
-          <div style="width: 100px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('factory_type', factoryType)">確認</app-button>
+          <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
+            <app-button @click="updateFactoryFieldsFor('factory_type', factoryType)" rect>確認</app-button>
           </div>
         </div>
 
@@ -82,8 +82,8 @@
             />
           </div>
 
-          <div style="width: 100px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('others', factoryDescription)">確認</app-button>
+          <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
+            <app-button @click="updateFactoryFieldsFor('others', factoryDescription)" rect>確認</app-button>
           </div>
         </div>
 

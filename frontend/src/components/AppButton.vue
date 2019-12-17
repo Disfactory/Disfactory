@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="{ outline, disabled }"
+    :class="{ outline, disabled, rect }"
     @click="click"
   >
     <slot />
@@ -18,6 +18,10 @@ export default createComponent({
       default: false
     },
     disabled: {
+      type: Boolean,
+      default: false
+    },
+    rect: {
       type: Boolean,
       default: false
     }
@@ -47,13 +51,17 @@ button {
   padding: 10px 21px;
   user-select: none;
 
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
   color: $dark-font-color;
-  font-size: 1.6rem;
+  font-size: 20px;
   text-align: center;
 
   &:hover {
     cursor: pointer;
-    opacity: 0.8;
+    background-color: #87a400;
   }
 
   &.disabled {
@@ -72,5 +80,11 @@ button {
     background-color: $primary-color;
     color: $dark-font-color;
   }
+}
+
+.rect {
+  border-radius: 4px;
+  box-shadow: none;
+  height: 100%;
 }
 </style>
