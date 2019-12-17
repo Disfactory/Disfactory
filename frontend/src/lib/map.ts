@@ -10,6 +10,7 @@ import { Tile as TileLayer, Vector as VectorLayer, Layer } from 'ol/layer'
 import { Vector as VectorSource, OSM } from 'ol/source'
 import { Zoom } from 'ol/control'
 import Geolocation from 'ol/Geolocation'
+import { defaults as defaultInteractions, PinchRotate } from 'ol/interaction'
 
 import { FactoryData, FactoryStatusType } from '../types'
 import { flipArgriculturalLand } from '../lib/image'
@@ -71,7 +72,7 @@ const nullStyle = new Style({})
 const minimapPinStyle = new Style({
   image: new Circle({
     fill: new Fill({
-      color: '#A22929',
+      color: '#A22929'
     }),
     radius: 12,
     stroke: new Stroke({
@@ -245,7 +246,7 @@ const getBaseLayer = (type: BASE_MAP, wmtsTileGrid: WMTSTileGrid) => {
           url: 'https://wmts.nlsc.gov.tw/wmts/PHOTO_MIX/default/EPSG:3857/{TileMatrix}/{TileRow}/{TileCol}',
           layer: 'EMAP',
           tileGrid: wmtsTileGrid,
-          requestEncoding: "REST",
+          requestEncoding: 'REST',
           crossOrigin: 'Anonymous',
           style: 'default',
           wrapX: true,
@@ -331,8 +332,7 @@ export class OLMap {
   }
 
   private setupEventListeners (map: OlMap, handler: MapEventHandler) {
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    map.on('moveend', async () => {
+    const move = async () => {
       const view = map.getView()
       const zoom = view.getZoom()
 
@@ -349,7 +349,12 @@ export class OLMap {
         const canPlace = await this.canPlaceFactory([width / 2, height / 2])
         handler.onMoved([lng, lat, range], canPlace)
       }
-    })
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    map.on('change:resolution', move)
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    map.on('moveend', move)
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     map.on('click', async (event) => {
@@ -383,7 +388,14 @@ export class OLMap {
           zoomInLabel: mapControlButtons.zoomIn,
           zoomOutLabel: mapControlButtons.zoomOut
         })
-      ]
+      ],
+      interactions: defaultInteractions({
+        pinchRotate: false
+      }).extend([
+        new PinchRotate({
+          threshold: 0.4
+        })
+      ])
     }
 
     if (options.minimap) {
@@ -511,9 +523,11 @@ export class OLMap {
       feature.setStyle(minimapPinStyle)
       this.minimapPinFeature = feature
 
-      const source = new VectorSource({ features: [
-        feature
-      ]})
+      const source = new VectorSource({
+        features: [
+          feature
+        ]
+      })
 
       const vectorLayer = new VectorLayer({
         source,
