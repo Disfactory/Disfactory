@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <app-navbar :hide="appState.factoryFormOpen" :fixed="true">農地違章工廠舉報</app-navbar>
+    <app-navbar :hide="appState.factoryFormOpen" :fixed="true" @menu="toggleSidebar">農地違章工廠舉報</app-navbar>
+    <app-sidebar v-model="appState.sidebarOpen" />
 
     <filter-modal :open="appState.filterModalOpen" :dismiss="closeFilterModal" />
     <create-factory-success-modal
@@ -40,6 +41,7 @@ import { createComponent, ref, provide, reactive } from '@vue/composition-api'
 import Map from '@/components/Map.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppButton from '@/components/AppButton.vue'
+import AppSidebar from './components/AppSidebar.vue'
 import FilterModal from '@/components/FilterModal.vue'
 import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
 import FormPage from '@/components/FormPage.vue'
@@ -54,17 +56,21 @@ export default createComponent({
     Map,
     AppButton,
     AppNavbar,
+    AppSidebar,
     FilterModal,
     CreateFactorySuccessModal,
     FormPage
   },
   setup () {
     const appState = reactive({
+      // Sidebar state
+      sidebarOpen: false,
+
       // Modal open states
       filterModalOpen: false,
       createFactorySuccessModalOpen: false,
 
-      // Page State
+      // Page state
       // TODO: should be rewritten with vue router?
       formMode: 'create',
       factoryFormOpen: false,
@@ -74,6 +80,10 @@ export default createComponent({
       // Map state
       selectFactoryMode: false
     })
+
+    const toggleSidebar = () => {
+      appState.sidebarOpen = !appState.sidebarOpen
+    }
 
     // Modal state utilities
     function closeFilterModal () {
@@ -121,6 +131,9 @@ export default createComponent({
 
     return {
       appState,
+
+      // Sidebar state
+      toggleSidebar,
 
       // Modal state utilities
       openFilterModal,
