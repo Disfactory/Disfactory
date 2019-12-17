@@ -88,7 +88,9 @@
         </div>
 
         <div class="text-center width-auto" style="margin-top: 60px;" v-if="isCreateMode">
-          <app-button @click="submitFactory()" :disabled="!formPageState.valid">送出</app-button>
+          <app-button @click="submitFactory()" :disabled="!formPageState.valid || formPageState.submitting">
+            {{ formPageState.submitting ? '上傳資料中' : '送出' }}
+          </app-button>
         </div>
 
       </div>
@@ -197,7 +199,8 @@ export default createComponent({
 
     const formPageState = reactive({
       imageUploadModalOpen: false,
-      valid: false
+      valid: false,
+      submitting: false
     })
 
     watch(() => {
@@ -318,6 +321,8 @@ export default createComponent({
         }
       },
       async submitFactory () {
+        formPageState.submitting = true
+
         try {
           const [lng, lat] = props.factoryLocation as number[]
           const factory: FactoryPostData = {
@@ -337,6 +342,8 @@ export default createComponent({
           }
         } catch (e) {
           // TODO: handle create failure
+        } finally {
+          formPageState.submitting = false
         }
 
         // TODO: clear form
