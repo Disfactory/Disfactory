@@ -197,7 +197,9 @@ export default createComponent({
         }
       },
       onNavBack () {
-        mapControllerRef.value.mapInstance.setLUILayerVisible(false)
+        if (mapControllerRef.value) {
+          mapControllerRef.value.mapInstance.setLUILayerVisible(false)
+        }
         props.exitSelectFactoryMode()
       },
       popupData,
