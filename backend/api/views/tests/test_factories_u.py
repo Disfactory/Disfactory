@@ -99,34 +99,5 @@ class PutUpdateFactoryAttribute(TestCase):
             data=put_body,
             content_type="application/json",
         )
-        self.assertEqual(resp.status_code, 200)
-
-        factory = Factory.objects.get(pk=self.factory.id)
-        self.assertEqual(factory.lat, 24.5)
-        self.assertEqual(factory.lng, 121.5)
-
-        pnt = Point(121.5, 24.5, srid=4326)
-        pnt.transform(settings.POSTGIS_SRID)
-        self.assertEqual(factory.point, pnt)
-
-    def test_400_if_wrong_data(self):
-        cli = Client()
-        put_body = {
-            "lat": 90,
-        }
-        resp = cli.put(
-            f"/api/factories/{self.factory.id}",
-            data=put_body,
-            content_type="application/json",
-        )
         self.assertEqual(resp.status_code, 400)
-
-        put_body = {
-            "lng": 10,
-        }
-        resp = cli.put(
-            f"/api/factories/{self.factory.id}",
-            data=put_body,
-            content_type="application/json",
-        )
-        self.assertEqual(resp.status_code, 400)
+        self.assertEqual(resp.content, b"Factory position cannot be modified.")
