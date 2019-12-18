@@ -131,6 +131,8 @@ export class MapFactoryController {
       .map(createFactoryFeature)
 
     this.factoriesLayerSource.addFeatures(features)
+
+    factories.forEach((factory) => this.updateFactory(factory.id, factory))
   }
 
   public hideFactories (factories: FactoryData[]) {
@@ -170,8 +172,6 @@ export class MapFactoryController {
     })
     feature.setId(factory.id)
     feature.setStyle(this.getFactoryStyle(factory))
-
-    this.factoryMap.set(factory.id, factory)
 
     return feature
   }
@@ -318,7 +318,6 @@ export class OLMap {
 
     this.baseLayer = getBaseLayer(BASE_MAP.OSM, this.tileGrid)
     this._map = this.instantiateOLMap(this.mapDom, this.baseLayer, options)
-    this.geolocation = this.setupGeolocationTracking(this._map)
 
     if (!options.minimap) {
       this.geolocation = this.setupGeolocationTracking(this._map)
