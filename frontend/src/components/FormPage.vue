@@ -222,16 +222,11 @@ export default createComponent({
 
     watch(() => {
       const {
-        name,
-        others,
-        type,
         images
       } = factoryFormState
-      const textFieldsValid = name && others && name.length > 0 && others.length > 0
-      const typeValid = type !== '0'
       const imagesValid = images.length > 0
 
-      formPageState.valid = !!(textFieldsValid && typeValid && imagesValid)
+      formPageState.valid = imagesValid
     })
 
     const closeImageUploadModal = () => {
