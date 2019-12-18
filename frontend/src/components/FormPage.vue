@@ -57,7 +57,7 @@
           </div>
 
           <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('name', factoryName)" rect :disabled="fieldSubmittingState.name_submitting">
+            <app-button @click="updateFactoryFieldsFor('name', factoryFormState.name)" rect :disabled="fieldSubmittingState.name_submitting">
               {{ fieldSubmittingState.name_submitting ? '更新中' : '更新' }}
             </app-button>
           </div>
@@ -73,7 +73,7 @@
           </div>
 
           <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('factory_type', factoryType)" rect :disabled="fieldSubmittingState.factory_type_submitting">
+            <app-button @click="updateFactoryFieldsFor('factory_type', factoryFormState.type)" rect :disabled="fieldSubmittingState.factory_type_submitting">
               {{ fieldSubmittingState.factory_type_submitting ? '更新中' : '更新' }}
             </app-button>
           </div>
@@ -89,7 +89,7 @@
           </div>
 
           <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('others', factoryDescription)" rect :disabled="fieldSubmittingState.others_submitting">
+            <app-button @click="updateFactoryFieldsFor('others', factoryFormState.others)" rect :disabled="fieldSubmittingState.others_submitting">
               {{ fieldSubmittingState.others_submitting ? '更新中' : '更新' }}
             </app-button>
           </div>
