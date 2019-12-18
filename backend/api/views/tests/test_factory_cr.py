@@ -82,6 +82,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         lat = 23.234
         lng = 120.1
         others = "這個工廠實在太臭啦，趕緊檢舉吧"
+        nickname = "路過的家庭主婦"
         contact = "07-7533967"
         factory_type = "2-3"
         im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
@@ -94,7 +95,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
             "others": others,
             "lat": lat,
             "lng": lng,
-            "nickname": "路過的家庭主婦",
+            "nickname": nickname,
             "contact": contact,
         }
         pnt = Point(lng, lat, srid=4326)
@@ -121,6 +122,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         self.assertEqual(str(report_record.factory_id), new_factory_id)
         self.assertEqual(report_record.action_type, "POST")
         self.assertEqual(report_record.action_body, request_body)
+        self.assertEqual(report_record.nickname, nickname)
         self.assertEqual(report_record.contact, contact)
         self.assertEqual(report_record.others, others)
         self.assertEqual(report_record.created_at, test_time)
