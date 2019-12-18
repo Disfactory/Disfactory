@@ -118,6 +118,7 @@ import { FactoryPostData, FACTORY_TYPE, FactoryType, FactoryData, FactoryImage }
 import { MapFactoryController, initializeMinimap } from '../lib/map'
 import { isiOS, isSafari } from '../lib/browserCheck'
 import { MainMapControllerSymbol } from '../symbols'
+import { useBackPressed } from '../lib/useBackPressed'
 
 export default createComponent({
   name: 'FormPage',
@@ -167,6 +168,16 @@ export default createComponent({
   setup (props) {
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
     let minimapController: MapFactoryController
+
+    const onBack = () => {
+      if (mapController.value) {
+        mapController.value.mapInstance.setLUILayerVisible(false)
+        props.close()
+        props.exitSelectFactoryMode()
+      }
+    }
+
+    useBackPressed(onBack)
 
     // mode helpers
     const isEditMode = props.mode === 'edit'
@@ -363,9 +374,7 @@ export default createComponent({
       },
       onNavBack () {
         if (mapController.value) {
-          mapController.value.mapInstance.setLUILayerVisible(false)
-          props.close()
-          props.exitSelectFactoryMode()
+          onBack()
         }
       },
       async submitFactory () {
