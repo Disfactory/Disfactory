@@ -37,8 +37,8 @@
 import AppModal from '@/components/AppModal.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
-import { createComponent, ref, computed, reactive } from '@vue/composition-api'
-import { uploadImages } from '../api'
+import { createComponent, computed, reactive } from '@vue/composition-api'
+import { uploadImages, updateFactoryImages } from '../api'
 
 export default createComponent({
   name: 'FilterModal',
@@ -66,6 +66,15 @@ export default createComponent({
     finishUploaderForm: {
       type: Function,
       required: true
+    },
+    mode: {
+      type: String,
+      required: true,
+      defaultValue: 'create'
+    },
+    factoryData: {
+      type: Object,
+      required: true
     }
   },
   setup (props) {
@@ -91,21 +100,31 @@ export default createComponent({
       imageUrls,
       async handleImagesUpload () {
         formState.uploading = true
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        try {
-          const images = await uploadImages(props.images!)
 
-          formState.uploading = false
+        if (props.mode === 'create') {
+          try {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            const images = await uploadImages(props.images!)
+            props.finishUploaderForm(formState.nickname, formState.contact)
+            await props.finishImagesUpload(images, imageUrls)
 
-          props.finishImagesUpload(images, imageUrls)
+            formState.uploading = false
+
+            props.dismiss()
+          } catch (err) {
+            formState.uploading = false
+
+            // TODO: show me some error
+            console.error(err)
+          }
+        } else {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          const images = await updateFactoryImages(props.factoryData.id, props.images!)
           props.finishUploaderForm(formState.nickname, formState.contact)
+          await props.finishImagesUpload(images, [])
 
-          props.dismiss()
-        } catch (err) {
           formState.uploading = false
-
-          // TODO: show me some error
-          console.error(err)
+          props.dismiss()
         }
       },
       closeModal () {

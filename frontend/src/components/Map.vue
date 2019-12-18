@@ -63,7 +63,7 @@ import { FACTORY_STATUS, FactoryData } from '../types'
 export default createComponent({
   components: {
     AppButton,
-    AppNavbar,
+    AppNavbar
   },
   props: {
     openCreateFactoryForm: {
@@ -197,6 +197,9 @@ export default createComponent({
         }
       },
       onNavBack () {
+        if (mapControllerRef.value) {
+          mapControllerRef.value.mapInstance.setLUILayerVisible(false)
+        }
         props.exitSelectFactoryMode()
       },
       popupData,

@@ -20,6 +20,12 @@ export const FACTORY_STATUS = {
 }
 export type FactoryStatusType = keyof typeof FACTORY_STATUS
 
+export type FactoryImage = {
+  id: string,
+  image_path: string,
+  url: string
+}
+
 export type FactoryData = {
   id: string,
   lat: number,
@@ -28,7 +34,7 @@ export type FactoryData = {
   landcode: string,
   type: FactoryType,
   status: FactoryStatusType,
-  images: string[],
+  images: FactoryImage[],
   // TODO: can be one of https://docs.djangoproject.com/en/2.2/ref/settings/#datetime-input-formats
   // eslint-disable-next-line
   reported_at: null | string

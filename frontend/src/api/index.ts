@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { FactoryPostData, FactoryData, FactoriesResponse } from '@/types'
+import { FactoryPostData, FactoryData, FactoriesResponse, FactoryImage } from '@/types'
 
 const baseURL = process.env.NODE_ENV === 'production' ? 'https://api.disfactory.tw/api' : '/server/api'
 
@@ -52,6 +52,25 @@ export async function uploadImages (files: FileList): Promise<UploadedImages> {
   return results
 }
 
+export async function updateFactoryImages (factoryId: string, files: FileList) {
+  const results: FactoryImage[] = []
+
+  for (const file of files) {
+    const formData = new FormData()
+    formData.append('image', file)
+
+    const { data }: { data: FactoryImage } = await instance.post(`/factories/${factoryId}/images`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+
+    results.push(data)
+  }
+
+  return results
+}
+
 export async function createFactory (factory: FactoryPostData): Promise<FactoryData> {
   try {
     const { data }: { data: FactoryData } = await instance.post('/factories', JSON.stringify(factory))
@@ -65,8 +84,11 @@ export async function createFactory (factory: FactoryPostData): Promise<FactoryD
 
 // !FIXME: add more factory fields
 type UpdatableFactoryFields = {
+  name: string,
+  nickname: string,
   contact: string,
-  others: string
+  others: string,
+  images: string[]
 }
 
 export async function updateFactory (factoryId: string, factoryData: Partial<UpdatableFactoryFields>): Promise<FactoryData> {

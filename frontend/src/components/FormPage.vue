@@ -13,6 +13,8 @@
         :images="imagesToUpload"
         :finishImagesUpload="finishImagesUpload"
         :finishUploaderForm="finishUploaderForm"
+        :mode="mode"
+        :factoryData="factoryData"
       />
 
       <div class="page" style="padding: 29px 35px;">
@@ -33,8 +35,8 @@
           <div>
             <label>
               <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="visibility: hidden; position: absolute; pointer-events: none; left: -1000px;">
-              <app-button v-if="isiOS || isSafari" :disabled="!isCreateMode">新增</app-button>
-              <app-button v-else :disabled="!isCreateMode" @click="onClickImageUpload">新增</app-button>
+              <app-button v-if="isiOS || isSafari">新增</app-button>
+              <app-button v-else @click="onClickImageUpload">新增</app-button>
             </label>
           </div>
         </div>
@@ -54,8 +56,10 @@
             />
           </div>
 
-          <div style="width: 100px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('name', factoryName)">確認</app-button>
+          <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
+            <app-button @click="updateFactoryFieldsFor('name', factoryName)" rect :disabled="fieldSubmittingState.name_submitting">
+              {{ fieldSubmittingState.name_submitting ? '更新中' : '更新' }}
+            </app-button>
           </div>
         </div>
 
@@ -68,8 +72,10 @@
             />
           </div>
 
-          <div style="width: 100px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('factory_type', factoryType)">確認</app-button>
+          <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
+            <app-button @click="updateFactoryFieldsFor('factory_type', factoryType)" rect :disabled="fieldSubmittingState.factory_type_submitting">
+              {{ fieldSubmittingState.factory_type_submitting ? '更新中' : '更新' }}
+            </app-button>
           </div>
         </div>
 
@@ -82,8 +88,10 @@
             />
           </div>
 
-          <div style="width: 100px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('others', factoryDescription)">確認</app-button>
+          <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
+            <app-button @click="updateFactoryFieldsFor('others', factoryDescription)" rect :disabled="fieldSubmittingState.others_submitting">
+              {{ fieldSubmittingState.others_submitting ? '更新中' : '更新' }}
+            </app-button>
           </div>
         </div>
 
@@ -99,14 +107,14 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, computed, inject, Ref, onMounted, watch, reactive } from '@vue/composition-api'
+import { createComponent, ref, inject, onMounted, watch, reactive } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppSelect from '@/components/AppSelect.vue'
 import ImageUploadModal from '@/components/ImageUploadModal.vue'
 import { UploadedImages, createFactory, updateFactory } from '../api'
-import { FactoryPostData, FACTORY_TYPE, FactoryType } from '../types'
+import { FactoryPostData, FACTORY_TYPE, FactoryType, FactoryData, FactoryImage } from '../types'
 import { MapFactoryController, initializeMinimap } from '../lib/map'
 import { isiOS, isSafari } from '../lib/browserCheck'
 import { MainMapControllerSymbol } from '../symbols'
@@ -180,7 +188,7 @@ export default createComponent({
       images: [] as string[],
       imageUrls: [] as string[],
       nickname: '',
-      contact: '',
+      contact: ''
     }
 
     // merge state
@@ -190,7 +198,7 @@ export default createComponent({
       initialFactoryState.name = factoryData.name
       initialFactoryState.type = factoryData.factory_type
       initialFactoryState.others = factoryData.others
-      initialFactoryState.images = factoryData.images
+      initialFactoryState.imageUrls = (factoryData.images as FactoryImage[]).map(image => image.image_path)
       initialFactoryState.lng = factoryData.lng
       initialFactoryState.lat = factoryData.lat
     }
@@ -203,12 +211,21 @@ export default createComponent({
       submitting: false
     })
 
+    const fieldSubmittingState = reactive({
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      name_submitting: false,
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      factory_type_submitting: false,
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      others_submitting: false
+    })
+
     watch(() => {
       const {
         name,
         others,
         type,
-        images,
+        images
       } = factoryFormState
       const textFieldsValid = name && others && name.length > 0 && others.length > 0
       const typeValid = type !== '0'
@@ -238,10 +255,16 @@ export default createComponent({
         return
       }
 
+      const updateKey = `${field}_submitting` as keyof typeof fieldSubmittingState
+
       try {
+        fieldSubmittingState[updateKey] = true
+
         const factory = await updateFactory(factoryData.id, {
           [field]: value
         })
+
+        fieldSubmittingState[updateKey] = false
 
         if (mapController.value) {
           mapController.value.updateFactory(factoryData.id, factory)
@@ -288,6 +311,7 @@ export default createComponent({
       },
       factoryFormState,
       formPageState,
+      fieldSubmittingState,
       factoryTypeItems,
       containerStyle: {
         width: '100%'
@@ -309,9 +333,33 @@ export default createComponent({
 
         openImageUploadModal()
       },
-      finishImagesUpload (_images: UploadedImages, imageUrls: string[]) {
-        factoryFormState.imageUrls = imageUrls
-        factoryFormState.images = _images.map(image => image.token)
+      async finishImagesUpload (_images: UploadedImages | FactoryImage[], imageUrls: string[]) {
+        if (isCreateMode) {
+          factoryFormState.imageUrls = imageUrls
+          factoryFormState.images = (_images as UploadedImages).map(image => image.token)
+        } else if (isEditMode) {
+          // !FIXME: refactor into sepearte method...
+          try {
+            // !FIXME: wait for #98
+            /*
+            const factory = await updateFactory(props.factoryData.id, {
+              nickname: factoryFormState.nickname,
+              contact: factoryFormState.contact
+            })
+            */
+            const factory = { ...props.factoryData } as FactoryData
+
+            factoryFormState.imageUrls = factoryFormState.imageUrls.concat((_images as FactoryImage[]).map(image => image.image_path))
+
+            factory.images = _images as FactoryImage[]
+
+            if (mapController.value) {
+              mapController.value.updateFactory(props.factoryData.id, factory)
+            }
+          } catch (err) {
+            console.error(err)
+          }
+        }
       },
       onNavBack () {
         if (mapController.value) {
