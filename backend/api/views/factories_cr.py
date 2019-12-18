@@ -117,6 +117,7 @@ def get_nearby_or_create_factories(request):
             'user_ip': user_ip,
             'action_type': "POST",
             "action_body": post_body,
+            'nickname': post_body.get("nickname"),
             'contact': post_body.get("contact"),
             "others": post_body.get("others", ""),
         }

@@ -70,6 +70,7 @@ class ReportRecord(models.Model):
     action_type = models.CharField(max_length=10)  # PUT, POST
     action_body = JSONField()  # request body
     created_at = models.DateTimeField(auto_now_add=True)
+    nickname = models.CharField(max_length=64, blank=True, null=True)
     contact = models.CharField(max_length=64, blank=True, null=True)
     others = models.CharField(max_length=1024, blank=True)
 

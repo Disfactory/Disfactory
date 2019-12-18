@@ -27,14 +27,17 @@ class PostFactoryImageViewTestCase(TestCase):
     @patch("api.views.factory_image_c._upload_image", return_value=FAKE_IMGUR_PATH)
     def test_image_with_exif_db_correct(self, patch_upload):
         cli = Client()
+        nickname = "somebody"
+        contact = "0900000000"
         test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
         with freeze_time(test_time):
             with open(HERE / "20180311_132133.jpg", "rb") as f_img:
                 resp = cli.post(
                     f"/api/factories/{self.factory.id}/images",
-                    {'image': f_img},
+                    {'image': f_img, 'nickname': nickname, 'contact': contact},
                     format='multipart',
                 )
+
 
         self.assertEqual(resp.status_code, 200)
         resp_data = resp.json()
@@ -51,6 +54,8 @@ class PostFactoryImageViewTestCase(TestCase):
         report_record = ReportRecord.objects.get(pk=report_record_id)
         self.assertEqual(report_record.factory_id, self.factory.id)
         self.assertEqual(report_record.action_type, "POST_IMAGE")
+        self.assertEqual(report_record.nickname, nickname)
+        self.assertEqual(report_record.contact, contact)
 
     @patch("api.views.factory_image_c._upload_image", return_value=FAKE_IMGUR_PATH)
     def test_image_without_exif_db_correct(self, patch_upload):
