@@ -72,7 +72,7 @@ jobs:
             - "15:64:e1:a2:bf:d0:8e:4b:4f:f1:22:2d:62:18:1b:ad"
       - run:
           name: Deploy docs to gh-pages branch
-          command: npx gh-pages --dist frontend/dist
+          command: npx gh-pages -m "Deploy [ci skip]" --dist frontend/dist
   backend-all:
     <<: *backend_docker_default
     steps:
@@ -110,16 +110,8 @@ workflows:
   version: 2
   build:
     jobs:
-      - frontend-lint:
-          filters:
-            branches:
-              ignore:
-                - gh-pages
-      - frontend-build:
-          filters:
-            branches:
-              ignore:
-                - gh-pages
+      - frontend-lint
+      - frontend-build
       - frontend-deploy:
           requires:
             - frontend-lint
