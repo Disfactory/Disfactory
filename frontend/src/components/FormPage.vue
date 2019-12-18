@@ -346,7 +346,7 @@ export default createComponent({
 
             factoryFormState.imageUrls = factoryFormState.imageUrls.concat((_images as FactoryImage[]).map(image => image.image_path))
 
-            factory.images = _images as FactoryImage[]
+            factory.images = factory.images.concat(_images as FactoryImage[])
 
             if (mapController.value) {
               mapController.value.updateFactory(props.factoryData.id, factory)
