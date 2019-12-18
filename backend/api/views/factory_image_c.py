@@ -34,6 +34,8 @@ def post_factory_image(request, factory_id):
 
     client_ip = _get_client_ip(request)
 
+    put_body = request.POST
+
     with transaction.atomic():
         factory = Factory.objects.only("id").get(pk=factory_id)
         report_record = ReportRecord.objects.create(
@@ -41,6 +43,8 @@ def post_factory_image(request, factory_id):
             user_ip=client_ip,
             action_type="POST_IMAGE",
             action_body={},
+            nickname=put_body.get("nickname"),
+            contact=put_body.get("contact"),
         )
         img = Image.objects.create(
             image_path=path,
