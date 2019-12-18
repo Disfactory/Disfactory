@@ -232,11 +232,11 @@ export default createComponent({
   bottom: 48px;
 
   .create-factory-button {
-    transform: translateX(calc(50vw - 125.735px));
+    transform: translateX(calc(50vw - 102px));
   }
 
   .choose-location-button {
-    transform: translateX(calc(50vw - 86.835px));
+    transform: translateX(calc(50vw - 72px));
   }
 }
 
