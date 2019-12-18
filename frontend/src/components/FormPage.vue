@@ -333,15 +333,8 @@ export default createComponent({
           factoryFormState.imageUrls = imageUrls
           factoryFormState.images = (_images as UploadedImages).map(image => image.token)
         } else if (isEditMode) {
-          // !FIXME: refactor into sepearte method...
+          // TODO: refactor into sepearte method...
           try {
-            // !FIXME: wait for #98
-            /*
-            const factory = await updateFactory(props.factoryData.id, {
-              nickname: factoryFormState.nickname,
-              contact: factoryFormState.contact
-            })
-            */
             const factory = { ...props.factoryData } as FactoryData
 
             factoryFormState.imageUrls = factoryFormState.imageUrls.concat((_images as FactoryImage[]).map(image => image.image_path))

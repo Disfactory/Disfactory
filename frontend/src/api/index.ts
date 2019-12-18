@@ -52,12 +52,19 @@ export async function uploadImages (files: FileList): Promise<UploadedImages> {
   return results
 }
 
-export async function updateFactoryImages (factoryId: string, files: FileList) {
+export async function updateFactoryImages (factoryId: string, files: FileList, { nickname, contact } : { nickname?: string, contact?: string }) {
   const results: FactoryImage[] = []
 
   for (const file of files) {
     const formData = new FormData()
     formData.append('image', file)
+
+    if (nickname) {
+      formData.append('nickname', nickname)
+    }
+    if (contact) {
+      formData.append('contact', contact)
+    }
 
     const { data }: { data: FactoryImage } = await instance.post(`/factories/${factoryId}/images`, formData, {
       headers: {
