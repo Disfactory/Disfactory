@@ -338,7 +338,7 @@ export class OLMap {
       // resolution in meter
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const resolution = view.getResolutionForZoom(zoom!)
-      const range = Math.ceil(resolution)
+      const range = Math.ceil(resolution / 2)
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const [lng, lat] = transform(view.getCenter()!, 'EPSG:3857', 'EPSG:4326')
