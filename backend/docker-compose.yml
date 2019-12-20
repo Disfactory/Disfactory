@@ -16,6 +16,7 @@ services:
       DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD: cop
       DISFACTORY_BACKEND_DEFAULT_DB_HOST: db
       DISFACTORY_BACKEND_DEFAULT_DB_PORT: 5432
+      DISFACTORY_ALLOWED_HOST: disfactory.org;faketory.org,Disfactory.org;dis.org,disfact.org
       DISFACTORY_IMGUR_CLIENT_ID: ''
       DISFACTORY_IMGUR_SECRET: ''
 

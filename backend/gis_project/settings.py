@@ -27,12 +27,34 @@ SECRET_KEY = os.environ.get("DISFACTORY_BACKEND_SECRET_KEY","!6m1_y3-d#07typf2v^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DISFACTORY_BACKEND_DEBUG", "true").lower() == "true"
 
-ALLOWED_HOSTS = [
+# get allowed_host from env, if in DEBUG mode, add local hosts in 
+
+local_hosts = [
     "127.0.0.1",
     "localhost",
-    os.environ.get("DISFACTORY_ALLOWED_HOST"),
 ]
 
+allowed_hosts = []
+
+hosts_in_env = os.environ.get("DISFACTORY_ALLOWED_HOST",None)
+print(hosts_in_env)
+
+if hosts_in_env != None:
+    try:
+        for host in hosts_in_env.split(','):
+            allowed_hosts.append(host.split(';')[0])
+    except:
+        print("error occurs when parsing allowed_hosts, please check the variable in env")
+else:
+    print("can't read allowed_hosts, please check the variable in env")
+
+ALLOWED_HOSTS = allowed_hosts
+
+if DEBUG:
+    ALLOWED_HOSTS += local_hosts
+    print(ALLOWED_HOSTS)
+else:
+    pass
 
 # Application definition
 
