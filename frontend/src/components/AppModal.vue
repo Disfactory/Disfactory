@@ -36,7 +36,7 @@ export default createComponent({
 @import '~@/styles/utils';
 
 .app-modal-component {
-  z-index: 1;
+  z-index: 997;
   position: fixed;
 
   justify-content: center;

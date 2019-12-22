@@ -1,13 +1,15 @@
 <template>
   <div id="app">
     <app-navbar :hide="appState.factoryFormOpen || appState.selectFactoryMode" :fixed="true" @menu="toggleSidebar">農地違章工廠舉報</app-navbar>
-    <app-sidebar v-model="appState.sidebarOpen" />
+    <app-sidebar v-model="appState.sidebarOpen" :clickActions="sidebarActions" />
 
     <filter-modal :open="appState.filterModalOpen" :dismiss="closeFilterModal" />
     <create-factory-success-modal
       :open="appState.createFactorySuccessModalOpen"
       :dismiss="() => setCreateFactorySuccessModal(false)"
     />
+    <about-modal :open="aboutModalOpen" :dismiss="closeAboutModal" />
+    <contact-modal :open="contactModalOpen" :dismiss="closeContactModal" />
 
     <Map
       :openCreateFactoryForm="openCreateFactoryForm"
@@ -43,12 +45,15 @@ import AppNavbar from '@/components/AppNavbar.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSidebar from './components/AppSidebar.vue'
 import FilterModal from '@/components/FilterModal.vue'
+import AboutModal from '@/components/AboutModal.vue'
+import ContactModal from '@/components/ContactModal.vue'
 import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
 import FormPage from '@/components/FormPage.vue'
 
 import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
 import { FactoryData } from './types'
+import { useModal } from './lib/hooks'
 
 export default createComponent({
   name: 'App',
@@ -58,6 +63,8 @@ export default createComponent({
     AppNavbar,
     AppSidebar,
     FilterModal,
+    AboutModal,
+    ContactModal,
     CreateFactorySuccessModal,
     FormPage
   },
@@ -129,11 +136,26 @@ export default createComponent({
     // register global accessible map instance
     provide(MainMapControllerSymbol, ref<MapFactoryController>(null))
 
+    const [aboutModalOpen, { open: openAboutModal, dismiss: closeAboutModal }] = useModal()
+    const [contactModalOpen, { open: openContactModal ,dismiss: closeContactModal }] = useModal()
+
     return {
       appState,
 
       // Sidebar state
       toggleSidebar,
+      sidebarActions: [
+        () => {},
+        () => {},
+        openContactModal,
+        openAboutModal
+      ],
+
+      aboutModalOpen,
+      closeAboutModal,
+
+      contactModalOpen,
+      closeContactModal,
 
       // Modal state utilities
       openFilterModal,
