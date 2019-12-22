@@ -10,6 +10,7 @@
     />
     <about-modal :open="aboutModalOpen" :dismiss="closeAboutModal" />
     <contact-modal :open="contactModalOpen" :dismiss="closeContactModal" />
+    <getting-started-modal :open="gettingStartedModalOpen" :dismiss="closeGettingStartedModal" />
 
     <Map
       :openCreateFactoryForm="openCreateFactoryForm"
@@ -47,6 +48,7 @@ import AppSidebar from './components/AppSidebar.vue'
 import FilterModal from '@/components/FilterModal.vue'
 import AboutModal from '@/components/AboutModal.vue'
 import ContactModal from '@/components/ContactModal.vue'
+import GettingStartedModal from '@/components/GettingStartedModal.vue'
 import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
 import FormPage from '@/components/FormPage.vue'
 
@@ -65,6 +67,7 @@ export default createComponent({
     FilterModal,
     AboutModal,
     ContactModal,
+    GettingStartedModal,
     CreateFactorySuccessModal,
     FormPage
   },
@@ -138,6 +141,9 @@ export default createComponent({
 
     const [aboutModalOpen, { open: openAboutModal, dismiss: closeAboutModal }] = useModal()
     const [contactModalOpen, { open: openContactModal ,dismiss: closeContactModal }] = useModal()
+    const [gettingStartedModalOpen, { dismiss: closeGettingStartedModal }] = useModal(localStorage.getItem('use-app') !== 'true')
+
+    localStorage.setItem('use-app', 'true')
 
     return {
       appState,
@@ -156,6 +162,9 @@ export default createComponent({
 
       contactModalOpen,
       closeContactModal,
+
+      gettingStartedModalOpen,
+      closeGettingStartedModal,
 
       // Modal state utilities
       openFilterModal,
