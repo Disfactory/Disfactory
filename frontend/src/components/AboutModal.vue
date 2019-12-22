@@ -48,13 +48,13 @@ export default createComponent({
 @import '@/styles/page';
 @import '@/styles/variables';
 
-.page h3 {
-  color: $primary-color;
-}
-
 .about-dialog-container .app-modal {
   top: 47px;
   max-height: calc(100% - 100px);
   margin: 0 7px;
+
+  .page h3 {
+    color: $primary-color;
+  }
 }
 </style>

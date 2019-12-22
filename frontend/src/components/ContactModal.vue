@@ -44,10 +44,6 @@ export default createComponent({
 @import '@/styles/page';
 @import '@/styles/variables';
 
-.page h3 {
-  color: $primary-color;
-}
-
 .contact-modal-container .app-modal {
   top: 47px;
   max-height: calc(100% - 100px);
@@ -58,6 +54,7 @@ export default createComponent({
     text-align: center;
 
     h3 {
+      color: $primary-color;
       line-height: 1.5em;
     }
   }

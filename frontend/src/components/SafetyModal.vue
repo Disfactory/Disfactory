@@ -2,7 +2,7 @@
   <div class="safety-modal-container">
     <app-modal :open="open" :dismiss="dismiss">
       <div class="page">
-        <carousel :per-page="1">
+        <carousel :per-page="1" paginationActiveColor='#6E8501' paginationColor='#e3e3e3' :paginationPadding="5">
           <slide>
             <h1>安全須知</h1>
             <p>
@@ -89,6 +89,7 @@ export default createComponent({
     }
 
     h2 {
+      font-size: 44px;
       color: $primary-color;
       border: none;
       padding-bottom: 0;
