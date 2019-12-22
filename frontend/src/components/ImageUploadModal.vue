@@ -119,7 +119,10 @@ export default createComponent({
           }
         } else {
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const images = await updateFactoryImages(props.factoryData.id, props.images!)
+          const images = await updateFactoryImages(props.factoryData.id, props.images!, {
+            nickname: formState.nickname,
+            contact: formState.contact
+          })
           props.finishUploaderForm(formState.nickname, formState.contact)
           await props.finishImagesUpload(images, [])
 
