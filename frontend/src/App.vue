@@ -11,6 +11,7 @@
     <about-modal :open="aboutModalOpen" :dismiss="closeAboutModal" />
     <contact-modal :open="contactModalOpen" :dismiss="closeContactModal" />
     <getting-started-modal :open="gettingStartedModalOpen" :dismiss="closeGettingStartedModal" />
+    <safety-modal :open="safetyModalOpen" :dismiss="closeSafetyModal" />
 
     <Map
       :openCreateFactoryForm="openCreateFactoryForm"
@@ -45,12 +46,14 @@ import Map from '@/components/Map.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSidebar from './components/AppSidebar.vue'
+import FormPage from '@/components/FormPage.vue'
+
 import FilterModal from '@/components/FilterModal.vue'
 import AboutModal from '@/components/AboutModal.vue'
 import ContactModal from '@/components/ContactModal.vue'
 import GettingStartedModal from '@/components/GettingStartedModal.vue'
+import SafetyModal from '@/components/SafetyModal.vue'
 import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
-import FormPage from '@/components/FormPage.vue'
 
 import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
@@ -68,6 +71,7 @@ export default createComponent({
     AboutModal,
     ContactModal,
     GettingStartedModal,
+    SafetyModal,
     CreateFactorySuccessModal,
     FormPage
   },
@@ -141,6 +145,7 @@ export default createComponent({
 
     const [aboutModalOpen, { open: openAboutModal, dismiss: closeAboutModal }] = useModal()
     const [contactModalOpen, { open: openContactModal ,dismiss: closeContactModal }] = useModal()
+    const [safetyModalOpen, { open: openSafetyModal ,dismiss: closeSafetyModal }] = useModal()
     const [gettingStartedModalOpen, { dismiss: closeGettingStartedModal }] = useModal(localStorage.getItem('use-app') !== 'true')
 
     localStorage.setItem('use-app', 'true')
@@ -152,7 +157,7 @@ export default createComponent({
       toggleSidebar,
       sidebarActions: [
         () => {},
-        () => {},
+        openSafetyModal,
         openContactModal,
         openAboutModal
       ],
@@ -165,6 +170,9 @@ export default createComponent({
 
       gettingStartedModalOpen,
       closeGettingStartedModal,
+
+      safetyModalOpen,
+      closeSafetyModal,
 
       // Modal state utilities
       openFilterModal,
