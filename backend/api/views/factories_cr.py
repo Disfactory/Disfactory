@@ -11,13 +11,14 @@ from rest_framework.decorators import api_view
 from .utils import _get_nearby_factories, _get_client_ip
 from ..models import Factory, Image, ReportRecord
 from ..serializers import FactorySerializer
+from django.conf import settings
 
 import easymap
 
 
 def _not_in_taiwan(lat, lng):
-    lat_invalid = lat < 22 or lat > 25
-    lng_invalid = lng < 120 or lng > 122
+    lat_invalid = settings.TAIWAN_MIN_LATITUDE or settings.TAIWAN_MAX_LATITUDE
+    lng_invalid = settings.TAIWAN_MIN_LONGITUDE or settings.TAIWAN_MAX_LONGITUDE
     return lat_invalid or lng_invalid
 
 
@@ -57,8 +58,8 @@ def get_nearby_or_create_factories(request):
             return HttpResponse(
                 "The query position is not in the range of Taiwan."
                 "Valid query parameters should be: "
-                "120 < lng < 122, "
-                "22 < lat < 25.",
+                "{settings.TAIWAN_MIN_LONGITUDE} < lng < {settings.TAIWAN_MAX_LONGITUDE}, "
+                "{settings.TAIWAN_MIN_LATITUDE} < lat < {settings.TAIWAN_MAX_LATITUDE}.",
                 status=400,
             )
 
