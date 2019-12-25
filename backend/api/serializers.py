@@ -47,10 +47,10 @@ class FactorySerializer(ModelSerializer):
         return sorted(reported_date, reverse=True)[0]
 
     def validate_lat(self, value):
-        if value < TAIWAN_MIN_LATITUDE or value > TAIWAN_MAX_LATITUDE:
-            raise ValidationError(f"latitude should be within 22 ~ 25, but got {value}")
+        if value < settings.TAIWAN_MIN_LATITUDE or value > settings.TAIWAN_MAX_LATITUDE:
+            raise ValidationError(f"latitude should be within {settings.TAIWAN_MIN_LATITUDE} ~ {settings.TAIWAN_MAX_LATITUDE}, but got {value}")
 
     def validate_lng(self, value):
-        if value < TAIWAN_MIN_LONGITUDE or value > TAIWAN_MAX_LONGITUDE:
-            raise ValidationError(f"longitude should be within 120 ~ 122, but got {value}")
+        if value < settings.TAIWAN_MIN_LONGITUDE or value > settings.TAIWAN_MAX_LONGITUDE:
+            raise ValidationError(f"longitude should be within {settings.TAIWAN_MIN_LONGITUDE} ~ {settings.TAIWAN_MAX_LONGITUDE}, but got {value}")
 
