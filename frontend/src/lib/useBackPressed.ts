@@ -1,3 +1,5 @@
+import { onUnmounted } from '@vue/composition-api'
+
 export function useBackPressed (onBack: () => void) {
   const hideModal = (event: PopStateEvent) => {
     if (event.state === 'backPressed') {
@@ -8,4 +10,8 @@ export function useBackPressed (onBack: () => void) {
   window.history.pushState('backPressed', '', null)
   window.history.pushState('dummy', '', null)
   window.addEventListener('popstate', hideModal, { once: true })
+
+  onUnmounted(() => {
+    window.removeEventListener('popstate', hideModal)
+  })
 }
