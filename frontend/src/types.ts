@@ -1,17 +1,17 @@
-export const FACTORY_TYPE = {
-  1: '金屬',
-  '2-1': '沖床、銑床、車床、鏜孔',
-  '2-2': '焊接、鑄造、熱處理',
-  '2-3': '金屬表面處理、噴漆',
-  3: '塑膠加工、射出',
-  4: '橡膠加工',
-  5: '非金屬礦物（石材）',
-  6: '食品',
-  7: '皮革',
-  8: '紡織',
-  9: '其他'
-}
-export type FactoryType = keyof typeof FACTORY_TYPE
+/* eslint-disable quote-props */
+export const FACTORY_TYPE = [
+  { value: '2-1', text: '金屬: 沖床、銑床、車床、鏜孔' },
+  { value: '2-2', text: '金屬: 焊接、鑄造、熱處理' },
+  { value: '2-3', text: '金屬: 金屬表面處理、噴漆' },
+  { value: '3', text: '塑膠加工、射出' },
+  { value: '4', text: '橡膠加工' },
+  { value: '5', text: '非金屬礦物（石材）' },
+  { value: '6', text: '食品' },
+  { value: '7', text: '皮革' },
+  { value: '8', text: '紡織' },
+  { value: '9', text: '其他' }
+] as const
+export type FactoryType = (typeof FACTORY_TYPE)[number]['value']
 
 export const FACTORY_STATUS = {
   D: '已舉報',
