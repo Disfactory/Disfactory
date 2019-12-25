@@ -17,8 +17,8 @@ import easymap
 
 
 def _not_in_taiwan(lat, lng):
-    lat_invalid = settings.TAIWAN_MIN_LATITUDE or settings.TAIWAN_MAX_LATITUDE
-    lng_invalid = settings.TAIWAN_MIN_LONGITUDE or settings.TAIWAN_MAX_LONGITUDE
+    lat_invalid = lat < settings.TAIWAN_MIN_LATITUDE or lat > settings.TAIWAN_MAX_LATITUDE
+    lng_invalid = lng < settings.TAIWAN_MIN_LONGITUDE or lng > settings.TAIWAN_MAX_LONGITUDE
     return lat_invalid or lng_invalid
 
 
