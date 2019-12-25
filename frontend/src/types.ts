@@ -14,10 +14,15 @@ export const FACTORY_TYPE = [
 export type FactoryType = (typeof FACTORY_TYPE)[number]['value']
 
 export const FACTORY_STATUS = {
-  D: '已舉報',
-  F: '資料不齊',
-  A: '待審核'
+  C: '已經舉報',
+  CO: '資料齊全的舊工廠',
+  CN: '資料齊全的新建工廠',
+  IO: '資料不齊的舊工廠',
+  IN: '資料老舊的新建工廠'
 }
+
+export const FACTORY_STATUS_ITEMS: FactoryStatusType[] = [ 'C', 'CO', 'CN', 'IO', 'IN' ]
+
 export type FactoryStatusType = keyof typeof FACTORY_STATUS
 
 export type FactoryImage = {

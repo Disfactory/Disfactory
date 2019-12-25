@@ -1,43 +1,32 @@
 <template>
-  <app-modal :open="open" :dismiss="dismiss">
-    <div class="page">
-      <div class="page-inner">
-        <h2 style="margin-right: 30px;">篩選</h2>
-        <label class="checkbox-container">
-          <input type="checkbox" name="F" v-model="filterF">
-          <span class="checkbox" />
-          <span class="data-type">資料不全</span>
-          <span class="line" />
-          <img src="/images/marker-red.svg">
-        </label>
-        <label class="checkbox-container">
-          <input type="checkbox" name="A" v-model="filterA">
-          <span class="checkbox" />
-          <span class="data-type">資料齊全</span>
-          <span class="line" />
-          <img src="/images/marker-blue.svg">
-        </label>
-        <label class="checkbox-container">
-          <input type="checkbox" name="D" v-model="filterD">
-          <span class="checkbox" />
-          <span class="data-type">已舉報</span>
-          <span class="line" />
-          <img src="/images/marker-green.svg">
-        </label>
+  <div class="filter-modal-container">
+    <app-modal :open="open" :dismiss="dismiss">
+      <div class="page">
+        <div class="page-inner">
+          <h2 style="margin-right: 30px;">篩選</h2>
+          <label class="checkbox-container" v-for="factoryStatus in FACTORY_STATUS_ITEMS" :key="factoryStatus">
+            <input type="checkbox" :name="factoryStatus" v-model="filters[factoryStatus]">
+            <span class="checkbox" />
+            <span class="data-type">{{ FACTORY_STATUS[factoryStatus] }}</span>
+            <span class="line" />
+            <img :src="`/images/marker-${factoryStatus}.svg`">
+          </label>
+        </div>
+        <div style="margin-bottom: 10px;">
+          <app-button @click="onClick()">確認</app-button>
+        </div>
       </div>
-      <div style="margin-bottom: 10px;">
-        <app-button @click="onClick()">確認</app-button>
-      </div>
-    </div>
-  </app-modal>
+    </app-modal>
+  </div>
 </template>
 
 <script lang="ts">
 import AppModal from '@/components/AppModal.vue'
 import AppButton from '@/components/AppButton.vue'
 import { MapFactoryController } from '../lib/map'
-import { createComponent, ref, inject } from '@vue/composition-api'
+import { createComponent, ref, inject, reactive } from '@vue/composition-api'
 import { MainMapControllerSymbol } from '../symbols'
+import { FactoryStatusType, FACTORY_STATUS, FACTORY_STATUS_ITEMS } from '../types'
 
 export default createComponent({
   name: 'FilterModal',
@@ -55,45 +44,56 @@ export default createComponent({
     }
   },
   setup (props) {
-    const filterF = ref(false)
-    const filterA = ref(false)
-    const filterD = ref(false)
+    const filters = reactive({
+      C: false,
+      CO: false,
+      CN: false,
+      IO: false,
+      IN: false
+    }) as { [key in FactoryStatusType]: boolean }
 
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
     return {
-      filterF,
-      filterA,
-      filterD,
+      filters,
       onClick () {
         if (!mapController.value) {
           return
         }
 
-        mapController.value.setFactoryStatusFilter([
-          filterF.value ? 'F' : false,
-          filterA.value ? 'A' : false,
-          filterD.value ? 'D' : false
-        ].filter(Boolean) as ('D' | 'F' | 'A')[])
+        const statusTypes = Object.entries(filters)
+          .map(([key, value]) => value ? key : false)
+          .filter(Boolean) as FactoryStatusType[]
+
+        mapController.value.setFactoryStatusFilter(statusTypes)
 
         if (typeof props.dismiss === 'function') {
           props.dismiss()
         }
-      }
+      },
+      FACTORY_STATUS_ITEMS,
+      FACTORY_STATUS
     }
   }
 })
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '@/styles/page';
 
-.page-inner {
-  margin-bottom: 20px;
-  padding: 0 10px;
+.filter-modal-container {
+  .page-inner {
+    margin-bottom: 20px;
+    padding: 0 10px;
+  }
+
+  .data-type {
+    min-width: 80px;
+  }
+
+  .app-modal {
+    top: 50px;
+  }
 }
 
-.data-type {
-  min-width: 80px;
-}
 </style>

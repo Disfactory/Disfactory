@@ -19,15 +19,19 @@ import { MapOptions } from 'ol/PluggableMap'
 import IconOrigin from 'ol/style/IconOrigin'
 
 const factoryStatusImageMap = {
-  D: '/images/marker-green.svg',
-  F: '/images/marker-red.svg',
-  A: '/images/marker-blue.svg'
+  C:  '/images/marker-C.svg',
+  CO: '/images/marker-CO.svg',
+  CN: '/images/marker-CN.svg',
+  IO: '/images/marker-IO.svg',
+  IN: '/images/marker-IN.svg'
 }
 
 export const factoryBorderColor = {
-  D: '#6D8538',
-  F: '#A22929',
-  A: '#447287'
+  C: '#6D8538',
+  CO: '#231f20',
+  CN: '#447287',
+  IO: '#231f20',
+  IN: '#A22929'
 }
 
 export enum BASE_MAP {
