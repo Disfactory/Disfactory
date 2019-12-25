@@ -36,7 +36,7 @@ export default createComponent({
 @import '~@/styles/utils';
 
 .app-modal-component {
-  z-index: 1;
+  z-index: 997;
   position: fixed;
 
   justify-content: center;
@@ -77,9 +77,11 @@ export default createComponent({
   position: absolute;
   top: 90px;
   max-height: calc(100% - 110px);
+  max-width: 100%;
   overflow: auto;
 
   .close {
+    z-index: 1;
     @include close-button;
   }
 }

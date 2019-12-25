@@ -6,7 +6,7 @@
       <hr />
       <ul>
         <li v-for="(link,index) in links" :key="index">
-          <a :href="link.href">{{ link.text }}</a>
+          <a @click="clickActions[index]">{{ link.text }}</a>
         </li>
       </ul>
     </div>
@@ -22,14 +22,19 @@ export default createComponent({
     value: {
       type: Boolean,
       required: true
+    },
+    clickActions: {
+      type: Array,
+      required: true,
+      default: []
     }
   },
   setup (_, context) {
     const links = ref([
-      { text: '使用教學', href: '#' },
-      { text: '安全須知', href: '#' },
-      { text: '聯絡我們', href: '#' },
-      { text: '關於舉報系統', href: '#' }
+      { text: '使用教學' },
+      { text: '安全須知' },
+      { text: '聯絡我們' },
+      { text: '關於舉報系統' }
     ])
     const close = () => {
       context.emit('input', false)
@@ -110,6 +115,8 @@ export default createComponent({
           font-size: 24px;
           line-height: 2;
           text-decoration: none;
+          cursor: pointer;
+          user-select: none;
         }
       }
     }

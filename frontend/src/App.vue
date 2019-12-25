@@ -1,13 +1,17 @@
 <template>
   <div id="app">
     <app-navbar :hide="appState.factoryFormOpen || appState.selectFactoryMode" :fixed="true" @menu="toggleSidebar">農地違章工廠舉報</app-navbar>
-    <app-sidebar v-model="appState.sidebarOpen" />
+    <app-sidebar v-model="appState.sidebarOpen" :clickActions="sidebarActions" />
 
     <filter-modal :open="appState.filterModalOpen" :dismiss="closeFilterModal" />
     <create-factory-success-modal
       :open="appState.createFactorySuccessModalOpen"
       :dismiss="() => setCreateFactorySuccessModal(false)"
     />
+    <about-modal :open="aboutModalOpen" :dismiss="closeAboutModal" />
+    <contact-modal :open="contactModalOpen" :dismiss="closeContactModal" />
+    <getting-started-modal :open="gettingStartedModalOpen" :dismiss="closeGettingStartedModal" />
+    <safety-modal :open="safetyModalOpen" :dismiss="closeSafetyModal" />
 
     <Map
       :openCreateFactoryForm="openCreateFactoryForm"
@@ -42,13 +46,19 @@ import Map from '@/components/Map.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSidebar from './components/AppSidebar.vue'
-import FilterModal from '@/components/FilterModal.vue'
-import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
 import FormPage from '@/components/FormPage.vue'
+
+import FilterModal from '@/components/FilterModal.vue'
+import AboutModal from '@/components/AboutModal.vue'
+import ContactModal from '@/components/ContactModal.vue'
+import GettingStartedModal from '@/components/GettingStartedModal.vue'
+import SafetyModal from '@/components/SafetyModal.vue'
+import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
 
 import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
 import { FactoryData } from './types'
+import { useModal } from './lib/hooks'
 
 export default createComponent({
   name: 'App',
@@ -58,6 +68,10 @@ export default createComponent({
     AppNavbar,
     AppSidebar,
     FilterModal,
+    AboutModal,
+    ContactModal,
+    GettingStartedModal,
+    SafetyModal,
     CreateFactorySuccessModal,
     FormPage
   },
@@ -129,11 +143,36 @@ export default createComponent({
     // register global accessible map instance
     provide(MainMapControllerSymbol, ref<MapFactoryController>(null))
 
+    const [aboutModalOpen, { open: openAboutModal, dismiss: closeAboutModal }] = useModal()
+    const [contactModalOpen, { open: openContactModal ,dismiss: closeContactModal }] = useModal()
+    const [safetyModalOpen, { open: openSafetyModal ,dismiss: closeSafetyModal }] = useModal()
+    const [gettingStartedModalOpen, { dismiss: closeGettingStartedModal }] = useModal(localStorage.getItem('use-app') !== 'true')
+
+    localStorage.setItem('use-app', 'true')
+
     return {
       appState,
 
       // Sidebar state
       toggleSidebar,
+      sidebarActions: [
+        () => {},
+        openSafetyModal,
+        openContactModal,
+        openAboutModal
+      ],
+
+      aboutModalOpen,
+      closeAboutModal,
+
+      contactModalOpen,
+      closeContactModal,
+
+      gettingStartedModalOpen,
+      closeGettingStartedModal,
+
+      safetyModalOpen,
+      closeSafetyModal,
 
       // Modal state utilities
       openFilterModal,
