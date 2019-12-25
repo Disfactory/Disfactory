@@ -174,7 +174,7 @@ export default createComponent({
 
     const factoryTypeItems: Array<{ text: string, value: string }> = [
       { text: '請選擇工廠類型', value: '0' },
-      ...Object.entries(FACTORY_TYPE).map(([value, text]) => ({ text, value }))
+      ...FACTORY_TYPE
     ]
 
     const initialFactoryState = {
