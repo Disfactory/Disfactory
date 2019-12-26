@@ -16,7 +16,7 @@ from .utils import _get_client_ip
 from django.core.exceptions import ObjectDoesNotExist
 
 
-@api_view(['PUT'])
+@api_view(['PUT', 'GET'])
 def update_factory_attribute(request, factory_id):
     if request.method=="PUT":
         put_body = json.loads(request.body)
@@ -72,6 +72,6 @@ def update_factory_attribute(request, factory_id):
             return JsonResponse(serializer.data, safe=False)
         except ObjectDoesNotExist:
             return HttpResponse(
-            f"Factory id {factory_id} not existed.",
-            status=400,
+                f"Factory id {factory_id} not existed.",
+                status=400,
             )
