@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from uuid import uuid4
 
 from django.test import TestCase, Client
 from django.conf import settings
@@ -101,3 +102,19 @@ class PutUpdateFactoryAttribute(TestCase):
         )
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.content, b"Factory position cannot be modified.")
+
+    def test_get_single_factory(self):
+        cli = Client()
+        resp = cli.get(f"/api/factories/{self.factory.id}")
+        resp_data = resp.json()
+        self.assertEqual(resp_data['name'], self.factory.name)
+        self.assertEqual(resp_data['lat'], self.factory.lat)
+        self.assertEqual(resp_data['lng'], self.factory.lng)
+        self.assertEqual(resp_data['status'], self.factory.status)
+
+    def test_get_single_factory_not_exist(self):
+        cli = Client()
+        not_existed_code = uuid4()
+        resp = cli.get(f"/api/factories/{not_existed_code}")
+
+        self.assertEqual(resp.status_code, 400)
