@@ -59,6 +59,7 @@ import { MainMapControllerSymbol } from '../symbols'
 import { Overlay } from 'ol'
 import OverlayPositioning from 'ol/OverlayPositioning'
 import { FACTORY_STATUS, FactoryData } from '../types'
+import { useBackPressed } from '../lib/useBackPressed'
 
 export default createComponent({
   components: {
@@ -169,12 +170,21 @@ export default createComponent({
       mapController.mapInstance.setLUILayerVisible(false)
     })
 
+    const onBack = () => {
+      if (mapControllerRef.value) {
+        mapControllerRef.value.mapInstance.setLUILayerVisible(false)
+      }
+      props.exitSelectFactoryMode()
+    }
+
     function onClickCreateFactoryButton () {
       if (!mapControllerRef.value) return
 
       mapControllerRef.value.mapInstance.setLUILayerVisible(true)
       props.enterSelectFactoryMode()
       popupData.value.show = false
+
+      useBackPressed(onBack)
     }
 
     function onClickFinishSelectFactoryPositionButton () {
@@ -197,10 +207,7 @@ export default createComponent({
         }
       },
       onNavBack () {
-        if (mapControllerRef.value) {
-          mapControllerRef.value.mapInstance.setLUILayerVisible(false)
-        }
-        props.exitSelectFactoryMode()
+        onBack()
       },
       popupData,
       onClickEditFactoryData,
