@@ -45,9 +45,9 @@ export default createComponent({
 @import '@/styles/variables';
 
 .contact-modal-container .app-modal {
-  top: 47px;
-  max-height: calc(100% - 100px);
-  margin: 0 7px;
+  top: 25px;
+  max-height: calc(100% - 50px);
+  max-width: calc(100% - 20px);
   padding-top: 60px;
 
   .page {

@@ -44,8 +44,8 @@ export default createComponent({
   align-items: center;
   top: 0;
   left: 0;
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 
   padding: 45px 16px;
 
@@ -78,7 +78,7 @@ export default createComponent({
   position: absolute;
   -webkit-overflow-scrolling: touch;
   top: 90px;
-  max-height: calc(100% - 110px);
+  max-height: 100%;
   max-width: 100%;
   overflow: auto;
 
