@@ -38,6 +38,7 @@ export default createComponent({
 .app-modal-component {
   z-index: 997;
   position: fixed;
+  -webkit-overflow-scrolling: touch;
 
   justify-content: center;
   align-items: center;
@@ -75,6 +76,7 @@ export default createComponent({
   padding: 27px 22px;
 
   position: absolute;
+  -webkit-overflow-scrolling: touch;
   top: 90px;
   max-height: calc(100% - 110px);
   max-width: 100%;
