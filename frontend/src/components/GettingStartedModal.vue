@@ -9,9 +9,9 @@
           會由地球公民基金會
           做案件追蹤
           向政府進行舉報
-          
+
           使用教學在右上角<img width="30" src="/images/menu-pic.png">喔！
-          
+
           本網站由地球公民基金會與 g0v 社群共同開發
         </pre>
       </div>
@@ -45,13 +45,20 @@ export default createComponent({
 @import '@/styles/variables';
 
 .getting-started-container .app-modal {
-  top: 47px;
+  top: 20px;
   max-height: calc(100% - 100px);
   margin: 0 7px;
   padding-top: 70px;
 
-  .page h3 {
-    color: $primary-color;
+  .page {
+    h3 {
+      color: $primary-color;
+    }
+
+    pre {
+      line-height: 1.5em;
+      white-space: pre-line;
+    }
   }
 }
 </style>
