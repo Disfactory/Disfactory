@@ -8,7 +8,7 @@ import { get as getProjection, transform } from 'ol/proj'
 import { getWidth, getTopLeft } from 'ol/extent'
 import { Tile as TileLayer, Vector as VectorLayer, Layer } from 'ol/layer'
 import { Vector as VectorSource, OSM } from 'ol/source'
-import { Zoom, ScaleLine } from 'ol/control'
+import { Zoom, ScaleLine, Rotate } from 'ol/control'
 import Geolocation from 'ol/Geolocation'
 import { defaults as defaultInteractions, PinchRotate } from 'ol/interaction'
 
@@ -387,7 +387,8 @@ export class OLMap {
           zoomInLabel: mapControlButtons.zoomIn,
           zoomOutLabel: mapControlButtons.zoomOut
         }),
-        new ScaleLine()
+        new ScaleLine(),
+        new Rotate()
       ],
       interactions: defaultInteractions({
         pinchRotate: false
@@ -418,18 +419,44 @@ export class OLMap {
 
     geolocation.setTracking(true)
 
-    const positionLayer = this.setupgeolocationLayer(geolocation)
+    const positionLayer = this.setupGeolocationLayer(geolocation)
 
     map.addLayer(positionLayer)
 
     return geolocation
   }
 
-  private setupgeolocationLayer (geolocation: Geolocation) {
+  private setupGeolocationLayer (geolocation: Geolocation) {
     const positionFeature = new Feature()
+    const getPositionStyles = (heading: number) =>
+      (!Number.isNaN(heading)) ? new Style({
+        image: new Icon({
+          anchor: [0.5, 0.5],
+          src: '/images/now.svg',
+          rotation: Math.PI / 180 * heading,
+          rotateWithView: true
+        })
+      }) : new Style({
+        image: new Circle({
+          fill: new Fill({ color: '#0099ff' }),
+          stroke: new Stroke({ color: '#fff', width: 3 }),
+          radius: 15
+        })
+      })
+
+    positionFeature.setStyle(getPositionStyles(NaN))
     geolocation.on('change:position', function () {
       const coordinates = geolocation.getPosition()
       positionFeature.setGeometry(coordinates ? new Point(coordinates) : undefined)
+    })
+
+    geolocation.on('change:heading', function () {
+      positionFeature.setStyle(getPositionStyles(geolocation.getHeading() ?? NaN))
+    })
+
+    const accuracyFeature = new Feature()
+    geolocation.on('change:accuracyGeometry', function () {
+      accuracyFeature.setGeometry(geolocation.getAccuracyGeometry())
     })
 
     let run = false
@@ -447,8 +474,9 @@ export class OLMap {
 
     const positionLayer = new VectorLayer({
       source: new VectorSource({
-        features: [positionFeature]
-      })
+        features: [positionFeature, accuracyFeature]
+      }),
+      zIndex: 5
     })
 
     return positionLayer
