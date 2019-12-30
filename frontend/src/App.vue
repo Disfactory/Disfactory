@@ -59,6 +59,7 @@ import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
 import { FactoryData } from './types'
 import { useModal } from './lib/hooks'
+import { provideGA, useGA } from './lib/useGA'
 
 export default createComponent({
   name: 'App',
@@ -75,7 +76,10 @@ export default createComponent({
     CreateFactorySuccessModal,
     FormPage
   },
-  setup () {
+  setup (_, context) {
+    provideGA(context)
+    const { pageview, event } = useGA()
+
     const appState = reactive({
       // Sidebar state
       sidebarOpen: false,
@@ -96,15 +100,18 @@ export default createComponent({
     })
 
     const toggleSidebar = () => {
+      event('toggleSidebar', { target: !appState.sidebarOpen })
       appState.sidebarOpen = !appState.sidebarOpen
     }
 
     // Modal state utilities
     function closeFilterModal () {
+      event('closeFilterModal')
       appState.filterModalOpen = false
     }
 
     function openFilterModal () {
+      event('openFilterModal')
       appState.filterModalOpen = true
     }
 
@@ -117,35 +124,41 @@ export default createComponent({
       appState.factoryData = null
       appState.formMode = 'create'
       appState.factoryFormOpen = true
+      pageview('/create')
     }
 
     const openEditFactoryForm = (factory: FactoryData) => {
       appState.factoryData = factory
       appState.formMode = 'edit'
       appState.factoryFormOpen = true
+      pageview('/emit')
     }
 
     function closeFactoryPage () {
       appState.factoryFormOpen = false
+      event('closeFactoryPage')
     }
 
     const setFactoryLocation = (value: [number, number]) => {
       appState.factoryLocation = value
+      event('setFactoryLocation')
     }
 
     function enterSelectFactoryMode () {
       appState.selectFactoryMode = true
+      event('enterSelectFactoryMode')
     }
     function exitSelectFactoryMode () {
       appState.selectFactoryMode = false
+      event('exitSelectFactoryMode')
     }
 
     // register global accessible map instance
     provide(MainMapControllerSymbol, ref<MapFactoryController>(null))
 
     const [aboutModalOpen, { open: openAboutModal, dismiss: closeAboutModal }] = useModal()
-    const [contactModalOpen, { open: openContactModal ,dismiss: closeContactModal }] = useModal()
-    const [safetyModalOpen, { open: openSafetyModal ,dismiss: closeSafetyModal }] = useModal()
+    const [contactModalOpen, { open: openContactModal, dismiss: closeContactModal }] = useModal()
+    const [safetyModalOpen, { open: openSafetyModal, dismiss: closeSafetyModal }] = useModal()
     const [gettingStartedModalOpen, { dismiss: closeGettingStartedModal }] = useModal(localStorage.getItem('use-app') !== 'true')
 
     localStorage.setItem('use-app', 'true')

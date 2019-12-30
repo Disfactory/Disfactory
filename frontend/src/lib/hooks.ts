@@ -1,6 +1,6 @@
 import { ref, Ref } from '@vue/composition-api'
 
-export const useModal = (defaultOpen: boolean = false) : [Ref<boolean>, { open: () => any, dismiss: () => any }] => {
+export const useModal = (defaultOpen = false): [Ref<boolean>, { open: () => void, dismiss: () => void }] => {
   const state = ref(defaultOpen)
 
   const open = () => {
@@ -19,5 +19,3 @@ export const useModal = (defaultOpen: boolean = false) : [Ref<boolean>, { open: 
     }
   ]
 }
-
-
