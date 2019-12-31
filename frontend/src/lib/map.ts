@@ -433,7 +433,7 @@ export class OLMap {
         image: new Icon({
           anchor: [0.5, 0.5],
           src: '/images/now.svg',
-          rotation: Math.PI / 180 * heading,
+          rotation: heading,
           rotateWithView: true
         })
       }) : new Style({
