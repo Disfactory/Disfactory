@@ -15,6 +15,7 @@ python-dotenv = "==0.10.3"
 requests = "*"
 pillow = "*"
 django-cors-headers = "*"
+gunicorn = "*"
 
 [requires]
 python_version = "3.7"

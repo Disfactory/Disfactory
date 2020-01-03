@@ -3,7 +3,7 @@ version: '3.7'
 services:
   web:
     build: .
-    command: python /Disfactory/manage.py runserver 0.0.0.0:8000
+    command: python -m gunicorn -c gunicorn.conf.py gis_project.wsgi
     volumes:
       - .:/Disfactory
     ports:
