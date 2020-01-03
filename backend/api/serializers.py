@@ -27,6 +27,7 @@ class FactorySerializer(ModelSerializer):
     type = CharField(source="factory_type")
     reported_at = SerializerMethodField()
     data_complete = SerializerMethodField()
+    status = SerializerMethodField()  # should be DEPRECATED
 
     class Meta:
         model = Factory
@@ -43,7 +44,11 @@ class FactorySerializer(ModelSerializer):
             "images",
             "reported_at",
             "data_complete",
+            "status",  # should be DEPRECATED
         ]
+
+    def get_status(self, obj):
+        return obj.cet_report_status
 
     def get_reported_at(self, obj):
         report_records = ReportRecord.objects.only("created_at").filter(factory=obj)
