@@ -1,12 +1,15 @@
+from datetime import timedelta
+
 from rest_framework.serializers import (
     ModelSerializer,
     CharField,
     SerializerMethodField,
     ValidationError,
 )
+from django.utils import timezone
+from django.conf import settings
 
 from .models import Factory, Image, ReportRecord
-from django.conf import settings
 
 
 class ImageSerializer(ModelSerializer):
@@ -23,6 +26,7 @@ class FactorySerializer(ModelSerializer):
     images = ImageSerializer(many=True, read_only=True)
     type = CharField(source="factory_type")
     reported_at = SerializerMethodField()
+    data_complete = SerializerMethodField()
 
     class Meta:
         model = Factory
@@ -38,6 +42,7 @@ class FactorySerializer(ModelSerializer):
             "before_2016",
             "images",
             "reported_at",
+            "data_complete",
         ]
 
     def get_reported_at(self, obj):
@@ -46,6 +51,22 @@ class FactorySerializer(ModelSerializer):
             return None
         reported_date = [record.created_at for record in report_records]
         return sorted(reported_date, reverse=True)[0]
+
+    def get_data_complete(self, obj):
+        images = Image.objects.only("id").filter(factory=obj)
+        report_records = ReportRecord.objects.only("created_at").filter(factory=obj).order_by("-created_at")
+        has_type = obj.factory_type is not None
+        has_photo = len(images) > 0
+        if report_records:
+            last_year = timezone.now() - timedelta(days=365)
+            reported_within_1_year = report_records[0].created_at > last_year
+        else:  # don't have any report records
+            reported_within_1_year = False
+
+        if obj.before_2016:
+            return has_photo and reported_within_1_year and has_type
+        else:
+            return has_photo and reported_within_1_year
 
     def validate_lat(self, value):
         if value < settings.TAIWAN_MIN_LATITUDE or value > settings.TAIWAN_MAX_LATITUDE:
