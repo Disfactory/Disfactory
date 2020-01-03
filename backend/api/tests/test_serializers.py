@@ -29,7 +29,7 @@ class FactorySerializersTestCase(TestCase):
             lng=121,
             landcode="000120324",
             factory_type="2-1",
-            status="A",
+            cet_report_status="A",
             status_time=datetime.now()
         )
         factory.save()

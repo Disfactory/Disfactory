@@ -34,7 +34,8 @@ class FactorySerializer(ModelSerializer):
             "landcode",
             "factory_type",
             "type",
-            "status",
+            "cet_report_status",
+            "before_2016",
             "images",
             "reported_at",
         ]
