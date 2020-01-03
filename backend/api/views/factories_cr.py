@@ -1,3 +1,4 @@
+import logging
 from typing import List
 import json
 import datetime
@@ -14,6 +15,8 @@ from ..serializers import FactorySerializer
 from django.conf import settings
 
 import easymap
+
+LOGGER = logging.getLogger(__name__)
 
 
 def _not_in_taiwan(lat, lng):
@@ -58,8 +61,8 @@ def get_nearby_or_create_factories(request):
             return HttpResponse(
                 "The query position is not in the range of Taiwan."
                 "Valid query parameters should be: "
-                "{settings.TAIWAN_MIN_LONGITUDE} < lng < {settings.TAIWAN_MAX_LONGITUDE}, "
-                "{settings.TAIWAN_MIN_LATITUDE} < lat < {settings.TAIWAN_MAX_LATITUDE}.",
+                f"{settings.TAIWAN_MIN_LONGITUDE} < lng < {settings.TAIWAN_MAX_LONGITUDE}, "
+                f"{settings.TAIWAN_MIN_LATITUDE} < lat < {settings.TAIWAN_MAX_LATITUDE}.",
                 status=400,
             )
 
@@ -106,6 +109,7 @@ def get_nearby_or_create_factories(request):
                 status=400,
             )
         user_ip = _get_client_ip(request)
+        LOGGER.info(f"{user_ip} create new factory at {(post_body['lng'], post_body['lat'])}")
         new_factory_field = {
             'name': post_body["name"],
             'lat': post_body["lat"],
@@ -133,5 +137,6 @@ def get_nearby_or_create_factories(request):
                 factory=new_factory,
                 report_record=report_record
             )
+        LOGGER.info(f"new factory created with id: {new_factory.id}")
         serializer = FactorySerializer(new_factory)
         return JsonResponse(serializer.data, safe=False)

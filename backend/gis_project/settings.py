@@ -36,8 +36,8 @@ print(hosts_in_env)
 
 if hosts_in_env != None:
     try:
-        for host in hosts_in_env.split(','):
-            allowed_hosts.append(host.split(';')[0])
+        for host in hosts_in_env.split(","):
+            allowed_hosts.append(host.split(";")[0])
     except:
         print("error occurs when parsing allowed_hosts, please check the environment variable `DISFACTORY_ALLOWED_HOST`")
 else:
@@ -66,8 +66,30 @@ INSTALLED_APPS = [
     "api.apps.ApiConfig",
 ]
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.environ.get("DISFACTORY_BACKEND_LOG_FILE", "./debug.log"),
+        },
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ["file", "console"],
+            "level": os.environ.get("DISFACTORY_BACKEND_LOG_LEVEL", "INFO"),
+            "propagate": True,
+        },
+    },
+}
+
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
