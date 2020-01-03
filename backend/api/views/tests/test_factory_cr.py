@@ -66,15 +66,15 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         factories = resp.json()
         self.assertEqual(len(factories), 9)
         self.assertCountEqual([f["name"] for f in factories], [
-            "full-info: row_2",
-            "full-info: row_3",
-            "full-info: row_8",
-            "full-info: row_9",
-            "full-info: row_10",
-            "full-info: row_11",
-            "full-info: row_12",
-            "full-info: row_13",
-            "full-info: row_22",
+            "既有違章工廠 No.2",
+            "既有違章工廠 No.3",
+            "既有違章工廠 No.8",
+            "既有違章工廠 No.9",
+            "既有違章工廠 No.10",
+            "既有違章工廠 No.11",
+            "既有違章工廠 No.12",
+            "既有違章工廠 No.13",
+            "既有違章工廠 No.22",
         ])
 
     @patch("easymap.get_land_number", return_value={"landno": "some_random_land_number"})
