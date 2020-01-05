@@ -12,7 +12,6 @@ class Factory(models.Model):
 
     # List of fact_type & status
     factory_type_list = [
-        ("1","金屬"),
         ("2-1","沖床、銑床、車床、鏜孔"),
         ("2-2", "焊接、鑄造、熱處理"),
         ("2-3", "金屬表面處理、噴漆"),
@@ -22,12 +21,11 @@ class Factory(models.Model):
         ("6", "食品"),
         ("7", "皮革"),
         ("8", "紡織"),
-        ("9", "其他")
+        ("9", "其他"),
     ]
-    status_list = [
-        ("D","已舉報"),
-        ("F","資料不齊"),
-        ("A","待審核")
+    cet_report_status_list = [
+        ("A","未舉報"),
+        ("B","已舉報"),
     ]
 
     # All  Features
@@ -44,8 +42,18 @@ class Factory(models.Model):
     landcode = models.CharField(max_length=50, blank=True, null=True)
 
     name = models.CharField(max_length=50, blank=True, null=True)
-    factory_type = models.CharField(max_length=3, choices=factory_type_list, default="9")
-    status = models.CharField(max_length=1, choices=status_list, default="A")
+    factory_type = models.CharField(
+        max_length=3,
+        choices=factory_type_list,
+        blank=True,
+        null=True,
+    )
+    before_2016 = models.BooleanField(default=False)  # 從 full-info.csv 匯入的那些都是 True ，使用者新增的通通是 False
+    cet_report_status = models.CharField(
+        max_length=1,
+        choices=cet_report_status_list,
+        default="A",
+    )  # 地球公民基金會的舉報狀態
     status_time = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

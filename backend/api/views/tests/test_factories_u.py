@@ -72,7 +72,7 @@ class PutUpdateFactoryAttribute(TestCase):
     def test_update_factory_status(self):
         cli = Client()
         put_body = {
-            "status": "A",
+            "cet_report_status": "B",
         }
         test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
         with freeze_time(test_time):
@@ -84,8 +84,7 @@ class PutUpdateFactoryAttribute(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         factory = Factory.objects.get(pk=self.factory.id)
-        self.assertEqual(factory.status, "A")
-        self.assertEqual(factory.status_time, test_time)
+        self.assertEqual(factory.cet_report_status, "B")
 
     def test_update_factory_lat_or_lng_should_have_new_point(self):
         self.assertEqual(self.factory.lat, 24)
@@ -110,7 +109,7 @@ class PutUpdateFactoryAttribute(TestCase):
         self.assertEqual(resp_data['name'], self.factory.name)
         self.assertEqual(resp_data['lat'], self.factory.lat)
         self.assertEqual(resp_data['lng'], self.factory.lng)
-        self.assertEqual(resp_data['status'], self.factory.status)
+        self.assertEqual(resp_data['cet_report_status'], self.factory.cet_report_status)
 
     def test_get_single_factory_not_exist(self):
         cli = Client()

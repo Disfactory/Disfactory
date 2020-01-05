@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 
 from django.test import TestCase
+from freezegun import freeze_time
 
 from ..serializers import FactorySerializer, ImageSerializer
 from ..models import Factory, ReportRecord, Image
@@ -29,8 +30,8 @@ class FactorySerializersTestCase(TestCase):
             lng=121,
             landcode="000120324",
             factory_type="2-1",
-            status="A",
-            status_time=datetime.now()
+            cet_report_status="A",
+            status_time=datetime.now(),
         )
         factory.save()
 
@@ -103,6 +104,195 @@ class FactorySerializersTestCase(TestCase):
         serializer = FactorySerializer(data=wrong_request_body)
         self.assertFalse(serializer.is_valid())
         self.assertIn("lng", serializer.errors)
+
+    def test_data_complete_false_if_no_type_for_old(self):
+        factory = Factory.objects.create(
+            name="test factory",
+            lat=23,
+            lng=121,
+            landcode="000120324",
+            factory_type=None,
+            before_2016=True,
+            cet_report_status="A",
+            status_time=datetime.now()
+        )
+        report_record2 = ReportRecord.objects.create(
+            factory=factory,
+            action_type="post_image",
+            action_body={},
+            contact="07-7533967",
+            others="昨天在這裡辦演唱會，但旁邊居然在蓋工廠。不錄了不錄了！",
+            created_at=factory.created_at + timedelta(days=1),
+        )
+        Image.objects.create(
+            image_path="https://imgur.dcard.tw/BB2L2LT.jpg",
+            factory=factory,
+            report_record=report_record2,
+        )
+        serializer = FactorySerializer(factory)
+        self.assertFalse(serializer.data["data_complete"])
+
+    def test_data_complete_false_if_no_image_for_old(self):
+        factory = Factory.objects.create(
+            name="test factory",
+            lat=23,
+            lng=121,
+            landcode="000120324",
+            factory_type=None,
+            before_2016=True,
+            cet_report_status="A",
+            created_at=datetime.now() - timedelta(days=100),
+            status_time=datetime.now(),
+        )
+        ReportRecord.objects.create(
+            factory=factory,
+            action_type="HI",
+            action_body={},
+            contact="07-7533967",
+            others="HI",
+            created_at=factory.created_at + timedelta(days=1),
+        )
+        serializer = FactorySerializer(factory)
+        self.assertFalse(serializer.data["data_complete"])
+
+    def test_data_complete_false_if_last_report_longer_than_one_year_ago(self):
+        test_time = datetime.now() - timedelta(days=365*2)
+        with freeze_time(test_time):
+            factory = Factory.objects.create(
+                name="test factory",
+                lat=23,
+                lng=121,
+                landcode="000120324",
+                factory_type="8",
+                before_2016=True,
+                cet_report_status="A",
+            )
+            report_record = ReportRecord.objects.create(
+                factory=factory,
+                action_type="post_image",
+                action_body={},
+                contact="07-7533967",
+                others="昨天在這裡辦演唱會，但旁邊居然在蓋工廠。不錄了不錄了！",
+                created_at=factory.created_at + timedelta(days=1),
+            )
+            Image.objects.create(
+                image_path="https://imgur.dcard.tw/BB2L2LT.jpg",
+                factory=factory,
+                report_record=report_record,
+            )
+        serializer = FactorySerializer(factory)
+        self.assertFalse(serializer.data["data_complete"])
+
+    def test_data_complete_true(self):
+        factory_create = datetime.now() - timedelta(days=365)
+        with freeze_time(factory_create):
+            factory = Factory.objects.create(
+                name="test factory",
+                lat=23,
+                lng=121,
+                landcode="000120324",
+                factory_type="8",
+                before_2016=True,
+                cet_report_status="A",
+            )
+        report_time = datetime.now() - timedelta(days=364)
+        with freeze_time(report_time):
+            report_record = ReportRecord.objects.create(
+                factory=factory,
+                action_type="post_image",
+                action_body={},
+                contact="07-7533967",
+                others="昨天在這裡辦演唱會，但旁邊居然在蓋工廠。不錄了不錄了！",
+            )
+            Image.objects.create(
+                image_path="https://imgur.dcard.tw/BB2L2LT.jpg",
+                factory=factory,
+                report_record=report_record,
+            )
+        serializer = FactorySerializer(factory)
+        self.assertTrue(serializer.data["data_complete"])
+
+    def test_data_complete_true_after_2016(self):
+        factory_create = datetime.now() - timedelta(days=365)
+        with freeze_time(factory_create):
+            factory = Factory.objects.create(
+                name="test factory",
+                lat=23,
+                lng=121,
+                landcode="000120324",
+                factory_type="8",
+                before_2016=False,
+                cet_report_status="A",
+            )
+        report_time = datetime.now() - timedelta(days=364)
+        with freeze_time(report_time):
+            report_record = ReportRecord.objects.create(
+                factory=factory,
+                action_type="post_image",
+                action_body={},
+                contact="07-7533967",
+                others="昨天在這裡辦演唱會，但旁邊居然在蓋工廠。不錄了不錄了！",
+            )
+            Image.objects.create(
+                image_path="https://imgur.dcard.tw/BB2L2LT.jpg",
+                factory=factory,
+                report_record=report_record,
+            )
+        serializer = FactorySerializer(factory)
+        self.assertTrue(serializer.data["data_complete"])
+
+    def test_data_complete_true_after_2016_no_image(self):
+        factory_create = datetime.now() - timedelta(days=365)
+        with freeze_time(factory_create):
+            factory = Factory.objects.create(
+                name="test factory",
+                lat=23,
+                lng=121,
+                landcode="000120324",
+                factory_type="8",
+                before_2016=False,
+                cet_report_status="A",
+            )
+        report_time = datetime.now() - timedelta(days=364)
+        with freeze_time(report_time):
+            ReportRecord.objects.create(
+                factory=factory,
+                action_type="post_image",
+                action_body={},
+                contact="07-7533967",
+                others="昨天在這裡辦演唱會，但旁邊居然在蓋工廠。不錄了不錄了！",
+            )
+        serializer = FactorySerializer(factory)
+        self.assertFalse(serializer.data["data_complete"])
+
+    def test_data_complete_false_after_long_time_no_report(self):
+        factory_create = datetime.now() - timedelta(days=365*2)
+        with freeze_time(factory_create):
+            factory = Factory.objects.create(
+                name="test factory",
+                lat=23,
+                lng=121,
+                landcode="000120324",
+                factory_type="8",
+                before_2016=False,
+                cet_report_status="A",
+            )
+        report_time = datetime.now() - timedelta(days=366)
+        with freeze_time(report_time):
+            report_record = ReportRecord.objects.create(
+                factory=factory,
+                action_type="post_image",
+                action_body={},
+                contact="07-7533967",
+                others="昨天在這裡辦演唱會，但旁邊居然在蓋工廠。不錄了不錄了！",
+            )
+            Image.objects.create(
+                image_path="https://imgur.dcard.tw/BB2L2LT.jpg",
+                factory=factory,
+                report_record=report_record,
+            )
+        serializer = FactorySerializer(factory)
+        self.assertFalse(serializer.data["data_complete"])
 
 
 class ImageSerializersTestCase(TestCase):
