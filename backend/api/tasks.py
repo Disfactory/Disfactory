@@ -1,4 +1,5 @@
 from .models import Factory
+
 import easymap
 
 
