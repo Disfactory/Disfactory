@@ -77,8 +77,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
             "既有違章工廠 No.22",
         ])
 
-    @patch("easymap.get_land_number", return_value={"landno": "some_random_land_number"})
-    def test_create_new_factory_db_status_correct(self, _):
+    def test_create_new_factory_db_status_correct(self):
         lat = 23.234
         lng = 120.1
         others = "這個工廠實在太臭啦，趕緊檢舉吧"
@@ -112,7 +111,6 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
 
         self.assertEqual(new_factory.lat, lat)
         self.assertEqual(new_factory.lng, lng)
-        self.assertEqual(new_factory.landcode, "some_random_land_number")
         self.assertEqual(new_factory.point, pnt)
         self.assertEqual(new_factory.factory_type, factory_type)
 
@@ -138,8 +136,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
             set(['None']),
         )
 
-    @patch("easymap.get_land_number", return_value={"landno": "some_random_land_number"})
-    def test_create_new_factory_raise_if_image_id_not_exist(self, _):
+    def test_create_new_factory_raise_if_image_id_not_exist(self):
         im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
         Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
         request_body = {
@@ -157,8 +154,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.content, b'please check if every image id exist')
 
-    @patch("easymap.get_land_number", return_value={"landno": "some_random_land_number"})
-    def test_create_new_factory_allow_no_contact(self, _):
+    def test_create_new_factory_allow_no_contact(self):
         request_body = {
             "name": "a new factory",
             "type": "2-3",
@@ -172,8 +168,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
 
         self.assertEqual(resp.status_code, 200)
 
-    @patch("easymap.get_land_number", return_value={"landno": "some_random_land_number"})
-    def test_create_new_factory_raise_if_not_in_Taiwan(self, _):
+    def test_create_new_factory_raise_if_not_in_Taiwan(self):
         request_body = {
             "name": "a new factory",
             "type": "2-3",
