@@ -3,18 +3,17 @@ from typing import List
 import json
 import datetime
 
+from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.utils.datastructures import MultiValueDictKeyError
 from django.db import transaction
-
+from django_q.tasks import async_task
 from rest_framework.decorators import api_view
 
 from .utils import _get_nearby_factories, _get_client_ip
 from ..models import Factory, Image, ReportRecord
 from ..serializers import FactorySerializer
-from django.conf import settings
 
-import easymap
 
 LOGGER = logging.getLogger(__name__)
 
@@ -101,13 +100,6 @@ def get_nearby_or_create_factories(request):
                 status=400,
             )
 
-        try:
-            land_number = easymap.get_land_number(longitude, latitude)['landno']
-        except Exception:
-            return HttpResponse(
-                "Something wrong happened when getting land number, please try later.",
-                status=400,
-            )
         user_ip = _get_client_ip(request)
         LOGGER.info(f"{user_ip} create new factory at {(post_body['lng'], post_body['lat'])}")
         new_factory_field = {
@@ -116,7 +108,6 @@ def get_nearby_or_create_factories(request):
             'lng': post_body["lng"],
             'factory_type': post_body["type"],
             'status_time': datetime.datetime.now(),
-            'landcode': land_number,
         }
         new_report_record_field = {
             'user_ip': user_ip,
@@ -139,4 +130,6 @@ def get_nearby_or_create_factories(request):
             )
         LOGGER.info(f"new factory created with id: {new_factory.id}")
         serializer = FactorySerializer(new_factory)
+
+        async_task("api.tasks.update_landcode", new_factory.id)
         return JsonResponse(serializer.data, safe=False)
