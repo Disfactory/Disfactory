@@ -43,6 +43,7 @@
           >
             選擇此地點
           </app-button>
+          <span>可舉報範圍：白色區域</span>
         </div>
       </div>
     </div>
@@ -237,14 +238,25 @@ export default createComponent({
 
 .factory-button-group {
   position: fixed;
-  bottom: 48px;
+  bottom: 60px;
 
   .create-factory-button {
     transform: translateX(calc(50vw - 102px));
   }
 
   .choose-location-button {
+    position: relative;
     transform: translateX(calc(50vw - 72px));
+
+    span {
+      user-select: none;
+      position: absolute;
+      color: white;
+      text-align: center;
+      width: 190px;
+      left: -22px;
+      top: 60px;
+    }
   }
 }
 
