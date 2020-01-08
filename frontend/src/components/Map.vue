@@ -10,8 +10,9 @@
       <div ref="root" class="map" />
       <div ref="popup" :class="['popup', { show: popupData.show }]" :style="{ borderColor: popupData.color }">
         <div class="close" @click="popupData.show = false" />
+        <small :style="{ color: popupData.color }">{{ popupData.status }}</small>
         <h3>{{ popupData.name }}</h3>
-        <p :style="{ color: popupData.color }">{{ popupData.status }}</p>
+        <p class="summary">{{ popupData.summary }}</p>
         <app-button outline @click="onClickEditFactoryData">
           補充資料
         </app-button>
@@ -59,7 +60,7 @@ import { getFactories } from '../api'
 import { MainMapControllerSymbol } from '../symbols'
 import { Overlay } from 'ol'
 import OverlayPositioning from 'ol/OverlayPositioning'
-import { FactoryStatus, FactoryData, FactoryStatusText } from '../types'
+import { FactoryStatus, FactoryData, FactoryStatusText, FACTORY_TYPE } from '../types'
 import { useBackPressed } from '../lib/useBackPressed'
 import { useGA } from '@/lib/useGA'
 
@@ -111,9 +112,22 @@ export default createComponent({
       id: '',
       name: '',
       color: '',
-      status: ''
+      status: '',
+      summary: ''
     })
     const popupFactoryData = ref<FactoryData>(null)
+
+    const generateFactorySummary = (factory: FactoryData) => {
+      const imageStatus = factory.images.length > 0 ? '已有照片' : '缺照片'
+
+      const type = FACTORY_TYPE.find(type => type.value === factory.type)
+      const typeText = (type && type.text) || '其他'
+
+      return [
+        imageStatus,
+        typeText
+      ].filter(Boolean).join('\n')
+    }
 
     const setPopup = (id: string) => {
       if (!mapControllerRef.value) return
@@ -125,6 +139,7 @@ export default createComponent({
         popupData.value.color = getStatusBorderColor(status)
         popupData.value.status = FactoryStatusText[status][0]
         popupData.value.show = true
+        popupData.value.summary = generateFactorySummary(factory)
         popupFactoryData.value = factory
       }
     }
@@ -319,6 +334,13 @@ export default createComponent({
     margin: 5px 0;
     font-size: 14px;
     line-height: 2;
+  }
+
+  p.summary {
+    white-space: pre-wrap;
+    margin-bottom: 15px;
+    font-size: 14px;
+    font-weight: 500;
   }
 }
 
