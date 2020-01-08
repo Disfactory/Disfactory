@@ -21,7 +21,7 @@ import IconOrigin from 'ol/style/IconOrigin'
 const getFactoryStatusImage = (status: FactoryStatus) => `/images/marker-${status}.svg`
 export const getStatusBorderColor = (status: FactoryStatus) => {
   return {
-    [FactoryStatus.NEW]: '#A22929',
+    [FactoryStatus.NEW]: '#BB4A37',
     [FactoryStatus.EXISTING_COMPLETE]: '#447287',
     [FactoryStatus.EXISTING_INCOMPLETE]: '#447287',
     [FactoryStatus.REPORTED]: '#6D8538'
