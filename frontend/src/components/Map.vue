@@ -13,7 +13,7 @@
         <small :style="{ color: popupData.color }">{{ popupData.status }}</small>
         <h3>{{ popupData.name }}</h3>
         <p class="summary">{{ popupData.summary }}</p>
-        <app-button outline @click="onClickEditFactoryData">
+        <app-button outline @click="onClickEditFactoryData" :color="getButtonColorFromStatus()">
           補充資料
         </app-button>
       </div>
@@ -238,7 +238,20 @@ export default createComponent({
       popupData,
       onClickEditFactoryData,
       onClickCreateFactoryButton,
-      onClickFinishSelectFactoryPositionButton
+      onClickFinishSelectFactoryPositionButton,
+      getButtonColorFromStatus: function () {
+        if (!popupFactoryData.value) {
+          return 'default'
+        }
+
+        const status = getFactoryStatus(popupFactoryData.value)
+        return {
+          [FactoryStatus.NEW]: 'red',
+          [FactoryStatus.EXISTING_INCOMPLETE]: 'blue',
+          [FactoryStatus.EXISTING_COMPLETE]: 'blue',
+          [FactoryStatus.REPORTED]: 'default'
+        }[status]
+      }
     }
   }
 })

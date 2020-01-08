@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="{ outline, disabled, rect }"
+    :class="{ outline, disabled, rect, blue: color === 'blue', red: color === 'red' }"
     @click="click"
   >
     <slot />
@@ -24,6 +24,10 @@ export default createComponent({
     rect: {
       type: Boolean,
       default: false
+    },
+    color: {
+      type: String,
+      default: 'default'
     }
   },
   setup (props, context) {
@@ -61,12 +65,24 @@ button {
 
   &:hover {
     cursor: pointer;
-    background-color: #87a400;
+    background-color: lighten($primary-color, 20%);
   }
 
   &.disabled {
     cursor: not-allowed;
     background-color: #aaa;
+  }
+
+  &.blue {
+    &:hover {
+      background-color: lighten($blue-color, 20%);
+    }
+  }
+
+  &.red {
+    &:hover {
+      background-color: lighten($red-color, 20%);
+    }
   }
 }
 
@@ -79,6 +95,22 @@ button {
     cursor: pointer;
     background-color: $primary-color;
     color: $dark-font-color;
+  }
+
+  &.blue {
+    border: 1px solid $blue-color;
+
+    &:hover {
+      background-color: $blue-color;
+    }
+  }
+
+  &.red {
+    border: 1px solid $red-color;
+
+    &:hover {
+      background-color: $red-color;
+    }
   }
 }
 
