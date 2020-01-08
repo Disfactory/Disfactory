@@ -108,12 +108,12 @@
       border: solid 2px #000000;
     }
 
-    span.line {
+    span.space {
       display: inline-flex;
       min-width: 50px;
       flex: 1;
       height: 1px;
-      background-color: black;
+      background-color: transparent;
       margin: 0 10px;
     }
 
