@@ -12,26 +12,36 @@ import { Zoom, ScaleLine, Rotate } from 'ol/control'
 import Geolocation from 'ol/Geolocation'
 import { defaults as defaultInteractions, PinchRotate } from 'ol/interaction'
 
-import { FactoryData, FactoryStatusType } from '../types'
+import { FactoryData, FactoryStatus } from '../types'
 import { flipArgriculturalLand } from '../lib/image'
 import RenderFeature from 'ol/render/Feature'
 import { MapOptions } from 'ol/PluggableMap'
 import IconOrigin from 'ol/style/IconOrigin'
 
-const factoryStatusImageMap = {
-  C:  '/images/marker-C.svg',
-  CO: '/images/marker-CO.svg',
-  CN: '/images/marker-CN.svg',
-  IO: '/images/marker-IO.svg',
-  IN: '/images/marker-IN.svg'
+const getFactoryStatusImage = (status: FactoryStatus) => `/images/marker-${status}.svg`
+export const getStatusBorderColor = (status: FactoryStatus) => {
+  return {
+    [FactoryStatus.NEW]: '#A22929',
+    [FactoryStatus.EXISTING_COMPLETE]: '#447287',
+    [FactoryStatus.EXISTING_INCOMPLETE]: '#447287',
+    [FactoryStatus.REPORTED]: '#6D8538'
+  }[status]
 }
 
-export const factoryBorderColor = {
-  C: '#6D8538',
-  CO: '#231f20',
-  CN: '#447287',
-  IO: '#231f20',
-  IN: '#A22929'
+export function getFactoryStatus (factory: FactoryData) {
+  if (factory.cet_report_status === 'B') {
+    return FactoryStatus.REPORTED
+  }
+
+  if (factory.before_2016) {
+    if (factory.data_complete) {
+      return FactoryStatus.EXISTING_COMPLETE
+    } else {
+      return FactoryStatus.EXISTING_INCOMPLETE
+    }
+  } else {
+    return FactoryStatus.NEW
+  }
 }
 
 export enum BASE_MAP {
@@ -60,16 +70,16 @@ const makeMapButtons = () => {
   }, {}) as ButtonElements
 }
 
-const iconStyleMap = Object.entries(factoryStatusImageMap).reduce((acc, [status, src]) => ({
+const iconStyleMap = Object.entries(FactoryStatus).reduce((acc, [status, src]) => ({
   ...acc,
   [status]: new Style({
     image: new Icon({
       anchorYUnits: IconAnchorUnits.PIXELS,
       anchorOrigin: IconOrigin.BOTTOM_LEFT,
-      src
+      src: getFactoryStatusImage(src)
     })
   })
-}), {}) as {[key in FactoryStatusType]: Style}
+}), {}) as {[key in FactoryStatus]: Style}
 
 const nullStyle = new Style({})
 
@@ -88,7 +98,7 @@ const minimapPinStyle = new Style({
 
 export class MapFactoryController {
   private _map: OLMap
-  private appliedFilters: FactoryStatusType[] = []
+  private appliedFilters: FactoryStatus[] = []
   private _factoriesLayerSource?: VectorSource
   private factoryMap = new Map<string, FactoryData>()
 
@@ -146,7 +156,7 @@ export class MapFactoryController {
     })
   }
 
-  public setFactoryStatusFilter (filters: FactoryStatusType[]) {
+  public setFactoryStatusFilter (filters: FactoryStatus[]) {
     this.appliedFilters = filters
 
     // reset filter if filters is an empty array
@@ -161,13 +171,13 @@ export class MapFactoryController {
     if (this.appliedFilters.length === 0) {
       return true
     } else {
-      return this.appliedFilters.includes(factory.status)
+      return this.appliedFilters.includes(getFactoryStatus(factory))
     }
   }
 
   private getFactoryStyle (factory: FactoryData): Style {
     const visible = this.isFactoryVisible(factory)
-    return visible ? iconStyleMap[factory.status] : nullStyle
+    return visible ? iconStyleMap[getFactoryStatus(factory)] : nullStyle
   }
 
   private createFactoryFeature (factory: FactoryData) {
@@ -191,7 +201,7 @@ export class MapFactoryController {
 
   private displayAllFactory () {
     this.forEachFeatureFactory((feature, factory) => {
-      feature.setStyle(iconStyleMap[factory.status])
+      feature.setStyle(iconStyleMap[getFactoryStatus(factory)])
     })
   }
 

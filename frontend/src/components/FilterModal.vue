@@ -4,12 +4,15 @@
       <div class="page">
         <div class="page-inner">
           <h2 style="margin-right: 30px;">篩選</h2>
-          <label class="checkbox-container" v-for="factoryStatus in FACTORY_STATUS_ITEMS" :key="factoryStatus">
-            <input type="checkbox" :name="factoryStatus" v-model="filters[factoryStatus]">
+          <label class="checkbox-container" v-for="status in FACTORY_STATUS_ITEMS" :key="status">
+            <input type="checkbox" :name="status" v-model="filters[status]">
             <span class="checkbox" />
-            <span class="data-type">{{ FACTORY_STATUS[factoryStatus] }}</span>
-            <span class="line" />
-            <img :src="`/images/marker-${factoryStatus}.svg`">
+            <span class="data-type" :class="{ 'has-description': FactoryStatusText[status][1] }">
+              {{ FactoryStatusText[status][0] }}
+              <small v-if="FactoryStatusText[status][1]">{{ FactoryStatusText[status][1] }}</small>
+            </span>
+            <span class="space" />
+            <img :src="`/images/marker-${status}.svg`">
           </label>
         </div>
         <div style="margin-bottom: 10px;">
@@ -26,7 +29,7 @@ import AppButton from '@/components/AppButton.vue'
 import { MapFactoryController } from '../lib/map'
 import { createComponent, ref, inject, reactive } from '@vue/composition-api'
 import { MainMapControllerSymbol } from '../symbols'
-import { FactoryStatusType, FACTORY_STATUS, FACTORY_STATUS_ITEMS } from '../types'
+import { FactoryStatusText, FactoryStatus, FACTORY_STATUS_ITEMS } from '../types'
 
 export default createComponent({
   name: 'FilterModal',
@@ -45,12 +48,11 @@ export default createComponent({
   },
   setup (props) {
     const filters = reactive({
-      C: false,
-      CO: false,
-      CN: false,
-      IO: false,
-      IN: false
-    }) as { [key in FactoryStatusType]: boolean }
+      [FactoryStatus.NEW]: false,
+      [FactoryStatus.EXISTING_INCOMPLETE]: false,
+      [FactoryStatus.EXISTING_COMPLETE]: false,
+      [FactoryStatus.REPORTED]: false
+    })
 
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
@@ -63,7 +65,7 @@ export default createComponent({
 
         const statusTypes = Object.entries(filters)
           .map(([key, value]) => value ? key : false)
-          .filter(Boolean) as FactoryStatusType[]
+          .filter(Boolean) as FactoryStatus[]
 
         mapController.value.setFactoryStatusFilter(statusTypes)
 
@@ -72,7 +74,8 @@ export default createComponent({
         }
       },
       FACTORY_STATUS_ITEMS,
-      FACTORY_STATUS
+      FactoryStatus,
+      FactoryStatusText
     }
   }
 })
@@ -87,8 +90,22 @@ export default createComponent({
     padding: 0 10px;
   }
 
+  .checkbox-container {
+    position: relative;
+  }
+
   .data-type {
     min-width: 80px;
+
+    &.has-description {
+      small {
+        position: absolute;
+        margin-bottom: 20px;
+        left: 31px;
+        top: 25px;
+        font-size: 12px;
+      }
+    }
   }
 
   .app-modal {

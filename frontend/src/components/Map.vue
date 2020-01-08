@@ -53,12 +53,12 @@
 import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import { createComponent, onMounted, ref, inject } from '@vue/composition-api'
-import { initializeMap, MapFactoryController, factoryBorderColor } from '../lib/map'
+import { initializeMap, MapFactoryController, getStatusBorderColor, getFactoryStatus } from '../lib/map'
 import { getFactories } from '../api'
 import { MainMapControllerSymbol } from '../symbols'
 import { Overlay } from 'ol'
 import OverlayPositioning from 'ol/OverlayPositioning'
-import { FACTORY_STATUS, FactoryData } from '../types'
+import { FactoryStatus, FactoryData, FactoryStatusText } from '../types'
 import { useBackPressed } from '../lib/useBackPressed'
 
 export default createComponent({
@@ -118,8 +118,9 @@ export default createComponent({
       if (factory) {
         popupData.value.id = factory.id
         popupData.value.name = factory.name
-        popupData.value.color = factoryBorderColor[factory.status]
-        popupData.value.status = FACTORY_STATUS[factory.status]
+        const status = getFactoryStatus(factory)
+        popupData.value.color = getStatusBorderColor(status)
+        popupData.value.status = FactoryStatusText[status][0]
         popupData.value.show = true
         popupFactoryData.value = factory
       }

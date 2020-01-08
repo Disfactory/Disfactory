@@ -13,17 +13,33 @@ export const FACTORY_TYPE = [
 ] as const
 export type FactoryType = (typeof FACTORY_TYPE)[number]['value']
 
-export const FACTORY_STATUS = {
-  C: '已經舉報',
-  CO: '資料齊全的舊工廠',
-  CN: '資料齊全的新建工廠',
-  IO: '資料不齊的舊工廠',
-  IN: '資料老舊的新建工廠'
+type CetReportStatus = 'A' | 'B'
+
+export const CetReportStatusText = {
+  A: '未舉報',
+  B: '已舉報'
 }
 
-export const FACTORY_STATUS_ITEMS: FactoryStatusType[] = [ 'C', 'CO', 'CN', 'IO', 'IN' ]
+export enum FactoryStatus {
+  NEW = 'NEW',
+  EXISTING_INCOMPLETE = 'EXISTING_INCOMPLETE',
+  EXISTING_COMPLETE = 'EXISTING_COMPLETE',
+  REPORTED = 'REPORTED'
+}
 
-export type FactoryStatusType = keyof typeof FACTORY_STATUS
+export const FactoryStatusText = {
+  [FactoryStatus.NEW]: ['新建違章工廠'],
+  [FactoryStatus.EXISTING_COMPLETE]: ['既有違章工廠'],
+  [FactoryStatus.EXISTING_INCOMPLETE]: ['既有違章工廠', '資料不齊'],
+  [FactoryStatus.REPORTED]: ['已舉報違章工廠']
+}
+
+export const FACTORY_STATUS_ITEMS: FactoryStatus[] = [
+  FactoryStatus.NEW,
+  FactoryStatus.EXISTING_COMPLETE,
+  FactoryStatus.EXISTING_INCOMPLETE,
+  FactoryStatus.REPORTED
+]
 
 export type FactoryImage = {
   id: string,
@@ -38,11 +54,13 @@ export type FactoryData = {
   name: string,
   landcode: string,
   type: FactoryType,
-  status: FactoryStatusType,
   images: FactoryImage[],
   // TODO: can be one of https://docs.djangoproject.com/en/2.2/ref/settings/#datetime-input-formats
   // eslint-disable-next-line
-  reported_at: null | string
+  reported_at: null | string,
+  data_complete: boolean,
+  before_2016: boolean,
+  cet_report_status: CetReportStatus
 }
 
 export type FactoriesResponse = Array<FactoryData>
