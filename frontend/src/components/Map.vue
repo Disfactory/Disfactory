@@ -121,7 +121,11 @@ export default createComponent({
       const imageStatus = factory.images.length > 0 ? '已有照片' : '缺照片'
 
       const type = FACTORY_TYPE.find(type => type.value === factory.type)
-      const typeText = (type && type.text) || '其他'
+      let typeText: string = (type && type.text) || '其他'
+
+      if (typeText.includes('金屬')) {
+        typeText = '金屬'
+      }
 
       return [
         imageStatus,
