@@ -16,7 +16,11 @@
         </p>
 
         <p>
-          本系統感謝 #g0v.tw 頻道內所有協助開發的朋友們。
+          本系統感謝 g0v.tw 社群朋友共同開發。
+        </p>
+        
+        <p>
+          全站原始碼以 MIT 開放授權公開在 https://github.com/Disfactory/Disfactory。
         </p>
       </div>
     </app-modal>
