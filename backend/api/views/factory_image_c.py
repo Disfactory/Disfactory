@@ -1,13 +1,14 @@
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.db import transaction
+import django_q.tasks
+
 from rest_framework.decorators import api_view
 
 from ..models import Image, Factory, ReportRecord
 from ..serializers import ImageSerializer
 from .utils import (
     _is_image,
-    _upload_image,
     _get_image_original_date,
     _get_client_ip,
 )
@@ -28,8 +29,6 @@ def post_factory_image(request, factory_id):
         )
 
     f_image.seek(0)
-    path = _upload_image(f_image, settings.IMGUR_CLIENT_ID)
-    f_image.seek(0)
     image_original_date = _get_image_original_date(f_image)
 
     client_ip = _get_client_ip(request)
@@ -47,10 +46,12 @@ def post_factory_image(request, factory_id):
             contact=put_body.get("contact"),
         )
         img = Image.objects.create(
-            image_path=path,
+            image_path='',
             orig_time=image_original_date,
             factory=factory,
             report_record=report_record,
         )
     img_serializer = ImageSerializer(img)
+    f_image.seek(0)
+    django_q.tasks.async_task('api.tasks.upload_image', f_image.read(), settings.IMGUR_CLIENT_ID, img.id)
     return JsonResponse(img_serializer.data, safe=False)
