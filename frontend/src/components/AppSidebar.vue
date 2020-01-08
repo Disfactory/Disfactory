@@ -53,6 +53,7 @@ export default createComponent({
 
 .base {
   position: fixed;
+  -webkit-overflow-scrolling: touch;
   top: 0;
   right: 0;
   bottom: 0;
@@ -65,6 +66,7 @@ export default createComponent({
 
   .sidebar {
     position: fixed;
+    -webkit-overflow-scrolling: touch;
     top: 0;
     right: 0;
     bottom: 0;

@@ -2,6 +2,7 @@
 
 .page-container {
   position: fixed;
+  -webkit-overflow-scrolling: touch;
 
   width: 100vw;
   top: 47px;

@@ -75,9 +75,9 @@ export default createComponent({
 @import '@/styles/variables';
 
 .safety-modal-container .app-modal {
-  top: 47px;
-  max-height: calc(100% - 100px);
-  margin: 0 7px;
+  top: 20px;
+  max-height: 100%;
+  max-width: calc(100% - 20px);
 
   .page {
     height: auto;
@@ -86,6 +86,10 @@ export default createComponent({
       height: 200px;
       display: block;
       margin: 0 auto;
+
+      @media (max-width: 480px) {
+        height: 130px;
+      }
     }
 
     h2 {
