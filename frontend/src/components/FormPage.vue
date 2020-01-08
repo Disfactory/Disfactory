@@ -18,9 +18,14 @@
       />
 
       <div class="page" style="padding: 29px 35px;">
-        <h1>
-          {{ isCreateMode ? '輸入資訊' : '輸入補充資訊' }}
+        <h1 v-if="isCreateMode">
+          輸入資訊
         </h1>
+
+        <div class="status-banner flex" v-if="!isCreateMode" :style="{ backgroundColor: getStatusBorderColor(factoryFormState.status) }">
+          <img src="/images/marker-white.svg" style="margin-right: 7px;">
+          {{ FactoryStatusText[factoryFormState.status][0] }}
+        </div>
 
         <h3>工廠地點</h3>
         <div class="minimap" ref="minimap" @click="onClickMinimap()" />
@@ -114,8 +119,15 @@ import AppNavbar from '@/components/AppNavbar.vue'
 import AppSelect from '@/components/AppSelect.vue'
 import ImageUploadModal from '@/components/ImageUploadModal.vue'
 import { UploadedImages, createFactory, updateFactory } from '../api'
-import { FactoryPostData, FACTORY_TYPE, FactoryType, FactoryData, FactoryImage } from '../types'
-import { MapFactoryController, initializeMinimap } from '../lib/map'
+import {
+  FactoryPostData,
+  FACTORY_TYPE,
+  FactoryType,
+  FactoryData,
+  FactoryImage,
+  FactoryStatusText,
+} from '../types'
+import { MapFactoryController, initializeMinimap, getStatusBorderColor, getFactoryStatus } from '../lib/map'
 import { isiOS, isSafari } from '../lib/browserCheck'
 import { MainMapControllerSymbol } from '../symbols'
 import { useBackPressed } from '../lib/useBackPressed'
@@ -201,7 +213,8 @@ export default createComponent({
       images: [] as string[],
       imageUrls: [] as string[],
       nickname: '',
-      contact: ''
+      contact: '',
+      status: ''
     }
 
     // merge state
@@ -214,6 +227,7 @@ export default createComponent({
       initialFactoryState.imageUrls = (factoryData.images as FactoryImage[]).map(image => image.image_path)
       initialFactoryState.lng = factoryData.lng
       initialFactoryState.lat = factoryData.lat
+      initialFactoryState.status = getFactoryStatus(factoryData.status)
     }
 
     const factoryFormState = reactive(initialFactoryState)
@@ -407,7 +421,11 @@ export default createComponent({
 
       isEditMode,
       isCreateMode,
-      updateFactoryFieldsFor
+      updateFactoryFieldsFor,
+
+      getStatusBorderColor,
+      FactoryStatusText,
+      getFactoryStatus
     }
   }
 })
@@ -423,6 +441,18 @@ export default createComponent({
 
   .navbar-container {
     display: block;
+  }
+}
+
+.page {
+  .status-banner {
+    left: 0;
+    top: 0;
+    color: white;
+    padding: 15px 35px;
+    width: calc(100% + 70px);
+    margin-left: -35px;
+    margin-top: -28px;
   }
 }
 
