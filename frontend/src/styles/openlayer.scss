@@ -76,3 +76,15 @@
     width: 100%;
   }
 }
+
+.ol-rotate {
+  background-color: $primary-color;
+
+  &:hover {
+    background-color: $primary-color;
+  }
+
+  .ol-compass {
+    margin-top: -5px;
+  }
+}
