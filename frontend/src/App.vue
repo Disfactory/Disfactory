@@ -131,7 +131,7 @@ export default createComponent({
       appState.factoryData = factory
       appState.formMode = 'edit'
       appState.factoryFormOpen = true
-      pageview('/emit')
+      pageview('/edit')
     }
 
     function closeFactoryPage () {
