@@ -49,7 +49,7 @@
 <script lang="ts">
 import AppModal from '@/components/AppModal.vue'
 import { createComponent } from '@vue/composition-api'
-import { Carousel, Slide } from 'vue-carousel';
+import { Carousel, Slide } from 'vue-carousel'
 
 export default createComponent({
   name: 'SafetyModal',
