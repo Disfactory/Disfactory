@@ -52,7 +52,7 @@ export async function uploadImages (files: FileList): Promise<UploadedImages> {
   return results
 }
 
-export async function updateFactoryImages (factoryId: string, files: FileList, { nickname, contact } : { nickname?: string, contact?: string }) {
+export async function updateFactoryImages (factoryId: string, files: FileList, { nickname, contact }: { nickname?: string, contact?: string }) {
   const results: FactoryImage[] = []
 
   for (const file of files) {

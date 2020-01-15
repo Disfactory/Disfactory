@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="navbar-container">
-      <app-navbar :dark="false" :fixed="true" @back="onNavBack">
+      <app-navbar :dark="false" :fixed="true" @back="onNavBack" @menu="modalActions.toggleSidebar">
         {{ isCreateMode ? '新增資訊' : '補充資訊' }}
       </app-navbar>
     </div>
@@ -125,13 +125,14 @@ import {
   FactoryType,
   FactoryData,
   FactoryImage,
-  FactoryStatusText,
+  FactoryStatusText
 } from '../types'
 import { MapFactoryController, initializeMinimap, getStatusBorderColor, getFactoryStatus } from '../lib/map'
 import { isiOS, isSafari } from '../lib/browserCheck'
 import { MainMapControllerSymbol } from '../symbols'
 import { useBackPressed } from '../lib/useBackPressed'
 import { useGA } from '@/lib/useGA'
+import { useModalState } from '../lib/hooks'
 
 export default createComponent({
   name: 'FormPage',
@@ -182,6 +183,7 @@ export default createComponent({
     const { event } = useGA()
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
     let minimapController: MapFactoryController
+    const [, modalActions] = useModalState()
 
     const onBack = () => {
       if (mapController.value) {
@@ -294,6 +296,7 @@ export default createComponent({
         if (mapController.value) {
           mapController.value.updateFactory(factoryData.id, factory)
         }
+        modalActions.openUpdateFactorySuccessModal()
       } catch (err) {
         console.error(err)
       }
@@ -374,6 +377,7 @@ export default createComponent({
             if (mapController.value) {
               mapController.value.updateFactory(props.factoryData.id, factory)
             }
+            modalActions.openUpdateFactorySuccessModal()
           } catch (err) {
             console.error(err)
           }
@@ -425,7 +429,8 @@ export default createComponent({
 
       getStatusBorderColor,
       FactoryStatusText,
-      getFactoryStatus
+      getFactoryStatus,
+      modalActions
     }
   }
 })
