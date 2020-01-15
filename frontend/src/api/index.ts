@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { FactoryPostData, FactoryData, FactoriesResponse, FactoryImage } from '@/types'
 
-const baseURL = process.env.NODE_ENV === 'production' ? 'https://api.disfactory.tw/api' : '/server/api'
+const baseURL = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_BASE_URL : '/server/api'
 
 const instance = axios.create({
   baseURL,
@@ -52,7 +52,7 @@ export async function uploadImages (files: FileList): Promise<UploadedImages> {
   return results
 }
 
-export async function updateFactoryImages (factoryId: string, files: FileList, { nickname, contact } : { nickname?: string, contact?: string }) {
+export async function updateFactoryImages (factoryId: string, files: FileList, { nickname, contact }: { nickname?: string, contact?: string }) {
   const results: FactoryImage[] = []
 
   for (const file of files) {
