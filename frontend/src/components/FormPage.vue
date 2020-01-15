@@ -132,6 +132,7 @@ import { isiOS, isSafari } from '../lib/browserCheck'
 import { MainMapControllerSymbol } from '../symbols'
 import { useBackPressed } from '../lib/useBackPressed'
 import { useGA } from '@/lib/useGA'
+import { useModalState } from '../lib/hooks'
 
 export default createComponent({
   name: 'FormPage',
@@ -182,6 +183,7 @@ export default createComponent({
     const { event } = useGA()
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
     let minimapController: MapFactoryController
+    const [, modalActions] = useModalState()
 
     const onBack = () => {
       if (mapController.value) {
@@ -294,6 +296,7 @@ export default createComponent({
         if (mapController.value) {
           mapController.value.updateFactory(factoryData.id, factory)
         }
+        modalActions.openUpdateFactorySuccessModal()
       } catch (err) {
         console.error(err)
       }
@@ -374,6 +377,7 @@ export default createComponent({
             if (mapController.value) {
               mapController.value.updateFactory(props.factoryData.id, factory)
             }
+            modalActions.openUpdateFactorySuccessModal()
           } catch (err) {
             console.error(err)
           }

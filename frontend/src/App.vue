@@ -8,6 +8,10 @@
       :open="appState.createFactorySuccessModalOpen"
       :dismiss="() => setCreateFactorySuccessModal(false)"
     />
+    <update-factory-success-modal
+      :open="modalState.updateFactorySuccessModal"
+      :dismiss="modalActions.closeUpdateFactorySuccessModal"
+    />
     <about-modal :open="aboutModalOpen" :dismiss="closeAboutModal" />
     <contact-modal :open="contactModalOpen" :dismiss="closeContactModal" />
     <getting-started-modal :open="gettingStartedModalOpen" :dismiss="closeGettingStartedModal" />
@@ -54,11 +58,12 @@ import ContactModal from '@/components/ContactModal.vue'
 import GettingStartedModal from '@/components/GettingStartedModal.vue'
 import SafetyModal from '@/components/SafetyModal.vue'
 import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
+import UpdateFactorySuccessModal from '@/components/UpdateFactorySuccessModal.vue'
 
 import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
 import { FactoryData } from './types'
-import { useModal } from './lib/hooks'
+import { useModal, provideModalState, useModalState } from './lib/hooks'
 import { provideGA, useGA } from './lib/useGA'
 
 export default createComponent({
@@ -74,10 +79,15 @@ export default createComponent({
     GettingStartedModal,
     SafetyModal,
     CreateFactorySuccessModal,
+    UpdateFactorySuccessModal,
     FormPage
   },
   setup (_, context) {
     provideGA(context)
+    provideModalState()
+
+    const [modalState, modalActions] = useModalState()
+
     const { pageview, event } = useGA()
 
     const appState = reactive({
@@ -198,7 +208,10 @@ export default createComponent({
 
       enterSelectFactoryMode,
       exitSelectFactoryMode,
-      setFactoryLocation
+      setFactoryLocation,
+
+      modalState,
+      modalActions
     }
   }
 })
