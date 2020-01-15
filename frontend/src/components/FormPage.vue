@@ -229,7 +229,7 @@ export default createComponent({
       initialFactoryState.imageUrls = (factoryData.images as FactoryImage[]).map(image => image.image_path)
       initialFactoryState.lng = factoryData.lng
       initialFactoryState.lat = factoryData.lat
-      initialFactoryState.status = getFactoryStatus(factoryData.status)
+      initialFactoryState.status = getFactoryStatus(factoryData as FactoryData)
     }
 
     const factoryFormState = reactive(initialFactoryState)
