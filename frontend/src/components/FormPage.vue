@@ -125,7 +125,7 @@ import {
   FactoryType,
   FactoryData,
   FactoryImage,
-  FactoryStatusText,
+  FactoryStatusText
 } from '../types'
 import { MapFactoryController, initializeMinimap, getStatusBorderColor, getFactoryStatus } from '../lib/map'
 import { isiOS, isSafari } from '../lib/browserCheck'
