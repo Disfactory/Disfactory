@@ -373,7 +373,11 @@ export class OLMap {
     map.on('click', async (event) => {
       if (handler.onClicked) {
         const [lng, lat] = transform(event.coordinate, 'EPSG:3857', 'EPSG:4326')
-        const feature = map.forEachFeatureAtPixel(event.pixel, (feature) => feature)
+        const feature = map.forEachFeatureAtPixel(event.pixel, (feature) => feature, {
+          layerFilter: (layer) => {
+            return layer.getZIndex() !== 5 // TODO: Hack
+          }
+        })
         handler.onClicked([lng, lat], feature)
       }
     })
