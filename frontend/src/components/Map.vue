@@ -246,9 +246,9 @@ export default createComponent({
 
         const status = getFactoryStatus(popupFactoryData.value)
         return {
-          [FactoryStatus.NEW]: 'red',
-          [FactoryStatus.EXISTING_INCOMPLETE]: 'blue',
-          [FactoryStatus.EXISTING_COMPLETE]: 'blue',
+          [FactoryStatus.NEW]: 'blue',
+          [FactoryStatus.EXISTING_INCOMPLETE]: 'gray',
+          [FactoryStatus.EXISTING_COMPLETE]: 'gray',
           [FactoryStatus.REPORTED]: 'default'
         }[status]
       }
