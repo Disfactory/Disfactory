@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     # 3rd party
     "rest_framework",
     "corsheaders",
+    "django_q",
 
     # Local
     "users.apps.UsersConfig",
@@ -186,3 +187,15 @@ TAIWAN_MAX_LONGITUDE = 122.007164
 TAIWAN_MIN_LONGITUDE = 120.035141
 
 MAX_FACTORY_PER_GET = int(os.environ.get("DISFACTORY_BACKEND_MAX_FACTORY_PER_GET", 50))
+
+Q_CLUSTER = {
+    'name': 'disfactory',
+    'workers': 4,
+    'recycle': 50,
+    'timeout': 60,
+    'compress': True,
+    'cpu_affinity': 1,
+    'label': 'Django Q',
+    'orm': 'default',
+    'bulk': 4,
+}
