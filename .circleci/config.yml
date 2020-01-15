@@ -54,7 +54,7 @@ jobs:
           root: frontend
           paths:
             - dist
-  frontend-deploy:
+  frontend-dev-deploy:
     <<: *frontend_docker_default
     steps:
       - checkout
@@ -73,6 +73,45 @@ jobs:
       - run:
           name: Deploy docs to gh-pages branch
           command: npx gh-pages -m "Deploy [ci skip]" --dist frontend/dist
+  frontend-production-build:
+    <<: *frontend_docker_default
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - dependency-cache-{{ checksum "frontend/package-lock.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+      - run: cd frontend && npm ci
+      - save_cache:
+          paths:
+            - node_modules
+          key: dependency-cache-{{ checksum "frontend/package-lock.json" }}
+
+      - run: cd frontend && echo "VUE_APP_BASE_URL=https://api.disfactory.tw/api" > .env.production && npm run build
+      - persist_to_workspace:
+          root: frontend
+          paths:
+            - dist
+  frontend-production-deploy:
+    <<: *frontend_docker_default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: frontend
+      - run:
+          name: Install and configure dependencies
+          command: |
+            npm install --silent gh-pages
+            git config user.email "ci-build@disfactory.tw"
+            git config user.name "ci-build"
+            echo "disfactory.tw" > frontend/dist/CNAME
+      - add_ssh_keys:
+          fingerprints:
+            - "15:64:e1:a2:bf:d0:8e:4b:4f:f1:22:2d:62:18:1b:ad"
+      - run:
+          name: Deploy docs to gh-pages branch
+          command: npx gh-pages -r "git@github.com:Disfactory/disfactory.tw.git" -m "Deploy [ci skip]" --dist frontend/dist
   backend-all:
     <<: *backend_docker_default
     steps:
@@ -111,12 +150,26 @@ workflows:
   build:
     jobs:
       - frontend-lint
-      - frontend-build
-      - frontend-deploy:
+      - frontend-build:
+          filters:
+            branches:
+              ignore: production
+      - frontend-production-build:
+          filters:
+            branches:
+              only: production
+      - frontend-dev-deploy:
           requires:
             - frontend-lint
             - frontend-build
           filters:
             branches:
               only: master
+      - frontend-production-deploy:
+          requires:
+            - frontend-lint
+            - frontend-production-build
+          filters:
+            branches:
+              only: production
       - backend-all
