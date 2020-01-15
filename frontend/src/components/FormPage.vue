@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="navbar-container">
-      <app-navbar :dark="false" :fixed="true" @back="onNavBack">
+      <app-navbar :dark="false" :fixed="true" @back="onNavBack" @menu="modalActions.toggleSidebar">
         {{ isCreateMode ? '新增資訊' : '補充資訊' }}
       </app-navbar>
     </div>
@@ -429,7 +429,8 @@ export default createComponent({
 
       getStatusBorderColor,
       FactoryStatusText,
-      getFactoryStatus
+      getFactoryStatus,
+      modalActions
     }
   }
 })

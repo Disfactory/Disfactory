@@ -1,4 +1,5 @@
 import { ref, Ref, provide, inject, reactive } from '@vue/composition-api'
+import { useGA } from './useGA'
 
 export const useModal = (defaultOpen = false): [Ref<boolean>, { open: () => void, dismiss: () => void }] => {
   const state = ref(defaultOpen)
@@ -29,7 +30,9 @@ export const provideModalState = () => {
     aboutModalOpen: false,
     contactModalOpen: false,
     safetyModalOpen: false,
-    gettingStartedModalOpen: localStorage.getItem('use-app') !== 'true'
+    gettingStartedModalOpen: localStorage.getItem('use-app') !== 'true',
+
+    sidebarOpen: false
   })
 
   provide(ModalStateSymbol, modalState)
@@ -44,6 +47,8 @@ type ModalState = {
   contactModalOpen: boolean,
   safetyModalOpen: boolean,
   gettingStartedModalOpen: boolean
+
+  sidebarOpen: boolean
 }
 
 type ModalActions = {
@@ -64,10 +69,13 @@ type ModalActions = {
 
   openGettingStartedModal: Function,
   closeGettingStartedModal: Function
+
+  toggleSidebar: Function
 }
 
 export const useModalState: () => [ModalState, ModalActions] = () => {
   const modalState = inject(ModalStateSymbol) as ModalState
+  const { event } = useGA()
 
   const openUpdateFactorySuccessModal = () => { modalState.updateFactorySuccessModal = true }
   const closeUpdateFactorySuccessModal = () => { modalState.updateFactorySuccessModal = false }
@@ -87,6 +95,12 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
   const openGettingStartedModal = () => { modalState.gettingStartedModalOpen = true }
   const closeGettingStartedModal = () => { modalState.gettingStartedModalOpen = false }
 
+  const toggleSidebar = () => {
+    const open = !modalState.sidebarOpen
+    event('toggleSidebar', { target: open })
+    modalState.sidebarOpen = open
+  }
+
   const modalActions = {
     openUpdateFactorySuccessModal,
     closeUpdateFactorySuccessModal,
@@ -104,7 +118,9 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
     closeSafetyModal,
 
     openGettingStartedModal,
-    closeGettingStartedModal
+    closeGettingStartedModal,
+
+    toggleSidebar
   }
 
   return [modalState, modalActions]

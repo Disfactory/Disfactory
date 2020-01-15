@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="navbar-container" v-if="selectFactoryMode">
-      <app-navbar :dark="false" :fixed="true" @back="onNavBack">
+      <app-navbar :dark="false" :fixed="true" @back="onNavBack" @menu="modalActions.toggleSidebar">
         新增資訊
       </app-navbar>
     </div>
@@ -63,6 +63,7 @@ import OverlayPositioning from 'ol/OverlayPositioning'
 import { FactoryStatus, FactoryData, FactoryStatusText, FACTORY_TYPE } from '../types'
 import { useBackPressed } from '../lib/useBackPressed'
 import { useGA } from '@/lib/useGA'
+import { useModalState } from '../lib/hooks'
 
 export default createComponent({
   components: {
@@ -106,6 +107,7 @@ export default createComponent({
     const factoryValid = ref(false)
     const factoryLngLat = ref<number[]>([])
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
+    const [,modalActions] = useModalState()
 
     const popupData = ref({
       show: false,
@@ -224,6 +226,7 @@ export default createComponent({
 
     return {
       root,
+      modalActions,
       popup,
       factoryValid,
       zoomToGeolocation: function () {

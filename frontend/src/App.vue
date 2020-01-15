@@ -1,7 +1,7 @@
 <template>
   <div id="app">
-    <app-navbar :hide="appState.factoryFormOpen || appState.selectFactoryMode" :fixed="true" @menu="toggleSidebar">農地違章工廠舉報</app-navbar>
-    <app-sidebar v-model="appState.sidebarOpen" :clickActions="sidebarActions" />
+    <app-navbar :hide="appState.factoryFormOpen || appState.selectFactoryMode" :fixed="true" @menu="modalActions.toggleSidebar">農地違章工廠舉報</app-navbar>
+    <app-sidebar v-model="modalState.sidebarOpen" :clickActions="sidebarActions" />
 
     <filter-modal :open="appState.filterModalOpen" :dismiss="closeFilterModal" />
     <create-factory-success-modal
@@ -93,9 +93,6 @@ export default createComponent({
     const { pageview, event } = useGA()
 
     const appState = reactive({
-      // Sidebar state
-      sidebarOpen: false,
-
       // Modal open states
       filterModalOpen: false,
 
@@ -109,11 +106,6 @@ export default createComponent({
       // Map state
       selectFactoryMode: false
     })
-
-    const toggleSidebar = () => {
-      event('toggleSidebar', { target: !appState.sidebarOpen })
-      appState.sidebarOpen = !appState.sidebarOpen
-    }
 
     // Modal state utilities
     function closeFilterModal () {
@@ -166,8 +158,6 @@ export default createComponent({
     return {
       appState,
 
-      // Sidebar state
-      toggleSidebar,
       sidebarActions: [
         () => {},
         modalActions.openSafetyModal,
