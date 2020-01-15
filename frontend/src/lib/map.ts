@@ -33,7 +33,7 @@ export function getFactoryStatus (factory: FactoryData) {
     return FactoryStatus.REPORTED
   }
 
-  if (factory.before_2016) {
+  if (factory.before_release) {
     if (factory.data_complete) {
       return FactoryStatus.EXISTING_COMPLETE
     } else {

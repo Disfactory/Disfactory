@@ -59,7 +59,7 @@ export type FactoryData = {
   // eslint-disable-next-line
   reported_at: null | string,
   data_complete: boolean,
-  before_2016: boolean,
+  before_release: boolean,
   cet_report_status: CetReportStatus
 }
 
