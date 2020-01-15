@@ -108,7 +108,7 @@ jobs:
             echo "disfactory.tw" > frontend/dist/CNAME
       - add_ssh_keys:
           fingerprints:
-            - "15:64:e1:a2:bf:d0:8e:4b:4f:f1:22:2d:62:18:1b:ad"
+            - "fe:c1:b9:5d:6d:ac:1b:cd:ff:7d:41:5d:06:1c:b9:4d"
       - run:
           name: Deploy docs to gh-pages branch
           command: npx gh-pages -r "git@github.com:Disfactory/disfactory.tw.git" -m "Deploy [ci skip]" --dist frontend/dist
