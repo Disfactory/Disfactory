@@ -112,7 +112,7 @@ class FactorySerializersTestCase(TestCase):
             lng=121,
             landcode="000120324",
             factory_type=None,
-            before_2016=True,
+            before_release=True,
             cet_report_status="A",
             status_time=datetime.now()
         )
@@ -139,7 +139,7 @@ class FactorySerializersTestCase(TestCase):
             lng=121,
             landcode="000120324",
             factory_type=None,
-            before_2016=True,
+            before_release=True,
             cet_report_status="A",
             created_at=datetime.now() - timedelta(days=100),
             status_time=datetime.now(),
@@ -164,7 +164,7 @@ class FactorySerializersTestCase(TestCase):
                 lng=121,
                 landcode="000120324",
                 factory_type="8",
-                before_2016=True,
+                before_release=True,
                 cet_report_status="A",
             )
             report_record = ReportRecord.objects.create(
@@ -192,7 +192,7 @@ class FactorySerializersTestCase(TestCase):
                 lng=121,
                 landcode="000120324",
                 factory_type="8",
-                before_2016=True,
+                before_release=True,
                 cet_report_status="A",
             )
         report_time = datetime.now() - timedelta(days=364)
@@ -221,7 +221,7 @@ class FactorySerializersTestCase(TestCase):
                 lng=121,
                 landcode="000120324",
                 factory_type="8",
-                before_2016=False,
+                before_release=False,
                 cet_report_status="A",
             )
         report_time = datetime.now() - timedelta(days=364)
@@ -250,7 +250,7 @@ class FactorySerializersTestCase(TestCase):
                 lng=121,
                 landcode="000120324",
                 factory_type="8",
-                before_2016=False,
+                before_release=False,
                 cet_report_status="A",
             )
         report_time = datetime.now() - timedelta(days=364)
@@ -274,7 +274,7 @@ class FactorySerializersTestCase(TestCase):
                 lng=121,
                 landcode="000120324",
                 factory_type="8",
-                before_2016=False,
+                before_release=False,
                 cet_report_status="A",
             )
         report_time = datetime.now() - timedelta(days=366)

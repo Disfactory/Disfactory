@@ -40,7 +40,7 @@ class FactorySerializer(ModelSerializer):
             "factory_type",
             "type",
             "cet_report_status",
-            "before_2016",
+            "before_release",
             "images",
             "reported_at",
             "data_complete",
@@ -68,7 +68,7 @@ class FactorySerializer(ModelSerializer):
         else:  # don't have any report records
             reported_within_1_year = False
 
-        if obj.before_2016:
+        if obj.before_release:
             return has_photo and reported_within_1_year and has_type
         else:
             return has_photo and reported_within_1_year

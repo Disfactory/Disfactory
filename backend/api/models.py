@@ -24,8 +24,12 @@ class Factory(models.Model):
         ("9", "其他"),
     ]
     cet_report_status_list = [
-        ("A","未舉報"),
-        ("B","已舉報"),
+        ("A", "未舉報"),
+        ("B", "已舉報"),
+    ]
+    source_list = [
+        ("G", "政府"),
+        ("U", "使用者"),
     ]
 
     # All  Features
@@ -48,7 +52,12 @@ class Factory(models.Model):
         blank=True,
         null=True,
     )
-    before_2016 = models.BooleanField(default=False)  # 從 full-info.csv 匯入的那些都是 True ，使用者新增的通通是 False
+    before_release = models.BooleanField(default=False)  # 從 full-info.csv 匯入的那些都是 True ，使用者新增的通通是 False
+    source = models.CharField(
+        max_length=1,
+        choices=source_list,
+        default="U",
+    )
     cet_report_status = models.CharField(
         max_length=1,
         choices=cet_report_status_list,
