@@ -34,7 +34,7 @@
 
       <div class="factory-button-group">
         <div class="create-factory-button" v-if="!selectFactoryMode">
-          <app-button @click="onClickCreateFactoryButton">我要新增違建工廠</app-button>
+          <app-button @click="onClickCreateFactoryButton">我要新增違章工廠</app-button>
         </div>
 
         <div class="choose-location-button" v-if="selectFactoryMode">
