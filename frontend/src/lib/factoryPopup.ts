@@ -6,17 +6,12 @@ const FactoryPopupSymbol = Symbol('FactoryPopup')
 
 export type FactoryPopupState = {
   show: boolean,
-  factoryData: FactoryData | null
 }
 
 export const providePopupState = () => {
   const popupState = reactive({
     show: false,
-    factoryData: null
-  }) as {
-    show: boolean,
-    factoryData: FactoryData | null
-  }
+  })
 
   provide(FactoryPopupSymbol, popupState)
 

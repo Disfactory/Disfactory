@@ -65,6 +65,7 @@ import { useBackPressed } from '../lib/useBackPressed'
 import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
 import { useFactoryPopup, getPopupData } from '../lib/factoryPopup'
+import { useAppState } from '../lib/appState'
 
 export default createComponent({
   components: {
@@ -108,27 +109,29 @@ export default createComponent({
     const factoryValid = ref(false)
     const factoryLngLat = ref<number[]>([])
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
+
     const [, modalActions] = useModalState()
+    const [appState, appActions] = useAppState()
 
     const [popupState] = useFactoryPopup()
-    const popupData = computed(() => popupState.factoryData ? getPopupData(popupState.factoryData) : {})
+    const popupData = computed(() => appState.factoryData ? getPopupData(appState.factoryData) : {})
 
     const setPopup = (id: string) => {
       if (!mapControllerRef.value) return
       const factory = mapControllerRef.value.getFactory(id)
 
       if (factory) {
-        popupState.factoryData = factory
+        appState.factoryData = factory
         popupState.show = true
       }
     }
 
     const onClickEditFactoryData = () => {
-      if (!popupState.factoryData) {
+      if (!appState.factoryData) {
         return
       }
 
-      props.openEditFactoryForm(popupState.factoryData)
+      props.openEditFactoryForm(appState.factoryData)
     }
 
     onMounted(() => {
@@ -218,11 +221,11 @@ export default createComponent({
       onClickCreateFactoryButton,
       onClickFinishSelectFactoryPositionButton,
       getButtonColorFromStatus: function () {
-        if (!popupState.factoryData) {
+        if (!appState.factoryData) {
           return 'default'
         }
 
-        const status = getFactoryStatus(popupState.factoryData)
+        const status = getFactoryStatus(appState.factoryData)
         return {
           [FactoryStatus.NEW]: 'blue',
           [FactoryStatus.EXISTING_INCOMPLETE]: 'gray',

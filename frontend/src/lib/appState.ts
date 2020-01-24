@@ -24,12 +24,14 @@ export const provideAppState = () => {
   return [appState]
 }
 
-type AppState = ReturnType<typeof provideAppState>[0]
-
 const registerMutator = (appState: AppState) => {
   const { event, pageview } = useGA()
 
   return {
+    updateFactoryData (factory: FactoryData) {
+      appState.factoryData = factory
+    },
+
     openCreateFactoryForm () {
       appState.factoryData = null
       appState.formMode = 'create'
@@ -66,7 +68,10 @@ const registerMutator = (appState: AppState) => {
   }
 }
 
-export const useAppState = () => {
+type AppState = ReturnType<typeof provideAppState>[0]
+type AppAction = ReturnType<typeof registerMutator>
+
+export const useAppState: () => [AppState, AppAction]= () => {
   const appState = inject(AppStateSymbol) as AppState
 
   return [appState, registerMutator(appState)]
