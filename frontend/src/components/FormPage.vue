@@ -133,6 +133,7 @@ import { MainMapControllerSymbol } from '../symbols'
 import { useBackPressed } from '../lib/useBackPressed'
 import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
+import { useFactoryPopup } from '../lib/factoryPopup'
 
 export default createComponent({
   name: 'FormPage',
@@ -184,6 +185,7 @@ export default createComponent({
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
     let minimapController: MapFactoryController
     const [, modalActions] = useModalState()
+    const [popupState] = useFactoryPopup()
 
     const onBack = () => {
       if (mapController.value) {
@@ -295,6 +297,7 @@ export default createComponent({
 
         if (mapController.value) {
           mapController.value.updateFactory(factoryData.id, factory)
+          popupState.factoryData = factory
         }
         modalActions.openUpdateFactorySuccessModal()
       } catch (err) {
@@ -376,6 +379,7 @@ export default createComponent({
 
             if (mapController.value) {
               mapController.value.updateFactory(props.factoryData.id, factory)
+              popupState.factoryData = factory
             }
             modalActions.openUpdateFactorySuccessModal()
           } catch (err) {

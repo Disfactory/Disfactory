@@ -64,6 +64,7 @@ import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
 import { FactoryData } from './types'
 import { provideModalState, useModalState } from './lib/hooks'
+import { providePopupState } from './lib/factoryPopup'
 import { provideGA, useGA } from './lib/useGA'
 
 export default createComponent({
@@ -84,6 +85,7 @@ export default createComponent({
   },
   setup (_, context) {
     provideGA(context)
+    providePopupState()
 
     provideModalState()
     localStorage.setItem('use-app', 'true')

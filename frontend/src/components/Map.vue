@@ -54,44 +54,17 @@
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
-import { createComponent, onMounted, ref, inject, reactive, computed } from '@vue/composition-api'
-import { initializeMap, MapFactoryController, getStatusBorderColor, getFactoryStatus } from '../lib/map'
+import { createComponent, onMounted, ref, inject, computed } from '@vue/composition-api'
+import { initializeMap, MapFactoryController, getFactoryStatus } from '../lib/map'
 import { getFactories } from '../api'
 import { MainMapControllerSymbol } from '../symbols'
 import { Overlay } from 'ol'
 import OverlayPositioning from 'ol/OverlayPositioning'
-import { FactoryStatus, FactoryData, FactoryStatusText, FACTORY_TYPE } from '../types'
+import { FactoryStatus } from '../types'
 import { useBackPressed } from '../lib/useBackPressed'
 import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
-
-const generateFactorySummary = (factory: FactoryData) => {
-  const imageStatus = factory.images.length > 0 ? '已有照片' : '缺照片'
-
-  const type = FACTORY_TYPE.find(type => type.value === factory.type)
-  let typeText: string = (type && type.text) || '其他'
-
-  if (typeText.includes('金屬')) {
-    typeText = '金屬'
-  }
-
-  return [
-    imageStatus,
-    typeText
-  ].filter(Boolean).join('\n')
-}
-
-const getPopupData = (factory: FactoryData) => {
-  const status = getFactoryStatus(factory)
-
-  return {
-    id: factory.id,
-    name: factory.name,
-    color: getStatusBorderColor(status),
-    status: FactoryStatusText[status][0],
-    summary: generateFactorySummary(factory),
-  }
-}
+import { useFactoryPopup, getPopupData } from '../lib/factoryPopup'
 
 export default createComponent({
   components: {
@@ -135,16 +108,9 @@ export default createComponent({
     const factoryValid = ref(false)
     const factoryLngLat = ref<number[]>([])
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
-    const [,modalActions] = useModalState()
+    const [, modalActions] = useModalState()
 
-    const popupState = reactive({
-      show: false,
-      factoryData: null
-    }) as {
-      show: boolean,
-      factoryData: FactoryData | null
-    }
-
+    const [popupState] = useFactoryPopup()
     const popupData = computed(() => popupState.factoryData ? getPopupData(popupState.factoryData) : {})
 
     const setPopup = (id: string) => {
