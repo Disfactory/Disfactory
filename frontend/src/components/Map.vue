@@ -8,8 +8,8 @@
 
     <div class="map-container">
       <div ref="root" class="map" />
-      <div ref="popup" :class="['popup', { show: popupData.show }]" :style="{ borderColor: popupData.color }">
-        <div class="close" @click="popupData.show = false" />
+      <div ref="popup" :class="['popup', { show: popupState.show }]" :style="{ borderColor: popupData.color }">
+        <div class="close" @click="popupState.show = false" />
         <small :style="{ color: popupData.color }">{{ popupData.status }}</small>
         <h3>{{ popupData.name }}</h3>
         <p class="summary">{{ popupData.summary }}</p>
@@ -54,7 +54,7 @@
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
-import { createComponent, onMounted, ref, inject } from '@vue/composition-api'
+import { createComponent, onMounted, ref, inject, reactive, computed } from '@vue/composition-api'
 import { initializeMap, MapFactoryController, getStatusBorderColor, getFactoryStatus } from '../lib/map'
 import { getFactories } from '../api'
 import { MainMapControllerSymbol } from '../symbols'
@@ -64,6 +64,34 @@ import { FactoryStatus, FactoryData, FactoryStatusText, FACTORY_TYPE } from '../
 import { useBackPressed } from '../lib/useBackPressed'
 import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
+
+const generateFactorySummary = (factory: FactoryData) => {
+  const imageStatus = factory.images.length > 0 ? '已有照片' : '缺照片'
+
+  const type = FACTORY_TYPE.find(type => type.value === factory.type)
+  let typeText: string = (type && type.text) || '其他'
+
+  if (typeText.includes('金屬')) {
+    typeText = '金屬'
+  }
+
+  return [
+    imageStatus,
+    typeText
+  ].filter(Boolean).join('\n')
+}
+
+const getPopupData = (factory: FactoryData) => {
+  const status = getFactoryStatus(factory)
+
+  return {
+    id: factory.id,
+    name: factory.name,
+    color: getStatusBorderColor(status),
+    status: FactoryStatusText[status][0],
+    summary: generateFactorySummary(factory),
+  }
+}
 
 export default createComponent({
   components: {
@@ -109,52 +137,32 @@ export default createComponent({
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
     const [,modalActions] = useModalState()
 
-    const popupData = ref({
+    const popupState = reactive({
       show: false,
-      id: '',
-      name: '',
-      color: '',
-      status: '',
-      summary: ''
-    })
-    const popupFactoryData = ref<FactoryData>(null)
-
-    const generateFactorySummary = (factory: FactoryData) => {
-      const imageStatus = factory.images.length > 0 ? '已有照片' : '缺照片'
-
-      const type = FACTORY_TYPE.find(type => type.value === factory.type)
-      let typeText: string = (type && type.text) || '其他'
-
-      if (typeText.includes('金屬')) {
-        typeText = '金屬'
-      }
-
-      return [
-        imageStatus,
-        typeText
-      ].filter(Boolean).join('\n')
+      factoryData: null
+    }) as {
+      show: boolean,
+      factoryData: FactoryData | null
     }
+
+    const popupData = computed(() => popupState.factoryData ? getPopupData(popupState.factoryData) : {})
 
     const setPopup = (id: string) => {
       if (!mapControllerRef.value) return
       const factory = mapControllerRef.value.getFactory(id)
+
       if (factory) {
-        popupData.value.id = factory.id
-        popupData.value.name = factory.name
-        const status = getFactoryStatus(factory)
-        popupData.value.color = getStatusBorderColor(status)
-        popupData.value.status = FactoryStatusText[status][0]
-        popupData.value.show = true
-        popupData.value.summary = generateFactorySummary(factory)
-        popupFactoryData.value = factory
+        popupState.factoryData = factory
+        popupState.show = true
       }
     }
+
     const onClickEditFactoryData = () => {
-      if (!popupFactoryData.value) {
+      if (!popupState.factoryData) {
         return
       }
 
-      props.openEditFactoryForm(popupFactoryData.value)
+      props.openEditFactoryForm(popupState.factoryData)
     }
 
     onMounted(() => {
@@ -186,7 +194,7 @@ export default createComponent({
             popupOverlay.setPosition((feature.getGeometry() as any).getCoordinates())
             setPopup(feature.getId() as string)
           } else {
-            popupData.value.show = false
+            popupState.show = false
           }
         }
       })
@@ -209,7 +217,7 @@ export default createComponent({
 
       mapControllerRef.value.mapInstance.setLUILayerVisible(true)
       props.enterSelectFactoryMode()
-      popupData.value.show = false
+      popupState.show = false
 
       useBackPressed(onBack)
     }
@@ -238,16 +246,17 @@ export default createComponent({
       onNavBack () {
         onBack()
       },
+      popupState,
       popupData,
       onClickEditFactoryData,
       onClickCreateFactoryButton,
       onClickFinishSelectFactoryPositionButton,
       getButtonColorFromStatus: function () {
-        if (!popupFactoryData.value) {
+        if (!popupState.factoryData) {
           return 'default'
         }
 
-        const status = getFactoryStatus(popupFactoryData.value)
+        const status = getFactoryStatus(popupState.factoryData)
         return {
           [FactoryStatus.NEW]: 'blue',
           [FactoryStatus.EXISTING_INCOMPLETE]: 'gray',
