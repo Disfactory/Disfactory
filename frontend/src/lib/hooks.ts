@@ -41,17 +41,7 @@ export const provideModalState = () => {
   return modalState
 }
 
-type ModalState = {
-  updateFactorySuccessModal: boolean,
-  createFactorySuccessModal: boolean,
-  aboutModalOpen: boolean,
-  contactModalOpen: boolean,
-  safetyModalOpen: boolean,
-  gettingStartedModalOpen: boolean,
-
-  sidebarOpen: boolean,
-  filterModalOpen: boolean,
-}
+type ModalState = ReturnType<typeof provideModalState>
 
 type ModalActions = {
   openUpdateFactorySuccessModal: Function,
