@@ -32,7 +32,8 @@ export const provideModalState = () => {
     safetyModalOpen: false,
     gettingStartedModalOpen: localStorage.getItem('use-app') !== 'true',
 
-    sidebarOpen: false
+    sidebarOpen: false,
+    filterModalOpen: false,
   })
 
   provide(ModalStateSymbol, modalState)
@@ -48,7 +49,8 @@ type ModalState = {
   safetyModalOpen: boolean,
   gettingStartedModalOpen: boolean,
 
-  sidebarOpen: boolean
+  sidebarOpen: boolean,
+  filterModalOpen: boolean,
 }
 
 type ModalActions = {
@@ -70,7 +72,10 @@ type ModalActions = {
   openGettingStartedModal: Function,
   closeGettingStartedModal: Function,
 
-  toggleSidebar: Function
+  toggleSidebar: Function,
+
+  closeFilterModal: Function,
+  openFilterModal: Function,
 }
 
 export const useModalState: () => [ModalState, ModalActions] = () => {
@@ -101,6 +106,15 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
     modalState.sidebarOpen = open
   }
 
+  const closeFilterModal = () => {
+    event('closeFilterModal')
+    modalState.filterModalOpen = false
+  }
+  const openFilterModal = () => {
+    event('openFilterModal')
+    modalState.filterModalOpen = true
+  }
+
   const modalActions = {
     openUpdateFactorySuccessModal,
     closeUpdateFactorySuccessModal,
@@ -120,7 +134,9 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
     openGettingStartedModal,
     closeGettingStartedModal,
 
-    toggleSidebar
+    toggleSidebar,
+    openFilterModal,
+    closeFilterModal
   }
 
   return [modalState, modalActions]

@@ -3,7 +3,7 @@
     <app-navbar :hide="appState.factoryFormOpen || appState.selectFactoryMode" :fixed="true" @menu="modalActions.toggleSidebar">農地違章工廠舉報</app-navbar>
     <app-sidebar v-model="modalState.sidebarOpen" :clickActions="sidebarActions" />
 
-    <filter-modal :open="appState.filterModalOpen" :dismiss="closeFilterModal" />
+    <filter-modal :open="modalState.filterModalOpen" :dismiss="modalActions.closeFilterModal" />
     <create-factory-success-modal
       :open="modalState.createFactorySuccessModal"
       :dismiss="modalActions.closeCreateFactorySuccessModal"
@@ -24,7 +24,7 @@
       :enterSelectFactoryMode="enterSelectFactoryMode"
       :exitSelectFactoryMode="exitSelectFactoryMode"
       :setFactoryLocation="setFactoryLocation"
-      :openFilterModal="openFilterModal"
+      :openFilterModal="modalActions.openFilterModal"
     />
 
     <form-page
@@ -95,9 +95,6 @@ export default createComponent({
     const { pageview, event } = useGA()
 
     const appState = reactive({
-      // Modal open states
-      filterModalOpen: false,
-
       // Page state
       // TODO: should be rewritten with vue router?
       formMode: 'create',
@@ -108,17 +105,6 @@ export default createComponent({
       // Map state
       selectFactoryMode: false
     })
-
-    // Modal state utilities
-    function closeFilterModal () {
-      event('closeFilterModal')
-      appState.filterModalOpen = false
-    }
-
-    function openFilterModal () {
-      event('openFilterModal')
-      appState.filterModalOpen = true
-    }
 
     // Form Editing functions
     const openCreateFactoryForm = () => {
@@ -166,10 +152,6 @@ export default createComponent({
         modalActions.openContactModal,
         modalActions.openAboutModal
       ],
-
-      // Modal state utilities
-      openFilterModal,
-      closeFilterModal,
 
       openCreateFactoryForm,
       openEditFactoryForm,
