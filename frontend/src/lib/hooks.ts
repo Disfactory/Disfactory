@@ -46,7 +46,7 @@ type ModalState = {
   aboutModalOpen: boolean,
   contactModalOpen: boolean,
   safetyModalOpen: boolean,
-  gettingStartedModalOpen: boolean
+  gettingStartedModalOpen: boolean,
 
   sidebarOpen: boolean
 }
@@ -68,7 +68,7 @@ type ModalActions = {
   closeSafetyModal: Function,
 
   openGettingStartedModal: Function,
-  closeGettingStartedModal: Function
+  closeGettingStartedModal: Function,
 
   toggleSidebar: Function
 }
