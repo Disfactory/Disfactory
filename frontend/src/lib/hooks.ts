@@ -1,5 +1,4 @@
-import { ref, Ref, provide, inject, reactive } from '@vue/composition-api'
-import { useGA } from './useGA'
+import { ref, Ref, provide, inject, reactive, InjectionKey } from '@vue/composition-api'
 
 export const useModal = (defaultOpen = false): [Ref<boolean>, { open: () => void, dismiss: () => void }] => {
   const state = ref(defaultOpen)
@@ -21,7 +20,7 @@ export const useModal = (defaultOpen = false): [Ref<boolean>, { open: () => void
   ]
 }
 
-const ModalStateSymbol = Symbol('GASymbol')
+const ModalStateSymbol: InjectionKey<ModalState> = Symbol('ModalStateSymbol')
 
 export const provideModalState = () => {
   const modalState = reactive({
@@ -69,8 +68,11 @@ type ModalActions = {
 }
 
 export const useModalState: () => [ModalState, ModalActions] = () => {
-  const modalState = inject(ModalStateSymbol) as ModalState
-  const { event } = useGA()
+  const modalState = inject(ModalStateSymbol)
+
+  if (!modalState) {
+    throw new Error('Use useModalState before provideModalState')
+  }
 
   const openUpdateFactorySuccessModal = () => { modalState.updateFactorySuccessModal = true }
   const closeUpdateFactorySuccessModal = () => { modalState.updateFactorySuccessModal = false }
@@ -92,16 +94,13 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
 
   const toggleSidebar = () => {
     const open = !modalState.sidebarOpen
-    event('toggleSidebar', { target: open })
     modalState.sidebarOpen = open
   }
 
   const closeFilterModal = () => {
-    event('closeFilterModal')
     modalState.filterModalOpen = false
   }
   const openFilterModal = () => {
-    event('openFilterModal')
     modalState.filterModalOpen = true
   }
 

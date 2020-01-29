@@ -62,10 +62,8 @@ import UpdateFactorySuccessModal from '@/components/UpdateFactorySuccessModal.vu
 
 import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
-import { FactoryData } from './types'
 import { provideModalState, useModalState } from './lib/hooks'
 import { providePopupState } from './lib/factoryPopup'
-import { provideGA, useGA } from './lib/useGA'
 import { provideAppState, useAppState } from './lib/appState'
 
 export default createComponent({
@@ -84,8 +82,7 @@ export default createComponent({
     UpdateFactorySuccessModal,
     FormPage
   },
-  setup (_, context) {
-    provideGA(context)
+  setup () {
     providePopupState()
     provideAppState()
 
@@ -93,9 +90,6 @@ export default createComponent({
     localStorage.setItem('use-app', 'true')
 
     const [modalState, modalActions] = useModalState()
-
-    const { pageview, event } = useGA()
-
     const [appState, appActions] = useAppState()
 
     // register global accessible map instance
