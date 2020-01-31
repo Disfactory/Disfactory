@@ -1,6 +1,6 @@
 # Disfactory 違章工廠舉報系統
 
-[![g0v-disfactory-badge][g0v-disfactory-badge]](https://github.com/Disfactory/Disfactory) [![CircleCI](https://circleci.com/gh/Disfactory/Disfactory.svg?style=svg)](https://circleci.com/gh/Disfactory/Disfactory) [![g0v-tw-slack](http://join.g0v.today/badge.svg)](http://join.g0v.today/)
+[![g0v-disfactory-badge][g0v-disfactory-badge]](https://github.com/Disfactory/Disfactory) [![CircleCI](https://circleci.com/gh/Disfactory/Disfactory.svg?style=svg)](https://circleci.com/gh/Disfactory/Disfactory) [![g0v-tw-slack](http://join.g0v.tw/badge.svg)](http://join.g0v.tw/)
 
 ![logo](https://github.com/yoyo930021/Disfactory/raw/master/docs/images/Logo_Banner.png)
 
