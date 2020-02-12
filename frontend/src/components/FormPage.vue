@@ -133,6 +133,7 @@ import { MainMapControllerSymbol } from '../symbols'
 import { useBackPressed } from '../lib/useBackPressed'
 import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
+import { useAppState } from '../lib/appState'
 
 export default createComponent({
   name: 'FormPage',
@@ -184,6 +185,7 @@ export default createComponent({
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
     let minimapController: MapFactoryController
     const [, modalActions] = useModalState()
+    const [appState] = useAppState()
 
     const onBack = () => {
       if (mapController.value) {
@@ -295,6 +297,7 @@ export default createComponent({
 
         if (mapController.value) {
           mapController.value.updateFactory(factoryData.id, factory)
+          appState.factoryData = factory
         }
         modalActions.openUpdateFactorySuccessModal()
       } catch (err) {
@@ -369,13 +372,15 @@ export default createComponent({
           // TODO: refactor into sepearte method...
           try {
             const factory = { ...props.factoryData } as FactoryData
+            const images = _images as FactoryImage[]
 
-            factoryFormState.imageUrls = factoryFormState.imageUrls.concat((_images as FactoryImage[]).map(image => image.image_path))
+            factoryFormState.imageUrls = factoryFormState.imageUrls.concat(images.map(image => image.image_path))
 
-            factory.images = factory.images.concat(_images as FactoryImage[])
+            factory.images = factory.images.concat(images)
 
             if (mapController.value) {
               mapController.value.updateFactory(props.factoryData.id, factory)
+              appState.factoryData = factory
             }
             modalActions.openUpdateFactorySuccessModal()
           } catch (err) {

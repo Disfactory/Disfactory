@@ -8,8 +8,8 @@
 
     <div class="map-container">
       <div ref="root" class="map" />
-      <div ref="popup" :class="['popup', { show: popupData.show }]" :style="{ borderColor: popupData.color }">
-        <div class="close" @click="popupData.show = false" />
+      <div ref="popup" :class="['popup', { show: popupState.show }]" :style="{ borderColor: popupData.color }">
+        <div class="close" @click="popupState.show = false" />
         <small :style="{ color: popupData.color }">{{ popupData.status }}</small>
         <h3>{{ popupData.name }}</h3>
         <p class="summary">{{ popupData.summary }}</p>
@@ -54,16 +54,18 @@
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
-import { createComponent, onMounted, ref, inject } from '@vue/composition-api'
-import { initializeMap, MapFactoryController, getStatusBorderColor, getFactoryStatus } from '../lib/map'
+import { createComponent, onMounted, ref, inject, computed } from '@vue/composition-api'
+import { initializeMap, MapFactoryController, getFactoryStatus } from '../lib/map'
 import { getFactories } from '../api'
 import { MainMapControllerSymbol } from '../symbols'
 import { Overlay } from 'ol'
 import OverlayPositioning from 'ol/OverlayPositioning'
-import { FactoryStatus, FactoryData, FactoryStatusText, FACTORY_TYPE } from '../types'
+import { FactoryStatus } from '../types'
 import { useBackPressed } from '../lib/useBackPressed'
 import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
+import { useFactoryPopup, getPopupData } from '../lib/factoryPopup'
+import { useAppState } from '../lib/appState'
 
 export default createComponent({
   components: {
@@ -107,54 +109,29 @@ export default createComponent({
     const factoryValid = ref(false)
     const factoryLngLat = ref<number[]>([])
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
-    const [,modalActions] = useModalState()
 
-    const popupData = ref({
-      show: false,
-      id: '',
-      name: '',
-      color: '',
-      status: '',
-      summary: ''
-    })
-    const popupFactoryData = ref<FactoryData>(null)
+    const [, modalActions] = useModalState()
+    const [appState, appActions] = useAppState()
 
-    const generateFactorySummary = (factory: FactoryData) => {
-      const imageStatus = factory.images.length > 0 ? '已有照片' : '缺照片'
-
-      const type = FACTORY_TYPE.find(type => type.value === factory.type)
-      let typeText: string = (type && type.text) || '其他'
-
-      if (typeText.includes('金屬')) {
-        typeText = '金屬'
-      }
-
-      return [
-        imageStatus,
-        typeText
-      ].filter(Boolean).join('\n')
-    }
+    const [popupState] = useFactoryPopup()
+    const popupData = computed(() => appState.factoryData ? getPopupData(appState.factoryData) : {})
 
     const setPopup = (id: string) => {
       if (!mapControllerRef.value) return
       const factory = mapControllerRef.value.getFactory(id)
+
       if (factory) {
-        popupData.value.id = factory.id
-        popupData.value.name = factory.name
-        const status = getFactoryStatus(factory)
-        popupData.value.color = getStatusBorderColor(status)
-        popupData.value.status = FactoryStatusText[status][0]
-        popupData.value.show = true
-        popupData.value.summary = generateFactorySummary(factory)
-        popupFactoryData.value = factory
+        appState.factoryData = factory
+        popupState.show = true
       }
     }
+
     const onClickEditFactoryData = () => {
-      if (!popupFactoryData.value) {
+      if (!appState.factoryData) {
         return
       }
 
-      props.openEditFactoryForm(popupFactoryData.value)
+      props.openEditFactoryForm(appState.factoryData)
     }
 
     onMounted(() => {
@@ -186,7 +163,7 @@ export default createComponent({
             popupOverlay.setPosition((feature.getGeometry() as any).getCoordinates())
             setPopup(feature.getId() as string)
           } else {
-            popupData.value.show = false
+            popupState.show = false
           }
         }
       })
@@ -209,7 +186,7 @@ export default createComponent({
 
       mapControllerRef.value.mapInstance.setLUILayerVisible(true)
       props.enterSelectFactoryMode()
-      popupData.value.show = false
+      popupState.show = false
 
       useBackPressed(onBack)
     }
@@ -238,16 +215,17 @@ export default createComponent({
       onNavBack () {
         onBack()
       },
+      popupState,
       popupData,
       onClickEditFactoryData,
       onClickCreateFactoryButton,
       onClickFinishSelectFactoryPositionButton,
       getButtonColorFromStatus: function () {
-        if (!popupFactoryData.value) {
+        if (!appState.factoryData) {
           return 'default'
         }
 
-        const status = getFactoryStatus(popupFactoryData.value)
+        const status = getFactoryStatus(appState.factoryData)
         return {
           [FactoryStatus.NEW]: 'blue',
           [FactoryStatus.EXISTING_INCOMPLETE]: 'gray',

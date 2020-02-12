@@ -136,6 +136,12 @@ export class MapFactoryController {
 
   public updateFactory (id: string, factory: FactoryData) {
     this.factoryMap.set(id, factory)
+
+    // Update factory feature style base on new data
+    const feature = this.factoriesLayerSource.getFeatureById(id)
+    if (feature) {
+      feature.setStyle(this.getFactoryStyle(factory))
+    }
   }
 
   public addFactories (factories: FactoryData[]) {

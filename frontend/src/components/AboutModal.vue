@@ -18,13 +18,13 @@
         <p>
           本系統感謝 g0v.tw 社群朋友共同開發。
         </p>
-        
+
         <p>
           既有疑似違章工廠資料來源為 2019 年 7 月 30 日取自內政部國土測繪圖資雲<a href="https://maps.nlsc.gov.tw/">網站</a>。
         </p>
-        
+
         <p>
-          全站使用者貢獻資料以 <a href="https://creativecommons.org/licenses/by/3.0/tw/">CC BY 姓名標示 3.0</a> 釋出，標註「© 農地違章工廠舉報小幫手貢獻者」，原始碼以 MIT 開放授權公開在 <a href="https://github.com/Disfactory/Disfactory">GitHub</a> 上 
+          全站使用者貢獻資料以 <a href="https://creativecommons.org/licenses/by/3.0/tw/">CC BY 姓名標示 3.0</a> 釋出，標註「© 農地違章工廠舉報小幫手貢獻者」，原始碼以 MIT 開放授權公開在 <a href="https://github.com/Disfactory/Disfactory">GitHub</a> 上
         </p>
       </div>
     </app-modal>
