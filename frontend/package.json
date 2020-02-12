@@ -15,8 +15,7 @@
     "fibers": "^4.0.2",
     "normalize.css": "^8.0.1",
     "vue": "^2.6.10",
-    "vue-carousel": "^0.18.0",
-    "vue-gtag": "^1.1.1"
+    "vue-carousel": "^0.18.0"
   },
   "devDependencies": {
     "@types/chai": "^4.2.5",

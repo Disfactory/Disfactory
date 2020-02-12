@@ -1,5 +1,4 @@
 import { inject, provide, reactive } from '@vue/composition-api'
-import { useGA } from './useGA'
 import { FactoryData } from '../types'
 
 const AppStateSymbol = Symbol('AppState')
@@ -25,7 +24,6 @@ export const provideAppState = () => {
 }
 
 const registerMutator = (appState: AppState) => {
-  const { event, pageview } = useGA()
 
   return {
     updateFactoryData (factory: FactoryData) {
@@ -36,34 +34,28 @@ const registerMutator = (appState: AppState) => {
       appState.factoryData = null
       appState.formMode = 'create'
       appState.factoryFormOpen = true
-      pageview('/create')
     },
 
     openEditFactoryForm (factory: FactoryData) {
       appState.factoryData = factory
       appState.formMode = 'edit'
       appState.factoryFormOpen = true
-      pageview('/edit')
     },
 
     closeFactoryPage () {
       appState.factoryFormOpen = false
-      event('closeFactoryPage')
     },
 
     setFactoryLocation (value: [number, number]) {
       appState.factoryLocation = value
-      event('setFactoryLocation')
     },
 
     enterSelectFactoryMode () {
       appState.selectFactoryMode = true
-      event('enterSelectFactoryMode')
     },
 
     exitSelectFactoryMode () {
       appState.selectFactoryMode = false
-      event('exitSelectFactoryMode')
     }
   }
 }
