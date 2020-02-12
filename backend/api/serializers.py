@@ -81,3 +81,22 @@ class FactorySerializer(ModelSerializer):
         if value < settings.TAIWAN_MIN_LONGITUDE or value > settings.TAIWAN_MAX_LONGITUDE:
             raise ValidationError(f"longitude should be within {settings.TAIWAN_MIN_LONGITUDE} ~ {settings.TAIWAN_MAX_LONGITUDE}, but got {value}")
 
+
+class ReportRecordSerializer(ModelSerializer):
+
+    images = ImageSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = ReportRecord
+        fields = [
+            'id',
+            'factory',
+            'user_ip',
+            'action_type',
+            'action_body',
+            'created_at',
+            'nickname',
+            'contact',
+            'others',
+            'images',
+        ]

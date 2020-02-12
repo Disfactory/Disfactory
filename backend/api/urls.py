@@ -18,6 +18,7 @@ from django.urls import path
 from .views import (
     get_nearby_or_create_factories,
     update_factory_attribute,
+    get_factory_report,
     post_image,
     post_factory_image,
 )
@@ -26,6 +27,7 @@ from .views import (
 urlpatterns = [
     path("factories", get_nearby_or_create_factories),
     path("factories/<factory_id>", update_factory_attribute),
+    path("factories/<factory_id>/report_records", get_factory_report),
     path("factories/<factory_id>/images", post_factory_image),
     path("images", post_image),
 ]
