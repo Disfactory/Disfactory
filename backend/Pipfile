@@ -6,6 +6,8 @@ verify_ssl = true
 [dev-packages]
 black = "==19.3b0"
 freezegun = "*"
+pylint = "*"
+pylint-django = "*"
 
 [packages]
 django = "==2.2.10"
