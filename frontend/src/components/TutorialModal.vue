@@ -1,8 +1,14 @@
 <template>
   <div class="tutorial-modal-container">
     <app-modal :open="open" :dismiss="onDismissClick">
+      <div class="back-button" v-if="isAdd || isUpdate" @click="openHome">
+        <span />
+        <span />
+        <span />
+      </div>
+
       <div class="page">
-        <div id="tutorial-home" v-if="isHome">
+        <div id="tutorial-home" v-show="isHome">
           <h2>使用說明</h2>
 
           <p>
@@ -14,12 +20,22 @@
           <div class="outline-button" @click="openUpdate">如何在一筆資料裡<br>補充更多資訊？</div>
         </div>
 
-        <div id="tutorial-add-factory" v-if="isAdd">
+        <div id="tutorial-add-factory" v-show="isAdd">
 
+          <carousel :per-page="1" paginationActiveColor='#6E8501' paginationColor='#e3e3e3' :paginationPadding="5">
+            <slide v-for="(image, index) in addImages" :key="image">
+              <h2>新增違章工廠({{index + 1}}/5)</h2>
+              <img :src="image">
+            </slide>
+          </carousel>
         </div>
 
-        <div id="tutorial-update-factory" v-if="isUpdate">
+        <div id="tutorial-update-factory" v-show="isUpdate">
           <carousel :per-page="1" paginationActiveColor='#6E8501' paginationColor='#e3e3e3' :paginationPadding="5">
+            <slide v-for="(image, index) in updateImages" :key="image">
+              <h2>補充工廠資訊({{index + 1}}/2)</h2>
+              <img :src="image">
+            </slide>
           </carousel>
         </div>
 
@@ -60,28 +76,24 @@ export default createComponent({
     const openAdd = () => page.value = 'add'
     const openUpdate = () => page.value = 'update'
 
+    const addImages = new Array(5).fill(true).map((_, index) => `/images/tutorial/new_${index + 1}.png`)
+    const updateImages = new Array(2).fill(true).map((_, index) => `/images/tutorial/update_${index + 1}.png`)
+
     const onDismissClick = () => {
-      switch (page.value) {
-        case 'home':
-          props.dismiss()
-          break
-        case 'add':
-        case 'update':
-          openHome()
-          break
-        default:
-          props.dismiss()
-          break
-      }
+      openHome()
+      props.dismiss()
     }
 
     return {
       isHome,
       isAdd,
       isUpdate,
-      onDismissClick,
+      openHome,
       openAdd,
-      openUpdate
+      openUpdate,
+      addImages,
+      updateImages,
+      onDismissClick
     }
   }
 })
@@ -90,24 +102,20 @@ export default createComponent({
 <style lang="scss">
 @import '@/styles/page';
 @import '@/styles/variables';
+@import '@/styles/components/back-button';
 
 .tutorial-modal-container .app-modal {
   top: 20px;
   max-height: 100%;
   max-width: calc(100% - 20px);
-  padding: 35px 45px;
+  padding: 70px 45px 35px;
 
   .page {
     height: auto;
 
     img {
-      height: 200px;
       display: block;
       margin: 0 auto;
-
-      @media (max-width: 480px) {
-        height: 130px;
-      }
     }
 
     h2 {
@@ -120,6 +128,14 @@ export default createComponent({
         font-weight: bold;
         margin-top: 2em;
         margin-bottom: 2em;
+      }
+    }
+
+    #tutorial-add-factory, #tutorial-update-factory {
+      h2 {
+        margin-right: 0;
+        text-align: center;
+        color: $primary-color;
       }
     }
   }
@@ -135,6 +151,12 @@ export default createComponent({
       color: white;
       background-color: $primary-color;
     }
+  }
+
+  .back-button {
+    position: absolute;
+    top: 24px;
+    left: 22px;
   }
 }
 </style>
