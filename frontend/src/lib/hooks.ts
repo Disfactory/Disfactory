@@ -30,6 +30,7 @@ export const provideModalState = () => {
     contactModalOpen: false,
     safetyModalOpen: false,
     gettingStartedModalOpen: localStorage.getItem('use-app') !== 'true',
+    tutorialModalOpen: false,
 
     sidebarOpen: false,
     filterModalOpen: false,
@@ -65,6 +66,9 @@ type ModalActions = {
 
   closeFilterModal: Function,
   openFilterModal: Function,
+
+  closeTutorialModal: Function,
+  openTutorialModal: Function
 }
 
 export const useModalState: () => [ModalState, ModalActions] = () => {
@@ -91,6 +95,9 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
 
   const openGettingStartedModal = () => { modalState.gettingStartedModalOpen = true }
   const closeGettingStartedModal = () => { modalState.gettingStartedModalOpen = false }
+
+  const openTutorialModal = () => { modalState.tutorialModalOpen = true }
+  const closeTutorialModal = () => { modalState.tutorialModalOpen = false }
 
   const toggleSidebar = () => {
     const open = !modalState.sidebarOpen
@@ -122,6 +129,9 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
 
     openGettingStartedModal,
     closeGettingStartedModal,
+
+    openTutorialModal,
+    closeTutorialModal,
 
     toggleSidebar,
     openFilterModal,

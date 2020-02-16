@@ -16,6 +16,7 @@
     <contact-modal :open="modalState.contactModalOpen" :dismiss="modalActions.closeContactModal" />
     <getting-started-modal :open="modalState.gettingStartedModalOpen" :dismiss="modalActions.closeGettingStartedModal" />
     <safety-modal :open="modalState.safetyModalOpen" :dismiss="modalActions.closeSafetyModal" />
+    <tutorial-modal :open="modalState.tutorialModalOpen" :dismiss="modalActions.closeTutorialModal" />
 
     <Map
       :openCreateFactoryForm="appActions.openCreateFactoryForm"
@@ -56,6 +57,7 @@ import FilterModal from '@/components/FilterModal.vue'
 import AboutModal from '@/components/AboutModal.vue'
 import ContactModal from '@/components/ContactModal.vue'
 import GettingStartedModal from '@/components/GettingStartedModal.vue'
+import TutorialModal from '@/components/TutorialModal.vue'
 import SafetyModal from '@/components/SafetyModal.vue'
 import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
 import UpdateFactorySuccessModal from '@/components/UpdateFactorySuccessModal.vue'
@@ -80,6 +82,7 @@ export default createComponent({
     SafetyModal,
     CreateFactorySuccessModal,
     UpdateFactorySuccessModal,
+    TutorialModal,
     FormPage
   },
   setup () {
@@ -99,7 +102,7 @@ export default createComponent({
       appState,
       appActions,
       sidebarActions: [
-        () => {},
+        modalActions.openTutorialModal,
         modalActions.openSafetyModal,
         modalActions.openContactModal,
         modalActions.openAboutModal
