@@ -31,7 +31,7 @@ export default createComponent({
   },
   setup (_, context) {
     const links = ref([
-      { text: '使用教學' },
+      { text: '使用說明' },
       { text: '安全須知' },
       { text: '聯絡我們' },
       { text: '關於舉報系統' }
