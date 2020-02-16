@@ -72,15 +72,16 @@ export default createComponent({
     const isAdd = computed(() => page.value === 'add')
     const isUpdate = computed(() => page.value === 'update')
 
-    const openHome = () => page.value = 'home'
-    const openAdd = () => page.value = 'add'
-    const openUpdate = () => page.value = 'update'
+    const openHome = () => { page.value = 'home' }
+    const openAdd = () => { page.value = 'add' }
+    const openUpdate = () => { page.value = 'update' }
 
     const addImages = new Array(5).fill(true).map((_, index) => `/images/tutorial/new_${index + 1}.png`)
     const updateImages = new Array(2).fill(true).map((_, index) => `/images/tutorial/update_${index + 1}.png`)
 
     const onDismissClick = () => {
       openHome()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       props.dismiss!()
     }
 

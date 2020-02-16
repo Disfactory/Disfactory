@@ -24,7 +24,6 @@ export const provideAppState = () => {
 }
 
 const registerMutator = (appState: AppState) => {
-
   return {
     updateFactoryData (factory: FactoryData) {
       appState.factoryData = factory
@@ -63,7 +62,7 @@ const registerMutator = (appState: AppState) => {
 type AppState = ReturnType<typeof provideAppState>[0]
 type AppAction = ReturnType<typeof registerMutator>
 
-export const useAppState: () => [AppState, AppAction]= () => {
+export const useAppState: () => [AppState, AppAction] = () => {
   const appState = inject(AppStateSymbol) as AppState
 
   return [appState, registerMutator(appState)]

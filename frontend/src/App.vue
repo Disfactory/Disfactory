@@ -45,7 +45,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, provide, reactive } from '@vue/composition-api'
+import { createComponent, ref, provide } from '@vue/composition-api'
 
 import Map from '@/components/Map.vue'
 import AppNavbar from '@/components/AppNavbar.vue'

@@ -33,7 +33,7 @@ export const provideModalState = () => {
     tutorialModalOpen: false,
 
     sidebarOpen: false,
-    filterModalOpen: false,
+    filterModalOpen: false
   })
 
   provide(ModalStateSymbol, modalState)
