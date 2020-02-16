@@ -81,7 +81,7 @@ export default createComponent({
 
     const onDismissClick = () => {
       openHome()
-      props.dismiss()
+      props.dismiss!()
     }
 
     return {
