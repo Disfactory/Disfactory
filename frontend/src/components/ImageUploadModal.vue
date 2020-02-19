@@ -26,7 +26,7 @@
     />
 
     <div style="margin-top: 35px;">
-      <app-button @click="handleImagesUpload()" :disabled="formState.uploading">
+      <app-button @click="handleImagesUpload()" :disabled="formState.uploading" data-label="image-upload-submit">
         {{ formState.uploading ? '上傳中' : '上傳照片' }}
       </app-button>
     </div>

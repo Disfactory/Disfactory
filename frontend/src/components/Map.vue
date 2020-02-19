@@ -9,22 +9,22 @@
     <div class="map-container">
       <div ref="root" class="map" />
       <div ref="popup" :class="['popup', { show: popupState.show }]" :style="{ borderColor: popupData.color }">
-        <div class="close" @click="popupState.show = false" />
+        <div class="close" @click="popupState.show = false" data-label="map-popup-close" />
         <small :style="{ color: popupData.color }">{{ popupData.status }}</small>
         <h3>{{ popupData.name }}</h3>
         <p class="summary">{{ popupData.summary }}</p>
-        <app-button outline @click="onClickEditFactoryData" :color="getButtonColorFromStatus()">
+        <app-button outline @click="onClickEditFactoryData" :color="getButtonColorFromStatus()" data-label="map-popup-modify">
           補充資料
         </app-button>
       </div>
 
-      <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal">
+      <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal" data-label="map-search">
         <button>
           <img src="/images/search.svg" alt="search">
         </button>
       </div>
 
-      <div class="ol-fit-location ol-unselectable ol-control" @click="zoomToGeolocation">
+      <div class="ol-fit-location ol-unselectable ol-control" @click="zoomToGeolocation" data-label="map-locate">
         <button>
           <img src="/images/locate.svg" alt="locate">
         </button>
@@ -34,13 +34,14 @@
 
       <div class="factory-button-group">
         <div class="create-factory-button" v-if="!selectFactoryMode">
-          <app-button @click="onClickCreateFactoryButton">我要新增違章工廠</app-button>
+          <app-button @click="onClickCreateFactoryButton" data-label="map-create-factory">我要新增違章工廠</app-button>
         </div>
 
         <div class="choose-location-button" v-if="selectFactoryMode">
           <app-button
             @click="onClickFinishSelectFactoryPositionButton"
             :disabled="!factoryValid"
+            data-label="map-select-position"
           >
             選擇此地點
           </app-button>

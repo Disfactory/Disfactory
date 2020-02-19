@@ -1,13 +1,13 @@
 <template>
   <nav :class="{ dark, fixed, hide }">
-    <div class="back-button" @click="onBackClick()" v-show="!dark">
+    <div class="back-button" @click="onBackClick()" v-show="!dark" data-label="navbar-back">
       <span />
       <span />
       <span />
     </div>
     <div class="back-placeholder" v-show="dark" />
     <slot />
-    <div class="menu-button" @click="onMenuClick()">
+    <div class="menu-button" @click="onMenuClick()" data-label="navbar-menu">
       <span />
       <span />
       <span />

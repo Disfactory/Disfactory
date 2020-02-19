@@ -16,7 +16,7 @@
           </label>
         </div>
         <div style="margin-bottom: 10px;">
-          <app-button @click="onClick()">確認</app-button>
+          <app-button @click="onClick()" data-label="filter-apply">確認</app-button>
         </div>
       </div>
     </app-modal>

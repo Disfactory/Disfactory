@@ -1,7 +1,7 @@
 <template>
   <app-modal :open="open" :dismiss="dismiss" :showCloseButon="false">
     <h3>感謝您新增資訊！</h3>
-    <app-button @click="dismiss">確認</app-button>
+    <app-button @click="dismiss" data-label="create-factory-success-close">確認</app-button>
   </app-modal>
 </template>
 
