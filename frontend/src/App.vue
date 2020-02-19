@@ -105,6 +105,7 @@ export default createComponent({
         modalActions.openTutorialModal,
         modalActions.openSafetyModal,
         modalActions.openContactModal,
+        'https://about.disfactory.tw',
         modalActions.openAboutModal
       ],
       modalState,
