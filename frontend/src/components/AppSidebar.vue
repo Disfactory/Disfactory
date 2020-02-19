@@ -1,12 +1,12 @@
 <template>
-  <div :class="{ base: true, open: value }" @click="close">
+  <div :class="{ base: true, open: value }" @click="close" data-label="sidebar-close">
     <div :class="{ sidebar: true, open: value }">
-      <div class="close" @click="close" />
+      <div class="close" @click="close" data-label="sidebar-close" />
       <h1>主選單</h1>
       <hr />
       <ul>
         <li v-for="(link,index) in links" :key="index">
-          <a @click.stop="clickActions[index]">{{ link.text }}</a>
+          <a @click.stop="clickActions[index]" :data-label="`sidebar-${link.text}`">{{ link.text }}</a>
         </li>
       </ul>
     </div>
