@@ -3,7 +3,6 @@ version: '3.7'
 services:
   web:
     build: .
-    command: python -m gunicorn -c gunicorn.conf.py gis_project.wsgi
     volumes:
       - .:/Disfactory
     ports:
@@ -19,6 +18,12 @@ services:
       DISFACTORY_ALLOWED_HOST:  dev.disfactory.tw,127.0.0.1,localhost
       DISFACTORY_IMGUR_CLIENT_ID: ''
       DISFACTORY_IMGUR_SECRET: ''
+    command:
+      - /bin/sh
+      - -c
+      - |
+        python manage.py migrate
+        python manage.py runserver 0.0.0.0:8000
 
   db:
     image: mdillon/postgis:11-alpine
