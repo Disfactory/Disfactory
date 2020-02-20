@@ -6,7 +6,7 @@
       <hr />
       <ul>
         <li v-for="(link,index) in links" :key="index">
-          <a @click.stop="clickActions[index]" :data-label="`sidebar-${link.text}`">{{ link.text }}</a>
+          <a @click.stop="onClick(clickActions[index])" :data-label="`sidebar-${link.text}`" :href="getHref(clickActions[index])" :target="getTarget(clickActions[index])">{{ link.text }}</a>
         </li>
       </ul>
     </div>
@@ -31,9 +31,10 @@ export default createComponent({
   },
   setup (_, context) {
     const links = ref([
-      { text: '使用教學' },
+      { text: '使用說明' },
       { text: '安全須知' },
       { text: '聯絡我們' },
+      { text: '常見問題' },
       { text: '關於舉報系統' }
     ])
     const close = () => {
@@ -42,7 +43,26 @@ export default createComponent({
 
     return {
       links,
-      close
+      close,
+      onClick: (cb) => {
+        if (typeof cb === 'function') {
+          cb()
+        }
+      },
+      getHref: (str) => {
+        if (typeof str === 'string') {
+          return str
+        } else {
+          return null
+        }
+      },
+      getTarget: (str) => {
+        if (typeof str === 'string') {
+          return '_blank'
+        } else {
+          return null
+        }
+      }
     }
   }
 })

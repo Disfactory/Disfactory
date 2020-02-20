@@ -5,12 +5,12 @@ import { getStatusBorderColor, getFactoryStatus } from './map'
 const FactoryPopupSymbol = Symbol('FactoryPopup')
 
 export type FactoryPopupState = {
-  show: boolean,
+  show: boolean
 }
 
 export const providePopupState = () => {
   const popupState = reactive({
-    show: false,
+    show: false
   })
 
   provide(FactoryPopupSymbol, popupState)

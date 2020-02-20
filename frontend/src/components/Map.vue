@@ -110,7 +110,7 @@ export default createComponent({
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
     const [, modalActions] = useModalState()
-    const [appState, ] = useAppState()
+    const [appState] = useAppState()
 
     const [popupState] = useFactoryPopup()
     const popupData = computed(() => appState.factoryData ? getPopupData(appState.factoryData) : {})
