@@ -1,12 +1,14 @@
+import os
 import sys
 import csv
 from datetime import datetime
 
 from django.db import migrations
+from django.conf import settings
 from django.contrib.gis.geos import Point
 
 
-SEED_DATA_PATH = "fixtures/full-info.csv"
+SEED_DATA_PATH = os.path.join(settings.BASE_DIR, "fixtures/full-info.csv")
 
 
 def forward_func(apps, schema_editor):
