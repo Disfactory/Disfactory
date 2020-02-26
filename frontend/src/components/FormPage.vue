@@ -369,7 +369,7 @@ export default createComponent({
             const factory = { ...props.factoryData } as FactoryData
             const images = _images as FactoryImage[]
 
-            factoryFormState.imageUrls = factoryFormState.imageUrls.concat(images.map(image => image.image_path))
+            factoryFormState.imageUrls = factoryFormState.imageUrls.concat(imageUrls)
 
             factory.images = factory.images.concat(images)
 
