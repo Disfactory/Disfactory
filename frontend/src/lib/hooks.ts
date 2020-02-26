@@ -1,5 +1,4 @@
-import { ref, Ref, provide, inject, reactive } from '@vue/composition-api'
-import { useGA } from './useGA'
+import { ref, Ref, provide, inject, reactive, InjectionKey } from '@vue/composition-api'
 
 export const useModal = (defaultOpen = false): [Ref<boolean>, { open: () => void, dismiss: () => void }] => {
   const state = ref(defaultOpen)
@@ -21,7 +20,7 @@ export const useModal = (defaultOpen = false): [Ref<boolean>, { open: () => void
   ]
 }
 
-const ModalStateSymbol = Symbol('GASymbol')
+const ModalStateSymbol: InjectionKey<ModalState> = Symbol('ModalStateSymbol')
 
 export const provideModalState = () => {
   const modalState = reactive({
@@ -31,8 +30,10 @@ export const provideModalState = () => {
     contactModalOpen: false,
     safetyModalOpen: false,
     gettingStartedModalOpen: localStorage.getItem('use-app') !== 'true',
+    tutorialModalOpen: false,
 
-    sidebarOpen: false
+    sidebarOpen: false,
+    filterModalOpen: false
   })
 
   provide(ModalStateSymbol, modalState)
@@ -40,16 +41,7 @@ export const provideModalState = () => {
   return modalState
 }
 
-type ModalState = {
-  updateFactorySuccessModal: boolean,
-  createFactorySuccessModal: boolean,
-  aboutModalOpen: boolean,
-  contactModalOpen: boolean,
-  safetyModalOpen: boolean,
-  gettingStartedModalOpen: boolean
-
-  sidebarOpen: boolean
-}
+type ModalState = ReturnType<typeof provideModalState>
 
 type ModalActions = {
   openUpdateFactorySuccessModal: Function,
@@ -68,14 +60,23 @@ type ModalActions = {
   closeSafetyModal: Function,
 
   openGettingStartedModal: Function,
-  closeGettingStartedModal: Function
+  closeGettingStartedModal: Function,
 
-  toggleSidebar: Function
+  toggleSidebar: Function,
+
+  closeFilterModal: Function,
+  openFilterModal: Function,
+
+  closeTutorialModal: Function,
+  openTutorialModal: Function
 }
 
 export const useModalState: () => [ModalState, ModalActions] = () => {
-  const modalState = inject(ModalStateSymbol) as ModalState
-  const { event } = useGA()
+  const modalState = inject(ModalStateSymbol)
+
+  if (!modalState) {
+    throw new Error('Use useModalState before provideModalState')
+  }
 
   const openUpdateFactorySuccessModal = () => { modalState.updateFactorySuccessModal = true }
   const closeUpdateFactorySuccessModal = () => { modalState.updateFactorySuccessModal = false }
@@ -95,10 +96,19 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
   const openGettingStartedModal = () => { modalState.gettingStartedModalOpen = true }
   const closeGettingStartedModal = () => { modalState.gettingStartedModalOpen = false }
 
+  const openTutorialModal = () => { modalState.tutorialModalOpen = true }
+  const closeTutorialModal = () => { modalState.tutorialModalOpen = false }
+
   const toggleSidebar = () => {
     const open = !modalState.sidebarOpen
-    event('toggleSidebar', { target: open })
     modalState.sidebarOpen = open
+  }
+
+  const closeFilterModal = () => {
+    modalState.filterModalOpen = false
+  }
+  const openFilterModal = () => {
+    modalState.filterModalOpen = true
   }
 
   const modalActions = {
@@ -120,7 +130,12 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
     openGettingStartedModal,
     closeGettingStartedModal,
 
-    toggleSidebar
+    openTutorialModal,
+    closeTutorialModal,
+
+    toggleSidebar,
+    openFilterModal,
+    closeFilterModal
   }
 
   return [modalState, modalActions]

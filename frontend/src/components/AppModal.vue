@@ -2,9 +2,9 @@
   <div class="app-modal-component"
     :class="{ open }"
   >
-    <div class="app-modal-backdrop" @click="dismiss" />
+    <div class="app-modal-backdrop" @click="dismiss" data-label="modal-backdrop" />
     <div class="app-modal">
-      <div class="close" @click="dismiss" v-if="showCloseButon" />
+      <div class="close" @click="dismiss" v-if="showCloseButon" data-label="modal-close" />
       <slot />
     </div>
   </div>

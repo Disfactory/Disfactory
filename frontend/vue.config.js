@@ -18,5 +18,10 @@ module.exports = {
         .filename('[name].[hash].js')
         .end()
     }
+  },
+  pwa: {
+    name: 'Disfactory',
+    themeColor: '#2196f3',
+
   }
 }

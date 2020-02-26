@@ -8,23 +8,23 @@
 
     <div class="map-container">
       <div ref="root" class="map" />
-      <div ref="popup" :class="['popup', { show: popupData.show }]" :style="{ borderColor: popupData.color }">
-        <div class="close" @click="popupData.show = false" />
+      <div ref="popup" :class="['popup', { show: popupState.show }]" :style="{ borderColor: popupData.color }">
+        <div class="close" @click="popupState.show = false" data-label="map-popup-close" />
         <small :style="{ color: popupData.color }">{{ popupData.status }}</small>
         <h3>{{ popupData.name }}</h3>
         <p class="summary">{{ popupData.summary }}</p>
-        <app-button outline @click="onClickEditFactoryData" :color="getButtonColorFromStatus()">
+        <app-button outline @click="onClickEditFactoryData" :color="getButtonColorFromStatus()" data-label="map-popup-modify">
           補充資料
         </app-button>
       </div>
 
-      <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal">
+      <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal" data-label="map-search">
         <button>
           <img src="/images/search.svg" alt="search">
         </button>
       </div>
 
-      <div class="ol-fit-location ol-unselectable ol-control" @click="zoomToGeolocation">
+      <div class="ol-fit-location ol-unselectable ol-control" @click="zoomToGeolocation" data-label="map-locate">
         <button>
           <img src="/images/locate.svg" alt="locate">
         </button>
@@ -34,13 +34,14 @@
 
       <div class="factory-button-group">
         <div class="create-factory-button" v-if="!selectFactoryMode">
-          <app-button @click="onClickCreateFactoryButton">我要新增違建工廠</app-button>
+          <app-button @click="onClickCreateFactoryButton" data-label="map-create-factory">我要新增違章工廠</app-button>
         </div>
 
         <div class="choose-location-button" v-if="selectFactoryMode">
           <app-button
             @click="onClickFinishSelectFactoryPositionButton"
             :disabled="!factoryValid"
+            data-label="map-select-position"
           >
             選擇此地點
           </app-button>
@@ -54,16 +55,17 @@
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
-import { createComponent, onMounted, ref, inject } from '@vue/composition-api'
-import { initializeMap, MapFactoryController, getStatusBorderColor, getFactoryStatus } from '../lib/map'
+import { createComponent, onMounted, ref, inject, computed } from '@vue/composition-api'
+import { initializeMap, MapFactoryController, getFactoryStatus } from '../lib/map'
 import { getFactories } from '../api'
 import { MainMapControllerSymbol } from '../symbols'
 import { Overlay } from 'ol'
 import OverlayPositioning from 'ol/OverlayPositioning'
-import { FactoryStatus, FactoryData, FactoryStatusText, FACTORY_TYPE } from '../types'
+import { FactoryStatus } from '../types'
 import { useBackPressed } from '../lib/useBackPressed'
-import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
+import { useFactoryPopup, getPopupData } from '../lib/factoryPopup'
+import { useAppState } from '../lib/appState'
 
 export default createComponent({
   components: {
@@ -101,60 +103,34 @@ export default createComponent({
     }
   },
   setup (props) {
-    const { event } = useGA()
     const root = ref<HTMLElement>(null)
     const popup = ref<HTMLDivElement>(null)
     const factoryValid = ref(false)
     const factoryLngLat = ref<number[]>([])
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
-    const [,modalActions] = useModalState()
 
-    const popupData = ref({
-      show: false,
-      id: '',
-      name: '',
-      color: '',
-      status: '',
-      summary: ''
-    })
-    const popupFactoryData = ref<FactoryData>(null)
+    const [, modalActions] = useModalState()
+    const [appState] = useAppState()
 
-    const generateFactorySummary = (factory: FactoryData) => {
-      const imageStatus = factory.images.length > 0 ? '已有照片' : '缺照片'
-
-      const type = FACTORY_TYPE.find(type => type.value === factory.type)
-      let typeText: string = (type && type.text) || '其他'
-
-      if (typeText.includes('金屬')) {
-        typeText = '金屬'
-      }
-
-      return [
-        imageStatus,
-        typeText
-      ].filter(Boolean).join('\n')
-    }
+    const [popupState] = useFactoryPopup()
+    const popupData = computed(() => appState.factoryData ? getPopupData(appState.factoryData) : {})
 
     const setPopup = (id: string) => {
       if (!mapControllerRef.value) return
       const factory = mapControllerRef.value.getFactory(id)
+
       if (factory) {
-        popupData.value.id = factory.id
-        popupData.value.name = factory.name
-        const status = getFactoryStatus(factory)
-        popupData.value.color = getStatusBorderColor(status)
-        popupData.value.status = FactoryStatusText[status][0]
-        popupData.value.show = true
-        popupData.value.summary = generateFactorySummary(factory)
-        popupFactoryData.value = factory
+        appState.factoryData = factory
+        popupState.show = true
       }
     }
+
     const onClickEditFactoryData = () => {
-      if (!popupFactoryData.value) {
+      if (!appState.factoryData) {
         return
       }
 
-      props.openEditFactoryForm(popupFactoryData.value)
+      props.openEditFactoryForm(appState.factoryData)
     }
 
     onMounted(() => {
@@ -169,7 +145,6 @@ export default createComponent({
         onMoved: async function ([longitude, latitude, range], canPlaceFactory) {
           factoryValid.value = canPlaceFactory
           factoryLngLat.value = [longitude, latitude]
-          event('moveMap')
           try {
             const factories = await getFactories(range, longitude, latitude)
             if (Array.isArray(factories)) {
@@ -181,12 +156,11 @@ export default createComponent({
         }, // TODO: do on start move to lock selection
         onClicked: async function (_, feature) {
           if (feature) {
-            event('clickPopup')
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             popupOverlay.setPosition((feature.getGeometry() as any).getCoordinates())
             setPopup(feature.getId() as string)
           } else {
-            popupData.value.show = false
+            popupState.show = false
           }
         }
       })
@@ -209,7 +183,7 @@ export default createComponent({
 
       mapControllerRef.value.mapInstance.setLUILayerVisible(true)
       props.enterSelectFactoryMode()
-      popupData.value.show = false
+      popupState.show = false
 
       useBackPressed(onBack)
     }
@@ -231,23 +205,23 @@ export default createComponent({
       factoryValid,
       zoomToGeolocation: function () {
         if (mapControllerRef.value) {
-          event('zoomToGeolocation')
           mapControllerRef.value.mapInstance.zoomToGeolocation()
         }
       },
       onNavBack () {
         onBack()
       },
+      popupState,
       popupData,
       onClickEditFactoryData,
       onClickCreateFactoryButton,
       onClickFinishSelectFactoryPositionButton,
       getButtonColorFromStatus: function () {
-        if (!popupFactoryData.value) {
+        if (!appState.factoryData) {
           return 'default'
         }
 
-        const status = getFactoryStatus(popupFactoryData.value)
+        const status = getFactoryStatus(appState.factoryData)
         return {
           [FactoryStatus.NEW]: 'blue',
           [FactoryStatus.EXISTING_INCOMPLETE]: 'gray',

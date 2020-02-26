@@ -28,7 +28,7 @@
         </div>
 
         <h3>工廠地點</h3>
-        <div class="minimap" ref="minimap" @click="onClickMinimap()" />
+        <div class="minimap" ref="minimap" @click="onClickMinimap()" data-label="form-minimap" />
 
         <div class="flex justify-between" style="margin-top: 40px; margin-bottom: 20px;">
           <div class="flex flex-column flex-auto">
@@ -38,10 +38,10 @@
             </label>
           </div>
           <div>
-            <label>
-              <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="visibility: hidden; position: absolute; pointer-events: none; left: -1000px;">
+            <label data-label="form-add-image">
+              <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="visibility: hidden; position: absolute; pointer-events: none; left: -1000px;"  data-label="form-add-image">
               <app-button v-if="isiOS || isSafari">新增</app-button>
-              <app-button v-else @click="onClickImageUpload">新增</app-button>
+              <app-button v-else @click="onClickImageUpload" data-label="form-add-image">新增</app-button>
             </label>
           </div>
         </div>
@@ -62,7 +62,7 @@
           </div>
 
           <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('name', factoryFormState.name)" rect :disabled="fieldSubmittingState.name_submitting">
+            <app-button @click="updateFactoryFieldsFor('name', factoryFormState.name)" rect :disabled="fieldSubmittingState.name_submitting" data-label="form-update-name">
               {{ fieldSubmittingState.name_submitting ? '更新中' : '更新' }}
             </app-button>
           </div>
@@ -78,7 +78,7 @@
           </div>
 
           <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('factory_type', factoryFormState.type)" rect :disabled="fieldSubmittingState.factory_type_submitting">
+            <app-button @click="updateFactoryFieldsFor('factory_type', factoryFormState.type)" rect :disabled="fieldSubmittingState.factory_type_submitting" data-label="form-update-factoryType">
               {{ fieldSubmittingState.factory_type_submitting ? '更新中' : '更新' }}
             </app-button>
           </div>
@@ -94,14 +94,14 @@
           </div>
 
           <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('others', factoryFormState.others)" rect :disabled="fieldSubmittingState.others_submitting">
+            <app-button @click="updateFactoryFieldsFor('others', factoryFormState.others)" rect :disabled="fieldSubmittingState.others_submitting" data-label="form-update-others">
               {{ fieldSubmittingState.others_submitting ? '更新中' : '更新' }}
             </app-button>
           </div>
         </div>
 
         <div class="text-center width-auto" style="margin-top: 60px;" v-if="isCreateMode">
-          <app-button @click="submitFactory()" :disabled="!formPageState.valid || formPageState.submitting">
+          <app-button @click="submitFactory()" :disabled="!formPageState.valid || formPageState.submitting"  data-label="form-create-submit">
             {{ formPageState.submitting ? '上傳資料中' : '送出' }}
           </app-button>
         </div>
@@ -131,8 +131,8 @@ import { MapFactoryController, initializeMinimap, getStatusBorderColor, getFacto
 import { isiOS, isSafari } from '../lib/browserCheck'
 import { MainMapControllerSymbol } from '../symbols'
 import { useBackPressed } from '../lib/useBackPressed'
-import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
+import { useAppState } from '../lib/appState'
 
 export default createComponent({
   name: 'FormPage',
@@ -180,10 +180,10 @@ export default createComponent({
     }
   },
   setup (props) {
-    const { event } = useGA()
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
     let minimapController: MapFactoryController
     const [, modalActions] = useModalState()
+    const [appState] = useAppState()
 
     const onBack = () => {
       if (mapController.value) {
@@ -260,11 +260,9 @@ export default createComponent({
 
     const closeImageUploadModal = () => {
       formPageState.imageUploadModalOpen = false
-      event('closeImageUploadModal')
     }
     const openImageUploadModal = () => {
       formPageState.imageUploadModalOpen = true
-      event('openImageUploadModal')
     }
 
     const imagesToUpload = ref<FileList>([])
@@ -286,7 +284,6 @@ export default createComponent({
       try {
         fieldSubmittingState[updateKey] = true
 
-        event('updateFactory', { field })
         const factory = await updateFactory(factoryData.id, {
           [field]: value
         })
@@ -295,6 +292,7 @@ export default createComponent({
 
         if (mapController.value) {
           mapController.value.updateFactory(factoryData.id, factory)
+          appState.factoryData = factory
         }
         modalActions.openUpdateFactorySuccessModal()
       } catch (err) {
@@ -369,13 +367,15 @@ export default createComponent({
           // TODO: refactor into sepearte method...
           try {
             const factory = { ...props.factoryData } as FactoryData
+            const images = _images as FactoryImage[]
 
-            factoryFormState.imageUrls = factoryFormState.imageUrls.concat((_images as FactoryImage[]).map(image => image.image_path))
+            factoryFormState.imageUrls = factoryFormState.imageUrls.concat(imageUrls)
 
-            factory.images = factory.images.concat(_images as FactoryImage[])
+            factory.images = factory.images.concat(images)
 
             if (mapController.value) {
               mapController.value.updateFactory(props.factoryData.id, factory)
+              appState.factoryData = factory
             }
             modalActions.openUpdateFactorySuccessModal()
           } catch (err) {
@@ -404,7 +404,6 @@ export default createComponent({
             contact: factoryFormState.contact
           }
 
-          event('createFactory', { lng, lat })
           const resultFactory = await createFactory(factory)
           if (mapController.value) {
             mapController.value.addFactories([resultFactory])

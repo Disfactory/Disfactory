@@ -6,9 +6,11 @@ verify_ssl = true
 [dev-packages]
 black = "==19.3b0"
 freezegun = "*"
+pylint = "*"
+pylint-django = "*"
 
 [packages]
-django = "==2.2.8"
+django = "==2.2.10"
 "psycopg2-binary" = "==2.8.3"
 djangorestframework = "==3.9.2"
 python-dotenv = "==0.10.3"
