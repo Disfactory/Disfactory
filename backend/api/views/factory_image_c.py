@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.db import transaction
@@ -53,5 +55,14 @@ def post_factory_image(request, factory_id):
         )
     img_serializer = ImageSerializer(img)
     f_image.seek(0)
-    django_q.tasks.async_task('api.tasks.upload_image', f_image.read(), settings.IMGUR_CLIENT_ID, img.id)
+    temp_fname = uuid.uuid4()
+    temp_image_path = f"/tmp/{temp_fname}.jpg"
+    with open(temp_image_path, 'wb') as fw:
+        fw.write(f_image.read())
+    django_q.tasks.async_task(
+        'api.tasks.upload_image',
+        temp_image_path,
+        settings.IMGUR_CLIENT_ID,
+        img.id,
+    )
     return JsonResponse(img_serializer.data, safe=False)

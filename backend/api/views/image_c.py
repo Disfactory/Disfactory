@@ -1,3 +1,6 @@
+from tempfile import mkstemp
+import uuid
+
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 import django_q.tasks
@@ -22,7 +25,17 @@ def post_image(request):
         }
         img = Image.objects.create(**kwargs)
         f_image.seek(0)
-        django_q.tasks.async_task('api.tasks.upload_image', f_image.read(), settings.IMGUR_CLIENT_ID, img.id)
+
+        temp_fname = uuid.uuid4()
+        temp_image_path = f"/tmp/{temp_fname}.jpg"
+        with open(temp_image_path, 'wb') as fw:
+            fw.write(f_image.read())
+        django_q.tasks.async_task(
+            'api.tasks.upload_image',
+            temp_image_path,
+            settings.IMGUR_CLIENT_ID,
+            img.id,
+        )
         return JsonResponse({"token": img.id})
     return HttpResponse(
         "The uploaded file cannot be parsed to Image",

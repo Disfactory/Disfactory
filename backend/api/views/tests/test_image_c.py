@@ -21,9 +21,8 @@ class PostImageViewTestCase(TestCase):
         test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
         with freeze_time(test_time):
             with open(HERE / "20180311_132133.jpg", "rb") as f_img:
-                resp = cli.post("/api/images", {'image': f_img}, format='multipart')
-                f_img.seek(0)
-                image_buffer = f_img.read()
+                with patch('uuid.uuid4', return_value='temp_image'):
+                    resp = cli.post("/api/images", {'image': f_img}, format='multipart')
 
         self.assertEqual(resp.status_code, 200)
         resp_data = resp.json()
@@ -35,7 +34,7 @@ class PostImageViewTestCase(TestCase):
         self.assertEqual(img.orig_time, datetime(2018, 3, 11, 13, 21, 33, tzinfo=timezone.utc))
         patch_async_tasks.assert_called_once_with(
             'api.tasks.upload_image',
-            image_buffer,
+            '/tmp/temp_image.jpg',
             settings.IMGUR_CLIENT_ID,
             img.id,
         )
@@ -47,9 +46,8 @@ class PostImageViewTestCase(TestCase):
         test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
         with freeze_time(test_time):
             with open(HERE / "20180311_132133.jpg", "rb") as f_img:
-                resp = cli.post("/api/images", {'image': f_img}, format='multipart')
-                f_img.seek(0)
-                image_buffer = f_img.read()
+                with patch('uuid.uuid4', return_value='temp_image'):
+                    resp = cli.post("/api/images", {'image': f_img}, format='multipart')
 
         resp_data = resp.json()
         self.assertEqual(resp.status_code, 200)
@@ -61,7 +59,7 @@ class PostImageViewTestCase(TestCase):
         self.assertIsNone(img.orig_time)
         patch_async_tasks.assert_called_once_with(
             'api.tasks.upload_image',
-            image_buffer,
+            '/tmp/temp_image.jpg',
             settings.IMGUR_CLIENT_ID,
             img.id,
         )
@@ -70,6 +68,7 @@ class PostImageViewTestCase(TestCase):
     def test_return_400_if_not_image(self, _):
         cli = Client()
         with open(HERE / "test_image_c.py", "rb") as f_img:
-            resp = cli.post("/api/images", {'image': f_img}, format='multipart')
+            with patch('uuid.uuid4', return_value='temp_image'):
+                resp = cli.post("/api/images", {'image': f_img}, format='multipart')
 
         self.assertEqual(resp.status_code, 400)

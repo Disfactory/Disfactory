@@ -32,13 +32,12 @@ class PostFactoryImageViewTestCase(TestCase):
         test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
         with freeze_time(test_time):
             with open(HERE / "20180311_132133.jpg", "rb") as f_img:
-                resp = cli.post(
-                    f"/api/factories/{self.factory.id}/images",
-                    {'image': f_img, 'nickname': nickname, 'contact': contact},
-                    format='multipart',
-                )
-                f_img.seek(0)
-                image_buffer = f_img.read()
+                with patch('uuid.uuid4', return_value='temp_image'):
+                    resp = cli.post(
+                        f"/api/factories/{self.factory.id}/images",
+                        {'image': f_img, 'nickname': nickname, 'contact': contact},
+                        format='multipart',
+                    )
 
         self.assertEqual(resp.status_code, 200)
         resp_data = resp.json()
@@ -58,7 +57,7 @@ class PostFactoryImageViewTestCase(TestCase):
         self.assertEqual(report_record.contact, contact)
         patch_async_tasks.assert_called_once_with(
             'api.tasks.upload_image',
-            image_buffer,
+            '/tmp/temp_image.jpg',
             settings.IMGUR_CLIENT_ID,
             img.id,
         )
@@ -69,13 +68,12 @@ class PostFactoryImageViewTestCase(TestCase):
         test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
         with freeze_time(test_time):
             with open(HERE / "20180311_132133_noexif.jpg", "rb") as f_img:
-                resp = cli.post(
-                    f"/api/factories/{self.factory.id}/images",
-                    {'image': f_img},
-                    format='multipart',
-                )
-                f_img.seek(0)
-                image_buffer = f_img.read()
+                with patch('uuid.uuid4', return_value='temp_image'):
+                    resp = cli.post(
+                        f"/api/factories/{self.factory.id}/images",
+                        {'image': f_img},
+                        format='multipart',
+                    )
 
         self.assertEqual(resp.status_code, 200)
         resp_data = resp.json()
@@ -93,7 +91,7 @@ class PostFactoryImageViewTestCase(TestCase):
         self.assertEqual(report_record.action_type, "POST_IMAGE")
         patch_async_tasks.assert_called_once_with(
             'api.tasks.upload_image',
-            image_buffer,
+            '/tmp/temp_image.jpg',
             settings.IMGUR_CLIENT_ID,
             img.id,
         )
@@ -102,11 +100,12 @@ class PostFactoryImageViewTestCase(TestCase):
     def test_return_400_if_not_image(self, _):
         cli = Client()
         with open(HERE / "test_factory_image_c.py", "rb") as f_img:
-            resp = cli.post(
-                f"/api/factories/{self.factory.id}/images",
-                {'image': f_img},
-                format='multipart',
-            )
+            with patch('uuid.uuid4', return_value='temp_image'):
+                resp = cli.post(
+                    f"/api/factories/{self.factory.id}/images",
+                    {'image': f_img},
+                    format='multipart',
+                )
 
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.content, b'The uploaded file cannot be parsed to Image')
@@ -116,11 +115,12 @@ class PostFactoryImageViewTestCase(TestCase):
 
         not_exist_factory_id = uuid4()
         with open(HERE / "20180311_132133_noexif.jpg", "rb") as f_img:
-            resp = cli.post(
-                f"/api/factories/{not_exist_factory_id}/images",
-                {'image': f_img},
-                format='multipart',
-            )
+            with patch('uuid.uuid4', return_value='temp_image'):
+                resp = cli.post(
+                    f"/api/factories/{not_exist_factory_id}/images",
+                    {'image': f_img},
+                    format='multipart',
+                )
 
         self.assertEqual(resp.status_code, 400)
         expected_msg = f'Factory ID {not_exist_factory_id} does not exist.'
