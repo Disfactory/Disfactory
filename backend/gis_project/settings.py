@@ -179,7 +179,12 @@ if IMGUR_CLIENT_ID is None:
 
 CORS_ORIGIN_WHITELIST = [
     "https://dev.disfactory.tw",
+    "https://disfactory.tw",
 ]
+CORS_ORIGIN_WHITELIST += os.environ.get(
+    'DISFACTORY_BACKEND_CORS_ORIGIN_WHITELIST',
+    '',
+).split(',')
 
 TAIWAN_MAX_LATITUDE = 25.298401
 TAIWAN_MIN_LATITUDE = 21.896900
