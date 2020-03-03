@@ -70,11 +70,17 @@ INSTALLED_APPS = [
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "basic": {
+            "format": "%(asctime)s [%(levelname)s] %(message)s (%(module)s %(lineno)d)"
+            }
+        }
     "handlers": {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": os.environ.get("DISFACTORY_BACKEND_LOG_FILE", "./debug.log"),
+            "formatter": "basic"
         },
         "console": {
             "class": "logging.StreamHandler",

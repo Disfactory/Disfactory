@@ -82,10 +82,12 @@ def get_nearby_or_create_factories(request):
         return JsonResponse(serializer.data, safe=False)
     elif request.method == "POST":
         post_body = json.loads(request.body)
+        user_ip = _get_client_ip(request)
         # print(post_body)
         serializer = FactorySerializer(data=post_body)
 
         if not serializer.is_valid():
+        LOGGER.warning(f"{user_ip} : <serializer errors> ")
             return JsonResponse(
                 serializer.errors,
                 status=400,
@@ -95,13 +97,12 @@ def get_nearby_or_create_factories(request):
         image_ids = post_body.get('images', [])
 
         if not _all_image_id_exist(image_ids):
+            LOGGER.warning(f"{user_ip} : <please check if every image id exist> ")
             return HttpResponse(
                 "please check if every image id exist",
                 status=400,
             )
-
-        user_ip = _get_client_ip(request)
-        LOGGER.info(f"{user_ip} create new factory at {(post_body['lng'], post_body['lat'])}")
+            
         new_factory_field = {
             'name': post_body["name"],
             'lat': post_body["lat"],
@@ -128,8 +129,8 @@ def get_nearby_or_create_factories(request):
                 factory=new_factory,
                 report_record=report_record
             )
-        LOGGER.info(f"new factory created with id: {new_factory.id}")
         serializer = FactorySerializer(new_factory)
-
+        LOGGER.info(f"{user_ip}: <Create new factory> at {(post_body['lng'], post_body['lat'])}")
+        LOGGER.info(f"{user_ip}: <Create new factory> id:{new_factory.id} {new_factory_field['name']} {new_factory_field['factory_type']}")
         async_task("api.tasks.update_landcode", new_factory.id)
         return JsonResponse(serializer.data, safe=False)

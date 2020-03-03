@@ -11,7 +11,8 @@ from .utils import (
     _is_image,
     _get_image_original_date,
 )
-
+import logging
+LOGGER = logging.getLogger(__name__)
 
 @api_view(['POST'])
 def post_image(request):
@@ -36,6 +37,7 @@ def post_image(request):
             settings.IMGUR_CLIENT_ID,
             img.id,
         )
+        LOGGER.info(f"{client_ip} : <post_image> id:{img.id} {image_original_date} ")
         return JsonResponse({"token": img.id})
     return HttpResponse(
         "The uploaded file cannot be parsed to Image",
