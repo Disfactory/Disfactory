@@ -87,7 +87,7 @@ def get_nearby_or_create_factories(request):
         serializer = FactorySerializer(data=post_body)
 
         if not serializer.is_valid():
-        LOGGER.warning(f"{user_ip} : <serializer errors> ")
+            LOGGER.warning(f"{user_ip} : <serializer errors> ")
             return JsonResponse(
                 serializer.errors,
                 status=400,
@@ -130,7 +130,6 @@ def get_nearby_or_create_factories(request):
                 report_record=report_record
             )
         serializer = FactorySerializer(new_factory)
-        LOGGER.info(f"{user_ip}: <Create new factory> at {(post_body['lng'], post_body['lat'])}")
-        LOGGER.info(f"{user_ip}: <Create new factory> id:{new_factory.id} {new_factory_field['name']} {new_factory_field['factory_type']}")
+        LOGGER.info(f"{user_ip}: <Create new factory> at {(post_body['lng'], post_body['lat'])} id:{new_factory.id} {new_factory_field['name']} {new_factory_field['factory_type']}")
         async_task("api.tasks.update_landcode", new_factory.id)
         return JsonResponse(serializer.data, safe=False)

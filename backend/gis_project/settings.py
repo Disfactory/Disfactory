@@ -74,7 +74,7 @@ LOGGING = {
         "basic": {
             "format": "%(asctime)s [%(levelname)s] %(message)s (%(module)s %(lineno)d)"
             }
-        }
+        },
     "handlers": {
         "file": {
             "level": "INFO",
