@@ -16,7 +16,7 @@ from .utils import _get_client_ip
 from django.core.exceptions import ObjectDoesNotExist
 
 import logging
-Logger = logging.getLogger('django')
+LOGGER = logging.getLogger(__name__)
 
 @api_view(['PUT', 'GET'])
 def update_factory_attribute(request, factory_id):
