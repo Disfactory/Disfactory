@@ -15,14 +15,18 @@ from .utils import _get_client_ip
 
 from django.core.exceptions import ObjectDoesNotExist
 
+import logging
+LOGGER = logging.getLogger(__name__)
 
 @api_view(['PUT', 'GET'])
 def update_factory_attribute(request, factory_id):
     if request.method=="PUT":
+        client_ip = _get_client_ip(request)
         put_body = json.loads(request.body)
         serializer = FactorySerializer(data=put_body, partial=True)
 
         if not serializer.is_valid():
+            LOGGER.warning(f"{client_ip} : <serializer errors> ")
             return JsonResponse(
                 serializer.errors,
                 status=400,
@@ -41,6 +45,7 @@ def update_factory_attribute(request, factory_id):
             # new_point = Point(new_lng, new_lat, srid=4326)
             # new_point.transform(settings.POSTGIS_SRID)
             # updated_factory_fields["point"] = new_point
+            LOGGER.warning(f"{client_ip} : <Factory position cannot be modified> ")
             return HttpResponse(
                 "Factory position cannot be modified.",
                 status=400,
@@ -64,6 +69,7 @@ def update_factory_attribute(request, factory_id):
             factory = Factory.objects.get(pk=factory_id)
 
         serializer = FactorySerializer(factory)
+        LOGGER.info(f"{client_ip} : <Update factory> {factory_id} {put_body} ")
         return JsonResponse(serializer.data, safe=False)
     elif request.method == "GET":
         try:
