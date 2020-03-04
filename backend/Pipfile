@@ -18,7 +18,7 @@ requests = "*"
 pillow = "*"
 django-cors-headers = "*"
 gunicorn = "*"
-django-q = "*"
+django-q = "==1.0.2"
 
 [requires]
 python_version = "3.7"

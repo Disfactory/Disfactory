@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c50d68dcc25a855c48b656e2a76fcce19bce349b72640ecdd81d254c2bb0750c"
+            "sha256": "c7d60b6b3339efdab7cdddb586f42824d392c3f8c1dae1dcff606c91e741ed7f"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -68,11 +68,11 @@
         },
         "django-q": {
             "hashes": [
-                "sha256:2c96e950db3c1034f77a9c5904150407fbc4fbfb15ecc175619e2ee82e91a61e",
-                "sha256:60f251b1a0754988ed6594604114f26e4d5d480b955064dc505dcce4031ba8e8"
+                "sha256:4fb1974efc5952100eddad1734f03795e70a1dd2663cc085b7df374f3c6312c3",
+                "sha256:70081f58c6d78748d8664acbf028fb641687c36df38d3d31e9f1b6fcfac1079f"
             ],
             "index": "pypi",
-            "version": "==1.2.1"
+            "version": "==1.0.2"
         },
         "djangorestframework": {
             "hashes": [
@@ -198,10 +198,10 @@
         },
         "sqlparse": {
             "hashes": [
-                "sha256:40afe6b8d4b1117e7dff5504d7a8ce07d9a1b15aeeade8a2d10f130a834f8177",
-                "sha256:7c3dca29c022744e95b547e867cee89f4fce4373f3549ccd8797d8eb52cdb873"
+                "sha256:022fb9c87b524d1f7862b3037e541f68597a730a8843245c349fc93e1643dc4e",
+                "sha256:e162203737712307dfe78860cc56c8da8a852ab2ee33750e33aeadf38d12c548"
             ],
-            "version": "==0.3.0"
+            "version": "==0.3.1"
         },
         "urllib3": {
             "hashes": [
@@ -313,11 +313,11 @@
         },
         "pylint-django": {
             "hashes": [
-                "sha256:440beb814464928aedd2e21196bb6e47a83b63e2cbe886a701ba0f4a64206bbb",
-                "sha256:d5d113605a64cf0e638b707d4cb42106e626f8851bc30a44d5b22bd698ad8483"
+                "sha256:3a4cc19dd6301fc2d36c9fb6e15163001a6d12723c1f7f8c2249223c2a8c68f0",
+                "sha256:c9bbcff6b87ee8466fae274fd7aae3d2d3d4c4d1ea20c48cbce673e837e36048"
             ],
             "index": "pypi",
-            "version": "==2.0.13"
+            "version": "==2.0.14"
         },
         "pylint-plugin-utils": {
             "hashes": [
