@@ -70,11 +70,17 @@ INSTALLED_APPS = [
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "basic": {
+            "format": "%(asctime)s [%(levelname)s] %(message)s (%(module)s %(lineno)d)"
+            }
+        },
     "handlers": {
         "file": {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": os.environ.get("DISFACTORY_BACKEND_LOG_FILE", "./debug.log"),
+            "formatter": "basic"
         },
         "console": {
             "class": "logging.StreamHandler",
@@ -181,8 +187,8 @@ DEFAULT_CORS_ORIGIN_WHITELIST = [
     "https://dev.disfactory.tw",
     "https://disfactory.tw",
 ]
-CORS_ORIGIN_WHITELIST += os.environ.get('DISFACTORY_BACKEND_CORS_ORIGIN_WHITELIST')
-if CORS_ORIGIN_WHITELIST is None:
+CORS_ORIGIN_WHITELIST = os.environ.get('DISFACTORY_BACKEND_CORS_ORIGIN_WHITELIST')
+if CORS_ORIGIN_WHITELIST is None or CORS_ORIGIN_WHITELIST == '':
     CORS_ORIGIN_WHITELIST = DEFAULT_CORS_ORIGIN_WHITELIST
 else:
     CORS_ORIGIN_WHITELIST = DEFAULT_CORS_ORIGIN_WHITELIST + CORS_ORIGIN_WHITELIST.split(',')

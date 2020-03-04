@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from tempfile import NamedTemporaryFile
 
 from django.test import TestCase
 
@@ -38,7 +39,8 @@ class TasksTestCase(TestCase):
     @patch("api.tasks._upload_image_to_imgur", return_value=FAKE_IMAGE_URI)
     def test_upload_image(self, _):
         img = Image.objects.create(image_path="")
-        upload_image(b'1234567890', 'some_client_id', img.id)
+        with NamedTemporaryFile(delete=False) as f:
+            upload_image(f.name, 'some_client_id', img.id)
 
         new_img = Image.objects.get(pk=img.id)
         self.assertEqual(new_img.image_path, FAKE_IMAGE_URI)
