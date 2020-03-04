@@ -30,6 +30,12 @@
         </button>
       </div>
 
+      <div class="ol-switch-base ol-unselectable ol-control" @click="switchBaseMap" data-label="map-switch-base">
+        <button>
+          {{ baseMapName }}
+        </button>
+      </div>
+
       <div class="center-point" v-if="selectFactoryMode" />
 
       <div class="factory-button-group">
@@ -114,6 +120,8 @@ export default createComponent({
 
     const [popupState] = useFactoryPopup()
     const popupData = computed(() => appState.factoryData ? getPopupData(appState.factoryData) : {})
+    const baseMap = ref(0)
+    const baseMapName = computed(() => '切換底圖')
 
     const setPopup = (id: string) => {
       if (!mapControllerRef.value) return
@@ -171,6 +179,11 @@ export default createComponent({
       mapController.mapInstance.setLUILayerVisible(false)
     })
 
+    const switchBaseMap = () => {
+      baseMap.value = (baseMap.value + 1 < 3) ? baseMap.value + 1 : 0
+      mapControllerRef.value?.mapInstance.changeBaseMap(baseMap.value)
+    }
+
     const onBack = () => {
       if (mapControllerRef.value) {
         mapControllerRef.value.mapInstance.setLUILayerVisible(false)
@@ -203,6 +216,8 @@ export default createComponent({
       modalActions,
       popup,
       factoryValid,
+      baseMapName,
+      switchBaseMap,
       zoomToGeolocation: function () {
         if (mapControllerRef.value) {
           mapControllerRef.value.mapInstance.zoomToGeolocation()
@@ -244,6 +259,19 @@ export default createComponent({
   width: 100%;
   height: calc(100% - 47px);
   position: absolute;
+
+  .ol-switch-base {
+    position: absolute;
+    bottom: 35px;
+    left: 10px;
+    background: #6E8501;
+    width: 88px;
+
+    button {
+      width: 80px;
+      font-size: 16px;
+    }
+  }
 }
 
 .map {
