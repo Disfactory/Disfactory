@@ -22,6 +22,9 @@ module.exports = {
   pwa: {
     name: 'Disfactory',
     themeColor: '#2196f3',
-
+    workboxOptions: {
+      skipWaiting: true,
+      clientsClaim: true
+    }
   }
 }
