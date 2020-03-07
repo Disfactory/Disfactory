@@ -17,7 +17,12 @@ def _upload_image_to_imgur(image_buffer, client_id):
         data=data,
         headers=headers,
     )
-    path = resp.json()['data']['link']
+    try:
+        resp_data = resp.json()
+        path = resp_data['data']['link']
+    except Exception as e:
+        LOGGER.error(f'Error parsing imgur response data: {resp_data}')
+        raise e
     return path
 
 
