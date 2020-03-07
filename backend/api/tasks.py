@@ -19,6 +19,12 @@ def _upload_image_to_imgur(image_buffer, client_id):
     )
     try:
         resp_data = resp.json()
+        if 'errors' in resp_data:
+            credit_resp = requests.get(
+                'https://api.imgur.com/3/credits',
+                headers=headers,
+            )
+            LOGGER.error(f'Error upload to imgur. The credits remaining: {credit_resp.json()}')
         path = resp_data['data']['link']
     except Exception as e:
         LOGGER.error(f'Error parsing imgur response data: {resp_data}')
