@@ -6,7 +6,7 @@ import requests
 import easymap
 from .models import Factory, Image
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger('django')
 
 
 def _upload_image_to_imgur(image_buffer, client_id):

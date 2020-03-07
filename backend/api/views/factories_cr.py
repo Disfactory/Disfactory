@@ -15,7 +15,7 @@ from ..models import Factory, Image, ReportRecord
 from ..serializers import FactorySerializer
 
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger('django')
 
 
 def _not_in_taiwan(lat, lng):
@@ -102,7 +102,7 @@ def get_nearby_or_create_factories(request):
                 "please check if every image id exist",
                 status=400,
             )
-            
+
         new_factory_field = {
             'name': post_body["name"],
             'lat': post_body["lat"],
