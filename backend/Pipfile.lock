@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c7d60b6b3339efdab7cdddb586f42824d392c3f8c1dae1dcff606c91e741ed7f"
+            "sha256": "82c1ce9577b63c8c39945e6860a15684a9084b6abb618aeb07c4597f540ac251"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -58,6 +58,13 @@
             ],
             "index": "pypi",
             "version": "==3.2.1"
+        },
+        "django-db-logger": {
+            "hashes": [
+                "sha256:f11f0800ae1a75c00f33d0aa25c6014d2d8f6128c934ec396fe7cddc84407aaa"
+            ],
+            "index": "pypi",
+            "version": "==0.1.7"
         },
         "django-picklefield": {
             "hashes": [

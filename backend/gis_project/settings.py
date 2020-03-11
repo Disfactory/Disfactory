@@ -61,12 +61,17 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "django_q",
+    "django_db_logger",
 
     # Local
     "users.apps.UsersConfig",
     "api.apps.ApiConfig",
 ]
 
+if DEBUG:
+    DJANGO_LOGGER_HANDLER = ["file", "console", "db"]
+else:
+    DJANGO_LOGGER_HANDLER = ["db"]  # no need to log to console and file since we cannot access both on middle2
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -85,10 +90,13 @@ LOGGING = {
         "console": {
             "class": "logging.StreamHandler",
         },
+        "db": {
+            'class': 'django_db_logger.db_log_handler.DatabaseLogHandler'
+        },
     },
     "loggers": {
         "django": {
-            "handlers": ["file", "console"],
+            "handlers": DJANGO_LOGGER_HANDLER,
             "level": os.environ.get("DISFACTORY_BACKEND_LOG_LEVEL", "INFO"),
             "propagate": True,
         },

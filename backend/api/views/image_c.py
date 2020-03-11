@@ -1,3 +1,4 @@
+import logging
 from tempfile import mkstemp
 import uuid
 
@@ -11,8 +12,7 @@ from .utils import (
     _is_image,
     _get_image_original_date,
 )
-import logging
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger('django')
 
 @api_view(['POST'])
 def post_image(request):

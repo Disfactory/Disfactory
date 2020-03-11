@@ -58,6 +58,7 @@ pipenv shell
 ```
 python manage.py migrate
 ```
+NOTE: 別設 `DISFACTORY_BACKEND_LOG_LEVEL` 為 `DEBUG` ，因為 logger 裡使用到了 `django-db-logger`。Migration 結束之後再設成你想要的 level。
 
 
 ## Usage

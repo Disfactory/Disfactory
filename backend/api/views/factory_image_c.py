@@ -1,3 +1,4 @@
+import logging
 import uuid
 
 from django.conf import settings
@@ -15,8 +16,7 @@ from .utils import (
     _get_client_ip,
 )
 
-import logging
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger('django')
 
 @api_view(['POST'])
 def post_factory_image(request, factory_id):
@@ -38,7 +38,7 @@ def post_factory_image(request, factory_id):
     f_image.seek(0)
     image_original_date = _get_image_original_date(f_image)
 
-    
+
 
     put_body = request.POST
 
