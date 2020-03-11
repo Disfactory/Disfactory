@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="{ outline, disabled, rect, blue: color === 'blue', red: color === 'red', gray: color === 'gray' }"
+    :class="{ outline, disabled, rect, blue: color === 'blue', red: color === 'red', gray: color === 'gray', 'dark-green': color === 'dark-green' }"
     @click="click"
   >
     <slot />
@@ -88,6 +88,14 @@ button {
   &.gray {
     &:hover {
       background-color: lighten($gray-color, 20%);
+    }
+  }
+
+  &.dark-green {
+    background-color: $dark-green-color;
+
+    &:hover {
+      background-color: lighten($dark-green-color, 10%);
     }
   }
 }
