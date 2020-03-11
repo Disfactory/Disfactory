@@ -20,7 +20,7 @@
 
       <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal" data-label="map-search">
         <button>
-          <img src="/images/search.svg" alt="search">
+          <img src="/images/filter.svg" alt="search">
         </button>
       </div>
 
