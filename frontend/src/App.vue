@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <app-navbar :hide="appState.factoryFormOpen || appState.selectFactoryMode" :fixed="true" @menu="modalActions.toggleSidebar">農地違章工廠舉報</app-navbar>
+    <app-navbar :hide="appState.factoryFormOpen || appState.selectFactoryMode" :fixed="true" @menu="modalActions.toggleSidebar">農地工廠回報</app-navbar>
     <app-sidebar v-model="modalState.sidebarOpen" :clickActions="sidebarActions" />
 
     <filter-modal :open="modalState.filterModalOpen" :dismiss="modalActions.closeFilterModal" />
