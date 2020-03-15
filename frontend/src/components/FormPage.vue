@@ -18,31 +18,40 @@
       />
 
       <div class="page" style="padding: 29px 35px;">
-        <h1 v-if="isCreateMode">
-          輸入資訊
-        </h1>
-
         <div class="status-banner flex" v-if="!isCreateMode" :style="{ backgroundColor: getStatusBorderColor(factoryFormState.status) }">
           <img src="/images/marker-white.svg" style="margin-right: 7px;">
           {{ FactoryStatusText[factoryFormState.status][0] }}
         </div>
 
-        <h3>工廠地點</h3>
+        <h2>
+          上傳工廠資訊
+
+          <small v-if="isCreateMode">
+            <br><br>
+            請確認工廠地點，
+            <br>
+            並上傳至少一張照片。
+          </small>
+
+          <small v-else>
+            <br>
+            請上傳至少一張照片。
+          </small>
+        </h2>
+
         <div class="minimap" ref="minimap" @click="onClickMinimap()" data-label="form-minimap" />
 
         <div class="flex justify-between" style="margin-top: 40px; margin-bottom: 20px;">
-          <div class="flex flex-column flex-auto">
+          <div class="flex flex-column">
             <h3 style="margin-top: 0;">工廠照片*</h3>
-            <label>
-              <small>請上傳至少一張照片</small>
-            </label>
-          </div>
-          <div>
-            <label data-label="form-add-image">
-              <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="visibility: hidden; position: absolute; pointer-events: none; left: -1000px;"  data-label="form-add-image">
-              <app-button v-if="isiOS || isSafari">新增</app-button>
-              <app-button v-else @click="onClickImageUpload" data-label="form-add-image">新增</app-button>
-            </label>
+
+            <div>
+              <label data-label="form-add-image">
+                <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="visibility: hidden; position: absolute; pointer-events: none; left: -1000px;"  data-label="form-add-image">
+                <app-button rect v-if="isiOS || isSafari">新增</app-button>
+                <app-button rect v-else @click="onClickImageUpload" data-label="form-add-image">新增</app-button>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -52,12 +61,38 @@
           </div>
         </div>
 
-        <h3>工廠名稱</h3>
+
+        <h2>
+          補充其他資訊
+          <small>
+            <br>
+            若無可跳過
+          </small>
+        </h2>
+
+        <h3>工廠描述</h3>
+        <div class="flex align-items-center">
+          <div class="flex-auto">
+            <app-text-field
+              v-model="factoryFormState.others"
+              placeholder="說明為何工廠可疑，如聲音類型、氣味類型等等。"
+            />
+          </div>
+
+          <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
+            <app-button @click="updateFactoryFieldsFor('others', factoryFormState.others)" rect :disabled="fieldSubmittingState.others_submitting" data-label="form-update-others">
+              {{ fieldSubmittingState.others_submitting ? '更新中' : '更新' }}
+            </app-button>
+          </div>
+        </div>
+
+
+        <h3>工廠外部文字</h3>
         <div class="flex align-items-center">
           <div class="flex-auto">
             <app-text-field
               v-model="factoryFormState.name"
-              placeholder="請輸入工廠名稱"
+              placeholder="輸入可幫助辨識工廠的文字"
             />
           </div>
 
@@ -80,22 +115,6 @@
           <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
             <app-button @click="updateFactoryFieldsFor('factory_type', factoryFormState.type)" rect :disabled="fieldSubmittingState.factory_type_submitting" data-label="form-update-factoryType">
               {{ fieldSubmittingState.factory_type_submitting ? '更新中' : '更新' }}
-            </app-button>
-          </div>
-        </div>
-
-        <h3>新增其它資訊</h3>
-        <div class="flex align-items-center">
-          <div class="flex-auto">
-            <app-text-field
-              v-model="factoryFormState.others"
-              placeholder="請填入其他資訊，如聲音、氣味等等。"
-            />
-          </div>
-
-          <div style="width: 100px; height: 47px; margin-left: -3px;" v-if="isEditMode">
-            <app-button @click="updateFactoryFieldsFor('others', factoryFormState.others)" rect :disabled="fieldSubmittingState.others_submitting" data-label="form-update-others">
-              {{ fieldSubmittingState.others_submitting ? '更新中' : '更新' }}
             </app-button>
           </div>
         </div>
@@ -457,6 +476,11 @@ export default createComponent({
     width: calc(100% + 70px);
     margin-left: -35px;
     margin-top: -28px;
+  }
+
+  h2 small {
+    font-size: 14px;
+    font-weight: normal;
   }
 }
 
