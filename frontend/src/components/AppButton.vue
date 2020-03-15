@@ -65,7 +65,7 @@ button {
 
   &:hover {
     cursor: pointer;
-    background-color: lighten($primary-color, 20%);
+    background-color: lighten($primary-color, 10%);
   }
 
   &.disabled {
@@ -75,19 +75,19 @@ button {
 
   &.blue {
     &:hover {
-      background-color: lighten($blue-color, 20%);
+      background-color: lighten($blue-color, 10%);
     }
   }
 
   &.red {
     &:hover {
-      background-color: lighten($red-color, 20%);
+      background-color: lighten($red-color, 10%);
     }
   }
 
   &.gray {
     &:hover {
-      background-color: lighten($gray-color, 20%);
+      background-color: lighten($gray-color, 10%);
     }
   }
 
