@@ -73,9 +73,9 @@
         <h3>工廠描述</h3>
         <div class="flex align-items-center">
           <div class="flex-auto">
-            <app-text-field
+            <app-text-area
               v-model="factoryFormState.others"
-              placeholder="說明為何工廠可疑，如聲音類型、氣味類型等等。"
+              :placeholder="'說明為何工廠可疑，\n如聲音類型、氣味類型等等。'"
             />
           </div>
 
@@ -134,6 +134,7 @@
 import { createComponent, ref, inject, onMounted, watch, reactive } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
+import AppTextArea from '@/components/AppTextArea.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppSelect from '@/components/AppSelect.vue'
 import ImageUploadModal from '@/components/ImageUploadModal.vue'
@@ -158,6 +159,7 @@ export default createComponent({
   components: {
     AppButton,
     AppTextField,
+    AppTextArea,
     AppSelect,
     AppNavbar,
     ImageUploadModal
