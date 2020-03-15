@@ -35,12 +35,17 @@
 
       <div class="factory-button-group">
         <div class="factory-secondary-actions-group">
+          <div class="ol-switch-luilayer-visibility ol-unselectable ol-control" data-label="map-set-luilayer-visibility" @click="toggleLUILayerVisibility" v-if="!selectFactoryMode">
+            <button>
+              {{ setLUILayerVisibilityText }}
+            </button>
+          </div>
+
           <div class="ol-switch-base ol-unselectable ol-control" @click="switchBaseMap" data-label="map-switch-base">
             <button>
               {{ baseMapName }}
             </button>
           </div>
-
         </div>
 
         <div class="create-factory-button" v-if="!selectFactoryMode">
@@ -127,6 +132,20 @@ export default createComponent({
     const baseMap = ref(0)
     const baseMapName = computed(() => '切換不同地圖')
 
+    const luiVisibibility = ref(mapControllerRef?.value?.mapInstance.getLUILayerVisible() || false)
+    const setLUILayerVisibilityText = computed(() => {
+      if (luiVisibibility.value) {
+        return '隱藏農地範圍'
+      } else {
+        return '顯示農地範圍'
+      }
+    })
+    const toggleLUILayerVisibility = () => {
+      const bool = !luiVisibibility.value
+
+      mapControllerRef?.value?.mapInstance.setLUILayerVisible(bool)
+    }
+
     const setPopup = (id: string) => {
       if (!mapControllerRef.value) return
       const factory = mapControllerRef.value.getFactory(id)
@@ -174,6 +193,9 @@ export default createComponent({
           } else {
             popupState.show = false
           }
+        },
+        onLUILayerVisibilityChange: function (visible) {
+          luiVisibibility.value = visible
         }
       })
 
@@ -222,6 +244,8 @@ export default createComponent({
       factoryValid,
       baseMapName,
       switchBaseMap,
+      toggleLUILayerVisibility,
+      setLUILayerVisibilityText,
       zoomToGeolocation: function () {
         if (mapControllerRef.value) {
           mapControllerRef.value.mapInstance.zoomToGeolocation()
@@ -264,7 +288,7 @@ export default createComponent({
   height: calc(100% - 47px);
   position: absolute;
 
-  .ol-switch-base {
+  .ol-switch-base, .ol-switch-luilayer-visibility {
     background: #6E8501;
     position: relative;
     width: auto;
@@ -322,6 +346,10 @@ export default createComponent({
   display: flex;
   margin-bottom: 10px;
   justify-content: center;
+
+  .ol-control:last-child {
+    margin-left: 5px;
+  }
 }
 
 
