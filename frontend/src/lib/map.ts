@@ -318,7 +318,8 @@ const getLUIMapLayer = (wmtsTileGrid: WMTSTileGrid) => {
 
 type MapEventHandler = {
   onMoved?: (location: [number, number, number], canPlaceFactory: boolean) => void,
-  onClicked?: (location: [number, number], feature?: Feature | RenderFeature) => void
+  onClicked?: (location: [number, number], feature?: Feature | RenderFeature) => void,
+  onLUILayerVisibilityChange?: (visible: boolean) => void
 }
 
 type OLMapOptions = {
@@ -386,6 +387,15 @@ export class OLMap {
         })
         handler.onClicked([lng, lat], feature)
       }
+    })
+
+
+    this.getLUIMAPLayer().then(layer => {
+      layer.on('change:visible', function () {
+        if (handler.onLUILayerVisibilityChange) {
+          handler.onLUILayerVisibilityChange(layer.getVisible())
+        }
+      })
     })
   }
 
@@ -563,6 +573,11 @@ export class OLMap {
   public async setLUILayerVisible (visible: boolean) {
     const layer = await this.getLUIMAPLayer()
     layer.setVisible(visible)
+  }
+
+  public async getLUILayerVisible () {
+    const layer = await this.getLUIMAPLayer()
+    return layer.getVisible()
   }
 
   public setMinimapPin (longitude: number, latitude: number) {

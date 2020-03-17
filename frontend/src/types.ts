@@ -28,9 +28,9 @@ export enum FactoryStatus {
 }
 
 export const FactoryStatusText = {
-  [FactoryStatus.NEW]: ['新建違章工廠'],
-  [FactoryStatus.EXISTING_COMPLETE]: ['既有違章工廠'],
-  [FactoryStatus.EXISTING_INCOMPLETE]: ['既有違章工廠', '資料不齊'],
+  [FactoryStatus.NEW]: ['民眾回報工廠'],
+  [FactoryStatus.EXISTING_COMPLETE]: ['政府盤查工廠'],
+  [FactoryStatus.EXISTING_INCOMPLETE]: ['政府盤查工廠', '資料不齊'],
   [FactoryStatus.REPORTED]: ['已舉報違章工廠']
 }
 

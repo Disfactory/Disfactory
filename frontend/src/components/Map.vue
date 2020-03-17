@@ -20,7 +20,7 @@
 
       <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal" data-label="map-search">
         <button>
-          <img src="/images/search.svg" alt="search">
+          <img src="/images/filter.svg" alt="search">
         </button>
       </div>
 
@@ -30,17 +30,26 @@
         </button>
       </div>
 
-      <div class="ol-switch-base ol-unselectable ol-control" @click="switchBaseMap" data-label="map-switch-base">
-        <button>
-          {{ baseMapName }}
-        </button>
-      </div>
 
       <div class="center-point" v-if="selectFactoryMode" />
 
       <div class="factory-button-group">
+        <div class="factory-secondary-actions-group">
+          <div class="ol-switch-luilayer-visibility ol-unselectable ol-control" data-label="map-set-luilayer-visibility" @click="toggleLUILayerVisibility" v-if="!selectFactoryMode">
+            <button>
+              {{ setLUILayerVisibilityText }}
+            </button>
+          </div>
+
+          <div class="ol-switch-base ol-unselectable ol-control" @click="switchBaseMap" data-label="map-switch-base">
+            <button>
+              {{ baseMapName }}
+            </button>
+          </div>
+        </div>
+
         <div class="create-factory-button" v-if="!selectFactoryMode">
-          <app-button @click="onClickCreateFactoryButton" data-label="map-create-factory">我要新增違章工廠</app-button>
+          <app-button @click="onClickCreateFactoryButton" data-label="map-create-factory" color="dark-green">我想新增可疑工廠</app-button>
         </div>
 
         <div class="choose-location-button" v-if="selectFactoryMode">
@@ -121,7 +130,21 @@ export default createComponent({
     const [popupState] = useFactoryPopup()
     const popupData = computed(() => appState.factoryData ? getPopupData(appState.factoryData) : {})
     const baseMap = ref(0)
-    const baseMapName = computed(() => '切換底圖')
+    const baseMapName = computed(() => '切換不同地圖')
+
+    const luiVisibibility = ref(mapControllerRef?.value?.mapInstance.getLUILayerVisible() || false)
+    const setLUILayerVisibilityText = computed(() => {
+      if (luiVisibibility.value) {
+        return '隱藏農地範圍'
+      } else {
+        return '顯示農地範圍'
+      }
+    })
+    const toggleLUILayerVisibility = () => {
+      const bool = !luiVisibibility.value
+
+      mapControllerRef?.value?.mapInstance.setLUILayerVisible(bool)
+    }
 
     const setPopup = (id: string) => {
       if (!mapControllerRef.value) return
@@ -170,6 +193,9 @@ export default createComponent({
           } else {
             popupState.show = false
           }
+        },
+        onLUILayerVisibilityChange: function (visible) {
+          luiVisibibility.value = visible
         }
       })
 
@@ -218,6 +244,8 @@ export default createComponent({
       factoryValid,
       baseMapName,
       switchBaseMap,
+      toggleLUILayerVisibility,
+      setLUILayerVisibilityText,
       zoomToGeolocation: function () {
         if (mapControllerRef.value) {
           mapControllerRef.value.mapInstance.zoomToGeolocation()
@@ -260,16 +288,18 @@ export default createComponent({
   height: calc(100% - 47px);
   position: absolute;
 
-  .ol-switch-base {
-    position: absolute;
-    bottom: 35px;
-    left: 10px;
+  .ol-switch-base, .ol-switch-luilayer-visibility {
     background: #6E8501;
-    width: 88px;
+    position: relative;
+    width: auto;
+    height: auto;
+    text-align: center;
+    display: inline-block;
 
     button {
-      width: 80px;
-      font-size: 16px;
+      display: inline-block;
+      width: auto;
+      font-size: 14px;
     }
   }
 }
@@ -280,15 +310,22 @@ export default createComponent({
 
 .factory-button-group {
   position: fixed;
+  width: 100%;
+  left: 0;
   bottom: 60px;
+  display: flex;
+
+  flex-direction: column;
+  justify-content: center;
 
   .create-factory-button {
-    transform: translateX(calc(50vw - 102px));
+    max-width: 250px;
+    margin: 0 auto;
   }
 
   .choose-location-button {
     position: relative;
-    transform: translateX(calc(50vw - 72px));
+    margin: 0 auto;
 
     span {
       user-select: none;
@@ -301,6 +338,20 @@ export default createComponent({
     }
   }
 }
+
+.factory-secondary-actions-group {
+  max-width: 300px;
+  margin: 0 auto;
+
+  display: flex;
+  margin-bottom: 10px;
+  justify-content: center;
+
+  .ol-control:last-child {
+    margin-left: 5px;
+  }
+}
+
 
 .center-point {
   width: 25px;
