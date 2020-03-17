@@ -7,7 +7,12 @@
     </div>
 
     <div class="map-container">
-      <div ref="root" class="map" />
+      <div ref="root" class="map"></div>
+
+      <div class="region-alert" v-if="selectFactoryMode">
+        白色區域：農地範圍，為可回報範圍。<br>灰色區域：非農地範圍，不在回報範圍內。
+      </div>
+
       <div ref="popup" :class="['popup', { show: popupState.show }]" :style="{ borderColor: popupData.color }">
         <div class="close" @click="popupState.show = false" data-label="map-popup-close" />
         <small :style="{ color: popupData.color }">{{ popupData.status }}</small>
@@ -18,7 +23,7 @@
         </app-button>
       </div>
 
-      <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal" data-label="map-search">
+      <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal" data-label="map-search" v-show="!selectFactoryMode">
         <button>
           <img src="/images/filter.svg" alt="search">
         </button>
@@ -60,7 +65,6 @@
           >
             選擇此地點
           </app-button>
-          <span>可舉報範圍：白色區域</span>
         </div>
       </div>
     </div>
@@ -331,16 +335,6 @@ export default createComponent({
   .choose-location-button {
     position: relative;
     margin: 0 auto;
-
-    span {
-      user-select: none;
-      position: absolute;
-      color: white;
-      text-align: center;
-      width: 190px;
-      left: -22px;
-      top: 60px;
-    }
   }
 }
 
@@ -433,4 +427,18 @@ export default createComponent({
   left: 0;
   z-index: 2;
 }
+
+.region-alert {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  background-color: #6E8501;
+  color: white;
+  width: 100%;
+  padding: 10px 20px;
+  font-size: 14px;
+  line-height: 19px;
+}
+
 </style>
