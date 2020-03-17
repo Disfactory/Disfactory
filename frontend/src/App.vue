@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <app-alert />
     <app-navbar :hide="appState.factoryFormOpen || appState.selectFactoryMode" :fixed="true" @menu="modalActions.toggleSidebar">農地工廠回報</app-navbar>
     <app-sidebar v-model="modalState.sidebarOpen" :clickActions="sidebarActions" />
 
@@ -51,6 +52,7 @@ import Map from '@/components/Map.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSidebar from './components/AppSidebar.vue'
+import AppAlert from '@/components/AppAlert.vue'
 import FormPage from '@/components/FormPage.vue'
 
 import FilterModal from '@/components/FilterModal.vue'
@@ -73,6 +75,7 @@ export default createComponent({
   name: 'App',
   components: {
     Map,
+    AppAlert,
     AppButton,
     AppNavbar,
     AppSidebar,
