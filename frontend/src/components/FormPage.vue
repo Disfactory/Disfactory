@@ -120,7 +120,7 @@
         </div>
 
         <div class="text-center width-auto" style="margin-top: 60px;" v-if="isCreateMode">
-          <app-button @click="submitFactory()" :disabled="!formPageState.valid || formPageState.submitting"  data-label="form-create-submit">
+          <app-button @click="submitFactory()" :disabled="formPageState.submitting"  data-label="form-create-submit">
             {{ formPageState.submitting ? '上傳資料中' : '送出' }}
           </app-button>
         </div>
@@ -154,6 +154,7 @@ import { useBackPressed } from '../lib/useBackPressed'
 import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
 import { useAppState } from '../lib/appState'
+import { useAlertState } from '../lib/useAlert'
 
 export default createComponent({
   name: 'FormPage',
@@ -207,6 +208,7 @@ export default createComponent({
     let minimapController: MapFactoryController
     const [, modalActions] = useModalState()
     const [appState] = useAppState()
+    const [, alertActions] = useAlertState()
 
     const onBack = () => {
       if (mapController.value) {
@@ -415,6 +417,11 @@ export default createComponent({
         }
       },
       async submitFactory () {
+        if (!formPageState.valid) {
+          alertActions.showAlert('您沒上傳工廠照片，\n請上傳至少一張照片以完成回報。')
+          return
+        }
+
         formPageState.submitting = true
 
         try {

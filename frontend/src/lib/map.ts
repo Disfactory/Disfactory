@@ -518,12 +518,12 @@ export class OLMap {
 
   public zoomToGeolocation () {
     if (!this.geolocation) {
-      return
+      throw new Error('No location permission')
     }
 
     const location = this.geolocation.getPosition()
     if (!location) {
-      return
+      throw new Error('No location permission')
     }
 
     const view = this._map.getView()
