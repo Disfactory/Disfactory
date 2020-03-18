@@ -108,7 +108,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/images/zoom-out.svg"
   },
   {
-    "revision": "cb04281bdbe3926c6e3dbfefde203158",
+    "revision": "80a4ff1abad1806bd5d6d9bb45f37c8c",
     "url": "/index.html"
   },
   {
@@ -120,7 +120,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/js/chunk-vendors.a305e2fa.js"
   },
   {
-    "revision": "50601b136bb3d20b9f228c0eff96f834",
+    "revision": "d819828eda96bc566722a4f0d7e40d05",
     "url": "/manifest.json"
   },
   {
