@@ -151,6 +151,7 @@ import { MapFactoryController, initializeMinimap, getStatusBorderColor, getFacto
 import { isiOS, isSafari } from '../lib/browserCheck'
 import { MainMapControllerSymbol } from '../symbols'
 import { useBackPressed } from '../lib/useBackPressed'
+import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
 import { useAppState } from '../lib/appState'
 
@@ -201,6 +202,7 @@ export default createComponent({
     }
   },
   setup (props) {
+    const { event } = useGA()
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
     let minimapController: MapFactoryController
     const [, modalActions] = useModalState()
@@ -281,9 +283,11 @@ export default createComponent({
 
     const closeImageUploadModal = () => {
       formPageState.imageUploadModalOpen = false
+      event('closeImageUploadModal')
     }
     const openImageUploadModal = () => {
       formPageState.imageUploadModalOpen = true
+      event('openImageUploadModal')
     }
 
     const imagesToUpload = ref<FileList>([])
@@ -305,6 +309,7 @@ export default createComponent({
       try {
         fieldSubmittingState[updateKey] = true
 
+        event('updateFactory', { field })
         const factory = await updateFactory(factoryData.id, {
           [field]: value
         })
@@ -425,6 +430,7 @@ export default createComponent({
             contact: factoryFormState.contact
           }
 
+          event('createFactory', { lng, lat })
           const resultFactory = await createFactory(factory)
           if (mapController.value) {
             mapController.value.addFactories([resultFactory])

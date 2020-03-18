@@ -1,4 +1,5 @@
 import { ref, Ref, provide, inject, reactive, InjectionKey } from '@vue/composition-api'
+import { useGA } from './useGA'
 
 export const useModal = (defaultOpen = false): [Ref<boolean>, { open: () => void, dismiss: () => void }] => {
   const state = ref(defaultOpen)
@@ -77,6 +78,7 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
   if (!modalState) {
     throw new Error('Use useModalState before provideModalState')
   }
+  const { event } = useGA()
 
   const openUpdateFactorySuccessModal = () => { modalState.updateFactorySuccessModal = true }
   const closeUpdateFactorySuccessModal = () => { modalState.updateFactorySuccessModal = false }
@@ -101,13 +103,16 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
 
   const toggleSidebar = () => {
     const open = !modalState.sidebarOpen
+    event('toggleSidebar', { target: open })
     modalState.sidebarOpen = open
   }
 
   const closeFilterModal = () => {
+    event('closeFilterModal')
     modalState.filterModalOpen = false
   }
   const openFilterModal = () => {
+    event('openFilterModal')
     modalState.filterModalOpen = true
   }
 

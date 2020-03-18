@@ -78,6 +78,7 @@ import { Overlay } from 'ol'
 import OverlayPositioning from 'ol/OverlayPositioning'
 import { FactoryStatus } from '../types'
 import { useBackPressed } from '../lib/useBackPressed'
+import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
 import { useFactoryPopup, getPopupData } from '../lib/factoryPopup'
 import { useAppState } from '../lib/appState'
@@ -118,6 +119,7 @@ export default createComponent({
     }
   },
   setup (props) {
+    const { event } = useGA()
     const root = ref<HTMLElement>(null)
     const popup = ref<HTMLDivElement>(null)
     const factoryValid = ref(false)
@@ -176,6 +178,7 @@ export default createComponent({
         onMoved: async function ([longitude, latitude, range], canPlaceFactory) {
           factoryValid.value = canPlaceFactory
           factoryLngLat.value = [longitude, latitude]
+          event('moveMap')
           try {
             const factories = await getFactories(range, longitude, latitude)
             if (Array.isArray(factories)) {
@@ -187,6 +190,7 @@ export default createComponent({
         }, // TODO: do on start move to lock selection
         onClicked: async function (_, feature) {
           if (feature) {
+            event('clickPopup')
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             popupOverlay.setPosition((feature.getGeometry() as any).getCoordinates())
             setPopup(feature.getId() as string)
@@ -248,6 +252,7 @@ export default createComponent({
       setLUILayerVisibilityText,
       zoomToGeolocation: function () {
         if (mapControllerRef.value) {
+          event('zoomToGeolocation')
           mapControllerRef.value.mapInstance.zoomToGeolocation()
         }
       },
