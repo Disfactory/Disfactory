@@ -66,6 +66,7 @@ import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
 import { provideModalState, useModalState } from './lib/hooks'
 import { providePopupState } from './lib/factoryPopup'
+import { provideGA } from './lib/useGA'
 import { provideAppState, useAppState } from './lib/appState'
 
 export default createComponent({
@@ -85,7 +86,8 @@ export default createComponent({
     TutorialModal,
     FormPage
   },
-  setup () {
+  setup (_, context) {
+    provideGA(context)
     providePopupState()
     provideAppState()
 

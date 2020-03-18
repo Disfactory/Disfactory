@@ -39,6 +39,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import { createComponent, computed, reactive } from '@vue/composition-api'
 import { uploadImages, updateFactoryImages } from '../api'
+import { useGA } from '../lib/useGA'
 
 export default createComponent({
   name: 'FilterModal',
@@ -78,6 +79,7 @@ export default createComponent({
     }
   },
   setup (props) {
+    const { event } = useGA()
     const formState = reactive({
       nickname: '',
       contact: '',
@@ -103,6 +105,7 @@ export default createComponent({
 
         if (props.mode === 'create') {
           try {
+            event('uploadImages')
             // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const images = await uploadImages(props.images!)
             props.finishUploaderForm(formState.nickname, formState.contact)
@@ -118,6 +121,7 @@ export default createComponent({
             console.error(err)
           }
         } else {
+          event('updateFactoryImages')
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const images = await updateFactoryImages(props.factoryData.id, props.images!, {
             nickname: formState.nickname,
