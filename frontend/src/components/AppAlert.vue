@@ -1,5 +1,6 @@
 <template>
   <div class="app-alert" v-if="alert">
+    <div class="close" @click="dismiss" data-label="alert-close" />
     <img src="/images/alert.svg" alt="alert">
     <div>
       <div class="alert-title">{{ alert.title }}</div>
@@ -26,6 +27,8 @@ export default createComponent({
 </script>
 
 <style lang="scss" scoped>
+@import '~@/styles/utils';
+
 .app-alert {
   position: fixed;
   bottom: 0;
@@ -52,6 +55,18 @@ export default createComponent({
 
   .alert-descriptioin {
     font-size: 12px;
+  }
+
+  .close {
+    z-index: 2;
+    @include close-button;
+
+    top: 17px;
+    right: 17px;
+
+    &::before, &::after {
+      background-color: white;
+    }
   }
 }
 </style>

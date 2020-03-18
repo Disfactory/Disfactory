@@ -60,7 +60,6 @@
         <div class="choose-location-button" v-if="selectFactoryMode">
           <app-button
             @click="onClickFinishSelectFactoryPositionButton"
-            :disabled="!factoryValid"
             data-label="map-select-position"
           >
             選擇此地點
@@ -86,6 +85,7 @@ import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
 import { useFactoryPopup, getPopupData } from '../lib/factoryPopup'
 import { useAppState } from '../lib/appState'
+import { useAlertState } from '../lib/useAlert'
 
 export default createComponent({
   components: {
@@ -132,6 +132,7 @@ export default createComponent({
 
     const [, modalActions] = useModalState()
     const [appState] = useAppState()
+    const [, alertActions] = useAlertState()
 
     const [popupState] = useFactoryPopup()
     const popupData = computed(() => appState.factoryData ? getPopupData(appState.factoryData) : {})
@@ -237,6 +238,11 @@ export default createComponent({
 
     function onClickFinishSelectFactoryPositionButton () {
       if (!mapControllerRef.value) return
+
+      if (!factoryValid.value) {
+        alertActions.showAlert('此地點不在農地範圍內，\n請回報在農地範圍內的工廠。')
+        return
+      }
 
       mapControllerRef.value.mapInstance.setLUILayerVisible(false)
 
@@ -429,6 +435,7 @@ export default createComponent({
 }
 
 .region-alert {
+  user-select: none;
   position: absolute;
   top: 0;
   left: 0;

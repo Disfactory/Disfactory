@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <app-alert />
+    <app-alert :alert="alertState.alert" :dismiss="alertActions.dismissAlert" />
     <app-navbar :hide="appState.factoryFormOpen || appState.selectFactoryMode" :fixed="true" @menu="modalActions.toggleSidebar">農地工廠回報</app-navbar>
     <app-sidebar v-model="modalState.sidebarOpen" :clickActions="sidebarActions" />
 
@@ -70,6 +70,7 @@ import { provideModalState, useModalState } from './lib/hooks'
 import { providePopupState } from './lib/factoryPopup'
 import { provideGA } from './lib/useGA'
 import { provideAppState, useAppState } from './lib/appState'
+import { provideAlertState, useAlertState } from './lib/useAlert'
 
 export default createComponent({
   name: 'App',
@@ -93,18 +94,22 @@ export default createComponent({
     provideGA(context)
     providePopupState()
     provideAppState()
+    provideAlertState()
 
     provideModalState()
     localStorage.setItem('use-app', 'true')
 
     const [modalState, modalActions] = useModalState()
     const [appState, appActions] = useAppState()
+    const [alertState, alertActions] = useAlertState()
 
     // register global accessible map instance
     provide(MainMapControllerSymbol, ref<MapFactoryController>(null))
 
     return {
       appState,
+      alertState,
+      alertActions,
       appActions,
       sidebarActions: [
         modalActions.openTutorialModal,

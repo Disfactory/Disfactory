@@ -15,7 +15,8 @@ type Alert = {
 }
 
 type AlertState = {
-  alert: Alert | null
+  alert: Alert | null,
+  timeout?: number
 }
 
 export const provideAlertState = () => {
@@ -36,13 +37,19 @@ export const alertActions = (state: AlertState) => ({
       dismissText
     }
 
-    window.setTimeout(() => {
+    state.timeout = window.setTimeout(() => {
       state.alert = null
+      state.timeout = undefined
     }, timeouts)
   },
 
   dismissAlert: function () {
     state.alert = null
+
+    if (state.timeout) {
+      window.clearTimeout(state.timeout)
+      state.timeout = undefined
+    }
   }
 })
 
