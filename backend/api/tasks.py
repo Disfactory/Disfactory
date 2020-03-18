@@ -6,7 +6,7 @@ import requests
 import easymap
 from .models import Factory, Image
 
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger('django')
 
 
 def _upload_image_to_imgur(image_buffer, client_id):
@@ -17,7 +17,18 @@ def _upload_image_to_imgur(image_buffer, client_id):
         data=data,
         headers=headers,
     )
-    path = resp.json()['data']['link']
+    try:
+        resp_data = resp.json()
+        if 'errors' in resp_data:
+            credit_resp = requests.get(
+                'https://api.imgur.com/3/credits',
+                headers=headers,
+            )
+            LOGGER.error(f'Error upload to imgur. The credits remaining: {credit_resp.json()}')
+        path = resp_data['data']['link']
+    except Exception as e:
+        LOGGER.error(f'Error parsing imgur response data: {resp_data}')
+        raise e
     return path
 
 
@@ -29,11 +40,26 @@ def update_landcode(factory_id):
 
 
 def upload_image(image_path, client_id, image_id):
-    with open(image_path, 'rb') as f:
-        image_buffer = f.read()
+    LOGGER.info(f'Upload {image_id}: {image_path} with {client_id}')
     try:
+        with open(image_path, 'rb') as f:
+            image_buffer = f.read()
         path = _upload_image_to_imgur(image_buffer, client_id)
-    except Exception:
-        LOGGER.warning(f"Upload {image_path} to Imgur failed")
-    Image.objects.filter(pk=image_id).update(image_path=path)
-    os.remove(image_path)
+    except Exception as e:
+        LOGGER.error(f"Upload {image_path} to Imgur with client ID {client_id} failed {e}")
+
+    try:
+        Image.objects.filter(pk=image_id).update(image_path=path)
+    except Exception as e:
+        LOGGER.error(f"""
+            Upload success and get imgur url {path},
+            but other error happened when update image {image_id}
+        """)
+
+    try:
+        os.remove(image_path)
+    except Exception as e:
+        LOGGER.warning(f"""
+            {image_id} upload and write to DB success,
+            but other error happened when removing tempfile {image_path}.
+        """)

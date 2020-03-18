@@ -7,7 +7,12 @@
     </div>
 
     <div class="map-container">
-      <div ref="root" class="map" />
+      <div ref="root" class="map"></div>
+
+      <div class="region-alert" v-if="selectFactoryMode">
+        白色區域：農地範圍，為可回報範圍。<br>灰色區域：非農地範圍，不在回報範圍內。
+      </div>
+
       <div ref="popup" :class="['popup', { show: popupState.show }]" :style="{ borderColor: popupData.color }">
         <div class="close" @click="popupState.show = false" data-label="map-popup-close" />
         <small :style="{ color: popupData.color }">{{ popupData.status }}</small>
@@ -18,9 +23,9 @@
         </app-button>
       </div>
 
-      <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal" data-label="map-search">
+      <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal" data-label="map-search" v-show="!selectFactoryMode">
         <button>
-          <img src="/images/search.svg" alt="search">
+          <img src="/images/filter.svg" alt="search">
         </button>
       </div>
 
@@ -30,28 +35,35 @@
         </button>
       </div>
 
-      <div class="ol-switch-base ol-unselectable ol-control" @click="switchBaseMap" data-label="map-switch-base">
-        <button>
-          {{ baseMapName }}
-        </button>
-      </div>
 
       <div class="center-point" v-if="selectFactoryMode" />
 
       <div class="factory-button-group">
+        <div class="factory-secondary-actions-group">
+          <div class="ol-switch-luilayer-visibility ol-unselectable ol-control" data-label="map-set-luilayer-visibility" @click="toggleLUILayerVisibility" v-if="!selectFactoryMode">
+            <button>
+              {{ setLUILayerVisibilityText }}
+            </button>
+          </div>
+
+          <div class="ol-switch-base ol-unselectable ol-control" @click="switchBaseMap" data-label="map-switch-base">
+            <button>
+              {{ baseMapName }}
+            </button>
+          </div>
+        </div>
+
         <div class="create-factory-button" v-if="!selectFactoryMode">
-          <app-button @click="onClickCreateFactoryButton" data-label="map-create-factory">我要新增違章工廠</app-button>
+          <app-button @click="onClickCreateFactoryButton" data-label="map-create-factory" color="dark-green">我想新增可疑工廠</app-button>
         </div>
 
         <div class="choose-location-button" v-if="selectFactoryMode">
           <app-button
             @click="onClickFinishSelectFactoryPositionButton"
-            :disabled="!factoryValid"
             data-label="map-select-position"
           >
             選擇此地點
           </app-button>
-          <span>可舉報範圍：白色區域</span>
         </div>
       </div>
     </div>
@@ -69,9 +81,11 @@ import { Overlay } from 'ol'
 import OverlayPositioning from 'ol/OverlayPositioning'
 import { FactoryStatus } from '../types'
 import { useBackPressed } from '../lib/useBackPressed'
+import { useGA } from '@/lib/useGA'
 import { useModalState } from '../lib/hooks'
 import { useFactoryPopup, getPopupData } from '../lib/factoryPopup'
 import { useAppState } from '../lib/appState'
+import { useAlertState } from '../lib/useAlert'
 
 export default createComponent({
   components: {
@@ -109,6 +123,7 @@ export default createComponent({
     }
   },
   setup (props) {
+    const { event } = useGA()
     const root = ref<HTMLElement>(null)
     const popup = ref<HTMLDivElement>(null)
     const factoryValid = ref(false)
@@ -117,11 +132,26 @@ export default createComponent({
 
     const [, modalActions] = useModalState()
     const [appState] = useAppState()
+    const [, alertActions] = useAlertState()
 
     const [popupState] = useFactoryPopup()
     const popupData = computed(() => appState.factoryData ? getPopupData(appState.factoryData) : {})
     const baseMap = ref(0)
-    const baseMapName = computed(() => '切換底圖')
+    const baseMapName = computed(() => '切換不同地圖')
+
+    const luiVisibibility = ref(mapControllerRef?.value?.mapInstance.getLUILayerVisible() || false)
+    const setLUILayerVisibilityText = computed(() => {
+      if (luiVisibibility.value) {
+        return '隱藏農地範圍'
+      } else {
+        return '顯示農地範圍'
+      }
+    })
+    const toggleLUILayerVisibility = () => {
+      const bool = !luiVisibibility.value
+
+      mapControllerRef?.value?.mapInstance.setLUILayerVisible(bool)
+    }
 
     const setPopup = (id: string) => {
       if (!mapControllerRef.value) return
@@ -153,6 +183,7 @@ export default createComponent({
         onMoved: async function ([longitude, latitude, range], canPlaceFactory) {
           factoryValid.value = canPlaceFactory
           factoryLngLat.value = [longitude, latitude]
+          event('moveMap')
           try {
             const factories = await getFactories(range, longitude, latitude)
             if (Array.isArray(factories)) {
@@ -164,12 +195,16 @@ export default createComponent({
         }, // TODO: do on start move to lock selection
         onClicked: async function (_, feature) {
           if (feature) {
+            event('clickPopup')
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             popupOverlay.setPosition((feature.getGeometry() as any).getCoordinates())
             setPopup(feature.getId() as string)
           } else {
             popupState.show = false
           }
+        },
+        onLUILayerVisibilityChange: function (visible) {
+          luiVisibibility.value = visible
         }
       })
 
@@ -204,6 +239,11 @@ export default createComponent({
     function onClickFinishSelectFactoryPositionButton () {
       if (!mapControllerRef.value) return
 
+      if (!factoryValid.value) {
+        alertActions.showAlert('此地點不在農地範圍內，\n請回報在農地範圍內的工廠。')
+        return
+      }
+
       mapControllerRef.value.mapInstance.setLUILayerVisible(false)
 
       props.setFactoryLocation(factoryLngLat.value)
@@ -218,9 +258,16 @@ export default createComponent({
       factoryValid,
       baseMapName,
       switchBaseMap,
+      toggleLUILayerVisibility,
+      setLUILayerVisibilityText,
       zoomToGeolocation: function () {
         if (mapControllerRef.value) {
-          mapControllerRef.value.mapInstance.zoomToGeolocation()
+          event('zoomToGeolocation')
+          try {
+            mapControllerRef.value.mapInstance.zoomToGeolocation()
+          } catch (err) {
+            alertActions.showAlert('您沒開放手機定位權限， \n請開放定位權限以用定位功能。')
+          }
         }
       },
       onNavBack () {
@@ -260,16 +307,18 @@ export default createComponent({
   height: calc(100% - 47px);
   position: absolute;
 
-  .ol-switch-base {
-    position: absolute;
-    bottom: 35px;
-    left: 10px;
+  .ol-switch-base, .ol-switch-luilayer-visibility {
     background: #6E8501;
-    width: 88px;
+    position: relative;
+    width: auto;
+    height: auto;
+    text-align: center;
+    display: inline-block;
 
     button {
-      width: 80px;
-      font-size: 16px;
+      display: inline-block;
+      width: auto;
+      font-size: 14px;
     }
   }
 }
@@ -280,27 +329,38 @@ export default createComponent({
 
 .factory-button-group {
   position: fixed;
+  width: 100%;
+  left: 0;
   bottom: 60px;
+  display: flex;
+
+  flex-direction: column;
+  justify-content: center;
 
   .create-factory-button {
-    transform: translateX(calc(50vw - 102px));
+    max-width: 250px;
+    margin: 0 auto;
   }
 
   .choose-location-button {
     position: relative;
-    transform: translateX(calc(50vw - 72px));
-
-    span {
-      user-select: none;
-      position: absolute;
-      color: white;
-      text-align: center;
-      width: 190px;
-      left: -22px;
-      top: 60px;
-    }
+    margin: 0 auto;
   }
 }
+
+.factory-secondary-actions-group {
+  max-width: 300px;
+  margin: 0 auto;
+
+  display: flex;
+  margin-bottom: 10px;
+  justify-content: center;
+
+  .ol-control:last-child {
+    margin-left: 5px;
+  }
+}
+
 
 .center-point {
   width: 25px;
@@ -377,4 +437,19 @@ export default createComponent({
   left: 0;
   z-index: 2;
 }
+
+.region-alert {
+  user-select: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  background-color: #6E8501;
+  color: white;
+  width: 100%;
+  padding: 10px 20px;
+  font-size: 14px;
+  line-height: 19px;
+}
+
 </style>

@@ -1,6 +1,7 @@
 <template>
   <div id="app">
-    <app-navbar :hide="appState.factoryFormOpen || appState.selectFactoryMode" :fixed="true" @menu="modalActions.toggleSidebar">農地違章工廠舉報</app-navbar>
+    <app-alert :alert="alertState.alert" :dismiss="alertActions.dismissAlert" />
+    <app-navbar :hide="appState.factoryFormOpen || appState.selectFactoryMode" :fixed="true" @menu="modalActions.toggleSidebar">農地工廠回報</app-navbar>
     <app-sidebar v-model="modalState.sidebarOpen" :clickActions="sidebarActions" />
 
     <filter-modal :open="modalState.filterModalOpen" :dismiss="modalActions.closeFilterModal" />
@@ -51,6 +52,7 @@ import Map from '@/components/Map.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
 import AppButton from '@/components/AppButton.vue'
 import AppSidebar from './components/AppSidebar.vue'
+import AppAlert from '@/components/AppAlert.vue'
 import FormPage from '@/components/FormPage.vue'
 
 import FilterModal from '@/components/FilterModal.vue'
@@ -66,12 +68,15 @@ import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
 import { provideModalState, useModalState } from './lib/hooks'
 import { providePopupState } from './lib/factoryPopup'
+import { provideGA } from './lib/useGA'
 import { provideAppState, useAppState } from './lib/appState'
+import { provideAlertState, useAlertState } from './lib/useAlert'
 
 export default createComponent({
   name: 'App',
   components: {
     Map,
+    AppAlert,
     AppButton,
     AppNavbar,
     AppSidebar,
@@ -85,21 +90,25 @@ export default createComponent({
     TutorialModal,
     FormPage
   },
-  setup () {
+  setup (_, context) {
+    provideGA(context)
     providePopupState()
     provideAppState()
+    provideAlertState()
 
     provideModalState()
-    localStorage.setItem('use-app', 'true')
 
     const [modalState, modalActions] = useModalState()
     const [appState, appActions] = useAppState()
+    const [alertState, alertActions] = useAlertState()
 
     // register global accessible map instance
     provide(MainMapControllerSymbol, ref<MapFactoryController>(null))
 
     return {
       appState,
+      alertState,
+      alertActions,
       appActions,
       sidebarActions: [
         modalActions.openTutorialModal,

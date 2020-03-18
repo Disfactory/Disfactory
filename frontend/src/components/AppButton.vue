@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="{ outline, disabled, rect, blue: color === 'blue', red: color === 'red', gray: color === 'gray' }"
+    :class="{ outline, disabled, rect, blue: color === 'blue', red: color === 'red', gray: color === 'gray', 'dark-green': color === 'dark-green' }"
     @click="click"
   >
     <slot />
@@ -65,7 +65,7 @@ button {
 
   &:hover {
     cursor: pointer;
-    background-color: lighten($primary-color, 20%);
+    background-color: lighten($primary-color, 10%);
   }
 
   &.disabled {
@@ -75,19 +75,27 @@ button {
 
   &.blue {
     &:hover {
-      background-color: lighten($blue-color, 20%);
+      background-color: lighten($blue-color, 10%);
     }
   }
 
   &.red {
     &:hover {
-      background-color: lighten($red-color, 20%);
+      background-color: lighten($red-color, 10%);
     }
   }
 
   &.gray {
     &:hover {
-      background-color: lighten($gray-color, 20%);
+      background-color: lighten($gray-color, 10%);
+    }
+  }
+
+  &.dark-green {
+    background-color: $dark-green-color;
+
+    &:hover {
+      background-color: lighten($dark-green-color, 10%);
     }
   }
 }

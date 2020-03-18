@@ -147,6 +147,8 @@ export default createComponent({
     color: $primary-color;
     margin-bottom: 15px;
     line-height: 1.5em;
+    user-select: none;
+    cursor: pointer;
 
     &:hover, &:active {
       color: white;

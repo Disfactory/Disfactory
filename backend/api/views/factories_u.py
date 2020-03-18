@@ -1,3 +1,4 @@
+import logging
 import json
 from datetime import datetime
 
@@ -15,8 +16,7 @@ from .utils import _get_client_ip
 
 from django.core.exceptions import ObjectDoesNotExist
 
-import logging
-LOGGER = logging.getLogger(__name__)
+LOGGER = logging.getLogger('django')
 
 @api_view(['PUT', 'GET'])
 def update_factory_attribute(request, factory_id):
