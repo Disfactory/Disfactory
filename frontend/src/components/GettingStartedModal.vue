@@ -13,7 +13,7 @@
         <p>大家的回報會由地球公民基金會彙整追蹤後向政府舉報。</p>
 
         <small>
-          行動前請同意資料貢獻授權條款與隱私條款。本網站由地球公民基金會與 g0v.tw 社群共同開發。
+          行動前請同意資料貢獻<a>授權條款</a>與<a>隱私條款</a>。本網站由<a href="https://www.cet-taiwan.org/" target="_blank">地球公民基金會</a>與 <a href="https://g0v.tw/" target="_blank">g0v.tw</a> 社群共同開發。
         </small>
 
         <app-button @click="agree()">我同意加入回報</app-button>
