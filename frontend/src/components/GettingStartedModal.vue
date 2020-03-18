@@ -50,7 +50,9 @@ export default createComponent({
     return {
       agree: function () {
         localStorage.setItem('use-app', 'true')
-        props.dismiss()
+        if (props.dismiss) {
+          props.dismiss()
+        }
       }
     }
   }
