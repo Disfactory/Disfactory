@@ -22,7 +22,7 @@
     <h3>聯絡資料</h3>
     <app-text-field
       v-model="formState.contact"
-      placeholder="例：0912345678"
+      placeholder="例：hi@gmail.tw,0912345678"
     />
 
     <div style="margin-top: 35px;">
