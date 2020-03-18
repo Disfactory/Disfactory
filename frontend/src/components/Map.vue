@@ -263,7 +263,11 @@ export default createComponent({
       zoomToGeolocation: function () {
         if (mapControllerRef.value) {
           event('zoomToGeolocation')
-          mapControllerRef.value.mapInstance.zoomToGeolocation()
+          try {
+            mapControllerRef.value.mapInstance.zoomToGeolocation()
+          } catch (err) {
+            alertActions.showAlert('您沒開放手機定位權限， \n請開放定位權限以用定位功能。')
+          }
         }
       },
       onNavBack () {
