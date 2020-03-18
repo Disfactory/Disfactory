@@ -97,7 +97,6 @@ export default createComponent({
     provideAlertState()
 
     provideModalState()
-    localStorage.setItem('use-app', 'true')
 
     const [modalState, modalActions] = useModalState()
     const [appState, appActions] = useAppState()
