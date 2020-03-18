@@ -114,8 +114,8 @@ export default createComponent({
         modalActions.openTutorialModal,
         modalActions.openSafetyModal,
         modalActions.openContactModal,
-        'https://about.disfactory.tw',
-        modalActions.openAboutModal
+        'https://about.disfactory.tw/#section-f_c360c8de-447e-4c0a-a856-4af18b9a5240',
+        'https://about.disfactory.tw'
       ],
       modalState,
       modalActions

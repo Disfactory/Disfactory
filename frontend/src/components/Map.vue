@@ -9,10 +9,6 @@
     <div class="map-container">
       <div ref="root" class="map"></div>
 
-      <div class="region-alert" v-if="selectFactoryMode">
-        白色區域：農地範圍，為可回報範圍。<br>灰色區域：非農地範圍，不在回報範圍內。
-      </div>
-
       <div ref="popup" :class="['popup', { show: popupState.show }]" :style="{ borderColor: popupData.color }">
         <div class="close" @click="popupState.show = false" data-label="map-popup-close" />
         <small :style="{ color: popupData.color }">{{ popupData.status }}</small>
@@ -21,6 +17,10 @@
         <app-button outline @click="onClickEditFactoryData" :color="getButtonColorFromStatus()" data-label="map-popup-modify">
           補充資料
         </app-button>
+      </div>
+
+      <div class="region-alert" v-if="selectFactoryMode">
+        白色區域：農地範圍，為可回報範圍。<br>灰色區域：非農地範圍，不在回報範圍內。
       </div>
 
       <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal" data-label="map-search" v-show="!selectFactoryMode">
