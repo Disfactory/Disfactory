@@ -48,10 +48,10 @@ export default createComponent({
   },
   setup (props) {
     const filters = reactive({
-      [FactoryStatus.NEW]: false,
-      [FactoryStatus.EXISTING_INCOMPLETE]: false,
-      [FactoryStatus.EXISTING_COMPLETE]: false,
-      [FactoryStatus.REPORTED]: false
+      [FactoryStatus.NEW]: true,
+      [FactoryStatus.EXISTING_INCOMPLETE]: true,
+      [FactoryStatus.EXISTING_COMPLETE]: true,
+      [FactoryStatus.REPORTED]: true
     })
 
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())

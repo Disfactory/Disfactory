@@ -4,7 +4,7 @@
   >
     <div class="app-modal-backdrop" @click="dismiss" data-label="modal-backdrop" />
     <div class="app-modal">
-      <div class="close" @click="dismiss" v-if="showCloseButon" data-label="modal-close" />
+      <div class="close" @click="dismiss" v-if="showCloseButton" data-label="modal-close" />
       <slot />
     </div>
   </div>
@@ -23,7 +23,7 @@ export default createComponent({
     dismiss: {
       type: Function
     },
-    showCloseButon: {
+    showCloseButton: {
       type: Boolean,
       default: true
     }
