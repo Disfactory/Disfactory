@@ -219,3 +219,8 @@ Q_CLUSTER = {
     'orm': 'default',
     'bulk': 4,
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.environ.get('DISFACTORY_BACKEND_MEDIA_ROOT', '/tmp')
+
+DOMAIN = os.environ.get('DISFACTORY_BACKEND_DOMAIN', 'https://api.disfactory.tw/')
