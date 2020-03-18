@@ -20,7 +20,7 @@ module.exports = {
     }
   },
   pwa: {
-    name: 'Disfactory',
+    name: '農地違章工廠',
     themeColor: '#2196f3',
     workboxOptions: {
       skipWaiting: true,
