@@ -67,6 +67,7 @@ jobs:
             git config user.email "ci-build@disfactory.tw"
             git config user.name "ci-build"
             echo "dev.disfactory.tw" > frontend/dist/CNAME
+            echo "User-agent: *\nDisallow: /" > frontend/dist/robots.txt
       - add_ssh_keys:
           fingerprints:
             - "15:64:e1:a2:bf:d0:8e:4b:4f:f1:22:2d:62:18:1b:ad"
