@@ -41,6 +41,18 @@ import { createComponent, computed, reactive } from '@vue/composition-api'
 import { uploadImages, updateFactoryImages } from '../api'
 import { useGA } from '../lib/useGA'
 
+const mapFileListToArray = (fileList: FileList) => {
+  let arr = []
+  for (let i = 0; i < fileList.length; i++) {
+    arr.push(fileList[i])
+  }
+  return arr
+}
+
+const mapFileUrl = (file: File) => {
+  return URL.createObjectURL(file)
+}
+
 export default createComponent({
   name: 'FilterModal',
   components: {
@@ -128,7 +140,8 @@ export default createComponent({
             contact: formState.contact
           })
           props.finishUploaderForm(formState.nickname, formState.contact)
-          await props.finishImagesUpload(images, [])
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          await props.finishImagesUpload(images, mapFileListToArray(props.images!).map(mapFileUrl))
 
           formState.uploading = false
           props.dismiss()
