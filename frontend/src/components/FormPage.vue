@@ -512,5 +512,12 @@ export default createComponent({
 
 .minimap {
   cursor: pointer;
+
+  @media (min-width: 767.99999px) {
+    display: block;
+    margin: 0 auto;
+    max-width: 500px;
+    max-height: 400px;
+  }
 }
 </style>
