@@ -117,6 +117,7 @@ export default createComponent({
     img {
       display: block;
       margin: 0 auto;
+      max-height: 65vh;
     }
 
     h2 {
