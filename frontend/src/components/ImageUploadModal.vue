@@ -42,7 +42,7 @@ import { uploadImages, updateFactoryImages } from '../api'
 import { useGA } from '../lib/useGA'
 
 const mapFileListToArray = (fileList: FileList) => {
-  let arr = []
+  const arr = []
   for (let i = 0; i < fileList.length; i++) {
     arr.push(fileList[i])
   }

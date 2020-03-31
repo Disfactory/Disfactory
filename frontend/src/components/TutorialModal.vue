@@ -46,7 +46,7 @@
 
 <script lang="ts">
 import AppModal from '@/components/AppModal.vue'
-import { createComponent, ref, computed, onMounted } from '@vue/composition-api'
+import { createComponent, ref, computed } from '@vue/composition-api'
 import { Carousel, Slide } from 'vue-carousel'
 
 export default createComponent({
@@ -72,13 +72,18 @@ export default createComponent({
     const isAdd = computed(() => page.value === 'add')
     const isUpdate = computed(() => page.value === 'update')
 
+    const createCarousel = ref<HTMLElement>(null)
+    const updateCarousel = ref<HTMLElement>(null)
+
     const openHome = () => { page.value = 'home' }
     const openAdd = () => {
-      createCarousel.value.goToPage(0)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-explicit-any
+      (createCarousel.value! as any).goToPage(0)
       page.value = 'add'
     }
     const openUpdate = () => {
-      updateCarousel.value.goToPage(0)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-explicit-any
+      (updateCarousel.value! as any).goToPage(0)
       page.value = 'update'
     }
 
@@ -90,9 +95,6 @@ export default createComponent({
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       props.dismiss!()
     }
-
-    const createCarousel = ref<HTMLElement>(null)
-    const updateCarousel = ref<HTMLElement>(null)
 
     return {
       isHome,

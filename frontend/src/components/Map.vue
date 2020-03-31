@@ -35,7 +35,6 @@
         </button>
       </div>
 
-
       <div class="center-point" v-if="selectFactoryMode" />
 
       <div class="factory-button-group">
@@ -360,7 +359,6 @@ export default createComponent({
     margin-left: 5px;
   }
 }
-
 
 .center-point {
   width: 25px;
