@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
+<townItem>
+    <towncode>66000000</towncode>
+    <townname>臺中市</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000006</towncode>
+    <townname>臺中市民政局</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000010</towncode>
+    <towncode01>B01</towncode01>
+    <townname>臺中市中區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000020</towncode>
+    <towncode01>B02</towncode01>
+    <townname>臺中市東區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000030</towncode>
+    <towncode01>B03</towncode01>
+    <townname>臺中市南區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000040</towncode>
+    <towncode01>B04</towncode01>
+    <townname>臺中市西區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000050</towncode>
+    <towncode01>B05</towncode01>
+    <townname>臺中市北區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000060</towncode>
+    <towncode01>B06</towncode01>
+    <townname>臺中市西屯區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000070</towncode>
+    <towncode01>B07</towncode01>
+    <townname>臺中市南屯區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000080</towncode>
+    <towncode01>B08</towncode01>
+    <townname>臺中市北屯區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000090</towncode>
+    <towncode01>B09</towncode01>
+    <townname>臺中市豐原區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000100</towncode>
+    <towncode01>B10</towncode01>
+    <townname>臺中市東勢區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000110</towncode>
+    <towncode01>B11</towncode01>
+    <townname>臺中市大甲區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000120</towncode>
+    <towncode01>B12</towncode01>
+    <townname>臺中市清水區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000130</towncode>
+    <towncode01>B13</towncode01>
+    <townname>臺中市沙鹿區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000140</towncode>
+    <towncode01>B14</towncode01>
+    <townname>臺中市梧棲區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000150</towncode>
+    <towncode01>B15</towncode01>
+    <townname>臺中市后里區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000160</towncode>
+    <towncode01>B16</towncode01>
+    <townname>臺中市神岡區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000170</towncode>
+    <towncode01>B17</towncode01>
+    <townname>臺中市潭子區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000180</towncode>
+    <towncode01>B18</towncode01>
+    <townname>臺中市大雅區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000190</towncode>
+    <towncode01>B19</towncode01>
+    <townname>臺中市新社區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000200</towncode>
+    <towncode01>B20</towncode01>
+    <townname>臺中市石岡區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000210</towncode>
+    <towncode01>B21</towncode01>
+    <townname>臺中市外埔區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000220</towncode>
+    <towncode01>B22</towncode01>
+    <townname>臺中市大安區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000230</towncode>
+    <towncode01>B23</towncode01>
+    <townname>臺中市烏日區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000240</towncode>
+    <towncode01>B24</towncode01>
+    <townname>臺中市大肚區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000250</towncode>
+    <towncode01>B25</towncode01>
+    <townname>臺中市龍井區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000260</towncode>
+    <towncode01>B26</towncode01>
+    <townname>臺中市霧峰區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000270</towncode>
+    <towncode01>B27</towncode01>
+    <townname>臺中市太平區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000280</towncode>
+    <towncode01>B28</towncode01>
+    <townname>臺中市大里區</townname>
+</townItem>
+
+<townItem>
+    <towncode>66000290</towncode>
+    <towncode01>B29</towncode01>
+    <townname>臺中市和平區</townname>
+</townItem>
+</townItems>
