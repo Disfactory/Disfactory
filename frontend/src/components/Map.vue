@@ -220,7 +220,8 @@ export default createComponent({
           permalink.load(window.location)
 
           if (permalink.dumps() !== '') {
-            return [permalink.lng(), permalink.lat(), permalink.zoom()]
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return [permalink.lng()!, permalink.lat()!, permalink.zoom()!]
           }
         }
       })
