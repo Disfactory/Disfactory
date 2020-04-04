@@ -358,8 +358,7 @@ export class OLMap {
       const zoom = view.getZoom()!
 
       // resolution in meter
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const resolution = view.getResolutionForZoom(zoom!)
+      const resolution = view.getResolutionForZoom(zoom)
       const range = Math.ceil(resolution / 2)
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
