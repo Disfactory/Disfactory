@@ -73,7 +73,7 @@ INSTALLED_APPS = [
 if DEBUG:
     DJANGO_LOGGER_HANDLER = ["file", "console", "db"]
 else:
-    DJANGO_LOGGER_HANDLER = ["db"]  # no need to log to console and file since we cannot access both on middle2
+    DJANGO_LOGGER_HANDLER = ["db", "file", "console"]  # no need to log to console and file since we cannot access both on middle2
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -179,7 +179,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+STATIC_ROOT = "./static/"
 STATIC_URL = "/static/"
 AUTH_USER_MODEL = "users.CustomUser"
 
