@@ -71,11 +71,11 @@ def get_land_number(x, y):
     land_number = get_door_info(sess, x=x, y=y, city=city, token=token)
     sess.close()
     with open(f'./towncode/{land_number["towncode"][0]}.xml','r') as f:
-        tree=ET.fromstring(f.read())
+        tree = ET.fromstring(f.read())
     if tree:
         for child in tree.getchildren():
             if land_number['towncode'] in child[1].text:
-                land_number['townname'] = child[2].text  
+                land_number['townname'] = child[2].text
     return land_number
 
 
