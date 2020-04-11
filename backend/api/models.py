@@ -46,6 +46,9 @@ class Factory(models.Model):
     landcode = models.CharField(max_length=50, blank=True, null=True)
     towncode = models.CharField(max_length=50, blank=True, null=True)
     townname = models.CharField(max_length=50, blank=True, null=True)
+    sectcode = models.CharField(max_length=50, blank=True, null=True)
+    sectname = models.CharField(max_length=50, blank=True, null=True)
+
 
     name = models.CharField(max_length=50, blank=True, null=True)
     factory_type = models.CharField(
