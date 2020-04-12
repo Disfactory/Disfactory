@@ -51,6 +51,10 @@ class FactoryAdmin(admin.ModelAdmin):
         'lat',
         'lng',
         'landcode',
+        'sectcode',
+        'sectname',
+        'towncode',
+        'townname',
         'id',
     )
     list_filter = (
