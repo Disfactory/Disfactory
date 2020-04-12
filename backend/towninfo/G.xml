@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
+<townItem>
+    <towncode>10002000</towncode>
+    <townname>臺灣省宜蘭縣</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002006</towncode>
+    <townname>臺灣省宜蘭縣民政處</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002010</towncode>
+    <towncode01>G01</towncode01>
+    <townname>臺灣省宜蘭縣宜蘭市</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002020</towncode>
+    <towncode01>G06</towncode01>
+    <townname>臺灣省宜蘭縣羅東鎮</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002030</towncode>
+    <towncode01>G09</towncode01>
+    <townname>臺灣省宜蘭縣蘇澳鎮</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002040</towncode>
+    <towncode01>G02</towncode01>
+    <townname>臺灣省宜蘭縣頭城鎮</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002050</towncode>
+    <towncode01>G03</towncode01>
+    <townname>臺灣省宜蘭縣礁溪鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002060</towncode>
+    <towncode01>G04</towncode01>
+    <townname>臺灣省宜蘭縣壯圍鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002070</towncode>
+    <towncode01>G05</towncode01>
+    <townname>臺灣省宜蘭縣員山鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002080</towncode>
+    <towncode01>G08</towncode01>
+    <townname>臺灣省宜蘭縣冬山鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002090</towncode>
+    <towncode01>G07</towncode01>
+    <townname>臺灣省宜蘭縣五結鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002100</towncode>
+    <towncode01>G10</towncode01>
+    <townname>臺灣省宜蘭縣三星鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002110</towncode>
+    <towncode01>G11</towncode01>
+    <townname>臺灣省宜蘭縣大同鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10002120</towncode>
+    <towncode01>G12</towncode01>
+    <townname>臺灣省宜蘭縣南澳鄉</townname>
+</townItem>
+</townItems>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
+<townItem>
+    <towncode>10004000</towncode>
+    <townname>臺灣省新竹縣</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004006</towncode>
+    <townname>臺灣省新竹縣民政處</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004010</towncode>
+    <towncode01>J05</towncode01>
+    <townname>臺灣省新竹縣竹北市</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004020</towncode>
+    <towncode01>J02</towncode01>
+    <townname>臺灣省新竹縣竹東鎮</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004030</towncode>
+    <towncode01>J04</towncode01>
+    <townname>臺灣省新竹縣新埔鎮</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004040</towncode>
+    <towncode01>J03</towncode01>
+    <townname>臺灣省新竹縣關西鎮</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004050</towncode>
+    <towncode01>J06</towncode01>
+    <townname>臺灣省新竹縣湖口鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004060</towncode>
+    <towncode01>J09</towncode01>
+    <townname>臺灣省新竹縣新豐鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004070</towncode>
+    <towncode01>J10</towncode01>
+    <townname>臺灣省新竹縣芎林鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004080</towncode>
+    <towncode01>J08</towncode01>
+    <townname>臺灣省新竹縣橫山鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004090</towncode>
+    <towncode01>J12</towncode01>
+    <townname>臺灣省新竹縣北埔鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004100</towncode>
+    <towncode01>J11</towncode01>
+    <townname>臺灣省新竹縣寶山鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004110</towncode>
+    <towncode01>J13</towncode01>
+    <townname>臺灣省新竹縣峨眉鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004120</towncode>
+    <towncode01>J14</towncode01>
+    <townname>臺灣省新竹縣尖石鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10004130</towncode>
+    <towncode01>J15</towncode01>
+    <townname>臺灣省新竹縣五峰鄉</townname>
+</townItem>
+</townItems>

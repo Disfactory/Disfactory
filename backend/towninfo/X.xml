@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
+<townItem>
+    <towncode>10016000</towncode>
+    <townname>臺灣省澎湖縣</townname>
+</townItem>
+
+<townItem>
+    <towncode>10016006</towncode>
+    <townname>臺灣省澎湖縣民政處</townname>
+</townItem>
+
+<townItem>
+    <towncode>10016010</towncode>
+    <towncode01>X01</towncode01>
+    <townname>臺灣省澎湖縣馬公市</townname>
+</townItem>
+
+<townItem>
+    <towncode>10016020</towncode>
+    <towncode01>X02</towncode01>
+    <townname>臺灣省澎湖縣湖西鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10016030</towncode>
+    <towncode01>X03</towncode01>
+    <townname>臺灣省澎湖縣白沙鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10016040</towncode>
+    <towncode01>X04</towncode01>
+    <townname>臺灣省澎湖縣西嶼鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10016050</towncode>
+    <towncode01>X05</towncode01>
+    <townname>臺灣省澎湖縣望安鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>10016060</towncode>
+    <towncode01>X06</towncode01>
+    <townname>臺灣省澎湖縣七美鄉</townname>
+</townItem>
+</townItems>

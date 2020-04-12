@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
+<townItem>
+    <towncode>10017000</towncode>
+    <townname>臺灣省基隆市</townname>
+</townItem>
+
+<townItem>
+    <towncode>10017006</towncode>
+    <townname>臺灣省基隆市民政處</townname>
+</townItem>
+
+<townItem>
+    <towncode>10017010</towncode>
+    <towncode01>C01</towncode01>
+    <townname>臺灣省基隆市中正區</townname>
+</townItem>
+
+<townItem>
+    <towncode>10017020</towncode>
+    <towncode01>C02</towncode01>
+    <townname>臺灣省基隆市七堵區</townname>
+</townItem>
+
+<townItem>
+    <towncode>10017030</towncode>
+    <towncode01>C03</towncode01>
+    <townname>臺灣省基隆市暖暖區</townname>
+</townItem>
+
+<townItem>
+    <towncode>10017040</towncode>
+    <towncode01>C04</towncode01>
+    <townname>臺灣省基隆市仁愛區</townname>
+</townItem>
+
+<townItem>
+    <towncode>10017050</towncode>
+    <towncode01>C05</towncode01>
+    <townname>臺灣省基隆市中山區</townname>
+</townItem>
+
+<townItem>
+    <towncode>10017060</towncode>
+    <towncode01>C06</towncode01>
+    <townname>臺灣省基隆市安樂區</townname>
+</townItem>
+
+<townItem>
+    <towncode>10017070</towncode>
+    <towncode01>C07</towncode01>
+    <townname>臺灣省基隆市信義區</townname>
+</townItem>
+</townItems>
