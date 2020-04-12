@@ -20,8 +20,14 @@ def forward_func(apps, schema_editor):
         factories = Factory.objects.filter(before_release=True).all()
         idx2factory = {}
         for factory in factories:
-            idx = int(factory.name.split('.')[1])
-            idx2factory[idx] = factory
+            try:
+                idx = int(factory.name.split('.')[1])
+                idx2factory[idx] = factory
+            except Exception:
+                # for system online, some before_release data have new name,
+                # thus it's not possible to retrieve its original index
+                # simply ignore them
+                pass
 
         for idx, datum in enumerate(reader):
             if idx not in idx2factory:
