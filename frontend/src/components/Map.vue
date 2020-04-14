@@ -85,6 +85,7 @@ import { useModalState } from '../lib/hooks'
 import { useFactoryPopup, getPopupData } from '../lib/factoryPopup'
 import { useAppState } from '../lib/appState'
 import { useAlertState } from '../lib/useAlert'
+import { permalink } from '../lib/permalink'
 
 export default createComponent({
   components: {
@@ -179,7 +180,12 @@ export default createComponent({
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const mapController = initializeMap(root.value!, {
-        onMoved: async function ([longitude, latitude, range], canPlaceFactory) {
+        onMoved: async function ([longitude, latitude, range, zoom], canPlaceFactory) {
+          permalink.lat(latitude)
+          permalink.lng(longitude)
+          permalink.zoom(zoom)
+          window.location.hash = permalink.dumps()
+
           factoryValid.value = canPlaceFactory
           factoryLngLat.value = [longitude, latitude]
           event('moveMap')
@@ -204,6 +210,19 @@ export default createComponent({
         },
         onLUILayerVisibilityChange: function (visible) {
           luiVisibibility.value = visible
+        },
+        onZoomed: function (zoom) {
+          permalink.zoom(zoom)
+          window.location.hash = permalink.dumps()
+        }
+      }, {
+        getInitialLocation: function () {
+          permalink.load(window.location)
+
+          if (permalink.dumps() !== '') {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            return [permalink.lng()!, permalink.lat()!, permalink.zoom()!]
+          }
         }
       })
 
