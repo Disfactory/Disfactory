@@ -22,7 +22,7 @@
 
         <div id="tutorial-add-factory" v-show="isAdd">
 
-          <carousel :per-page="1" paginationActiveColor='#6E8501' paginationColor='#e3e3e3' :paginationPadding="5">
+          <carousel :per-page="1" paginationActiveColor='#6E8501' paginationColor='#e3e3e3' :paginationPadding="5" ref="createCarousel">
             <slide v-for="(image, index) in addImages" :key="image">
               <h2>新增違章工廠({{index + 1}}/5)</h2>
               <img :src="image">
@@ -31,7 +31,7 @@
         </div>
 
         <div id="tutorial-update-factory" v-show="isUpdate">
-          <carousel :per-page="1" paginationActiveColor='#6E8501' paginationColor='#e3e3e3' :paginationPadding="5">
+          <carousel :per-page="1" paginationActiveColor='#6E8501' paginationColor='#e3e3e3' :paginationPadding="5" ref="updateCarousel">
             <slide v-for="(image, index) in updateImages" :key="image">
               <h2>補充工廠資訊({{index + 1}}/2)</h2>
               <img :src="image">
@@ -72,9 +72,20 @@ export default createComponent({
     const isAdd = computed(() => page.value === 'add')
     const isUpdate = computed(() => page.value === 'update')
 
+    const createCarousel = ref<HTMLElement>(null)
+    const updateCarousel = ref<HTMLElement>(null)
+
     const openHome = () => { page.value = 'home' }
-    const openAdd = () => { page.value = 'add' }
-    const openUpdate = () => { page.value = 'update' }
+    const openAdd = () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-explicit-any
+      (createCarousel.value! as any).goToPage(0)
+      page.value = 'add'
+    }
+    const openUpdate = () => {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-explicit-any
+      (updateCarousel.value! as any).goToPage(0)
+      page.value = 'update'
+    }
 
     const addImages = new Array(5).fill(true).map((_, index) => `/images/tutorial/new_${index + 1}.png`)
     const updateImages = new Array(2).fill(true).map((_, index) => `/images/tutorial/update_${index + 1}.png`)
@@ -94,7 +105,9 @@ export default createComponent({
       openUpdate,
       addImages,
       updateImages,
-      onDismissClick
+      onDismissClick,
+      createCarousel,
+      updateCarousel
     }
   }
 })
@@ -117,6 +130,7 @@ export default createComponent({
     img {
       display: block;
       margin: 0 auto;
+      max-height: 65vh;
     }
 
     h2 {

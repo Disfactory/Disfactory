@@ -83,13 +83,10 @@ export default createComponent({
     height: auto;
 
     img {
-      height: 200px;
+      max-height: 45vh;
+
       display: block;
       margin: 0 auto;
-
-      @media (max-width: 480px) {
-        height: 130px;
-      }
     }
 
     h2 {

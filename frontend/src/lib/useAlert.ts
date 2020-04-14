@@ -30,7 +30,7 @@ export const provideAlertState = () => {
 }
 
 export const alertActions = (state: AlertState) => ({
-  showAlert: function (title: string, timeouts: number = 3000, level: AlertLevel = AlertLevel.warn, dismissText = '此錯誤訊息將在3秒後消失。') {
+  showAlert: function (title: string, timeouts = 3000, level: AlertLevel = AlertLevel.warn, dismissText = '此錯誤訊息將在3秒後消失。') {
     state.alert = {
       title,
       level,
@@ -58,4 +58,3 @@ export const useAlertState: () => [AlertState, ReturnType<typeof alertActions>] 
 
   return [alertState, alertActions(alertState)]
 }
-

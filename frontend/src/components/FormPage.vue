@@ -61,7 +61,6 @@
           </div>
         </div>
 
-
         <h2>
           補充其他資訊
           <small>
@@ -85,7 +84,6 @@
             </app-button>
           </div>
         </div>
-
 
         <h3>工廠外部文字</h3>
         <div class="flex align-items-center">
@@ -512,5 +510,12 @@ export default createComponent({
 
 .minimap {
   cursor: pointer;
+
+  @media (min-width: 767.99999px) {
+    display: block;
+    margin: 0 auto;
+    max-width: 500px;
+    max-height: 400px;
+  }
 }
 </style>

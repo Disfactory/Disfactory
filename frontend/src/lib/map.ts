@@ -104,6 +104,7 @@ export class MapFactoryController {
     FactoryStatus.EXISTING_COMPLETE,
     FactoryStatus.REPORTED
   ]
+
   private _factoriesLayerSource?: VectorSource
   private factoryMap = new Map<string, FactoryData>()
 
@@ -384,7 +385,6 @@ export class OLMap {
         handler.onClicked([lng, lat], feature)
       }
     })
-
 
     this.getLUIMAPLayer().then(layer => {
       layer.on('change:visible', function () {
