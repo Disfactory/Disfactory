@@ -16,8 +16,8 @@ export const permalink = new class implements KeyFn<PermaLinkState> {
     const m = /^#map=([\d.]+)\/([\d.]+)\/([\d.]+)$/.exec(loc.hash)
     if (m !== null) {
       this.s.zoom = parseFloat(m[1])
-      this.s.lat = parseFloat(m[2])
-      this.s.lng = parseFloat(m[3])
+      this.s.lng = parseFloat(m[2])
+      this.s.lat = parseFloat(m[3])
     }
   }
 
@@ -25,7 +25,7 @@ export const permalink = new class implements KeyFn<PermaLinkState> {
     if (fields.some(f => typeof this.s[f] === 'undefined')) {
       return ''
     }
-    return `#map=${this.s.zoom?.toFixed(2)}/${this.s.lat}/${this.s.lng}`
+    return `#map=${this.s.zoom?.toFixed(2)}/${this.s.lng}/${this.s.lat}`
   }
 
   defineGetterSetter (key: keyof PermaLinkState) {
