@@ -42,7 +42,7 @@
       <div class="location-tooltip" v-if="locationTooltipVisibility">
         <div class="circle" />
         <div class="line" />
-        <div class="box">
+        <div class="box flex justify-between">
           <p>
             經度：{{ factoryLngLat[0].toFixed(7) }}
             <br>
@@ -50,6 +50,10 @@
             <br>
             <small>以上經緯度版本為WGS84</small>
           </p>
+
+          <div class="flex align-items-end">
+            <app-button color="white" small>搜尋經緯度</app-button>
+          </div>
         </div>
       </div>
 
