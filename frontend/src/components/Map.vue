@@ -35,7 +35,23 @@
         </button>
       </div>
 
-      <div class="center-point" v-if="selectFactoryMode" />
+      <div class="center-point" v-if="selectFactoryMode && !locationTooltipVisibility" />
+      <!--
+      <div class="location-tooltip-backdrop" v-if="locationTooltipVisibility" />
+      -->
+      <div class="location-tooltip" v-if="locationTooltipVisibility">
+        <div class="circle" />
+        <div class="line" />
+        <div class="box">
+          <p>
+            經度：{{ factoryLngLat[0].toFixed(7) }}
+            <br>
+            緯度：{{ factoryLngLat[1].toFixed(7) }}
+            <br>
+            <small>以上經緯度版本為WGS84</small>
+          </p>
+        </div>
+      </div>
 
       <div class="factory-button-group">
         <div class="factory-secondary-actions-group">
@@ -48,6 +64,12 @@
           <div class="ol-switch-base ol-unselectable ol-control" @click="switchBaseMap" data-label="map-switch-base">
             <button>
               {{ baseMapName }}
+            </button>
+          </div>
+
+          <div class="ol-switch-base ol-unselectable ol-control" @click="toggleLocationTooltipVisibility" data-label="map-location-tooltip" v-if="selectFactoryMode">
+            <button>
+              {{ locationTooltipControlText }}
             </button>
           </div>
         </div>
@@ -170,6 +192,18 @@ export default createComponent({
 
       props.openEditFactoryForm(appState.factoryData)
     }
+
+    const locationTooltipVisibility = ref(false)
+    const toggleLocationTooltipVisibility = () => {
+      locationTooltipVisibility.value = !locationTooltipVisibility.value
+    }
+    const locationTooltipControlText = computed(() => {
+      if (locationTooltipVisibility.value) {
+        return '隱藏經緯度'
+      } else {
+        return '顯示經緯度'
+      }
+    })
 
     onMounted(() => {
       const popupOverlay = new Overlay({
@@ -308,7 +342,11 @@ export default createComponent({
           [FactoryStatus.EXISTING_COMPLETE]: 'gray',
           [FactoryStatus.REPORTED]: 'default'
         }[status]
-      }
+      },
+      locationTooltipVisibility,
+      toggleLocationTooltipVisibility,
+      locationTooltipControlText,
+      factoryLngLat
     }
   }
 })
@@ -385,7 +423,7 @@ export default createComponent({
   border-radius: 50%;
   display: block;
   background-color: $red-color;
-  border: solid 2px white;
+  border: solid 1px white;
 
   position: fixed;
   top: 50%;
@@ -393,6 +431,73 @@ export default createComponent({
   z-index: 2;
 
   transform: translate(calc(50vw - 12.5px), 12.5px);
+}
+
+.location-tooltip {
+  width: 0.1px;
+  height: 0.1px;
+
+  position: fixed;
+  top: 50%;
+  left: 50vw;
+
+  z-index: 2;
+
+  .circle {
+    position: absolute;
+    background-color: $dark-green-color;
+
+    transform: translate(-12.5px, 12.5px);
+
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    display: block;
+    border: solid 1px white;
+  }
+
+  .line {
+    width: 4px;
+    height: 60px;
+    background-color: $dark-green-color;
+    border-width: 0 1px;
+    border-style: solid;
+    border-color: white;
+
+    position: absolute;
+    transform: translate(-2px, -46px);
+  }
+
+  .box {
+    width: 287px;
+    height: 85px;
+    background-color: $dark-green-color;
+    color: white;
+    padding: 12px 16px;
+    border: solid 1px white;
+
+    transform: translate(-143.5px, -130px);
+
+    p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    small {
+      margin-top: 1em;
+    }
+  }
+}
+
+.location-tooltip-backdrop {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
 @keyframes fadein {
