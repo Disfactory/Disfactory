@@ -86,6 +86,7 @@
           <app-button
             @click="onClickFinishSelectFactoryPositionButton"
             data-label="map-select-position"
+            color="dark-green"
           >
             選擇此地點
           </app-button>
