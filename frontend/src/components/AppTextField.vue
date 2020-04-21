@@ -3,6 +3,7 @@
     v-bind="$attrs"
     v-model="inputValue"
     :type="type"
+    :class="{ small }"
   >
 </template>
 
@@ -18,6 +19,10 @@ export default createComponent({
     value: {
       type: String,
       required: true
+    },
+    small: {
+      type: Boolean,
+      default: false
     }
   },
   setup (props, context) {
@@ -47,6 +52,11 @@ input {
 
   &::placeholder {
     color: rgb(186, 186, 186);
+  }
+
+  &.small {
+    font-size: 14px;
+    padding: 3px 10px;
   }
 }
 </style>

@@ -36,13 +36,11 @@
       </div>
 
       <div class="center-point" v-if="selectFactoryMode && !locationTooltipVisibility" />
-      <!--
-      <div class="location-tooltip-backdrop" v-if="locationTooltipVisibility" />
-      -->
-      <div class="location-tooltip" v-if="locationTooltipVisibility">
+      <div class="location-tooltip-backdrop" v-if="selectFactoryMode && showLocationInput" @click="dismissLocationInput" />
+      <div class="location-tooltip" v-if="selectFactoryMode && locationTooltipVisibility">
         <div class="circle" />
         <div class="line" />
-        <div class="box flex justify-between">
+        <div class="box flex justify-between" v-if="!showLocationInput">
           <p>
             經度：{{ factoryLngLat[0].toFixed(7) }}
             <br>
@@ -52,7 +50,22 @@
           </p>
 
           <div class="flex align-items-end">
-            <app-button color="white" small>搜尋經緯度</app-button>
+            <app-button color="white" small @click="onClickLocationSearch">搜尋經緯度</app-button>
+          </div>
+        </div>
+        <div class="box box-input flex flex-column" v-if="showLocationInput">
+          <div>
+            <label>經度：</label>
+            <app-text-field type="number" placeholder="請輸入經度。例：121.5253618" small v-model="inputLongitude" />
+          </div>
+
+          <div>
+            <label>緯度：</label>
+            <app-text-field type="number" placeholder="請輸入緯度。例：25.0459660" small v-model="inputLatitude" />
+          </div>
+
+          <div style="text-align: center;">
+            <app-button color="white" small auto @click="onClickSubmitLocation">定位</app-button>
           </div>
         </div>
       </div>
@@ -99,6 +112,7 @@
 <script lang="ts">
 import AppButton from '@/components/AppButton.vue'
 import AppNavbar from '@/components/AppNavbar.vue'
+import AppTextField from '@/components/AppTextField.vue'
 import { createComponent, onMounted, ref, inject, computed } from '@vue/composition-api'
 import { initializeMap, MapFactoryController, getFactoryStatus } from '../lib/map'
 import { getFactories } from '../api'
@@ -117,7 +131,8 @@ import { permalink } from '../lib/permalink'
 export default createComponent({
   components: {
     AppButton,
-    AppNavbar
+    AppNavbar,
+    AppTextField
   },
   props: {
     openCreateFactoryForm: {
@@ -199,6 +214,7 @@ export default createComponent({
     }
 
     const locationTooltipVisibility = ref(false)
+    const showLocationInput = ref(false)
     const toggleLocationTooltipVisibility = () => {
       locationTooltipVisibility.value = !locationTooltipVisibility.value
     }
@@ -209,6 +225,31 @@ export default createComponent({
         return '顯示經緯度'
       }
     })
+    const inputLongitude = ref('')
+    const inputLatitude = ref('')
+    const onClickLocationSearch = () => {
+      showLocationInput.value = true
+    }
+    const dismissLocationInput = () => {
+      showLocationInput.value = false
+    }
+    const onClickSubmitLocation = () => {
+      if (!mapControllerRef.value) return
+
+      const lng = parseFloat(inputLongitude.value)
+      const lat = parseFloat(inputLatitude.value)
+      if (!inputLongitude.value ||
+          !inputLatitude.value ||
+          isNaN(lng) ||
+          isNaN(lat)
+      ) {
+        // TODO: show invalid input error
+        dismissLocationInput()
+      } else {
+        mapControllerRef.value.mapInstance.setCoordinate(lng, lat)
+        dismissLocationInput()
+      }
+    }
 
     onMounted(() => {
       const popupOverlay = new Overlay({
@@ -289,6 +330,8 @@ export default createComponent({
       mapControllerRef.value.mapInstance.setLUILayerVisible(true)
       props.enterSelectFactoryMode()
       popupState.show = false
+      locationTooltipVisibility.value = false
+      showLocationInput.value = false
 
       useBackPressed(onBack)
     }
@@ -351,7 +394,13 @@ export default createComponent({
       locationTooltipVisibility,
       toggleLocationTooltipVisibility,
       locationTooltipControlText,
-      factoryLngLat
+      factoryLngLat,
+      showLocationInput,
+      onClickLocationSearch,
+      onClickSubmitLocation,
+      dismissLocationInput,
+      inputLongitude,
+      inputLatitude
     }
   }
 })
@@ -478,7 +527,7 @@ export default createComponent({
     height: 85px;
     background-color: $dark-green-color;
     color: white;
-    padding: 12px 16px;
+    padding: 12px 18px;
     border: solid 1px white;
 
     transform: translate(-143.5px, -130px);
@@ -491,6 +540,23 @@ export default createComponent({
 
     small {
       margin-top: 1em;
+    }
+  }
+
+  .box-input {
+    height: auto;
+    transform: translate(-143.5px, -200px);
+
+    label {
+      font-size: 14px;
+    }
+
+    input {
+      margin-top: 5px;
+    }
+
+    & > div:not(:last-child) {
+      margin-bottom: 15px;
     }
   }
 }

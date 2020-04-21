@@ -407,8 +407,10 @@ export class OLMap {
     })
   }
 
-  public setCoordinate (longitude: number, latitude: number, zoom: number) {
+  public setCoordinate (longitude: number, latitude: number, zoom: number | undefined = undefined) {
     const view = this.map.getView()
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    zoom = zoom || view.getZoom()!
     view.setCenter(transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857'))
     view.setZoom(zoom)
   }

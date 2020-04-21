@@ -1,6 +1,6 @@
 <template>
   <button
-    :class="{ outline, disabled, rect, small, ...{ [color]: true }}"
+    :class="{ outline, disabled, rect, small, auto, ...{ [color]: true }}"
     @click="click"
   >
     <slot />
@@ -30,6 +30,10 @@ export default createComponent({
       default: 'default'
     },
     small: {
+      type: Boolean,
+      default: false
+    },
+    auto: {
       type: Boolean,
       default: false
     }
@@ -115,6 +119,10 @@ button {
     &:hover {
       background-color: darken(white, 10%);
     }
+  }
+
+  &.auto {
+    width: auto;
   }
 }
 
