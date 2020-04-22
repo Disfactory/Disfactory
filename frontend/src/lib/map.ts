@@ -407,7 +407,7 @@ export class OLMap {
     })
   }
 
-  public setCoordinate (longitude: number, latitude: number, zoom: number | undefined = undefined) {
+  public setCoordinate (longitude: number, latitude: number, zoom?: number) {
     const view = this.map.getView()
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     zoom = zoom || view.getZoom()!
