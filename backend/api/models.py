@@ -123,4 +123,6 @@ class Image(models.Model):
     # the DB saving time
 
     orig_time = models.DateTimeField(blank=True, null=True)
+    orig_lat = models.FloatField(blank=True, null=True)
+    orig_lng = models.FloatField(blank=True, null=True)
     # the actual photo taken time
