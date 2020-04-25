@@ -160,7 +160,7 @@ class PostFactoryImageViewTestCase(TestCase):
         patch_async_tasks.assert_not_called()
 
         resp_data = resp.json()
-        img_id = resp_data['token']
+        img_id = resp_data['id']
         img = Image.objects.get(pk=img_id)
 
         self.assertEqual(img.created_at, test_time)
