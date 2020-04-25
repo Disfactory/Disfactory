@@ -85,8 +85,8 @@ class PostImageViewTestCase(TestCase):
             'data': {
                 'path': fake_path,
                 'exif': {
-                    'latitude': fake_lat,
-                    'longitude': fake_lng,
+                    'Latitude': fake_lat,
+                    'Longitude': fake_lng,
                     'DateTimeOriginal': fake_datetime_str,
                 }
             }
@@ -103,7 +103,10 @@ class PostImageViewTestCase(TestCase):
         resp_data = resp.json()
         img_id = resp_data['token']
         img = Image.objects.get(pk=img_id)
-        self.assertEqual(img.path, fake_path)
-        self.assertEqual(img.orig_time, dateime.strptime(fake_datetime_str, "%Y:%m:%d %H:%M:%S"))
+        self.assertEqual(img.image_path, fake_path)
+        self.assertEqual(
+            img.orig_time,
+            datetime.strptime(fake_datetime_str, "%Y:%m:%d %H:%M:%S").replace(tzinfo=timezone.utc),
+        )
         self.assertEqual(img.orig_lat, fake_lat)
         self.assertEqual(img.orig_lng, fake_lng)
