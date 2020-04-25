@@ -42,9 +42,27 @@ class FactoryWithReportRecords(SimpleListFilter):
         return queryset
 
 
+class ExportCsvMixin:
+
+    def export_as_csv(self, request, queryset):
+        meta = self.model._meta
+        field_names = [field for field in self.list_display]
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+        writer = csv.writer(response)
+
+        writer.writerow(field_names)
+        for obj in queryset:
+            writer.writerow([getattr(obj, field) for field in field_names])
+
+        return response
+
+    export_as_csv.short_description = '輸出成 csv 檔'
+
 # Register your models here.
 @admin.register(Factory)
-class FactoryAdmin(admin.ModelAdmin):
+class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = (
         'name',
         'created_at',
@@ -66,25 +84,9 @@ class FactoryAdmin(admin.ModelAdmin):
     ordering = ["-created_at"]
     actions = ["export_as_csv"]
 
-    def export_as_csv(self, request, queryset):
-        meta = self.model._meta
-        field_names = [field for field in self.list_display]
-
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
-        writer = csv.writer(response)
-
-        writer.writerow(field_names)
-        for obj in queryset:
-            writer.writerow([getattr(obj, field) for field in field_names])
-
-        return response
-
-    export_as_csv.short_description = '輸出成 csv 檔'
-
 
 @admin.register(Image)
-class ImageAdmin(admin.ModelAdmin):
+class ImageAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = (
         'created_at',
         'image_path',
@@ -94,10 +96,11 @@ class ImageAdmin(admin.ModelAdmin):
         'id',
     )
     ordering = ['orig_time', '-created_at']
+    actions = ["export_as_csv"]
 
 
 @admin.register(ReportRecord)
-class ReportRecordAdmin(admin.ModelAdmin):
+class ReportRecordAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = (
         'factory',
         'action_type',
@@ -112,3 +115,4 @@ class ReportRecordAdmin(admin.ModelAdmin):
         'action_type',
     )
     ordering = ["-created_at"]
+    actions = ["export_as_csv"]
