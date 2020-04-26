@@ -60,6 +60,15 @@ class ExportCsvMixin:
 
     export_as_csv.short_description = '輸出成 csv 檔'
 
+
+class ReportRecordInline(admin.TabularInline):
+    model = ReportRecord
+
+
+class ImageInline(admin.TabularInline):
+    model = Image
+
+
 # Register your models here.
 @admin.register(Factory)
 class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
@@ -83,6 +92,8 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
     )
     ordering = ["-created_at"]
     actions = ["export_as_csv"]
+
+    inlines = [ReportRecordInline, ImageInline]
 
 
 @admin.register(Image)
