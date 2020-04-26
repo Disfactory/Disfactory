@@ -96,3 +96,5 @@ dump.rdb
 
 images/
 static/
+
+client_secrets.json

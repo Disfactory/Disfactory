@@ -20,6 +20,10 @@ django-cors-headers = "*"
 gunicorn = "*"
 django-q = "==1.0.2"
 django-db-logger = "*"
+google-api-python-client = "*"
+google-auth-httplib2 = "*"
+google-auth-oauthlib = "*"
+pydrive = "*"
 
 [requires]
 python_version = "3.7"
