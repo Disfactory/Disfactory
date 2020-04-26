@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import json
 from unittest.mock import patch
 from pathlib import Path
 
@@ -72,3 +73,40 @@ class PostImageViewTestCase(TestCase):
                 resp = cli.post("/api/images", {'image': f_img}, format='multipart')
 
         self.assertEqual(resp.status_code, 400)
+
+    @patch("django_q.tasks.async_task")
+    def test_upload_img_url_directly(self, patch_async_tasks):
+        cli = Client()
+        fake_path = 'https://i.imgur.com/123456.png'
+        fake_lat = 23.12
+        fake_lng = 121.5566
+        fake_datetime_str = "2020:03:21 12:33:59"
+        post_data = {
+            'data': {
+                'path': fake_path,
+                'exif': {
+                    'Latitude': fake_lat,
+                    'Longitude': fake_lng,
+                    'DateTimeOriginal': fake_datetime_str,
+                }
+            }
+        }
+        with open(HERE / "20180311_132133.jpg", "rb") as f_img:
+            resp = cli.post("/api/images", {
+                'image': f_img,
+                'json': json.dumps(post_data),
+            }, format='multipart')
+
+        self.assertEqual(resp.status_code, 200)
+        patch_async_tasks.assert_not_called()
+
+        resp_data = resp.json()
+        img_id = resp_data['token']
+        img = Image.objects.get(pk=img_id)
+        self.assertEqual(img.image_path, fake_path)
+        self.assertEqual(
+            img.orig_time,
+            datetime.strptime(fake_datetime_str, "%Y:%m:%d %H:%M:%S").replace(tzinfo=timezone.utc),
+        )
+        self.assertEqual(img.orig_lat, fake_lat)
+        self.assertEqual(img.orig_lng, fake_lng)

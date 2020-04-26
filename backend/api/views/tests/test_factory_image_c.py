@@ -1,3 +1,4 @@
+import json
 from uuid import uuid4
 from datetime import datetime, timezone
 from unittest.mock import patch
@@ -125,3 +126,56 @@ class PostFactoryImageViewTestCase(TestCase):
         self.assertEqual(resp.status_code, 400)
         expected_msg = f'Factory ID {not_exist_factory_id} does not exist.'
         self.assertEqual(resp.content, expected_msg.encode('utf8'))
+
+    @patch("django_q.tasks.async_task")
+    def test_upload_img_url_directly(self, patch_async_tasks):
+        cli = Client()
+        fake_path = 'https://i.imgur.com/123456.png'
+        fake_lat = 23.12
+        fake_lng = 121.5566
+        fake_datetime_str = "2020:03:21 12:33:59"
+        post_data = {
+            'data': {
+                'path': fake_path,
+                'exif': {
+                    'Latitude': fake_lat,
+                    'Longitude': fake_lng,
+                    'DateTimeOriginal': fake_datetime_str,
+                }
+            }
+        }
+        cli = Client()
+        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
+        with freeze_time(test_time):
+            with open(HERE / "20180311_132133_noexif.jpg", "rb") as f_img:
+                resp = cli.post(
+                    f"/api/factories/{self.factory.id}/images",
+                    {
+                        'image': f_img,
+                        'json': json.dumps(post_data),
+                    },
+                format='multipart')
+
+        self.assertEqual(resp.status_code, 200)
+        patch_async_tasks.assert_not_called()
+
+        resp_data = resp.json()
+        img_id = resp_data['id']
+        img = Image.objects.get(pk=img_id)
+
+        self.assertEqual(img.created_at, test_time)
+        self.assertEqual(img.factory_id, self.factory.id)
+
+        report_record_id = img.report_record_id
+        self.assertIsNotNone(report_record_id)
+        report_record = ReportRecord.objects.get(pk=report_record_id)
+        self.assertEqual(report_record.factory_id, self.factory.id)
+        self.assertEqual(report_record.action_type, "POST_IMAGE")
+
+        self.assertEqual(img.image_path, fake_path)
+        self.assertEqual(
+            img.orig_time,
+            datetime.strptime(fake_datetime_str, "%Y:%m:%d %H:%M:%S").replace(tzinfo=timezone.utc),
+        )
+        self.assertEqual(img.orig_lat, fake_lat)
+        self.assertEqual(img.orig_lng, fake_lng)
