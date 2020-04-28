@@ -63,10 +63,12 @@ class ExportCsvMixin:
 
 class ReportRecordInline(admin.TabularInline):
     model = ReportRecord
+    extra = 0
 
 
 class ImageInline(admin.TabularInline):
     model = Image
+    extra = 0
 
 
 # Register your models here.
