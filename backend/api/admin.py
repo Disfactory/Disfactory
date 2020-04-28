@@ -116,7 +116,7 @@ class ImageInlineForFactory(admin.TabularInline):
         return obj.report_record.nickname
 
     def image_show(self, obj):
-        return mark_safe(f'<img src="{obj.image_path}" />')
+        return mark_safe(f'<img src="{obj.image_path}" style="max-width:500px; height:auto"/>')
 
     image_show.short_description = 'Image Preview'
     get_report_nickname.short_description = 'Nickname'
