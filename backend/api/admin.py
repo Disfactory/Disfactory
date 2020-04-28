@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from django.http import HttpResponse
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
+from django.utils.html import mark_safe
 
 from .models import Factory, Image, ReportRecord
 
@@ -63,12 +64,63 @@ class ExportCsvMixin:
 
 class ReportRecordInline(admin.TabularInline):
     model = ReportRecord
+    fields = (
+        'created_at',
+        'nickname',
+        'contact',
+        'others',
+        'action_type',
+        'action_body',
+        'user_ip',
+        'id',
+    )
+    readonly_fields = (
+        'created_at',
+        'nickname',
+        'contact',
+        'others',
+        'action_type',
+        'action_body',
+        'user_ip',
+        'id',
+    )
     extra = 0
 
 
-class ImageInline(admin.TabularInline):
+class ImageInlineForFactory(admin.TabularInline):
     model = Image
+    fields = (
+        'image_show',
+        'created_at',
+        'get_report_nickname',
+        'get_report_contact',
+        'id',
+        'image_path',
+        'report_record',
+    )
+    readonly_fields = (
+        'id',
+        'report_record',
+        'image_path',
+        'image_show',
+        'created_at',
+        'get_report_nickname',
+        'get_report_contact',
+    )
     extra = 0
+
+    def get_report_contact(self, obj):
+        return obj.report_record.contact
+
+    def get_report_nickname(self, obj):
+        return obj.report_record.nickname
+
+    def image_show(self, obj):
+        return mark_safe(f'<img src="{obj.image_path}" />')
+
+    image_show.short_description = 'Image Preview'
+    get_report_nickname.short_description = 'Nickname'
+    get_report_contact.short_description = 'Contact'
 
 
 # Register your models here.
@@ -95,7 +147,7 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
     ordering = ["-created_at"]
     actions = ["export_as_csv"]
 
-    inlines = [ReportRecordInline, ImageInline]
+    inlines = [ImageInlineForFactory, ReportRecordInline]
 
 
 @admin.register(Image)
