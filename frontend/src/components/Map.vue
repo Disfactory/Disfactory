@@ -246,7 +246,11 @@ export default createComponent({
         // TODO: show invalid input error
         dismissLocationInput()
       } else {
-        mapControllerRef.value.mapInstance.setCoordinate(lng, lat)
+        let zoom = mapControllerRef.value.mapInstance.map.getView().getZoom()
+        if (!zoom || zoom <= 17) {
+          zoom = 17
+        }
+        mapControllerRef.value.mapInstance.setCoordinate(lng, lat, zoom)
         dismissLocationInput()
       }
     }
