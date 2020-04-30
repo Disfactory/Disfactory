@@ -22,3 +22,11 @@ class ReportRecord(SoftDeleteMixin):
     nickname = models.CharField(max_length=64, blank=True, null=True)
     contact = models.CharField(max_length=64, blank=True, null=True)
     others = models.CharField(max_length=1024, blank=True)
+
+
+class RecycledReportRecord(ReportRecord):
+
+    class Meta:
+        proxy = True
+
+    objects = ReportRecord.recycle_objects

@@ -36,3 +36,11 @@ class Image(SoftDeleteMixin):
     orig_lat = models.FloatField(blank=True, null=True)
     orig_lng = models.FloatField(blank=True, null=True)
     # the actual photo taken time
+
+
+class RecycledImage(Image):
+
+    class Meta:
+        proxy = True
+
+    objects = Image.recycle_objects

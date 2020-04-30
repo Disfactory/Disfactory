@@ -82,3 +82,11 @@ class Factory(SoftDeleteMixin):
         self.point = Point(self.lng, self.lat, srid=4326)
         self.point.transform(settings.POSTGIS_SRID)
         super(Factory, self).save(*args, **kwargs)
+
+
+class RecycledFactory(Factory):
+
+    class Meta:
+        proxy = True
+
+    objects = Factory.recycle_objects
