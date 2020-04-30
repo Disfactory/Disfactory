@@ -7,6 +7,9 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.html import mark_safe
 
 from .models import Factory, Image, ReportRecord
+from .models.factory import RecycledFactory
+from .models.image import RecycledImage
+from .models.report_record import RecycledReportRecord
 
 
 class FactoryWithReportRecords(SimpleListFilter):
@@ -60,6 +63,14 @@ class ExportCsvMixin:
         return response
 
     export_as_csv.short_description = '輸出成 csv 檔'
+
+
+class RestoreMixin:
+
+    def restore(self, request, queryset):
+        queryset.undelete()
+
+    restore.short_description = '回復'
 
 
 class ReportRecordInline(admin.TabularInline):
@@ -156,6 +167,25 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
     get_name.short_description = 'name'
 
 
+@admin.register(RecycledFactory)
+class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):
+    list_display = (
+        'get_name',
+        'deleted_at',
+        'id',
+    )
+
+    actions = ["restore"]
+    ordering = ["-deleted_at"]
+
+    inlines = [ImageInlineForFactory, ReportRecordInline]
+
+    def get_name(self, obj):
+        return obj.name or '_'
+
+    get_name.short_description = 'name'
+
+
 @admin.register(Image)
 class ImageAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = (
@@ -168,6 +198,19 @@ class ImageAdmin(admin.ModelAdmin, ExportCsvMixin):
     )
     ordering = ['orig_time', '-created_at']
     actions = ["export_as_csv"]
+
+
+@admin.register(RecycledImage)
+class RecycledImageAdmin(admin.ModelAdmin, RestoreMixin):
+    list_display = (
+        'deleted_at',
+        'image_path',
+        'factory',
+        'report_record',
+        'id',
+    )
+    actions = ["restore"]
+    ordering = ['-deleted_at']
 
 
 @admin.register(ReportRecord)
@@ -187,3 +230,18 @@ class ReportRecordAdmin(admin.ModelAdmin, ExportCsvMixin):
     )
     ordering = ["-created_at"]
     actions = ["export_as_csv"]
+
+
+@admin.register(RecycledReportRecord)
+class RecycledReportRecordAdmin(admin.ModelAdmin, RestoreMixin):
+    list_display = (
+        'deleted_at',
+        'factory',
+        'action_type',
+        'id',
+    )
+    list_filter = (
+        'action_type',
+    )
+    ordering = ["-deleted_at"]
+    actions = ["restore"]
