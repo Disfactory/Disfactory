@@ -5,9 +5,56 @@ from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
 from django.contrib.postgres.fields import JSONField
+from django.db.models import query
+from django.utils import timezone
 
 
-class Factory(models.Model):
+class SoftDeleteQuerySet(query.QuerySet):
+    def delete(self):
+        self.update(deleted_at=timezone.now())
+
+
+class RecycleBinQuerySet(query.QuerySet):
+    def undelete(self):
+        self.update(deleted_at=None)
+
+
+class SoftDeleteManager(models.Manager):
+    def get_queryset(self):
+        return SoftDeleteQuerySet(
+            self.model,
+            using=self._db
+        ).filter(deleted_at__isnull=True)
+
+
+class RecycleBinManager(models.Manager):
+    def get_queryset(self):
+        return RecycleBinQuerySet(
+            self.model,
+            using=self._db
+        ).filter(deleted_at__isnull=False)
+
+
+class SoftDeleteMixin(models.Model):
+    class Meta:
+        abstract = True
+
+    deleted_at = models.DateTimeField(null=True, blank=True)
+
+    objects = SoftDeleteManager()
+    raw_objects = models.Manager()
+    recycle_objects = RecycleBinManager()
+
+    def delete(self):
+        self.deleted_at = timezone.now()
+        self.save()
+
+    def undelete(self):
+        self.deleted_at = None
+        self.save()
+
+
+class Factory(SoftDeleteMixin):
     """Factories that are potential to be illegal."""
 
     # List of fact_type & status
@@ -84,7 +131,7 @@ class Factory(models.Model):
         super(Factory, self).save(*args, **kwargs)
 
 
-class ReportRecord(models.Model):
+class ReportRecord(SoftDeleteMixin):
     """Report records send by users.
 
     `ReportRecord` will be queried in advanced by admins from
@@ -103,7 +150,7 @@ class ReportRecord(models.Model):
     others = models.CharField(max_length=1024, blank=True)
 
 
-class Image(models.Model):
+class Image(SoftDeleteMixin):
     """Images of factories that are uploaded by user."""
     id = models.UUIDField(
         primary_key=True,
