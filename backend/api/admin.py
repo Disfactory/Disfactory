@@ -127,7 +127,7 @@ class ImageInlineForFactory(admin.TabularInline):
 @admin.register(Factory)
 class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = (
-        'name',
+        'get_name',
         'created_at',
         'lat',
         'lng',
@@ -136,6 +136,7 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
         'sectname',
         'towncode',
         'townname',
+        'factory_type',
         'id',
     )
     list_filter = (
@@ -148,6 +149,11 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
     actions = ["export_as_csv"]
 
     inlines = [ImageInlineForFactory, ReportRecordInline]
+
+    def get_name(self, obj):
+        return obj.name or '_'
+
+    get_name.short_description = 'name'
 
 
 @admin.register(Image)
