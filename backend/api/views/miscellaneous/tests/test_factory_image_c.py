@@ -35,7 +35,7 @@ class PostFactoryImageViewTestCase(TestCase):
             with open(HERE / "20180311_132133.jpg", "rb") as f_img:
                 with patch('uuid.uuid4', return_value='temp_image'):
                     resp = cli.post(
-                        f"/api/factories/{self.factory.id}/images",
+                        f"/api/legacy/factories/{self.factory.id}/images",
                         {'image': f_img, 'nickname': nickname, 'contact': contact},
                         format='multipart',
                     )
@@ -71,7 +71,7 @@ class PostFactoryImageViewTestCase(TestCase):
             with open(HERE / "20180311_132133_noexif.jpg", "rb") as f_img:
                 with patch('uuid.uuid4', return_value='temp_image'):
                     resp = cli.post(
-                        f"/api/factories/{self.factory.id}/images",
+                        f"/api/legacy/factories/{self.factory.id}/images",
                         {'image': f_img},
                         format='multipart',
                     )
@@ -103,7 +103,7 @@ class PostFactoryImageViewTestCase(TestCase):
         with open(HERE / "test_factory_image_c.py", "rb") as f_img:
             with patch('uuid.uuid4', return_value='temp_image'):
                 resp = cli.post(
-                    f"/api/factories/{self.factory.id}/images",
+                    f"/api/legacy/factories/{self.factory.id}/images",
                     {'image': f_img},
                     format='multipart',
                 )
@@ -118,7 +118,7 @@ class PostFactoryImageViewTestCase(TestCase):
         with open(HERE / "20180311_132133_noexif.jpg", "rb") as f_img:
             with patch('uuid.uuid4', return_value='temp_image'):
                 resp = cli.post(
-                    f"/api/factories/{not_exist_factory_id}/images",
+                    f"/api/legacy/factories/{not_exist_factory_id}/images",
                     {'image': f_img},
                     format='multipart',
                 )
@@ -149,7 +149,7 @@ class PostFactoryImageViewTestCase(TestCase):
         with freeze_time(test_time):
             with open(HERE / "20180311_132133_noexif.jpg", "rb") as f_img:
                 resp = cli.post(
-                    f"/api/factories/{self.factory.id}/images",
+                    f"/api/legacy/factories/{self.factory.id}/images",
                     {
                         'image': f_img,
                         'json': json.dumps(post_data),

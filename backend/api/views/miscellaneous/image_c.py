@@ -9,8 +9,8 @@ from django.http import HttpResponse, JsonResponse
 import django_q.tasks
 from rest_framework.decorators import api_view
 
-from .utils import _get_client_ip
-from ..models import Image
+from api.models import Image
+from ..utils import _get_client_ip
 from .utils import (
     _is_image,
     _get_image_original_date,

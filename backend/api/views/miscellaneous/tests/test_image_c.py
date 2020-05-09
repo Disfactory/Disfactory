@@ -23,7 +23,7 @@ class PostImageViewTestCase(TestCase):
         with freeze_time(test_time):
             with open(HERE / "20180311_132133.jpg", "rb") as f_img:
                 with patch('uuid.uuid4', return_value='temp_image'):
-                    resp = cli.post("/api/images", {'image': f_img}, format='multipart')
+                    resp = cli.post("/api/legacy/images", {'image': f_img}, format='multipart')
 
         self.assertEqual(resp.status_code, 200)
         resp_data = resp.json()
@@ -40,7 +40,7 @@ class PostImageViewTestCase(TestCase):
             img.id,
         )
 
-    @patch("api.views.image_c._get_image_original_date", return_value=None)
+    @patch("api.views.miscellaneous.image_c._get_image_original_date", return_value=None)
     @patch("django_q.tasks.async_task")
     def test_image_without_exif_db_correct(self, patch_async_tasks, _):
         cli = Client()
@@ -48,7 +48,7 @@ class PostImageViewTestCase(TestCase):
         with freeze_time(test_time):
             with open(HERE / "20180311_132133.jpg", "rb") as f_img:
                 with patch('uuid.uuid4', return_value='temp_image'):
-                    resp = cli.post("/api/images", {'image': f_img}, format='multipart')
+                    resp = cli.post("/api/legacy/images", {'image': f_img}, format='multipart')
 
         resp_data = resp.json()
         self.assertEqual(resp.status_code, 200)
@@ -70,7 +70,7 @@ class PostImageViewTestCase(TestCase):
         cli = Client()
         with open(HERE / "test_image_c.py", "rb") as f_img:
             with patch('uuid.uuid4', return_value='temp_image'):
-                resp = cli.post("/api/images", {'image': f_img}, format='multipart')
+                resp = cli.post("/api/legacy/images", {'image': f_img}, format='multipart')
 
         self.assertEqual(resp.status_code, 400)
 
@@ -92,7 +92,7 @@ class PostImageViewTestCase(TestCase):
             }
         }
         with open(HERE / "20180311_132133.jpg", "rb") as f_img:
-            resp = cli.post("/api/images", {
+            resp = cli.post("/api/legacy/images", {
                 'image': f_img,
                 'json': json.dumps(post_data),
             }, format='multipart')

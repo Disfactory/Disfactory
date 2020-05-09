@@ -10,12 +10,12 @@ import django_q.tasks
 
 from rest_framework.decorators import api_view
 
-from ..models import Image, Factory, ReportRecord
-from ..serializers import ImageSerializer
+from api.models import Image, Factory, ReportRecord
+from api.serializers import ImageSerializer
+from ..utils import _get_client_ip
 from .utils import (
     _is_image,
     _get_image_original_date,
-    _get_client_ip,
 )
 
 LOGGER = logging.getLogger('django')

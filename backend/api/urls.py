@@ -28,6 +28,10 @@ urlpatterns = [
     path("factories", get_nearby_or_create_factories),
     path("factories/<factory_id>", update_factory_attribute),
     path("factories/<factory_id>/report_records", get_factory_report),
-    path("factories/<factory_id>/images", post_factory_image),
-    path("images", post_image),
+    # path("factories/<factory_id>/images", post_factory_image),
+    # path("images", post_image_with_path),
+
+    # to be deprecated, these are direct image upload api
+    path("legacy/factories/<factory_id>/images", post_factory_image),
+    path("legacy/images", post_image),
 ]
