@@ -48,6 +48,7 @@ class PostFactoryImageViewTestCase(TestCase):
             resp = self.cli.post(
                 f"/api/factories/{self.factory.id}/images",
                 self.post_body,
+                content_type="application/json",
             )
 
         self.assertEqual(resp.status_code, 200)
@@ -81,6 +82,7 @@ class PostFactoryImageViewTestCase(TestCase):
         resp = self.cli.post(
             f"/api/factories/{self.factory.id}/images",
             wrong_body,
+            content_type="application/json",
         )
 
         self.assertEqual(resp.status_code, 400)
@@ -90,7 +92,8 @@ class PostFactoryImageViewTestCase(TestCase):
         not_exist_factory_id = uuid4()
         resp = cli.post(
             f"/api/factories/{not_exist_factory_id}/images",
-            self.post_body
+            self.post_body,
+            content_type="application/json",
         )
 
         self.assertEqual(resp.status_code, 400)
