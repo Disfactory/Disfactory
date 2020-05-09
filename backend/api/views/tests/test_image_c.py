@@ -24,7 +24,7 @@ class PostImageUrlViewTestCase(TestCase):
             'url': fake_url,
             'Latitude': fake_lat,
             'Longitude': fake_lng,
-            'DateTimeOriginal': fake_datetime_str
+            'DateTimeOriginal': fake_datetime_str,
         }
         test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
         with freeze_time(test_time):
@@ -51,7 +51,7 @@ class PostImageUrlViewTestCase(TestCase):
         request_body = {
             'Latitude': fake_lat,
             'Longitude': fake_lng,
-            'DateTimeOriginal': fake_datetime_str
+            'DateTimeOriginal': fake_datetime_str,
         }
         test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
         with freeze_time(test_time):
