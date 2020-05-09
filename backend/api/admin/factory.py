@@ -1,12 +1,12 @@
-import csv
 from datetime import datetime, timedelta
 
-from django.http import HttpResponse
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.html import mark_safe
 
-from .models import Factory, Image, ReportRecord
+from api.models import ReportRecord, Factory, Image
+from .mixins import ExportCsvMixin, RestoreMixin
+
 
 
 class FactoryWithReportRecords(SimpleListFilter):
@@ -41,25 +41,6 @@ class FactoryWithReportRecords(SimpleListFilter):
             factory_ids = [factory_id['factory_id'] for factory_id in factory_ids]
             queryset = queryset.filter(id__in=factory_ids)
         return queryset
-
-
-class ExportCsvMixin:
-
-    def export_as_csv(self, request, queryset):
-        meta = self.model._meta
-        field_names = [field for field in self.list_display]
-
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
-        writer = csv.writer(response)
-
-        writer.writerow(field_names)
-        for obj in queryset:
-            writer.writerow([getattr(obj, field) for field in field_names])
-
-        return response
-
-    export_as_csv.short_description = '輸出成 csv 檔'
 
 
 class ReportRecordInline(admin.TabularInline):
@@ -123,8 +104,6 @@ class ImageInlineForFactory(admin.TabularInline):
     get_report_contact.short_description = 'Contact'
 
 
-# Register your models here.
-@admin.register(Factory)
 class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = (
         'get_name',
@@ -156,34 +135,19 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
     get_name.short_description = 'name'
 
 
-@admin.register(Image)
-class ImageAdmin(admin.ModelAdmin, ExportCsvMixin):
+class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):
     list_display = (
-        'created_at',
-        'image_path',
-        'orig_time',
-        'factory',
-        'report_record',
+        'get_name',
+        'deleted_at',
         'id',
     )
-    ordering = ['orig_time', '-created_at']
-    actions = ["export_as_csv"]
 
+    actions = ["restore"]
+    ordering = ["-deleted_at"]
 
-@admin.register(ReportRecord)
-class ReportRecordAdmin(admin.ModelAdmin, ExportCsvMixin):
-    list_display = (
-        'factory',
-        'action_type',
-        'created_at',
-        'user_ip',
-        'nickname',
-        'contact',
-        'others',
-        'id',
-    )
-    list_filter = (
-        'action_type',
-    )
-    ordering = ["-created_at"]
-    actions = ["export_as_csv"]
+    inlines = [ImageInlineForFactory, ReportRecordInline]
+
+    def get_name(self, obj):
+        return obj.name or '_'
+
+    get_name.short_description = 'name'
