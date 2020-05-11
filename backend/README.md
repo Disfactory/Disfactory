@@ -1,5 +1,5 @@
 # Disfactory Backend
-`Disfactory 違章工廠舉報系統` 的後端。
+`Disfactory 違章工廠舉報系統` 的後端。提供給前端的 API 以及一個管理後台
 
 ## Setup
 
