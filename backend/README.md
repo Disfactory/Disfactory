@@ -74,8 +74,7 @@ https://g0v.hackmd.io/FZFghtuoQ0aaGIl9xXzuKw#API
 ## Development Guide
 
 ### Architecture
-簡易版
-![](https://g0vhackmd.blob.core.windows.net/g0v-hackmd-images/upload_b6eba6c8d06a92b8b3bc7b0fddecdc2a)
+![](backend.png)
 
 
 ### Coding Style
