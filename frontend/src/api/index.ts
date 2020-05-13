@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { FactoryPostData, FactoryData, FactoriesResponse, FactoryImage } from '@/types'
+import EXIF from 'exif-js'
 
 const baseURL = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_BASE_URL : '/server/api'
 
@@ -29,53 +30,86 @@ export async function getFactories (range: number, lng: number, lat: number): Pr
   }
 }
 
-export async function uploadImages (files: FileList): Promise<UploadedImages> {
-  const results: UploadedImages = []
+const IMGUR_CLIENT_ID = '39048813b021935'
 
-  for (const file of files) {
-    const formData = new FormData()
-    formData.append('image', file)
+async function uploadToImgur (file: File) {
+  const formData = new FormData()
+  formData.append('image', file)
 
-    const { data }: { data: ImageResponse } = await instance.post('/images', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-    // TODO: error handling
+  const { data } = await axios({
+    method: 'POST',
+    url: 'https://api.imgur.com/3/image',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization: `Client-ID ${IMGUR_CLIENT_ID}`
+    }
+  })
 
-    results.push({
-      token: data.token,
-      src: URL.createObjectURL(file)
-    })
+  return {
+    link: data.data.link as string,
+    file
   }
+}
 
-  return results
+const convertTurple2Number = (input: [number, number, number]) => input[0] + (input[1] / 60) + (input[2] / 3600)
+
+type ExifData = { DateTimeOriginal?: string, GPSLatitude?: [number, number, number], GPSLongitude?: [number, number, number] }
+type AfterExifData = { Latitude?: number, Longitude?: number, DateTimeOriginal?: string }
+
+function readImageExif (file: File): Promise<AfterExifData> {
+  const fileReader = new FileReader()
+  return new Promise((resolve) => {
+    fileReader.onload = (e: ProgressEvent<FileReader>) => {
+      if (!e.target) {
+        resolve({})
+        return
+      }
+      const data: ExifData = EXIF.readFromBinaryFile(e.target.result)
+
+      const result: AfterExifData = {}
+      if (data.GPSLatitude) {
+        result.Latitude = convertTurple2Number(data.GPSLatitude)
+      }
+      if (data.GPSLongitude) {
+        result.Longitude = convertTurple2Number(data.GPSLongitude)
+      }
+      if (data.DateTimeOriginal) {
+        result.DateTimeOriginal = data.DateTimeOriginal
+      }
+
+      resolve(result)
+    }
+    fileReader.readAsArrayBuffer(file)
+  })
+}
+
+async function uploadExifAndGetToken ({ link, file }: { link: string, file: File }) {
+  const exifData = await readImageExif(file)
+  const { data }: { data: ImageResponse } = await instance.post('/images', { url: link, ...exifData })
+
+  return {
+    token: data.token,
+    src: URL.createObjectURL(file)
+  }
+}
+
+export async function uploadImages (files: FileList): Promise<UploadedImages> {
+  return Promise.all(
+    Array.from(files).map((file) => uploadToImgur(file).then((el) => uploadExifAndGetToken(el)))
+  )
 }
 
 export async function updateFactoryImages (factoryId: string, files: FileList, { nickname, contact }: { nickname?: string, contact?: string }) {
-  const results: FactoryImage[] = []
-
-  for (const file of files) {
-    const formData = new FormData()
-    formData.append('image', file)
-
-    if (nickname) {
-      formData.append('nickname', nickname)
-    }
-    if (contact) {
-      formData.append('contact', contact)
-    }
-
-    const { data }: { data: FactoryImage } = await instance.post(`/factories/${factoryId}/images`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    })
-
-    results.push(data)
-  }
-
-  return results
+  return Promise.all(
+    Array.from(files).map((file) => uploadToImgur(file).then((el) => (async () => {
+      const exifData = await readImageExif(el.file)
+      const { data }: { data: FactoryImage } = await instance.post(`/factories/${factoryId}/images`, { url: el.link, ...exifData, nickname, contact })
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      data.image_path = el.link
+      return data
+    })()))
+  )
 }
 
 export async function createFactory (factory: FactoryPostData): Promise<FactoryData> {
