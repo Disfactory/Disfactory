@@ -1,0 +1,40 @@
+version: "3.7"
+
+services:
+  web:
+    build: .
+    volumes:
+      - .:/Disfactory
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+    environment:
+      DISFACTORY_BACKEND_DEFAULT_DB_NAME: disfactory_dev
+      DISFACTORY_BACKEND_DEFAULT_DB_USER: postgres
+      DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD: cop
+      DISFACTORY_BACKEND_DEFAULT_DB_HOST: db
+      DISFACTORY_BACKEND_DEFAULT_DB_PORT: 5432
+      DISFACTORY_ALLOWED_HOST: dev.disfactory.tw,127.0.0.1,localhost
+      DISFACTORY_IMGUR_CLIENT_ID: ""
+      DISFACTORY_IMGUR_SECRET: ""
+    command:
+      - /bin/sh
+      - -c
+      - |
+        pipenv install --dev --system
+        python manage.py migrate
+        python manage.py runserver 0.0.0.0:8000
+
+  db:
+    image: mdillon/postgis:11-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: disfactory_dev
+      POSTGRES_PASSWORD: cop
+
+volumes:
+  postgres_data:

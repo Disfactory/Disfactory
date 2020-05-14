@@ -2,27 +2,30 @@
 `Disfactory 違章工廠舉報系統` 的後端。
 
 ## Setup
+
+- [透過 docker-compose](docs/SETUP_COMPOSE.md) (`Recommanded`)
 - [手動設定](docs/SETUP_MANUAL.md)
-- [透過 docker-compose](docs/SETUP_COMPOSE.md)
 
 ## Usage
 
 ### Run server
-```
+
+```bash
 python manage.py runserver
 ```
 
 ### API
-https://g0v.hackmd.io/FZFghtuoQ0aaGIl9xXzuKw#API
 
+https://g0v.hackmd.io/FZFghtuoQ0aaGIl9xXzuKw#API
 
 ## Development Guide
 
 ### Architecture
 ![](backend.png)
 
-### Tests
+### Unit Tests
 用內建的 unittest ，跑以下指令就可以跑全部的測試：
-```
+
+```bash
 make test
 ```

@@ -15,6 +15,12 @@ unittest:
 .PHONY: test
 test: lint unittest
 
+.PHONY: run
+run: docker-compose -f docker-compose.yml up -d
+
+.PHOBY: run-dev
+run-dev: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+
 .PHONY: clean
 clean:
 	rm -rf `find . -name __pycache__`
