@@ -1,4 +1,5 @@
 # Disfactory Backend
+<<<<<<< Updated upstream
 `Disfactory 違章工廠舉報系統` 的後端。提供給前端的 API 以及一個管理後台
 
 ## Setup
@@ -60,20 +61,31 @@ python manage.py migrate
 ```
 NOTE: 別設 `DISFACTORY_BACKEND_LOG_LEVEL` 為 `DEBUG` ，因為 logger 裡使用到了 `django-db-logger`。Migration 結束之後再設成你想要的 level。
 
+=======
+
+`Disfactory 違章工廠舉報系統` 的後端。
+
+## Setup
+
+- [透過 docker-compose](docs/SETUP_COMPOSE.md) (`Recommanded`)
+- [手動設定](docs/SETUP_MANUAL.md)
+>>>>>>> Stashed changes
 
 ## Usage
 
 ### Run server
-```
+
+```bash
 python manage.py runserver
 ```
 ### API
-https://g0v.hackmd.io/FZFghtuoQ0aaGIl9xXzuKw#API
 
+https://g0v.hackmd.io/FZFghtuoQ0aaGIl9xXzuKw#API
 
 ## Development Guide
 
 ### Architecture
+<<<<<<< Updated upstream
 簡易版
 ![](https://g0vhackmd.blob.core.windows.net/g0v-hackmd-images/upload_b6eba6c8d06a92b8b3bc7b0fddecdc2a)
 
@@ -93,5 +105,15 @@ make format
 ### Tests
 用內建的 unittest ，跑以下指令就可以跑全部的測試 (包含程式碼風格檢查)：
 ```
+=======
+
+![](backend.png)
+
+### Tests
+
+用內建的 unittest ，跑以下指令就可以跑全部的測試：
+
+```bash
+>>>>>>> Stashed changes
 make test
 ```
