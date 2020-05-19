@@ -5,7 +5,10 @@ volumes:
 
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
     ports:
       - ${DISFACTORY_BACKEND_PORT}:8000
     depends_on:
@@ -37,7 +40,10 @@ services:
       POSTGRES_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
 
   worker:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
     depends_on:
       - db
       - web
