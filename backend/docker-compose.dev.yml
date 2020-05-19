@@ -33,11 +33,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      POSTGRES_DB: disfactory_dev
-      POSTGRES_PASSWORD: cop
+      POSTGRES_DB: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
+      POSTGRES_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
+      POSTGRES_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
 
   worker:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     volumes:
       - .:/Disfactory
     depends_on:
