@@ -8,10 +8,10 @@
 
 ## Usage
 
-### Run server
+### Run server with docker-compose
 
 ```bash
-python manage.py runserver
+make run-dev
 ```
 
 ### API
