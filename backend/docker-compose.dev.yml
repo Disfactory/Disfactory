@@ -1,14 +1,13 @@
-version: '3.7'
-
-volumes:
-  postgres_data:
+version: "3.7"
 
 services:
   web:
     build:
       context: .
       dockerfile: Dockerfile
-      target: prod
+      target: dev
+    volumes:
+      - .:/Disfactory
     ports:
       - ${DISFACTORY_BACKEND_PORT}:8000
     depends_on:
@@ -20,13 +19,13 @@ services:
       DISFACTORY_BACKEND_DEFAULT_DB_HOST: db
       DISFACTORY_BACKEND_DEFAULT_DB_PORT: ${DISFACTORY_BACKEND_DEFAULT_DB_PORT}
       DISFACTORY_ALLOWED_HOST: ${DISFACTORY_ALLOWED_HOST}
-      DISFACTORY_IMGUR_CLIENT_ID: ''
-      DISFACTORY_BACKEND_LOG_LEVEL: info
-      DISFACTORY_BACKEND_DEBUG: 'false'
+      DISFACTORY_IMGUR_CLIENT_ID: ${DISFACTORY_IMGUR_CLIENT_ID}
+      DISFACTORY_BACKEND_DEBUG: 'true'
     command:
       - /bin/sh
       - -c
       - |
+        pipenv install --dev --system
         python manage.py migrate
         python manage.py runserver 0.0.0.0:8000
 
@@ -43,7 +42,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: prod
+      target: dev
+    volumes:
+      - .:/Disfactory
     depends_on:
       - db
       - web
@@ -54,10 +55,13 @@ services:
       DISFACTORY_BACKEND_DEFAULT_DB_HOST: db
       DISFACTORY_BACKEND_DEFAULT_DB_PORT: ${DISFACTORY_BACKEND_DEFAULT_DB_PORT}
       DISFACTORY_ALLOWED_HOST: ${DISFACTORY_ALLOWED_HOST}
-      DISFACTORY_IMGUR_CLIENT_ID: ''
+      DISFACTORY_IMGUR_CLIENT_ID: ${DISFACTORY_IMGUR_CLIENT_ID}
+      DISFACTORY_BACKEND_DEBUG: 'true'
     command:
       - /bin/sh
       - -c
       - |
         python manage.py migrate
         python manage.py q_cluster
+volumes:
+  postgres_data:
