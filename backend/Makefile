@@ -16,10 +16,12 @@ unittest:
 test: lint unittest
 
 .PHONY: run
-run: docker-compose -f docker-compose.yml up -d
+run:
+	docker-compose -f docker-compose.yml up -d
 
 .PHOBY: run-dev
-run-dev: docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+run-dev:
+	docker-compose -f docker-compose.dev.yml up -d
 
 .PHONY: clean
 clean:

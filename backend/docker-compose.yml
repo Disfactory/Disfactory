@@ -9,7 +9,7 @@ services:
     volumes:
       - .:/Disfactory
     ports:
-      - 8000:8000
+      - ${DISFACTORY_BACKEND_PORT}:8000
     depends_on:
       - db
     environment:
@@ -28,12 +28,23 @@ services:
       - |
         python manage.py migrate
         python manage.py runserver 0.0.0.0:8000
+
+  db:
+    image: mdillon/postgis:11-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
+      POSTGRES_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
+      POSTGRES_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
+
   worker:
     build: .
     volumes:
       - .:/Disfactory
     depends_on:
       - db
+      - web
     environment:
       DISFACTORY_BACKEND_DEFAULT_DB_NAME: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
       DISFACTORY_BACKEND_DEFAULT_DB_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
@@ -47,15 +58,4 @@ services:
       - -c
       - |
         python manage.py migrate
-        python manage.py runserver 0.0.0.0:8000
-
-  db:
-    image: mdillon/postgis:11-alpine
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    environment:
-      POSTGRES_DB: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
-      POSTGRES_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
-      POSTGRES_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
-
-  http:
+        python manage.py q_cluster

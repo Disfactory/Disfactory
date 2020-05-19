@@ -6,7 +6,7 @@ services:
     volumes:
       - .:/Disfactory
     ports:
-      - 8000:8000
+      - ${DISFACTORY_BACKEND_PORT}:8000
     depends_on:
       - db
     environment:
@@ -30,8 +30,6 @@ services:
     image: mdillon/postgis:11-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    ports:
-      - 5432:5432
     environment:
       POSTGRES_DB: disfactory_dev
       POSTGRES_PASSWORD: cop
