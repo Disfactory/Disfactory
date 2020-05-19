@@ -6,8 +6,6 @@ volumes:
 services:
   web:
     build: .
-    volumes:
-      - .:/Disfactory
     ports:
       - ${DISFACTORY_BACKEND_PORT}:8000
     depends_on:
@@ -40,8 +38,6 @@ services:
 
   worker:
     build: .
-    volumes:
-      - .:/Disfactory
     depends_on:
       - db
       - web
