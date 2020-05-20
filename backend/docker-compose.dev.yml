@@ -25,7 +25,6 @@ services:
       - /bin/sh
       - -c
       - |
-        pipenv install --dev --system
         python manage.py migrate
         python manage.py runserver 0.0.0.0:8000
 
@@ -62,6 +61,6 @@ services:
       - -c
       - |
         python manage.py migrate
-        python manage.py q_cluster
+        python manage.py qcluster
 volumes:
   postgres_data:
