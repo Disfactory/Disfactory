@@ -32,6 +32,8 @@ services:
     image: mdillon/postgis:11-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - ${DISFACTORY_BACKEND_DEFAULT_DB_DEV_PORT}:5432
     environment:
       POSTGRES_DB: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
       POSTGRES_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
