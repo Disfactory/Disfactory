@@ -60,4 +60,4 @@ services:
       - -c
       - |
         python manage.py migrate
-        python manage.py q_cluster
+        python manage.py qcluster
