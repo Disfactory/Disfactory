@@ -1,0 +1,68 @@
+version: "3.7"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    volumes:
+      - .:/Disfactory
+    ports:
+      - ${DISFACTORY_BACKEND_PORT}:8000
+    depends_on:
+      - db
+    environment:
+      DISFACTORY_BACKEND_DEFAULT_DB_NAME: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
+      DISFACTORY_BACKEND_DEFAULT_DB_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
+      DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
+      DISFACTORY_BACKEND_DEFAULT_DB_HOST: db
+      DISFACTORY_BACKEND_DEFAULT_DB_PORT: ${DISFACTORY_BACKEND_DEFAULT_DB_PORT}
+      DISFACTORY_ALLOWED_HOST: ${DISFACTORY_ALLOWED_HOST}
+      DISFACTORY_IMGUR_CLIENT_ID: ${DISFACTORY_IMGUR_CLIENT_ID}
+      DISFACTORY_BACKEND_DEBUG: 'true'
+    command:
+      - /bin/sh
+      - -c
+      - |
+        python manage.py migrate
+        python manage.py runserver 0.0.0.0:8000
+
+  db:
+    image: mdillon/postgis:11-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - ${DISFACTORY_BACKEND_DEFAULT_DB_DEV_PORT}:5432
+    environment:
+      POSTGRES_DB: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
+      POSTGRES_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
+      POSTGRES_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    volumes:
+      - .:/Disfactory
+    depends_on:
+      - db
+      - web
+    environment:
+      DISFACTORY_BACKEND_DEFAULT_DB_NAME: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
+      DISFACTORY_BACKEND_DEFAULT_DB_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
+      DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
+      DISFACTORY_BACKEND_DEFAULT_DB_HOST: db
+      DISFACTORY_BACKEND_DEFAULT_DB_PORT: ${DISFACTORY_BACKEND_DEFAULT_DB_PORT}
+      DISFACTORY_ALLOWED_HOST: ${DISFACTORY_ALLOWED_HOST}
+      DISFACTORY_IMGUR_CLIENT_ID: ${DISFACTORY_IMGUR_CLIENT_ID}
+      DISFACTORY_BACKEND_DEBUG: 'true'
+    command:
+      - /bin/sh
+      - -c
+      - |
+        python manage.py migrate
+        python manage.py qcluster
+volumes:
+  postgres_data:

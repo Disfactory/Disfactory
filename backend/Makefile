@@ -1,19 +1,19 @@
 .DEFAULT_GOAL := all
 
-.PHONY: format
-format:
-	black .
-
-.PHONY: lint
-lint:
-	black --check .
-
 .PHONY: unittest
 unittest:
-	python manage.py test -v 2
+	docker-compose -f docker-compose.dev.yml exec web python manage.py test -v 2
 
 .PHONY: test
-test: lint unittest
+test: unittest
+
+.PHONY: run
+run:
+	docker-compose -f docker-compose.yml up -d
+
+.PHOBY: run-dev
+run-dev:
+	docker-compose -f docker-compose.dev.yml up -d
 
 .PHONY: clean
 clean:

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
+<townItem>
+    <towncode>68000000</towncode>
+    <townname>桃園市</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000006</towncode>
+    <townname>桃園市民政局</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000010</towncode>
+    <towncode01>H01</towncode01>
+    <townname>桃園市桃園區</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000020</towncode>
+    <towncode01>H03</towncode01>
+    <townname>桃園市中壢區</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000030</towncode>
+    <towncode01>H02</towncode01>
+    <townname>桃園市大溪區</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000040</towncode>
+    <towncode01>H04</towncode01>
+    <townname>桃園市楊梅區</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000050</towncode>
+    <towncode01>H05</towncode01>
+    <townname>桃園市蘆竹區</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000060</towncode>
+    <towncode01>H06</towncode01>
+    <townname>桃園市大園區</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000070</towncode>
+    <towncode01>H07</towncode01>
+    <townname>桃園市龜山區</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000080</towncode>
+    <towncode01>H08</towncode01>
+    <townname>桃園市八德區</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000090</towncode>
+    <towncode01>H09</towncode01>
+    <townname>桃園市龍潭區</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000100</towncode>
+    <towncode01>H10</towncode01>
+    <townname>桃園市平鎮區</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000110</towncode>
+    <towncode01>H11</towncode01>
+    <townname>桃園市新屋區</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000120</towncode>
+    <towncode01>H12</towncode01>
+    <townname>桃園市觀音區</townname>
+</townItem>
+
+<townItem>
+    <towncode>68000130</towncode>
+    <towncode01>H13</towncode01>
+    <townname>桃園市復興區</townname>
+</townItem>
+</townItems>

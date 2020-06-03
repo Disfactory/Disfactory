@@ -104,6 +104,7 @@ export class MapFactoryController {
     FactoryStatus.EXISTING_COMPLETE,
     FactoryStatus.REPORTED
   ]
+
   private _factoriesLayerSource?: VectorSource
   private factoryMap = new Map<string, FactoryData>()
 
@@ -313,13 +314,15 @@ const getLUIMapLayer = (wmtsTileGrid: WMTSTileGrid) => {
 }
 
 type MapEventHandler = {
-  onMoved?: (location: [number, number, number], canPlaceFactory: boolean) => void,
+  onMoved?: (location: [number, number, number, number], canPlaceFactory: boolean) => void,
   onClicked?: (location: [number, number], feature?: Feature | RenderFeature) => void,
+  onZoomed?: (zoom: number) => void,
   onLUILayerVisibilityChange?: (visible: boolean) => void
 }
 
 type OLMapOptions = {
-  minimap?: boolean
+  minimap?: boolean,
+  getInitialLocation?: () => [number, number, number] | undefined
 }
 
 export class OLMap {
@@ -329,6 +332,7 @@ export class OLMap {
   private baseLayer: TileLayer
   private tileGrid: WMTSTileGrid = getWMTSTileGrid()
   private minimapPinFeature?: Feature
+  private hasInitialLocation = false
 
   constructor (target: HTMLElement, handler: MapEventHandler = {}, options: OLMapOptions = {}) {
     this.mapDom = target
@@ -350,11 +354,11 @@ export class OLMap {
   private setupEventListeners (map: OlMap, handler: MapEventHandler) {
     const move = async () => {
       const view = map.getView()
-      const zoom = view.getZoom()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const zoom = view.getZoom()!
 
       // resolution in meter
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const resolution = view.getResolutionForZoom(zoom!)
+      const resolution = view.getResolutionForZoom(zoom)
       const range = Math.ceil(resolution / 2)
 
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -363,7 +367,7 @@ export class OLMap {
       if (handler.onMoved) {
         const { width, height } = this.mapDom.getBoundingClientRect()
         const canPlace = await this.canPlaceFactory([width / 2, height / 2])
-        handler.onMoved([lng, lat, range], canPlace)
+        handler.onMoved([lng, lat, range, zoom], canPlace)
       }
     }
 
@@ -371,6 +375,15 @@ export class OLMap {
     map.on('change:resolution', move)
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     map.on('moveend', move)
+
+    map.on('zoomend', () => {
+      const view = map.getView()
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const zoom = view.getZoom()!
+      if (handler.onZoomed) {
+        handler.onZoomed(zoom)
+      }
+    })
 
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     map.on('click', async (event) => {
@@ -385,7 +398,6 @@ export class OLMap {
       }
     })
 
-
     this.getLUIMAPLayer().then(layer => {
       layer.on('change:visible', function () {
         if (handler.onLUILayerVisibilityChange) {
@@ -395,12 +407,32 @@ export class OLMap {
     })
   }
 
+  public setCoordinate (longitude: number, latitude: number, zoom?: number) {
+    const view = this.map.getView()
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    zoom = zoom || view.getZoom()!
+    view.setCenter(transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857'))
+    view.setZoom(zoom)
+  }
+
   private instantiateOLMap (target: HTMLElement, baseLayer: TileLayer, options: OLMapOptions = {}) {
     const tileGrid = getWMTSTileGrid()
-    const view = new View({
-      center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
-      zoom: 16
-    })
+
+    let view
+    let location
+    if (options.getInitialLocation && (location = options.getInitialLocation())) {
+      const [longitude, latitude, zoom] = location
+      view = new View({
+        center: transform([longitude, latitude], 'EPSG:4326', 'EPSG:3857'),
+        zoom
+      })
+      this.hasInitialLocation = true
+    } else {
+      view = new View({
+        center: transform([120.1, 23.234], 'EPSG:4326', 'EPSG:3857'),
+        zoom: 16
+      })
+    }
 
     const mapControlButtons = makeMapButtons()
 
@@ -489,7 +521,7 @@ export class OLMap {
       accuracyFeature.setGeometry(geolocation.getAccuracyGeometry())
     })
 
-    let run = false
+    let run = false || this.hasInitialLocation
     geolocation.on('change', () => {
       if (run) {
         return
@@ -606,8 +638,8 @@ export class OLMap {
   }
 }
 
-export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}) {
-  const mapInstance = new OLMap(target, handler);
+export function initializeMap (target: HTMLElement, handler: MapEventHandler = {}, options: OLMapOptions) {
+  const mapInstance = new OLMap(target, handler, options);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).changeBaseMap = mapInstance.changeBaseMap.bind(mapInstance)
   return new MapFactoryController(mapInstance)

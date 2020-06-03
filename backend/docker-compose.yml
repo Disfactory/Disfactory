@@ -1,23 +1,28 @@
 version: '3.7'
 
+volumes:
+  postgres_data:
+
 services:
   web:
-    build: .
-    volumes:
-      - .:/Disfactory
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
     ports:
-      - 8000:8000
+      - ${DISFACTORY_BACKEND_PORT}:8000
     depends_on:
       - db
     environment:
-      DISFACTORY_BACKEND_DEFAULT_DB_NAME: disfactory_dev
-      DISFACTORY_BACKEND_DEFAULT_DB_USER: postgres
-      DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD: cop
+      DISFACTORY_BACKEND_DEFAULT_DB_NAME: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
+      DISFACTORY_BACKEND_DEFAULT_DB_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
+      DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
       DISFACTORY_BACKEND_DEFAULT_DB_HOST: db
-      DISFACTORY_BACKEND_DEFAULT_DB_PORT: 5432
-      DISFACTORY_ALLOWED_HOST:  dev.disfactory.tw,127.0.0.1,localhost
+      DISFACTORY_BACKEND_DEFAULT_DB_PORT: ${DISFACTORY_BACKEND_DEFAULT_DB_PORT}
+      DISFACTORY_ALLOWED_HOST: ${DISFACTORY_ALLOWED_HOST}
       DISFACTORY_IMGUR_CLIENT_ID: ''
-      DISFACTORY_IMGUR_SECRET: ''
+      DISFACTORY_BACKEND_LOG_LEVEL: info
+      DISFACTORY_BACKEND_DEBUG: 'false'
     command:
       - /bin/sh
       - -c
@@ -30,8 +35,29 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:
-      POSTGRES_DB: disfactory_dev
-      POSTGRES_PASSWORD: cop
+      POSTGRES_DB: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
+      POSTGRES_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
+      POSTGRES_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
 
-volumes:
-  postgres_data:
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+    depends_on:
+      - db
+      - web
+    environment:
+      DISFACTORY_BACKEND_DEFAULT_DB_NAME: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
+      DISFACTORY_BACKEND_DEFAULT_DB_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
+      DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
+      DISFACTORY_BACKEND_DEFAULT_DB_HOST: db
+      DISFACTORY_BACKEND_DEFAULT_DB_PORT: ${DISFACTORY_BACKEND_DEFAULT_DB_PORT}
+      DISFACTORY_ALLOWED_HOST: ${DISFACTORY_ALLOWED_HOST}
+      DISFACTORY_IMGUR_CLIENT_ID: ''
+    command:
+      - /bin/sh
+      - -c
+      - |
+        python manage.py migrate
+        python manage.py qcluster

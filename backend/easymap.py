@@ -3,6 +3,8 @@
 import requests
 import re
 
+import towninfo
+
 
 class WebRequestError(RuntimeError):
     def __init__(self, message, status_code, response_body):
@@ -61,12 +63,15 @@ def get_door_info(sess, x, y, city, token):
 def get_land_number(x, y):
     """
     Get land number by WGS84 coordinates.
+
+    since the easymap API doesn't provide townname, we then insert a townname field by looking up in xml files in ./towncode downloaded from https://api.nlsc.gov.tw/other/ListTown1/{A-Z}
     """
     sess = get_session()
     city = get_point_city(sess, x=x, y=y)
     token = get_token(sess)
     land_number = get_door_info(sess, x=x, y=y, city=city, token=token)
     sess.close()
+    land_number['townname'] = towninfo.code2name.get(land_number['towncode'], '')
     return land_number
 
 

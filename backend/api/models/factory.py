@@ -1,13 +1,13 @@
-# -*- coding: utf-8 -*-
 import uuid
 
-from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
-from django.contrib.postgres.fields import JSONField
+from django.conf import settings
+
+from .mixins import SoftDeleteMixin
 
 
-class Factory(models.Model):
+class Factory(SoftDeleteMixin):
     """Factories that are potential to be illegal."""
 
     # List of fact_type & status
@@ -25,7 +25,13 @@ class Factory(models.Model):
     ]
     cet_report_status_list = [
         ("A", "未舉報"),
-        ("B", "已舉報"),
+        ("O", "第一次發文待回覆"),
+        ("P", "第一次發文已播電話追蹤"),
+        ("Q", "第一次回文"),
+        ("X", "第二次發文待回覆"),
+        ("Y", "第二次發文已播電話追蹤"),
+        ("Z", "第二次回文"),
+        ("B", "已結案"),
     ]
     source_list = [
         ("G", "政府"),
@@ -44,6 +50,11 @@ class Factory(models.Model):
     lng = models.FloatField()
     point = models.PointField(srid=settings.POSTGIS_SRID)
     landcode = models.CharField(max_length=50, blank=True, null=True)
+    towncode = models.CharField(max_length=50, blank=True, null=True)
+    townname = models.CharField(max_length=50, blank=True, null=True)
+    sectcode = models.CharField(max_length=50, blank=True, null=True)
+    sectname = models.CharField(max_length=50, blank=True, null=True)
+
 
     name = models.CharField(max_length=50, blank=True, null=True)
     factory_type = models.CharField(
@@ -73,49 +84,9 @@ class Factory(models.Model):
         super(Factory, self).save(*args, **kwargs)
 
 
-class ReportRecord(models.Model):
-    """Report records send by users.
+class RecycledFactory(Factory):
 
-    `ReportRecord` will be queried in advanced by admins from
-    Citizen of the Earth, Taiwan. They will filter the most recent
-    records out every a few weeks to catch the bad guys.
-    """
+    class Meta:
+        proxy = True
 
-    id = models.AutoField(primary_key=True)
-    factory = models.ForeignKey("Factory", on_delete=models.PROTECT, related_name="report_records")
-    user_ip = models.GenericIPAddressField(default="192.168.0.1", blank=True, null=True)
-    action_type = models.CharField(max_length=10)  # PUT, POST
-    action_body = JSONField()  # request body
-    created_at = models.DateTimeField(auto_now_add=True)
-    nickname = models.CharField(max_length=64, blank=True, null=True)
-    contact = models.CharField(max_length=64, blank=True, null=True)
-    others = models.CharField(max_length=1024, blank=True)
-
-
-class Image(models.Model):
-    """Images of factories that are uploaded by user."""
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False,
-    )
-    factory = models.ForeignKey(
-        "Factory",
-        on_delete=models.PROTECT,
-        related_name="images",
-        blank=True,
-        null=True,
-    )
-    report_record = models.ForeignKey(
-        "ReportRecord",
-        on_delete=models.PROTECT,
-        related_name="images",
-        blank=True,
-        null=True,
-    )
-    image_path = models.URLField(max_length=256)  # get from Imgur
-    created_at = models.DateTimeField(auto_now_add=True)
-    # the DB saving time
-
-    orig_time = models.DateTimeField(blank=True, null=True)
-    # the actual photo taken time
+    objects = Factory.recycle_objects

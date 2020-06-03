@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import pathlib
 import warnings
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -71,7 +73,7 @@ INSTALLED_APPS = [
 if DEBUG:
     DJANGO_LOGGER_HANDLER = ["file", "console", "db"]
 else:
-    DJANGO_LOGGER_HANDLER = ["db"]  # no need to log to console and file since we cannot access both on middle2
+    DJANGO_LOGGER_HANDLER = ["db", "file", "console"]  # no need to log to console and file since we cannot access both on middle2
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -177,7 +179,7 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
-
+STATIC_ROOT = "./static/"
 STATIC_URL = "/static/"
 AUTH_USER_MODEL = "users.CustomUser"
 
@@ -219,3 +221,8 @@ Q_CLUSTER = {
     'orm': 'default',
     'bulk': 4,
 }
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.environ.get('DISFACTORY_BACKEND_MEDIA_ROOT', '/tmp')
+pathlib.Path(MEDIA_ROOT).mkdir(parents=True, exist_ok=True)
+DOMAIN = os.environ.get('DISFACTORY_BACKEND_DOMAIN', 'https://api.disfactory.tw/')
