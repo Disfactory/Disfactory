@@ -48,8 +48,7 @@
             <div>
               <label data-label="form-add-image">
                 <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="visibility: hidden; position: absolute; pointer-events: none; left: -1000px;"  data-label="form-add-image">
-                <app-button rect v-if="isiOS || isSafari">新增</app-button>
-                <app-button rect v-else @click="onClickImageUpload" data-label="form-add-image">新增</app-button>
+                <app-button rect @click="onClickImageUpload" data-label="form-add-image">新增</app-button>
               </label>
             </div>
           </div>
@@ -146,7 +145,6 @@ import {
   FactoryStatusText
 } from '../types'
 import { MapFactoryController, initializeMinimap, getStatusBorderColor, getFactoryStatus } from '../lib/map'
-import { isiOS, isSafari } from '../lib/browserCheck'
 import { MainMapControllerSymbol } from '../symbols'
 import { useBackPressed } from '../lib/useBackPressed'
 import { useGA } from '@/lib/useGA'
@@ -373,8 +371,6 @@ export default createComponent({
 
       imagesToUpload,
       image, // image upload input ref,
-      isiOS,
-      isSafari,
       onClickImageUpload () {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         image.value!.click()
