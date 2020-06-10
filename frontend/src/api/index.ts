@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { FactoryPostData, FactoryData, FactoriesResponse, FactoryImage } from '@/types'
-import EXIF from 'exif-js'
+import EXIF from '@disfactory/exif-js'
 
 const baseURL = process.env.NODE_ENV === 'production' ? process.env.VUE_APP_BASE_URL : '/server/api'
 
