@@ -3,7 +3,7 @@
 
 ## Setup
 
-- [透過 docker-compose](docs/SETUP_COMPOSE.md) (`Recommanded`)
+- [透過 docker-compose](docs/SETUP_COMPOSE.md) (`Recommended`)
 - [手動設定](docs/SETUP_MANUAL.md)
 
 ## Usage
