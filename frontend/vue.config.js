@@ -11,14 +11,6 @@ module.exports = {
       }
     }
   },
-  chainWebpack: config => {
-    if (process.env.NODE_ENV === 'development') {
-      config
-        .output
-        .filename('[name].[hash].js')
-        .end()
-    }
-  },
   pwa: {
     name: '農地違章工廠',
     themeColor: '#2196f3',
@@ -26,5 +18,8 @@ module.exports = {
       skipWaiting: true,
       clientsClaim: true
     }
-  }
+  },
+  transpileDependencies: [
+    'vuetify'
+  ]
 }
