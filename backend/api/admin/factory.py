@@ -43,6 +43,50 @@ class FactoryWithReportRecords(SimpleListFilter):
         return queryset
 
 
+class FactoryFilteredByCounty(SimpleListFilter):
+    title = 'By county'
+    parameter_name = 'county'
+    county_mappings = [
+        ('Taipei', '臺北市'),
+        ('New_Taipei', '新北市'),
+        ('Taoyuan', '桃園市'),
+        ('Taichung', '臺中市'),
+        ('Tainan', '臺南市'),
+        ('Kaohsiung', '高雄市'),
+        ('Yilan', '宜蘭縣'),
+        ('Hsinchu_County', '新竹縣'),
+        ('Hsinchu_City', '新竹市'),
+        ('Miaoli', '苗栗縣'),
+        ('Changhua', '彰化縣'),
+        ('Nantou', '南投縣'),
+        ('Yunlin', '雲林縣'),
+        ('Chiayi_County', '嘉義縣'),
+        ('Chiayi_City', '嘉義市'),
+        ('Pingtung', '屏東縣'),
+        ('Taitung', '臺東縣'),
+        ('Hualien', '花蓮縣'),
+        ('Penghu', '澎湖縣'),
+        ('Keelung', '基隆市'),
+        ('Lienchiang', '連江縣'),
+        ('Kinmen', '金門縣')
+    ]
+
+    def lookups(self, _, __):
+        return self.county_mappings
+
+    def queryset(self, request, queryset):
+        county_dict = dict(self.county_mappings)
+
+        if self.value():
+            county = county_dict[self.value()]
+            re_str = county
+            if '臺' in county:
+                re_str = county.replace('臺', '(台|臺)')
+
+            queryset = queryset.filter(townname__iregex=re_str)
+
+        return queryset
+
 class ReportRecordInline(admin.TabularInline):
     model = ReportRecord
     fields = (
@@ -123,6 +167,7 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
         'source',
         'factory_type',
         FactoryWithReportRecords,
+        FactoryFilteredByCounty,
     )
     ordering = ["-created_at"]
     actions = ["export_as_csv"]
