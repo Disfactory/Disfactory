@@ -3,11 +3,16 @@ import csv
 from django.http import HttpResponse
 
 
+def _modify(field_name):
+    if field_name == 'get_name':
+        return 'name'
+    return field_name
+
 class ExportCsvMixin:
 
     def export_as_csv(self, request, queryset):
         meta = self.model._meta
-        field_names = [field for field in self.list_display]
+        field_names = [_modify(field) for field in self.list_display]
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
