@@ -2,7 +2,7 @@
   <div id="app">
     <app-alert :alert="alertState.alert" :dismiss="alertActions.dismissAlert" />
     <app-navbar :hide="appState.factoryFormOpen || appState.selectFactoryMode" :fixed="true" @menu="modalActions.toggleSidebar">農地工廠回報</app-navbar>
-    <app-sidebar v-model="modalState.sidebarOpen" :clickActions="sidebarActions" />
+    <app-sidebar v-model="modalState.sidebarOpen" />
 
     <filter-modal :open="modalState.filterModalOpen" :dismiss="modalActions.closeFilterModal" />
     <create-factory-success-modal
@@ -110,13 +110,6 @@ export default createComponent({
       alertState,
       alertActions,
       appActions,
-      sidebarActions: [
-        modalActions.openTutorialModal,
-        modalActions.openSafetyModal,
-        modalActions.openContactModal,
-        'https://about.disfactory.tw/#section-f_c360c8de-447e-4c0a-a856-4af18b9a5240',
-        'https://about.disfactory.tw'
-      ],
       modalState,
       modalActions
     }
