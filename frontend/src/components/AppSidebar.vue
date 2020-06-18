@@ -6,7 +6,7 @@
       <hr />
       <ul>
         <li v-for="(link,index) in links" :key="index">
-          <a @click.stop="onClick(clickActions[index])" :data-label="`sidebar-${link.text}`" :href="getHref(clickActions[index])" :target="getTarget(clickActions[index])">{{ link.text }}</a>
+          <a @click.stop="onClick(link)" :data-label="`sidebar-${link.text}`" :href="getHref(link)" :target="getTarget(link)">{{ link.text }}</a>
         </li>
       </ul>
     </div>
@@ -15,6 +15,7 @@
 
 <script>
 import { createComponent, ref } from '@vue/composition-api'
+import { useModalState } from '../lib/hooks'
 
 export default createComponent({
   name: 'AppSidebar',
@@ -22,21 +23,18 @@ export default createComponent({
     value: {
       type: Boolean,
       required: true
-    },
-    clickActions: {
-      type: Array,
-      required: true,
-      default: []
     }
   },
   setup (_, context) {
-    const links = ref([
-      { text: '使用說明' },
-      { text: '安全須知' },
-      { text: '聯絡我們' },
-      { text: '常見問題' },
-      { text: '關於舉報系統' }
-    ])
+    const [, modalActions] = useModalState()
+    const links = [
+      { text: '使用說明', action: modalActions.openTutorialModal },
+      { text: '安全須知', action: modalActions.openSafetyModal },
+      { text: '聯絡我們', action: modalActions.openContactModal },
+      { text: '常見問題', href: 'https://about.disfactory.tw/#section-f_c360c8de-447e-4c0a-a856-4af18b9a5240' },
+      { text: '關於舉報系統', href: 'https://about.disfactory.tw' },
+      { text: '問題回報', href: 'https://airtable.com/shrUraKakZRpH52DO' }
+    ]
     const close = () => {
       context.emit('input', false)
     }
@@ -44,20 +42,16 @@ export default createComponent({
     return {
       links,
       close,
-      onClick: (cb) => {
-        if (typeof cb === 'function') {
-          cb()
+      onClick: (link) => {
+        if (typeof link.action === 'function') {
+          link.action()
         }
       },
-      getHref: (str) => {
-        if (typeof str === 'string') {
-          return str
-        } else {
-          return null
-        }
+      getHref: (link) => {
+        return link.href
       },
-      getTarget: (str) => {
-        if (typeof str === 'string') {
+      getTarget: (link) => {
+        if (typeof link.href === 'string') {
           return '_blank'
         } else {
           return null
