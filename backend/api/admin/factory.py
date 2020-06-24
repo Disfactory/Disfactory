@@ -8,6 +8,7 @@ from api.models import ReportRecord, Factory, Image
 from .mixins import ExportCsvMixin, RestoreMixin
 from rangefilter.filter import DateRangeFilter
 
+from .mixins import ExportCsvMixin, ExportLabelMixin, RestoreMixin
 
 class FactoryWithReportRecords(DateRangeFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
@@ -140,7 +141,7 @@ class ImageInlineForFactory(admin.TabularInline):
     get_report_contact.short_description = "Contact"
 
 
-class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
+class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin):
     list_display = (
         "id",
         "updated_at",
@@ -162,7 +163,7 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
         FactoryFilteredByCounty,
     )
     ordering = ["-created_at"]
-    actions = ["export_as_csv"]
+    actions = ["export_as_csv", "export_labels_as_docx"]
 
     inlines = [ImageInlineForFactory, ReportRecordInline]
 
