@@ -8,6 +8,7 @@ def _modify(field_name):
         return 'name'
     return field_name
 
+
 class ExportCsvMixin:
 
     def export_as_csv(self, request, queryset):
@@ -33,3 +34,10 @@ class RestoreMixin:
         queryset.undelete()
 
     restore.short_description = '復原'
+
+
+class ExportLabelMixin:
+    def export_labels_as_docx(self, request, queryset):
+        return
+
+    export_labels_as_docx.short_description = '下載標籤及交寄執據'
