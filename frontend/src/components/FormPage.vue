@@ -47,7 +47,7 @@
 
             <div style="width: 100px; margin-bottom: 15px;">
               <label data-label="form-add-image">
-                <input multiple type="file" accept="image/*" ref="image" style="visibility: hidden; position: absolute; left: -1000px;"  data-label="form-add-image">
+                <input multiple type="file" accept="image/*" ref="image" style="visibility: hidden; position: absolute; left: -1000px;"  data-label="form-add-image" @change="handleImagesUpload">
                 <app-button rect @click="onClickImageUpload" data-label="form-add-image">新增</app-button>
               </label>
             </div>
