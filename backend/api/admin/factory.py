@@ -4,9 +4,8 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.html import mark_safe
 
-from api.models import ReportRecord, Factory, Image
-from .mixins import ExportCsvMixin, RestoreMixin
-
+from api.models import Factory, Image, ReportRecord
+from .mixins import ExportCsvMixin, ExportLabelMixin, RestoreMixin, ExportDocMixin
 
 
 class FactoryWithReportRecords(SimpleListFilter):
@@ -148,7 +147,9 @@ class ImageInlineForFactory(admin.TabularInline):
     get_report_contact.short_description = 'Contact'
 
 
-class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
+
+class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDocMixin):
+
     list_display = (
         'get_name',
         'created_at',
@@ -170,7 +171,9 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
         FactoryFilteredByCounty,
     )
     ordering = ["-created_at"]
-    actions = ["export_as_csv"]
+
+    actions = ["export_as_csv", "export_labels_as_docx", "export_as_docx"]
+
 
     inlines = [ImageInlineForFactory, ReportRecordInline]
 
