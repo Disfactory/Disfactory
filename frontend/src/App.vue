@@ -18,6 +18,7 @@
     <getting-started-modal :open="modalState.gettingStartedModalOpen" :dismiss="modalActions.closeGettingStartedModal" />
     <safety-modal :open="modalState.safetyModalOpen" :dismiss="modalActions.closeSafetyModal" />
     <tutorial-modal :open="modalState.tutorialModalOpen" :dismiss="modalActions.closeTutorialModal" />
+    <ios-version-modal :open="modalState.supportIOSVersionModalOpen" :dismiss="modalActions.closesupportIOSVersionModal" />
 
     <Map
       :openCreateFactoryForm="appActions.openCreateFactoryForm"
@@ -63,6 +64,7 @@ import TutorialModal from '@/components/TutorialModal.vue'
 import SafetyModal from '@/components/SafetyModal.vue'
 import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
 import UpdateFactorySuccessModal from '@/components/UpdateFactorySuccessModal.vue'
+import IosVersionModal from '@/components/IOSVersionAlertModal.vue'
 
 import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
@@ -88,7 +90,8 @@ export default createComponent({
     CreateFactorySuccessModal,
     UpdateFactorySuccessModal,
     TutorialModal,
-    FormPage
+    FormPage,
+    IosVersionModal
   },
   setup (_, context) {
     provideGA(context)

@@ -1,5 +1,6 @@
 import { ref, Ref, provide, inject, reactive, InjectionKey } from '@vue/composition-api'
 import { useGA } from './useGA'
+import { isNotSupportedIOS } from './browserCheck'
 
 export const useModal = (defaultOpen = false): [Ref<boolean>, { open: () => void, dismiss: () => void }] => {
   const state = ref(defaultOpen)
@@ -32,6 +33,7 @@ export const provideModalState = () => {
     safetyModalOpen: false,
     gettingStartedModalOpen: localStorage.getItem('use-app') !== 'true',
     tutorialModalOpen: false,
+    supportIOSVersionModalOpen: isNotSupportedIOS(),
 
     sidebarOpen: false,
     filterModalOpen: false
@@ -69,7 +71,9 @@ type ModalActions = {
   openFilterModal: Function,
 
   closeTutorialModal: Function,
-  openTutorialModal: Function
+  openTutorialModal: Function,
+
+  closesupportIOSVersionModal: Function
 }
 
 export const useModalState: () => [ModalState, ModalActions] = () => {
@@ -100,6 +104,8 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
 
   const openTutorialModal = () => { modalState.tutorialModalOpen = true }
   const closeTutorialModal = () => { modalState.tutorialModalOpen = false }
+
+  const closesupportIOSVersionModal = () => { modalState.supportIOSVersionModalOpen = false }
 
   const toggleSidebar = () => {
     const open = !modalState.sidebarOpen
@@ -140,7 +146,9 @@ export const useModalState: () => [ModalState, ModalActions] = () => {
 
     toggleSidebar,
     openFilterModal,
-    closeFilterModal
+    closeFilterModal,
+
+    closesupportIOSVersionModal
   }
 
   return [modalState, modalActions]
