@@ -141,7 +141,9 @@ class ImageInlineForFactory(admin.TabularInline):
     get_report_contact.short_description = "Contact"
 
 
-class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin):
+
+class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDocMixin):
+
     list_display = (
         "id",
         "updated_at",
@@ -163,7 +165,9 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin):
         FactoryFilteredByCounty,
     )
     ordering = ["-created_at"]
-    actions = ["export_as_csv", "export_labels_as_docx"]
+
+    actions = ["export_as_csv", "export_labels_as_docx", "export_as_docx"]
+
 
     inlines = [ImageInlineForFactory, ReportRecordInline]
 
