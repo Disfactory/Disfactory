@@ -57,7 +57,6 @@
             </div>
           </div>
 
-
         </div>
 
         <div class="images-grid">
