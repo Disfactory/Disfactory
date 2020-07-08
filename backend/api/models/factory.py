@@ -24,14 +24,11 @@ class Factory(SoftDeleteMixin):
         ("9", "其他"),
     ]
     cet_report_status_list = [
-        ("A", "未舉報"),
-        ("O", "第一次發文待回覆"),
-        ("P", "第一次發文已播電話追蹤"),
-        ("Q", "第一次回文"),
-        ("X", "第二次發文待回覆"),
-        ("Y", "第二次發文已播電話追蹤"),
-        ("Z", "第二次回文"),
-        ("B", "已結案"),
+        ("A", "尚未審查"),
+        ("O", "已審查-不檢舉"),
+        ("P", "已審查-需補件"),
+        ("Q", "已審查-待檢舉"),
+        ("X", "已審查-已生成公文"),
     ]
     source_list = [
         ("G", "政府"),
@@ -54,7 +51,6 @@ class Factory(SoftDeleteMixin):
     townname = models.CharField(max_length=50, blank=True, null=True)
     sectcode = models.CharField(max_length=50, blank=True, null=True)
     sectname = models.CharField(max_length=50, blank=True, null=True)
-
 
     name = models.CharField(max_length=50, blank=True, null=True)
     factory_type = models.CharField(
