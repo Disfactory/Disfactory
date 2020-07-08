@@ -152,6 +152,7 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
         "source",
         "get_name",
     )
+    search_fields = ["townname", "sectname"]
     list_filter = (
         # XXX: actually not using `factory.created_at` but `repordRecord.created_at`
         ("created_at", FactoryWithReportRecords),
