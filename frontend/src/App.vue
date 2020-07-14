@@ -65,6 +65,15 @@
       <safety-modal :open="modalState.safetyModalOpen" :dismiss="modalActions.closeSafetyModal" />
       <tutorial-modal :open="modalState.tutorialModalOpen" :dismiss="modalActions.closeTutorialModal" />
       <!-- alert or modal -->
+      <Map
+        :openCreateFactoryForm="appActions.openCreateFactoryForm"
+        :openEditFactoryForm="appActions.openEditFactoryForm"
+        :selectFactoryMode="appState.selectFactoryMode"
+        :enterSelectFactoryMode="appActions.enterSelectFactoryMode"
+        :exitSelectFactoryMode="appActions.exitSelectFactoryMode"
+        :setFactoryLocation="appActions.setFactoryLocation"
+        :openFilterModal="modalActions.openFilterModal"
+      />
       <form-page
         v-if="appState.factoryFormOpen"
 
@@ -76,15 +85,6 @@
         :exitSelectFactoryMode="appActions.exitSelectFactoryMode"
         :factoryLocation="appState.factoryLocation"
         :setCreateFactorySuccessModal="setCreateFactorySuccessModal"
-      />
-      <Map
-        :openCreateFactoryForm="appActions.openCreateFactoryForm"
-        :openEditFactoryForm="appActions.openEditFactoryForm"
-        :selectFactoryMode="appState.selectFactoryMode"
-        :enterSelectFactoryMode="appActions.enterSelectFactoryMode"
-        :exitSelectFactoryMode="appActions.exitSelectFactoryMode"
-        :setFactoryLocation="appActions.setFactoryLocation"
-        :openFilterModal="modalActions.openFilterModal"
       />
     </v-main>
   </v-app>
