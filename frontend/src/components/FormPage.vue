@@ -501,7 +501,7 @@ export default createComponent({
   position: absolute;
   top: -47px;
   left: 0;
-  z-index: 2;
+  z-index: 5;
 }
 
 .minimap {
