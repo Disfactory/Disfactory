@@ -42,16 +42,21 @@
         <div class="minimap" ref="minimap" @click="onClickMinimap()" data-label="form-minimap" />
 
         <div class="flex justify-between" style="margin-top: 40px; margin-bottom: 20px;">
-          <div class="flex flex-column">
+          <div>
             <h3 style="margin-top: 0;">工廠照片*</h3>
 
-            <div>
+            <div style="width: 100px; margin-bottom: 15px;">
               <label data-label="form-add-image">
-                <input multiple type="file" accept="image/*" ref="image" @change="handleImagesUpload" style="visibility: hidden; position: absolute; pointer-events: none; left: -1000px;"  data-label="form-add-image">
+                <input multiple type="file" accept="image/*" ref="image" style="visibility: hidden; position: absolute; left: -1000px;"  data-label="form-add-image" @change="handleImagesUpload">
                 <app-button rect @click="onClickImageUpload" data-label="form-add-image">新增</app-button>
               </label>
             </div>
+
+            <div>
+              <small>若您的 iPhone 手機的系統為 iOS 13.3 以下（包含），可能無法上傳照片，工程師搶修中，敬請見諒 🥺</small>
+            </div>
           </div>
+
         </div>
 
         <div class="images-grid">

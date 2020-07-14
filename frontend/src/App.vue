@@ -4,17 +4,23 @@
       <v-toolbar-title>農地工廠回報</v-toolbar-title>
       <v-spacer />
       <div class="d-none d-sm-flex">
-        <v-btn text @click="sidebarActions[0]">
+        <v-btn text @click="modalActions.openTutorialModal">
           使用教學
         </v-btn>
-        <v-btn text @click="sidebarActions[1]">
+        <v-btn text @click="modalActions.openSafetyModal">
           安全須知
         </v-btn>
-        <v-btn text @click="sidebarActions[2]">
+        <v-btn text @click="modalActions.openContactModal">
           聯絡我們
         </v-btn>
-        <v-btn text :href="sidebarActions[4]" target="_blank">
+        <v-btn text href="https://about.disfactory.tw/#section-f_c360c8de-447e-4c0a-a856-4af18b9a5240">
+          常見問題
+        </v-btn>
+        <v-btn text href="https://about.disfactory.tw" target="_blank">
           關於舉報系統
+        </v-btn>
+        <v-btn text href="https://airtable.com/shrUraKakZRpH52DO" target="_blank">
+          問題回報
         </v-btn>
       </div>
       <v-app-bar-nav-icon class="d-flex d-sm-none" @click="drawer = !drawer" />
@@ -28,20 +34,28 @@
           v-model="group"
           active-class="deep-purple--text text--accent-4"
         >
-          <v-list-item @click="sidebarActions[0]">
+          <v-list-item @click="modalActions.openTutorialModal">
             <v-list-item-title>使用教學</v-list-item-title>
           </v-list-item>
 
-          <v-list-item @click="sidebarActions[1]">
+          <v-list-item @click="modalActions.openSafetyModal">
             <v-list-item-title>安全須知</v-list-item-title>
           </v-list-item>
 
-          <v-list-item @click="sidebarActions[2]">
+          <v-list-item @click="modalActions.openContactModal">
             <v-list-item-title>聯絡我們</v-list-item-title>
           </v-list-item>
 
-          <v-list-item :href="sidebarActions[4]" target="_blank">
+          <v-list-item href="https://about.disfactory.tw/#section-f_c360c8de-447e-4c0a-a856-4af18b9a5240" target="_blank">
+            <v-list-item-title>常見問題</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item href="https://about.disfactory.tw" target="_blank">
             <v-list-item-title>關於舉報系統</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item href="https://airtable.com/shrUraKakZRpH52DO" target="_blank">
+            <v-list-item-title>問題回報</v-list-item-title>
           </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -64,6 +78,7 @@
       <getting-started-modal :open="modalState.gettingStartedModalOpen" :dismiss="modalActions.closeGettingStartedModal" />
       <safety-modal :open="modalState.safetyModalOpen" :dismiss="modalActions.closeSafetyModal" />
       <tutorial-modal :open="modalState.tutorialModalOpen" :dismiss="modalActions.closeTutorialModal" />
+      <ios-version-modal :open="modalState.supportIOSVersionModalOpen" :dismiss="modalActions.closesupportIOSVersionModal" />
       <!-- alert or modal -->
       <Map
         :openCreateFactoryForm="appActions.openCreateFactoryForm"
@@ -108,6 +123,7 @@ import TutorialModal from '@/components/TutorialModal.vue'
 import SafetyModal from '@/components/SafetyModal.vue'
 import CreateFactorySuccessModal from '@/components/CreateFactorySuccessModal.vue'
 import UpdateFactorySuccessModal from '@/components/UpdateFactorySuccessModal.vue'
+import IosVersionModal from '@/components/IOSVersionAlertModal.vue'
 
 import { MapFactoryController } from './lib/map'
 import { MainMapControllerSymbol } from './symbols'
@@ -144,7 +160,8 @@ export default createComponent({
     CreateFactorySuccessModal,
     UpdateFactorySuccessModal,
     TutorialModal,
-    FormPage
+    FormPage,
+    IosVersionModal
   },
   setup (_, context) {
     provideGA(context)
@@ -167,13 +184,6 @@ export default createComponent({
       alertState,
       alertActions,
       appActions,
-      sidebarActions: [
-        modalActions.openTutorialModal,
-        modalActions.openSafetyModal,
-        modalActions.openContactModal,
-        'https://about.disfactory.tw/#section-f_c360c8de-447e-4c0a-a856-4af18b9a5240',
-        'https://about.disfactory.tw'
-      ],
       modalState,
       modalActions,
       drawer

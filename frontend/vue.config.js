@@ -1,6 +1,7 @@
 module.exports = {
   lintOnSave: false,
   devServer: {
+    disableHostCheck: true,
     proxy: {
       '/server': {
         target: 'https://staging.disfactory.tw',
