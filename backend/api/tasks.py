@@ -19,7 +19,7 @@ def _upload_image_to_imgur(image_buffer, client_id):
     headers = {'Authorization': f'Client-ID {client_id}'}
     data = {'image': image_buffer}
     resp = requests.post(
-        'https://api.imgur.com/3/upload',
+        'https://api.imgur.com/3/image',
         data=data,
         headers=headers,
     )
