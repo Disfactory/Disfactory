@@ -14,7 +14,7 @@ class Command(BaseCommand):
         for img in Image.objects.all():
             if 'https://i.imgur.com' not in img.image_path:
                 image_path_on_server = os.path.join(
-                    settings.MEDIA_URL,
+                    settings.MEDIA_ROOT,
                     img.image_path.split('/')[-1],
                 )
                 success = upload_image(
