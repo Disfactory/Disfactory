@@ -5,7 +5,7 @@ import csv
 from django.db import migrations
 from django.conf import settings
 
-from api.tasks import update_landcode
+from api.tasks import update_landcode_with_custom_factory_model
 
 
 SEED_DATA_PATH = os.path.join(settings.BASE_DIR, "fixtures/full-info.csv")
@@ -43,7 +43,7 @@ def forward_func(apps, schema_editor):
     print(f'{after_release_count} factories will be updated')
     for idx, factory in enumerate(Factory.objects.filter(before_release=False).all()):
         print(f'{idx}/{after_release_count}: get landcode of {factory.id} {factory.name}')
-        update_landcode(factory.id)
+        update_landcode_with_custom_factory_model(factory.id, Factory)
 
 
 def backward_func(apps, schema_editor):

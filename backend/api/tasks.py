@@ -41,7 +41,11 @@ def _upload_image_to_imgur(image_buffer, client_id):
 
 
 def update_landcode(factory_id):
-    factory = Factory.objects.get(pk=factory_id)
+    update_landcode_with_custom_factory_model(factory_id, Factory)
+
+
+def update_landcode_with_custom_factory_model(factory_id, factory_model):
+    factory = factory_model.objects.get(pk=factory_id)
     landinfo = easymap.get_land_number(factory.lng, factory.lat)
     landcode = landinfo.get('landno')
     sectname = landinfo.get('sectName')
@@ -49,7 +53,7 @@ def update_landcode(factory_id):
     townname = landinfo.get('townname')
     towncode = landinfo.get('towncode')
     LOGGER.info(f"Factory {factory_id} retrieved land number {landcode}")
-    Factory.objects.filter(pk=factory_id).update(
+    factory_model.objects.filter(pk=factory_id).update(
         landcode=landcode,
         sectcode=sectcode,
         sectname=sectname,
