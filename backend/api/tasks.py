@@ -19,7 +19,7 @@ def _upload_image_to_imgur(image_buffer, client_id):
     headers = {'Authorization': f'Client-ID {client_id}'}
     data = {'image': image_buffer}
     resp = requests.post(
-        'https://api.imgur.com/3/upload',
+        'https://api.imgur.com/3/image',
         data=data,
         headers=headers,
     )
@@ -71,9 +71,10 @@ def upload_image(image_path, client_id, image_id):
                 Upload success and get imgur url {path},
                 but other error happened when update image {image_id}
             """)
+            return False
     except Exception as e:
         LOGGER.error(f"Upload {image_path} to Imgur with client ID {client_id} failed {e}")
-
+        return False
 
     try:
         os.remove(image_path)
@@ -82,3 +83,6 @@ def upload_image(image_path, client_id, image_id):
             {image_id} upload and write to DB success,
             but other error happened when removing tempfile {image_path}.
         """)
+        return True
+
+    return True
