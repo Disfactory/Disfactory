@@ -415,10 +415,10 @@ export default createComponent({
 @import '~@/styles/utils';
 
 .map-container {
-  top: 47px;
+  top: 0;
   bottom: 0;
-  width: 100%;
-  height: calc(100% - 47px);
+  width: 100vw;
+  height: 100%;
   position: absolute;
 
   .ol-switch-base, .ol-switch-luilayer-visibility {
@@ -492,9 +492,6 @@ export default createComponent({
 }
 
 .location-tooltip {
-  width: 0.1px;
-  height: 0.1px;
-
   position: fixed;
   top: 50%;
   left: 50vw;
