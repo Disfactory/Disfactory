@@ -6,7 +6,7 @@
       </app-navbar>
     </div>
 
-    <div class="page-container" :class="{ hide: selectFactoryMode }">
+    <div class="page-container" :class="{ hide: appState.selectFactoryMode }">
       <image-upload-modal
         :open="formPageState.imageUploadModalOpen"
         :dismiss="closeImageUploadModal"
@@ -18,15 +18,15 @@
       />
 
       <div class="page" style="padding: 29px 35px;">
-        <div class="status-banner flex" v-if="!isCreateMode" :style="{ backgroundColor: getStatusBorderColor(factoryFormState.status) }">
+        <div class="status-banner flex" v-if="!appState.isCreateMode" :style="{ backgroundColor: getStatusBorderColor(factoryFormState.status) }">
           <img src="/images/marker-white.svg" style="margin-right: 7px;">
-          {{ FactoryStatusText[factoryFormState.status][0] }}
+          {{ FactoryStatusText[factoryFormState.status] && FactoryStatusText[factoryFormState.status][0] }}
         </div>
 
         <h2>
           上傳工廠資訊
 
-          <small v-if="isCreateMode">
+          <small v-if="appState.isCreateMode">
             <br><br>
             請確認工廠地點，
             <br>
@@ -133,7 +133,7 @@
 </template>
 
 <script lang="ts">
-import { createComponent, ref, inject, onMounted, watch, reactive } from '@vue/composition-api'
+import { createComponent, ref, inject, onMounted, watch, reactive, computed } from '@vue/composition-api'
 import AppButton from '@/components/AppButton.vue'
 import AppTextField from '@/components/AppTextField.vue'
 import AppTextArea from '@/components/AppTextArea.vue'
@@ -168,35 +168,9 @@ export default createComponent({
     ImageUploadModal
   },
   props: {
-    // close form page
-    close: {
-      type: Function,
-      required: true
-    },
-    selectFactoryMode: {
-      type: Boolean,
-      required: true
-    },
-    enterSelectFactoryMode: {
-      type: Function,
-      required: true
-    },
-    exitSelectFactoryMode: {
-      type: Function,
-      required: true
-    },
     factoryLocation: {
       type: Array,
       required: true
-    },
-    setCreateFactorySuccessModal: {
-      type: Function,
-      required: true
-    },
-    mode: {
-      type: String,
-      required: true,
-      defaultValue: 'create'
     },
     factoryData: {
       type: Object,
@@ -208,22 +182,19 @@ export default createComponent({
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
     let minimapController: MapFactoryController
     const [, modalActions] = useModalState()
-    const [appState] = useAppState()
+    const [appState, { pageTransition }] = useAppState()
     const [, alertActions] = useAlertState()
 
     const onBack = () => {
       if (mapController.value) {
         mapController.value.mapInstance.setLUILayerVisible(false)
-        props.close()
-        props.exitSelectFactoryMode()
+        pageTransition.closeFactoryPage()
       }
     }
 
     useBackPressed(onBack)
 
-    // mode helpers
-    const isEditMode = props.mode === 'edit'
-    const isCreateMode = props.mode === 'create'
+    const mode = computed(() => appState.isCreateMode ? 'create' : 'edit')
 
     const factoryTypeItems: Array<{ text: string, value: string }> = [
       { text: '請選擇工廠類型', value: '0' },
@@ -246,7 +217,7 @@ export default createComponent({
     }
 
     // merge state
-    if (isEditMode) {
+    if (appState.isEditMode) {
       const { factoryData } = props
 
       initialFactoryState.name = factoryData.name
@@ -303,7 +274,7 @@ export default createComponent({
 
     const updateFactoryFieldsFor = async (field: string, value: string) => {
       const { factoryData } = props
-      if (!isEditMode || !factoryData) {
+      if (!appState.isEditMode || !factoryData) {
         return
       }
 
@@ -339,7 +310,7 @@ export default createComponent({
         minimapController = initializeMinimap(minimap.value!, center)
         minimapController.addFactories(controller.factories)
 
-        if (isEditMode) {
+        if (appState.isEditMode) {
           const { factoryData } = props
           minimapController.mapInstance.setMinimapPin(factoryData.lng, factoryData.lat)
         } else if (isCreateMode) {
@@ -350,7 +321,7 @@ export default createComponent({
     })
 
     watch(() => props.factoryLocation, () => {
-      if (isCreateMode && minimapController) {
+      if (appState.isCreateMode && minimapController) {
         const [lng, lat] = props.factoryLocation as number[]
         minimapController.mapInstance.setMinimapPin(lng, lat)
       }
@@ -359,9 +330,9 @@ export default createComponent({
     return {
       minimap,
       onClickMinimap: () => {
-        if (isCreateMode && mapController.value) {
+        if (appState.isCreateMode && mapController.value) {
           mapController.value.mapInstance.setLUILayerVisible(true)
-          props.enterSelectFactoryMode()
+          pageTransition.gotoCreateStep(0)
         }
       },
       factoryFormState,
@@ -387,10 +358,10 @@ export default createComponent({
         openImageUploadModal()
       },
       async finishImagesUpload (_images: UploadedImages | FactoryImage[], imageUrls: string[]) {
-        if (isCreateMode) {
+        if (appState.isCreateMode) {
           factoryFormState.imageUrls = imageUrls
           factoryFormState.images = (_images as UploadedImages).map(image => image.token)
-        } else if (isEditMode) {
+        } else if (appState.isEditMode) {
           // TODO: refactor into sepearte method...
           try {
             const factory = { ...props.factoryData } as FactoryData
@@ -449,14 +420,11 @@ export default createComponent({
 
         // TODO: clear form
 
-        props.close()
-        props.exitSelectFactoryMode()
-        props.setCreateFactorySuccessModal(true)
+        pageTransition.closeFactoryPage()
       },
       finishUploaderForm,
-
-      isEditMode,
-      isCreateMode,
+      appState,
+      mode,
       updateFactoryFieldsFor,
 
       getStatusBorderColor,

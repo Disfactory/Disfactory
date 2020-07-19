@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="navbar-container" v-if="selectFactoryMode">
+    <div class="navbar-container" v-if="appState.selectFactoryMode">
       <app-navbar :dark="false" :fixed="true" @back="onNavBack" @menu="modalActions.toggleSidebar">
         新增資訊
       </app-navbar>
@@ -19,11 +19,11 @@
         </app-button>
       </div>
 
-      <div class="region-alert" v-if="selectFactoryMode">
+      <div class="region-alert" v-if="appState.selectFactoryMode">
         白色區域：農地範圍，為可回報範圍。<br>灰色區域：非農地範圍，不在回報範圍內。
       </div>
 
-      <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal" data-label="map-search" v-show="!selectFactoryMode">
+      <div class="ol-map-search ol-unselectable ol-control" @click="openFilterModal" data-label="map-search" v-show="!appState.selectFactoryMode">
         <button>
           <img src="/images/filter.svg" alt="search">
         </button>
@@ -35,9 +35,9 @@
         </button>
       </div>
 
-      <div class="center-point" v-if="selectFactoryMode && !locationTooltipVisibility" />
-      <div class="location-tooltip-backdrop" v-if="selectFactoryMode && showLocationInput" @click="dismissLocationInput" />
-      <div class="location-tooltip" v-if="selectFactoryMode && locationTooltipVisibility">
+      <div class="center-point" v-if="appState.selectFactoryMode && !locationTooltipVisibility" />
+      <div class="location-tooltip-backdrop" v-if="appState.selectFactoryMode && showLocationInput" @click="dismissLocationInput" />
+      <div class="location-tooltip" v-if="appState.selectFactoryMode && locationTooltipVisibility">
         <div class="circle" />
         <div class="line" />
         <div class="box flex justify-between" v-if="!showLocationInput">
@@ -72,7 +72,7 @@
 
       <div class="factory-button-group">
         <div class="factory-secondary-actions-group">
-          <div class="ol-switch-luilayer-visibility ol-unselectable ol-control" data-label="map-set-luilayer-visibility" @click="toggleLUILayerVisibility" v-if="!selectFactoryMode">
+          <div class="ol-switch-luilayer-visibility ol-unselectable ol-control" data-label="map-set-luilayer-visibility" @click="toggleLUILayerVisibility" v-if="!appState.selectFactoryMode">
             <button>
               {{ setLUILayerVisibilityText }}
             </button>
@@ -84,18 +84,18 @@
             </button>
           </div>
 
-          <div class="ol-switch-base ol-unselectable ol-control" @click="toggleLocationTooltipVisibility" data-label="map-location-tooltip" v-if="selectFactoryMode">
+          <div class="ol-switch-base ol-unselectable ol-control" @click="toggleLocationTooltipVisibility" data-label="map-location-tooltip" v-if="appState.selectFactoryMode">
             <button>
               {{ locationTooltipControlText }}
             </button>
           </div>
         </div>
 
-        <div class="create-factory-button" v-if="!selectFactoryMode">
+        <div class="create-factory-button" v-if="!appState.selectFactoryMode">
           <app-button @click="onClickCreateFactoryButton" data-label="map-create-factory" color="dark-green">我想新增可疑工廠</app-button>
         </div>
 
-        <div class="choose-location-button" v-if="selectFactoryMode">
+        <div class="choose-location-button" v-if="appState.selectFactoryMode">
           <app-button
             @click="onClickFinishSelectFactoryPositionButton"
             data-label="map-select-position"
@@ -135,26 +135,6 @@ export default createComponent({
     AppTextField
   },
   props: {
-    openCreateFactoryForm: {
-      type: Function,
-      required: true
-    },
-    openEditFactoryForm: {
-      type: Function,
-      required: true
-    },
-    selectFactoryMode: {
-      type: Boolean,
-      required: true
-    },
-    enterSelectFactoryMode: {
-      type: Function,
-      required: true
-    },
-    exitSelectFactoryMode: {
-      type: Function,
-      required: true
-    },
     setFactoryLocation: {
       type: Function,
       required: true
@@ -173,7 +153,7 @@ export default createComponent({
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
     const [, modalActions] = useModalState()
-    const [appState] = useAppState()
+    const [appState, { openEditFactoryForm, pageTransition }] = useAppState()
     const [, alertActions] = useAlertState()
 
     const [popupState] = useFactoryPopup()
@@ -210,7 +190,7 @@ export default createComponent({
         return
       }
 
-      props.openEditFactoryForm(appState.factoryData)
+      openEditFactoryForm(appState.factoryData)
     }
 
     const locationTooltipVisibility = ref(false)
@@ -325,14 +305,17 @@ export default createComponent({
       if (mapControllerRef.value) {
         mapControllerRef.value.mapInstance.setLUILayerVisible(false)
       }
-      props.exitSelectFactoryMode()
+
+      pageTransition.closeFactoryPage()
     }
 
     function onClickCreateFactoryButton () {
       if (!mapControllerRef.value) return
 
       mapControllerRef.value.mapInstance.setLUILayerVisible(true)
-      props.enterSelectFactoryMode()
+
+      pageTransition.startCreateFactory()
+
       popupState.show = false
       locationTooltipVisibility.value = false
       showLocationInput.value = false
@@ -351,8 +334,8 @@ export default createComponent({
       mapControllerRef.value.mapInstance.setLUILayerVisible(false)
 
       props.setFactoryLocation(factoryLngLat.value)
-      props.exitSelectFactoryMode()
-      props.openCreateFactoryForm()
+
+      pageTransition.nextCreateStep()
     }
 
     return {
@@ -377,6 +360,7 @@ export default createComponent({
       onNavBack () {
         onBack()
       },
+      appState,
       popupState,
       popupData,
       onClickEditFactoryData,
@@ -629,7 +613,7 @@ export default createComponent({
   position: absolute;
   top: -47px;
   left: 0;
-  z-index: 2;
+  z-index: 5;
 }
 
 .region-alert {

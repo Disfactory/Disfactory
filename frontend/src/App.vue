@@ -81,25 +81,15 @@
       <ios-version-modal :open="modalState.supportIOSVersionModalOpen" :dismiss="modalActions.closesupportIOSVersionModal" />
       <!-- alert or modal -->
       <Map
-        :openCreateFactoryForm="appActions.openCreateFactoryForm"
-        :openEditFactoryForm="appActions.openEditFactoryForm"
-        :selectFactoryMode="appState.selectFactoryMode"
-        :enterSelectFactoryMode="appActions.enterSelectFactoryMode"
-        :exitSelectFactoryMode="appActions.exitSelectFactoryMode"
         :setFactoryLocation="appActions.setFactoryLocation"
         :openFilterModal="modalActions.openFilterModal"
       />
       <form-page
-        v-if="appState.factoryFormOpen"
+        v-if="appState.formPageOpen"
 
         :mode="appState.formMode"
         :factoryData="appState.factoryData"
-        :close="appActions.closeFactoryPage"
-        :selectFactoryMode="appState.selectFactoryMode"
-        :enterSelectFactoryMode="appActions.enterSelectFactoryMode"
-        :exitSelectFactoryMode="appActions.exitSelectFactoryMode"
         :factoryLocation="appState.factoryLocation"
-        :setCreateFactorySuccessModal="setCreateFactorySuccessModal"
       />
     </v-main>
   </v-app>
@@ -166,10 +156,10 @@ export default createComponent({
   setup (_, context) {
     provideGA(context)
     providePopupState()
-    provideAppState()
-    provideAlertState()
 
     provideModalState()
+    provideAppState()
+    provideAlertState()
 
     const [modalState, modalActions] = useModalState()
     const [appState, appActions] = useAppState()

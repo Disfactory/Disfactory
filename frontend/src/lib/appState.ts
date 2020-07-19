@@ -1,4 +1,4 @@
-import { inject, provide, reactive } from '@vue/composition-api'
+import { inject, provide, reactive, computed, toRefs } from '@vue/composition-api'
 import { useGA } from './useGA'
 import { FactoryData } from '../types'
 
@@ -6,17 +6,40 @@ const AppStateSymbol = Symbol('AppState')
 
 // A global state that can be shared across the entire application
 
+export const enum PageState {
+  INITIAL = 'INITIAL',
+  CREATE_FACTORY_1 = 'CREATE_FACTORY_1',
+  CREATE_FACTORY_2 = 'CREATE_FACTORY_2',
+  CREATE_FACTORY_3 = 'CREATE_FACTORY_3',
+  UPDATE_FACTORY = 'UPDATE_FACTORY'
+}
+
+const CreateFactoryPageState = [
+  PageState.CREATE_FACTORY_1,
+  PageState.CREATE_FACTORY_2,
+  PageState.CREATE_FACTORY_3
+]
+
 export const provideAppState = () => {
-  const appState = reactive({
+  const appState: {
+    pageState: PageState,
+    factoryData: FactoryData | null,
+    factoryLocation: number[],
+    isCreateMode: boolean,
+    isEditMode: boolean,
+    selectFactoryMode: boolean
+    formPageOpen: boolean
+  } = reactive({
     // Page state
-    // TODO: should be rewritten with vue router?
-    formMode: 'create',
-    factoryFormOpen: false,
+    pageState: PageState.INITIAL,
+
     factoryData: null as FactoryData | null,
     factoryLocation: [] as number[],
 
-    // Map state
-    selectFactoryMode: false
+    isCreateMode: computed(() => CreateFactoryPageState.includes(appState.pageState)),
+    isEditMode: computed(() => appState.pageState === PageState.UPDATE_FACTORY),
+    selectFactoryMode: computed(() => appState.pageState === PageState.CREATE_FACTORY_1),
+    formPageOpen: computed(() => CreateFactoryPageState.includes(appState.pageState) || appState.pageState === PageState.UPDATE_FACTORY)
   })
 
   provide(AppStateSymbol, appState)
@@ -27,43 +50,108 @@ export const provideAppState = () => {
 const registerMutator = (appState: AppState) => {
   const { event, pageview } = useGA()
 
-  return {
-    updateFactoryData (factory: FactoryData) {
-      appState.factoryData = factory
+  // page transition methods
+  const invalidPageTransition = () => {
+    throw new Error('Invalid page transition')
+  }
+
+  // a state machine transition implementation
+  const pageTransition = {
+    startCreateFactory () {
+      if (appState.pageState === PageState.INITIAL) {
+        appState.pageState = PageState.CREATE_FACTORY_1
+      } else {
+        invalidPageTransition()
+      }
+
+      event('enterSelectFactoryMode')
     },
 
-    openCreateFactoryForm () {
-      appState.factoryData = null
-      appState.formMode = 'create'
-      appState.factoryFormOpen = true
-      pageview('/create')
+    gotoNextCreate () {
+      const index = CreateFactoryPageState.indexOf(appState.pageState)
+      if (index !== -1 && index !== CreateFactoryPageState.length - 1) {
+        appState.pageState = CreateFactoryPageState[index + 1]
+      } else {
+        invalidPageTransition()
+      }
+
+      if (index === 0) {
+        pageview('/create')
+      }
     },
 
-    openEditFactoryForm (factory: FactoryData) {
-      appState.factoryData = factory
-      appState.formMode = 'edit'
-      appState.factoryFormOpen = true
+    nextCreateStep () {
+      const index = CreateFactoryPageState.indexOf(appState.pageState)
+      if (CreateFactoryPageState[index + 1]) {
+        appState.pageState = CreateFactoryPageState[index + 1]
+      }
+    },
+
+    previousCreateStep () {
+      const index = CreateFactoryPageState.indexOf(appState.pageState)
+      if (CreateFactoryPageState[index - 1]) {
+        appState.pageState = CreateFactoryPageState[index - 1]
+      }
+    },
+
+    cancelCreateFactory () {
+      if (appState.pageState in CreateFactoryPageState) {
+        appState.pageState = PageState.INITIAL
+      } else {
+        invalidPageTransition()
+      }
+
+      event('exitSelectFactoryMode')
+    },
+
+    gotoCreateStep (step: number) {
+      const index = CreateFactoryPageState.indexOf(appState.pageState)
+      if (index !== -1 && step < index) {
+        appState.pageState = CreateFactoryPageState[step]
+      } else {
+        invalidPageTransition()
+      }
+    },
+
+    startUpdateFactory () {
+      if (appState.pageState === PageState.INITIAL) {
+        appState.pageState = PageState.UPDATE_FACTORY
+      } else {
+        invalidPageTransition()
+      }
+
       pageview('/edit')
     },
 
     closeFactoryPage () {
-      appState.factoryFormOpen = false
+      if (CreateFactoryPageState.includes(appState.pageState) || appState.pageState === PageState.UPDATE_FACTORY) {
+        appState.pageState = PageState.INITIAL
+      } else {
+        invalidPageTransition()
+      }
       event('closeFactoryPage')
+    }
+  }
+
+  function updateFactoryData (factory: FactoryData) {
+    appState.factoryData = factory
+  }
+
+  return {
+    pageTransition,
+
+    updateFactoryData,
+
+    openEditFactoryForm (factory: FactoryData) {
+      updateFactoryData(factory)
+      pageTransition.startUpdateFactory()
+
+      pageview('/edit')
     },
 
     setFactoryLocation (value: [number, number]) {
       appState.factoryLocation = value
       event('setFactoryLocation')
-    },
-
-    enterSelectFactoryMode () {
-      appState.selectFactoryMode = true
-      event('enterSelectFactoryMode')
-    },
-
-    exitSelectFactoryMode () {
-      appState.selectFactoryMode = false
-      event('exitSelectFactoryMode')
     }
   }
 }
