@@ -302,6 +302,27 @@ export default createComponent({
 
     const minimap = ref<HTMLElement>(null)
 
+
+    // !FIXME create factory minimap is set after pageState changed to CREATE_FACTORY_2
+    watch(() => appState.pageState, () => {
+      if (!appState.selectFactoryMode) {
+        if (mapController.value) {
+          const controller = mapController.value
+          const center = controller.mapInstance.map.getView().getCenter() as number[]
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          minimapController = initializeMinimap(minimap.value!, center)
+          minimapController.addFactories(controller.factories)
+
+          if (appState.isCreateMode) {
+            const [lng, lat] = props.factoryLocation as number[]
+            minimapController.mapInstance.setMinimapPin(lng, lat)
+          }
+        }
+      }
+    })
+
+
+    // !FIXME update factory minmimap is set after page mounted
     onMounted(() => {
       if (mapController.value) {
         const controller = mapController.value
@@ -313,9 +334,6 @@ export default createComponent({
         if (appState.isEditMode) {
           const { factoryData } = props
           minimapController.mapInstance.setMinimapPin(factoryData.lng, factoryData.lat)
-        } else if (isCreateMode) {
-          const [lng, lat] = props.factoryLocation as number[]
-          minimapController.mapInstance.setMinimapPin(lng, lat)
         }
       }
     })
