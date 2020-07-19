@@ -31,7 +31,6 @@
         dense
       >
         <v-list-item-group
-          v-model="group"
           active-class="deep-purple--text text--accent-4"
         >
           <v-list-item @click="modalActions.openTutorialModal">
