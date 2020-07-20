@@ -90,6 +90,8 @@
         :factoryData="appState.factoryData"
         :factoryLocation="appState.factoryLocation"
       />
+
+      <create-factory-steps />
     </v-main>
   </v-app>
 </template>
@@ -103,6 +105,7 @@ import AppButton from '@/components/AppButton.vue'
 import AppSidebar from './components/AppSidebar.vue'
 import AppAlert from '@/components/AppAlert.vue'
 import FormPage from '@/components/FormPage.vue'
+import CreateFactorySteps from '@/components/CreateFactorySteps.vue'
 
 import FilterModal from '@/components/FilterModal.vue'
 import AboutModal from '@/components/AboutModal.vue'
@@ -150,7 +153,8 @@ export default createComponent({
     UpdateFactorySuccessModal,
     TutorialModal,
     FormPage,
-    IosVersionModal
+    IosVersionModal,
+    CreateFactorySteps
   },
   setup (_, context) {
     provideGA(context)

@@ -37,6 +37,8 @@ export const provideAppState = () => {
     factoryLocation: [] as number[],
 
     isCreateMode: computed(() => CreateFactoryPageState.includes(appState.pageState)),
+    createStepIndex: computed(() => CreateFactoryPageState.indexOf(appState.pageState) + 1),
+
     isEditMode: computed(() => appState.pageState === PageState.UPDATE_FACTORY),
     selectFactoryMode: computed(() => appState.pageState === PageState.CREATE_FACTORY_1),
     formPageOpen: computed(() => CreateFactoryPageState.includes(appState.pageState) || appState.pageState === PageState.UPDATE_FACTORY)
