@@ -26,9 +26,12 @@ export const provideAppState = () => {
     factoryData: FactoryData | null,
     factoryLocation: number[],
     isCreateMode: boolean,
+    createStepIndex: number,
     isEditMode: boolean,
     selectFactoryMode: boolean
     formPageOpen: boolean
+    mapLngLat: number[],
+    canPlaceFactory: boolean
   } = reactive({
     // Page state
     pageState: PageState.INITIAL,
@@ -41,7 +44,12 @@ export const provideAppState = () => {
 
     isEditMode: computed(() => appState.pageState === PageState.UPDATE_FACTORY),
     selectFactoryMode: computed(() => appState.pageState === PageState.CREATE_FACTORY_1),
-    formPageOpen: computed(() => CreateFactoryPageState.includes(appState.pageState) || appState.pageState === PageState.UPDATE_FACTORY)
+    formPageOpen: computed(() => CreateFactoryPageState.includes(appState.pageState) || appState.pageState === PageState.UPDATE_FACTORY),
+
+
+    // map states
+    mapLngLat: [] as number[],
+    canPlaceFactory: false
   })
 
   provide(AppStateSymbol, appState)
