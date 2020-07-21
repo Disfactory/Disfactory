@@ -83,13 +83,6 @@
         :setFactoryLocation="appActions.setFactoryLocation"
         :openFilterModal="modalActions.openFilterModal"
       />
-      <form-page
-        v-if="appState.formPageOpen"
-
-        :mode="appState.formMode"
-        :factoryData="appState.factoryData"
-        :factoryLocation="appState.factoryLocation"
-      />
 
       <create-factory-steps />
     </v-main>
