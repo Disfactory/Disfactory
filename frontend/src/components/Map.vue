@@ -42,9 +42,9 @@
         <div class="line" />
         <div class="box flex justify-between" v-if="!showLocationInput">
           <p>
-            經度：{{ factoryLngLat[0].toFixed(7) }}
+            經度：{{ appState.mapLngLat[0].toFixed(7) }}
             <br>
-            緯度：{{ factoryLngLat[1].toFixed(7) }}
+            緯度：{{ appState.mapLngLat[1].toFixed(7) }}
             <br>
             <small>以上經緯度版本為WGS84</small>
           </p>
@@ -148,8 +148,6 @@ export default createComponent({
     const { event } = useGA()
     const root = ref<HTMLElement>(null)
     const popup = ref<HTMLDivElement>(null)
-    const factoryValid = ref(false)
-    const factoryLngLat = ref<number[]>([])
     const mapControllerRef = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
     const [, modalActions] = useModalState()
@@ -250,8 +248,9 @@ export default createComponent({
           permalink.zoom(zoom)
           window.location.hash = permalink.dumps()
 
-          factoryValid.value = canPlaceFactory
-          factoryLngLat.value = [longitude, latitude]
+          appState.canPlaceFactory = canPlaceFactory
+          appState.mapLngLat = [longitude, latitude]
+
           event('moveMap')
           try {
             const factories = await getFactories(range, longitude, latitude)
@@ -326,14 +325,14 @@ export default createComponent({
     function onClickFinishSelectFactoryPositionButton () {
       if (!mapControllerRef.value) return
 
-      if (!factoryValid.value) {
+      if (!appState.canPlaceFactory) {
         alertActions.showAlert('此地點不在農地範圍內，\n請回報在農地範圍內的工廠。')
         return
       }
 
       mapControllerRef.value.mapInstance.setLUILayerVisible(false)
 
-      props.setFactoryLocation(factoryLngLat.value)
+      // props.setFactoryLocation(factoryLngLat.value)
 
       pageTransition.nextCreateStep()
     }
@@ -342,7 +341,6 @@ export default createComponent({
       root,
       modalActions,
       popup,
-      factoryValid,
       baseMapName,
       switchBaseMap,
       toggleLUILayerVisibility,
@@ -382,7 +380,6 @@ export default createComponent({
       locationTooltipVisibility,
       toggleLocationTooltipVisibility,
       locationTooltipControlText,
-      factoryLngLat,
       showLocationInput,
       onClickLocationSearch,
       onClickSubmitLocation,
