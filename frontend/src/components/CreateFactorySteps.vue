@@ -23,7 +23,7 @@
     </v-app-bar>
 
 
-    <div class="page create-factory-step-1" v-if="appState.createStepIndex === 1">
+    <div class="create-factory-step-1" v-if="appState.createStepIndex === 1">
       <v-btn rounded color="white" class="mr-2">
         顯示經緯度
       </v-btn>
@@ -39,11 +39,19 @@
       </v-container>
     </div>
 
-    <div class="page create-factory-step-2" v-if="appState.createStepIndex === 2">
-      Step 2
-    </div>
 
-    <div class="page create-factory-step-3" v-if="appState.createStepIndex === 3">
+    <image-upload-form
+      v-if="appState.createStepIndex === 2"
+      v-model="selectedImages"
+      :uploading="imageUploadState.uploading"
+      :error="imageUploadState.error"
+      :previewImages="uploadedImages"
+      :onClickRemoveImage="onClickRemoveImage"
+      :valid="imageUploadFormValid"
+      :submit="pageTransition.gotoNextCreate"
+    />
+
+    <div class="create-factory-step-3" v-if="appState.createStepIndex === 3">
       Step 3
     </div>
 
@@ -51,16 +59,22 @@
 </template>
 
 <script lang="ts">
-import { createComponent, inject, ref } from '@vue/composition-api'
+import { createComponent, inject, ref, watch, reactive, computed } from '@vue/composition-api'
 
 import { useAppState } from '../lib/appState'
 import { useAlertState } from '../lib/useAlert'
 
 import { MainMapControllerSymbol } from '../symbols'
 import { MapFactoryController } from '../lib/map'
+import { uploadImages, UploadedImage } from '../api'
+
+import ImageUploadForm from './ImageUploadForm.vue'
 
 export default createComponent({
   name: 'CreateFactorySteps',
+  components: {
+    ImageUploadForm
+  },
   setup (props) {
     const [appState, { pageTransition, setFactoryLocation }] = useAppState()
     const [, alertActions] = useAlertState()
@@ -87,9 +101,41 @@ export default createComponent({
       }
     }
 
+    const uploadedImages = ref<UploadedImage[]>([])
+    const imageUploadState = reactive({
+      error: null,
+      uploading: false
+    })
+
+    const selectedImages = ref<FileList>(null)
+    watch(selectedImages, async () => {
+      if (!selectedImages.value) {
+        return
+      }
+
+      imageUploadState.uploading = true
+
+      // TODO: handle image upload error
+      const images = await uploadImages(selectedImages.value)
+
+      uploadedImages.value = [
+        ...uploadedImages.value,
+        ...images
+      ]
+
+      imageUploadState.uploading = false
+    })
+
+    const onClickRemoveImage = ({ src } : UploadedImage) => {
+      uploadedImages.value = uploadedImages.value.filter(image => image.src !== src)
+    }
+
+    const imageUploadFormValid = computed(() => uploadedImages.value.length > 0)
 
     return {
       appState,
+      pageTransition,
+
       cancelCreateFactory,
       onBack,
       chooseLocation () {
@@ -105,7 +151,12 @@ export default createComponent({
         setFactoryLocation(appState.mapLngLat as [number, number])
 
         pageTransition.nextCreateStep()
-      }
+      },
+      selectedImages,
+      imageUploadState,
+      uploadedImages,
+      onClickRemoveImage,
+      imageUploadFormValid
     }
   }
 })
@@ -118,7 +169,7 @@ export default createComponent({
 }
 
 .create-factory-steps {
-  .page {
+  .create-factory-step-1 {
     padding: 20px 15px;
 
     .choose-location-btn-container {

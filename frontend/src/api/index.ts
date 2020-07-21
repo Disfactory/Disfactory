@@ -84,6 +84,11 @@ function readImageExif (file: File): Promise<AfterExifData> {
   })
 }
 
+export type UploadedImage = {
+  token: string,
+  src: string
+}
+
 async function uploadExifAndGetToken ({ link, file }: { link: string, file: File }) {
   const exifData = await readImageExif(file)
   const { data }: { data: ImageResponse } = await instance.post('/images', { url: link, ...exifData })
@@ -91,7 +96,7 @@ async function uploadExifAndGetToken ({ link, file }: { link: string, file: File
   return {
     token: data.token,
     src: URL.createObjectURL(file)
-  }
+  } as UploadedImage
 }
 
 export async function uploadImages (files: FileList): Promise<UploadedImages> {
