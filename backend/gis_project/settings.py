@@ -14,7 +14,6 @@ import os
 import pathlib
 import warnings
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -227,3 +226,4 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.environ.get('DISFACTORY_BACKEND_MEDIA_ROOT', '/tmp')
 pathlib.Path(MEDIA_ROOT).mkdir(parents=True, exist_ok=True)
 DOMAIN = os.environ.get('DISFACTORY_BACKEND_DOMAIN', 'https://api.disfactory.tw/')
+TW_LEGISLATOR_API = os.environ.get('FIND_TAIWAN_LEGISLATOR')
