@@ -6,7 +6,11 @@
 
     <h3 class="mt-2 mb-2 required">工廠地點</h3>
 
-    <div class="minimap" ref="minimap" data-label="form-minimap" />
+    <minimap
+      :initialFactories="initialFactories"
+      :initialLocation="initialLocation"
+      :pinLocation="appState.factoryLocation"
+    />
 
     <p>
       返回<a @click="gotoStepOne">步驟一</a>編輯
@@ -35,8 +39,13 @@ import { MainMapControllerSymbol } from '../symbols'
 import { MapFactoryController, initializeMinimap } from '../lib/map'
 import { useAppState } from '../lib/appState'
 
+import Minimap from './Minimap.vue'
+
 export default createComponent({
   name: 'ConfirmFactory',
+  components: {
+    Minimap
+  },
   props: {
     formState: {
       type: Object,
@@ -51,22 +60,13 @@ export default createComponent({
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
     const [appState, { pageTransition }] = useAppState()
 
-    const minimap = ref<HTMLElement>(null)
-
-    onMounted(() => {
-      if (mapController.value) {
-        const controller = mapController.value
-        const center = controller.mapInstance.map.getView().getCenter() as number[]
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        const minimapController = initializeMinimap(minimap.value!, center)
-        minimapController.addFactories(controller.factories)
-
-        minimapController.mapInstance.setMinimapPin(...appState.factoryLocation as [number, number])
-      }
-    })
+    const initialFactories = mapController.value?.factories
+    const initialLocation = mapController.value?.mapInstance.map.getView().getCenter()
 
     return {
-      minimap,
+      appState,
+      initialFactories,
+      initialLocation,
       gotoStepOne () {
         if (mapController.value) {
           pageTransition.gotoCreateStep(0)
@@ -96,4 +96,3 @@ export default createComponent({
 }
 
 </style>
-G
