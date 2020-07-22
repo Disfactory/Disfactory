@@ -77,6 +77,26 @@ class FactoryFilteredByCounty(SimpleListFilter):
         return queryset
 
 
+class DescriptionInline(admin.TabularInline):
+    model = ReportRecord
+    verbose_name = "Description"
+    verbose_name_plural = "Description"
+    can_delete = False
+    show_change_link = False
+    max_num = 0
+    fields = (
+        "created_at",
+        "others",
+        "user_ip",
+    )
+    readonly_fields = (
+        "created_at",
+        "others",
+        "user_ip",
+    )
+    extra = 0
+
+
 class ReportRecordInline(admin.TabularInline):
     model = ReportRecord
     fields = (
@@ -176,7 +196,7 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
                 # TODO: "cet_staff",
             ),
         }),
-        ("Detail", {
+        ("DETAIL", {
             "classes": (),
             "fields": (
                 ("townname", "landcode"),
@@ -190,7 +210,7 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
         }),
     )
 
-    inlines = [ImageInlineForFactory, ReportRecordInline]
+    inlines = [DescriptionInline, ImageInlineForFactory, ReportRecordInline]
 
     def get_name(self, obj):
         return obj.name or "_"
