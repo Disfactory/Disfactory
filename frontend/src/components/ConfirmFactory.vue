@@ -13,10 +13,14 @@
     />
 
     <p>
-      返回<a @click="gotoStepOne">步驟一</a>編輯
+      返回<a @click="gotoStepOne">步驟(1/3)</a>編輯
     </p>
 
     <h3 class="mt-2 mb-2 required">工廠照片</h3>
+
+    <p>
+      返回<a @click="gotoStepTwo">步驟(2/3)</a>編輯
+    </p>
 
     {{ JSON.stringify(previewImages) }}
 
@@ -28,7 +32,11 @@
 
     <p>{{ formState.contact }}</p>
 
-
+    <v-container class="bottom-button-container d-flex justify-center">
+      <v-btn x-large rounded @click="onSubmit" style="width: 100%" v-bind="attrs" v-on="on">
+        確認送出
+      </v-btn>
+    </v-container>
   </div>
 </template>
 
@@ -72,6 +80,9 @@ export default createComponent({
           pageTransition.gotoCreateStep(0)
           mapController.value.mapInstance.setLUILayerVisible(true)
         }
+      },
+      gotoStepTwo () {
+        pageTransition.gotoCreateStep(1)
       }
     }
   }
@@ -95,4 +106,11 @@ export default createComponent({
   padding: 20px 15px;
 }
 
+.bottom-button-container {
+  background: white;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  padding: 10px 15px;
+}
 </style>

@@ -15,9 +15,21 @@
       <v-spacer></v-spacer>
 
       <div class="btn-container">
-        <v-btn icon @click="cancelCreateFactory">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+        <v-dialog v-model="discardDialog" max-width="290">
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn icon v-on="on" v-bind="attrs">
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title class="headline">放棄新增可疑工廠嗎？</v-card-title>
+            <v-card-text>放棄新增可疑工廠時，你將遺失所有已輸入的資料。下次需重新填寫。</v-card-text>
+            <v-container class="text-center">
+              <v-btn width="100%" x-large rounded color="green darken-1" @click="cancelCreateFactory">放棄新增</v-btn>
+              <a class="d-block mt-4" @click="discardDialog = false">繼續填寫資料</a>
+            </v-container>
+          </v-card>
+        </v-dialog>
       </div>
 
     </v-app-bar>
@@ -82,12 +94,15 @@ export default createComponent({
   setup (props) {
     const [appState, { pageTransition, setFactoryLocation }] = useAppState()
     const [, alertActions] = useAlertState()
+    const discardDialog = ref(false)
 
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
 
     function cancelCreateFactory () {
       if (mapController.value) {
         mapController.value.mapInstance.setLUILayerVisible(false)
+        discardDialog.value = false
+        // TODO: clear form value
         pageTransition.closeFactoryPage()
       }
     }
@@ -172,7 +187,8 @@ export default createComponent({
       imageUploadState,
       uploadedImages,
       onClickRemoveImage,
-      imageUploadFormValid
+      imageUploadFormValid,
+      discardDialog
     }
   }
 })
