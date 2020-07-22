@@ -39,7 +39,6 @@
       </v-container>
     </div>
 
-
     <image-upload-form
       v-if="appState.createStepIndex === 2"
       v-model="selectedImages"
@@ -49,11 +48,14 @@
       :onClickRemoveImage="onClickRemoveImage"
       :valid="imageUploadFormValid"
       :submit="pageTransition.gotoNextCreate"
+      :formState="formState"
     />
 
-    <div class="create-factory-step-3" v-if="appState.createStepIndex === 3">
-      Step 3
-    </div>
+    <confirm-factory
+      v-if="appState.createStepIndex === 3"
+      :formState="formState"
+      :previewImages="uploadedImages"
+    />
 
   </div>
 </template>
@@ -69,11 +71,13 @@ import { MapFactoryController } from '../lib/map'
 import { uploadImages, UploadedImage } from '../api'
 
 import ImageUploadForm from './ImageUploadForm.vue'
+import ConfirmFactory from './ConfirmFactory.vue'
 
 export default createComponent({
   name: 'CreateFactorySteps',
   components: {
-    ImageUploadForm
+    ImageUploadForm,
+    ConfirmFactory
   },
   setup (props) {
     const [appState, { pageTransition, setFactoryLocation }] = useAppState()
@@ -100,6 +104,11 @@ export default createComponent({
         pageTransition.previousCreateStep()
       }
     }
+
+    const createFactoryFormState = reactive({
+      nickname: '',
+      contact: ''
+    })
 
     const uploadedImages = ref<UploadedImage[]>([])
     const imageUploadState = reactive({
@@ -135,6 +144,7 @@ export default createComponent({
     return {
       appState,
       pageTransition,
+      formState: createFactoryFormState,
 
       cancelCreateFactory,
       onBack,

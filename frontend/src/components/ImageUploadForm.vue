@@ -13,6 +13,10 @@
       </label>
     </v-btn>
 
+    <span v-if="uploading">上傳中</span>
+    <span v-if="valid && !uploading && !error">上傳成功</span>
+    <span v-if="error">上傳錯誤</span>
+
     {{ JSON.stringify(previewImages) }}
 
     <hr>
@@ -28,15 +32,17 @@
     <v-text-field
       outlined
       placeholder="例：林先生、林小姐"
+      v-model="formState.nickname"
     ></v-text-field>
 
     <v-text-field
       outlined
       placeholder="例：abc@email.com、0920-123456"
+      v-model="formState.contact"
     ></v-text-field>
 
     <v-container class="bottom-button-container d-flex justify-center">
-      <v-btn x-large rounded @click="onSubmit" :disabled="!valid">
+      <v-btn x-large rounded @click="onSubmit" :disabled="!valid" style="width: 100%">
         下一步
       </v-btn>
     </v-container>
@@ -67,6 +73,9 @@ export default createComponent({
     valid: {
       type: Boolean,
       default: false
+    },
+    formState: {
+      type: Object
     }
   },
   name: 'ImageUploadForm',
