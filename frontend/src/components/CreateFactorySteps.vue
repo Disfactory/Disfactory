@@ -112,25 +112,31 @@ export default createComponent({
 
     const uploadedImages = ref<UploadedImage[]>([])
     const imageUploadState = reactive({
-      error: null,
+      error: null as boolean | null,
       uploading: false
     })
 
     const selectedImages = ref<FileList>(null)
     watch(selectedImages, async () => {
+      imageUploadState.error = null
+
       if (!selectedImages.value) {
         return
       }
 
       imageUploadState.uploading = true
 
-      // TODO: handle image upload error
-      const images = await uploadImages(selectedImages.value)
+      try {
+        const images = await uploadImages(selectedImages.value)
 
-      uploadedImages.value = [
-        ...uploadedImages.value,
-        ...images
-      ]
+        uploadedImages.value = [
+          ...uploadedImages.value,
+          ...images
+        ]
+      } catch (err) {
+        console.error(err)
+        imageUploadState.error = true
+      }
 
       imageUploadState.uploading = false
     })
