@@ -150,7 +150,7 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
         "landcode",
         "factory_type",
         "source",
-        "get_name",
+        "name",
     )
     search_fields = ["townname", "sectname"]
     list_filter = (
@@ -168,8 +168,6 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
 
     def get_name(self, obj):
         return obj.name or "_"
-
-    get_name.short_description = "name"
 
 
 class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):
