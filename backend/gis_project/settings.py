@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_q",
     "django_db_logger",
+    "rangefilter",
 
     # Local
     "users.apps.UsersConfig",

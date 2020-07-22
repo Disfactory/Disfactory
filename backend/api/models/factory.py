@@ -23,6 +23,13 @@ class Factory(SoftDeleteMixin):
         ("8", "紡織"),
         ("9", "其他"),
     ]
+    cet_review_status_list = [
+        ("A", "尚未審查"),
+        ("O", "已審查-不檢舉"),
+        ("P", "已審查-需補件"),
+        ("Q", "已審查-待檢舉"),
+        ("X", "已審查-已生成公文"),
+    ]
     cet_report_status_list = [
         ("A", "未舉報"),
         ("O", "第一次發文待回覆"),
@@ -55,7 +62,6 @@ class Factory(SoftDeleteMixin):
     sectcode = models.CharField(max_length=50, blank=True, null=True)
     sectname = models.CharField(max_length=50, blank=True, null=True)
 
-
     name = models.CharField(max_length=50, blank=True, null=True)
     factory_type = models.CharField(
         max_length=3,
@@ -69,6 +75,11 @@ class Factory(SoftDeleteMixin):
         choices=source_list,
         default="U",
     )
+    cet_review_status = models.CharField(
+        max_length=1,
+        choices=cet_review_status_list,
+        default="A",
+    )  # 地球公民基金會的審閱狀態（舉報前）
     cet_report_status = models.CharField(
         max_length=1,
         choices=cet_report_status_list,

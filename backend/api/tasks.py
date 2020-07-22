@@ -19,7 +19,7 @@ def _upload_image_to_imgur(image_buffer, client_id):
     headers = {'Authorization': f'Client-ID {client_id}'}
     data = {'image': image_buffer}
     resp = requests.post(
-        'https://api.imgur.com/3/upload',
+        'https://api.imgur.com/3/image',
         data=data,
         headers=headers,
     )
@@ -41,7 +41,11 @@ def _upload_image_to_imgur(image_buffer, client_id):
 
 
 def update_landcode(factory_id):
-    factory = Factory.objects.get(pk=factory_id)
+    update_landcode_with_custom_factory_model(factory_id, Factory)
+
+
+def update_landcode_with_custom_factory_model(factory_id, factory_model):
+    factory = factory_model.objects.get(pk=factory_id)
     landinfo = easymap.get_land_number(factory.lng, factory.lat)
     landcode = landinfo.get('landno')
     sectname = landinfo.get('sectName')
@@ -49,7 +53,7 @@ def update_landcode(factory_id):
     townname = landinfo.get('townname')
     towncode = landinfo.get('towncode')
     LOGGER.info(f"Factory {factory_id} retrieved land number {landcode}")
-    Factory.objects.filter(pk=factory_id).update(
+    factory_model.objects.filter(pk=factory_id).update(
         landcode=landcode,
         sectcode=sectcode,
         sectname=sectname,
@@ -71,9 +75,10 @@ def upload_image(image_path, client_id, image_id):
                 Upload success and get imgur url {path},
                 but other error happened when update image {image_id}
             """)
+            return False
     except Exception as e:
         LOGGER.error(f"Upload {image_path} to Imgur with client ID {client_id} failed {e}")
-
+        return False
 
     try:
         os.remove(image_path)
@@ -82,3 +87,6 @@ def upload_image(image_path, client_id, image_id):
             {image_id} upload and write to DB success,
             but other error happened when removing tempfile {image_path}.
         """)
+        return True
+
+    return True

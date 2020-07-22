@@ -30,7 +30,7 @@ class TasksTestCase(TestCase):
         with patch("api.tasks.requests.post", return_value=mock_imgur_return) as mock_post:
             path = _upload_image_to_imgur(image_byte_content, fake_client_id)
             mock_post.assert_called_once_with(
-                'https://api.imgur.com/3/upload',
+                'https://api.imgur.com/3/image',
                 data={'image': image_byte_content},
                 headers={'Authorization': f'Client-ID {fake_client_id}'},
             )
