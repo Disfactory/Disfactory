@@ -4,7 +4,7 @@ import operator
 from datetime import datetime
 from functools import reduce
 from io import BytesIO
-from zipfile import ZIP_DEFLATED, ZipFile
+from zipfile import ZipFile
 
 import requests
 from django.conf import settings
