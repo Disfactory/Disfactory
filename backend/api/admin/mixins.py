@@ -4,6 +4,7 @@ import operator
 from datetime import datetime
 from functools import reduce
 from io import BytesIO
+from zipfile import ZIP_DEFLATED, ZipFile
 
 import requests
 from django.conf import settings
@@ -49,6 +50,7 @@ class RestoreMixin:
 
 
 class ExportLabelMixin:
+    now = datetime.now()
 
     def gen_mailing_lists(self, factories: Factory):
         city_list, locations, location_list = [], [], []
@@ -80,80 +82,39 @@ class ExportLabelMixin:
 
     def export_labels_as_docx(self, request, queryset):
         sending_list = self.gen_mailing_lists(queryset)
-        return self.gen_post_office_files(sending_list)
-        # return [self.gen_post_office_files(sending_list),
-        #         self.gen_label_file(sending_list)]
-        # self.gen_label_file(sending_list)
-        # return response
-        # doc_main = DocxTemplate("doc_templates/post_office_doc_main.docx")
-        # doc_copy = DocxTemplate("doc_templates/post_office_doc_copy.docx")
-        # now = datetime.now()
-        # content = {
-        #     'year': now.year - 1911,
-        #     'month': now.month,
-        #     'date': now.day,
-        #     'data_len': len(sending_list),
-        #     'agencies': sending_list
-        # }
-        # # doc_main.render(content)
-        # # doc_main.save(f'[{now.strftime("%Y%m%d")}]＿大宗交寄＿執據.docx')
-        # doc_copy.render(content)
-        # doc_io = BytesIO()
-        # print(doc_io.getbuffer())
-        # # doc_copy.save(f'[{now.strftime("%Y%m%d")}]＿大宗交寄＿存根.docx')
-        # # doc_main.save(response)
-        # # doc_copy.render(content)
-        # doc_copy.save(doc_io)
-        # doc_io.seek(0)
-        # response = HttpResponse(doc_io.getvalue())
-        # filename = f'[{now.strftime("%Y%m%d")}]＿大宗交寄＿存根.docx'
-        # print(filename)
-        # response['Content-Type'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        # response['Content-Disposition'] = f'attachment; filename={filename}'
-        # response['Content-Length'] = doc_io.tell()
-        # return response
+        return self.gen_files(sending_list)
 
-    def gen_post_office_files(self, mailing_data: dict):
-        doc_main = DocxTemplate("doc_templates/post_office_doc_main.docx")
-        doc_copy = DocxTemplate("doc_templates/post_office_doc_copy.docx")
-        now = datetime.now()
+    def gen_files(self, mailing_data: dict):
+        files = [{
+            'template': DocxTemplate("doc_templates/post_office_doc_main.docx"),
+            'name': f'[{self.now.strftime("%Y%m%d")}]＿大宗交寄＿執據.docx'
+        }, {
+            'template': DocxTemplate("doc_templates/post_office_doc_copy.docx"),
+            'name': f'[{self.now.strftime("%Y%m%d")}]＿大宗交寄＿存根.docx'
+        }, {
+            'template': DocxTemplate("doc_templates/mailing_labels.docx"),
+            'name': f'[{self.now.strftime("%Y%m%d")}]＿發文地址標籤.docx'
+        }]
+
         content = {
-            'year': now.year - 1911,
-            'month': now.month,
-            'date': now.day,
+            'year': self.now.year - 1911,
+            'month': self.now.month,
+            'date': self.now.day,
             'data_len': len(mailing_data),
             'agencies': mailing_data
         }
-        doc_main.render(content)
-        # doc_main.save(f'[{now.strftime("%Y%m%d")}]＿大宗交寄＿執據.docx')
-        doc_copy.render(content)
-        d_io = BytesIO()
-        print(d_io.getbuffer())
-        doc_main.save(d_io)
-        d_io.seek(0)
-        response = HttpResponse(d_io.getvalue())
-        filename = f'[{now.strftime("%Y%m%d")}].docx'
-        response['Content-Type'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        response['Content-Disposition'] = f'attachment; filename={filename}'
-        response['Content-Length'] = d_io.tell()
-        return response
 
-    def gen_label_file(self, mailing_data: dict):
-        doc = DocxTemplate("doc_templates/mailing_labels.docx")
-        now = datetime.now()
-        content = {
-            'agencies': mailing_data
-        }
-        doc.render(content)
-        t = BytesIO()
-        print(t.getbuffer())
-        doc.save(t)
-        t.seek(0)
-        response = HttpResponse(t.getvalue())
-        filename = f'[{now.strftime("%Y%m%d")}]＿發文地址標籤.docx'
-        response['Content-Type'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-        response['Content-Disposition'] = f'attachment; filename={filename}'
-        response['Content-Length'] = t.tell()
+        io = BytesIO()
+        with ZipFile(io, 'w') as zip_obj:
+            for file in files:
+                file['template'].render(content)
+                file['template'].save(io)
+                zip_obj.writestr(file['name'], io.getvalue())
+        io.seek(0)
+        filename = '標籤及交寄執據'
+        response = HttpResponse(io.getvalue())
+        response['Content-Type'] = 'application/zip'
+        response['Content-Disposition'] = f"attachment; filename={filename.encode('utf-8').decode('ISO-8859-1')}"
         return response
 
     export_labels_as_docx.short_description = '下載標籤及交寄執據'
