@@ -4,9 +4,9 @@
 
     <p>請至少上傳一張工廠照片。</p>
 
-    <h3>工廠照片</h3>
+    <h3 class="mb-3">工廠照片</h3>
 
-    <v-btn :disabled="uploading">
+    <v-btn :disabled="uploading" class="mb-3 mr-2">
       <label>
         <input multiple type="file" accept="image/*" ref="image" style="display: none;" @change="onChange" :disabled="uploading">
           新增照片
@@ -17,11 +17,16 @@
     <span v-if="valid && !uploading && !error">上傳成功</span>
     <span v-if="error">上傳錯誤</span>
 
-    {{ JSON.stringify(previewImages) }}
+    <div class="preview-images-container mb-2">
+      <div v-for="image of previewImages" :key="image.token" class="uploaded-image">
+        <img :src="image.src" />
+        <button class="remove-image-btn" @click="removeImage(image)" />
+      </div>
+    </div>
 
     <hr>
 
-    <h2>聯絡資訊（非必填）</h2>
+    <h2 class="mt-2 mb-2">聯絡資訊（非必填）</h2>
 
     <p>
       如果對於照片有疑問，<br>
@@ -56,6 +61,7 @@
 <script lang="ts">
 import { PropType } from 'vue'
 import { createComponent } from '@vue/composition-api'
+import { UploadedImage } from '../api'
 export default createComponent({
   props: {
     previewImages: {
@@ -93,6 +99,9 @@ export default createComponent({
         if (props.valid && typeof props.submit === 'function') {
           props.submit()
         }
+      },
+      removeImage: (image: UploadedImage) => {
+        props.onClickRemoveImage!(image)
       }
     }
   }
@@ -120,5 +129,43 @@ export default createComponent({
   left: 0;
   padding: 10px 15px;
 }
+
+.preview-images-container {
+  .uploaded-image {
+    position: relative;
+    width: calc(50% - 7.5px);
+    height: 0;
+    padding-top: 35%;
+    overflow: hidden;
+    display: inline-block;
+
+    &:nth-child(odd) {
+      margin-right: 7.5px;
+    }
+
+    &:nth-child(even) {
+      margin-left: 7.5px;
+    }
+
+    img {
+      object-fit: cover;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+    }
+
+    .remove-image-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+
+      width: 20px;
+      height: 20px;
+      background-image: url(/images/remove.svg);
+      cursor: pointer;
+    }
+  }
+}
 </style>
-G
