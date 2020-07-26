@@ -117,21 +117,10 @@ import { providePopupState } from './lib/factoryPopup'
 import { provideGA } from './lib/useGA'
 import { provideAppState, useAppState } from './lib/appState'
 import { provideAlertState, useAlertState } from './lib/useAlert'
-import { VApp, VAppBar, VToolbarTitle, VSpacer, VBtn, VNavigationDrawer, VList, VListGroup, VListItemGroup, VListItemTitle } from 'vuetify/lib'
 
 export default createComponent({
   name: 'App',
   components: {
-    VApp,
-    VAppBar,
-    VToolbarTitle,
-    VSpacer,
-    VBtn,
-    VNavigationDrawer,
-    VList,
-    VListGroup,
-    VListItemGroup,
-    VListItemTitle,
     Map,
     AppAlert,
     AppButton,
