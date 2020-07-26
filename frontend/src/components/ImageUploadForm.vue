@@ -109,6 +109,8 @@ export default createComponent({
 </script>
 
 <style lang="scss" scoped>
+@import '@/styles/components/preview-images.scss';
+
 .image-upload-form {
   @import '@/styles/typography.scss';
 
@@ -130,42 +132,5 @@ export default createComponent({
   padding: 10px 15px;
 }
 
-.preview-images-container {
-  .uploaded-image {
-    position: relative;
-    width: calc(50% - 7.5px);
-    height: 0;
-    padding-top: 35%;
-    overflow: hidden;
-    display: inline-block;
 
-    &:nth-child(odd) {
-      margin-right: 7.5px;
-    }
-
-    &:nth-child(even) {
-      margin-left: 7.5px;
-    }
-
-    img {
-      object-fit: cover;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-    }
-
-    .remove-image-btn {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-
-      width: 20px;
-      height: 20px;
-      background-image: url(/images/remove.svg);
-      cursor: pointer;
-    }
-  }
-}
 </style>

@@ -22,7 +22,11 @@
       返回<a @click="gotoStepTwo">步驟(2/3)</a>編輯
     </p>
 
-    {{ JSON.stringify(previewImages) }}
+    <div class="preview-images-container mb-2">
+      <div v-for="image of previewImages" :key="image.token" class="uploaded-image">
+        <img :src="image.src" />
+      </div>
+    </div>
 
     <h3 class="mt-2 mb-2 required">聯絡人暱稱</h3>
 
@@ -116,6 +120,8 @@ export default createComponent({
 </script>
 
 <style lang="scss" scoped>
+@import '@/styles/components/preview-images.scss';
+
 .confirm-factory-page {
   @import '@/styles/typography.scss';
 
