@@ -29,11 +29,15 @@
       如不願揭露自己身份，可跳過不填。
     </p>
 
+    <h3>聯絡人暱稱</h3>
+
     <v-text-field
       outlined
       placeholder="例：林先生、林小姐"
       v-model="formState.nickname"
     ></v-text-field>
+
+    <h3>聯絡方式 (email或電話)</h3>
 
     <v-text-field
       outlined

@@ -1,5 +1,5 @@
 <template>
-  <div class="create-factory-steps" v-if="appState.isCreateMode">
+  <div class="create-factory-steps">
     <v-app-bar
       fixed
       color="white"
@@ -67,6 +67,7 @@
       v-if="appState.createStepIndex === 3"
       :formState="formState"
       :previewImages="uploadedImages"
+      :submit="submitFactory"
     />
 
   </div>
@@ -80,10 +81,13 @@ import { useAlertState } from '../lib/useAlert'
 
 import { MainMapControllerSymbol } from '../symbols'
 import { MapFactoryController } from '../lib/map'
-import { uploadImages, UploadedImage } from '../api'
+import { uploadImages, UploadedImage, createFactory } from '../api'
 
 import ImageUploadForm from './ImageUploadForm.vue'
 import ConfirmFactory from './ConfirmFactory.vue'
+import { FactoryPostData, FactoryType } from '../types'
+import { useGA } from '../lib/useGA'
+import { useBackPressed } from '../lib/useBackPressed'
 
 export default createComponent({
   name: 'CreateFactorySteps',
@@ -94,6 +98,8 @@ export default createComponent({
   setup (props) {
     const [appState, { pageTransition, setFactoryLocation }] = useAppState()
     const [, alertActions] = useAlertState()
+    const { event } = useGA()
+
     const discardDialog = ref(false)
 
     const mapController = inject(MainMapControllerSymbol, ref<MapFactoryController>())
@@ -119,10 +125,15 @@ export default createComponent({
         pageTransition.previousCreateStep()
       }
     }
+    useBackPressed(onBack)
 
     const createFactoryFormState = reactive({
       nickname: '',
-      contact: ''
+      contact: '',
+      others: '',
+      name: '',
+      type: '0',
+      submitting: false
     })
 
     const uploadedImages = ref<UploadedImage[]>([])
@@ -160,7 +171,38 @@ export default createComponent({
       uploadedImages.value = uploadedImages.value.filter(image => image.src !== src)
     }
 
-    const imageUploadFormValid = computed(() => uploadedImages.value.length > 0)
+    const imageUploadFormValid = computed(() => uploadedImages.value.length > 0 && !imageUploadState.uploading)
+
+    const submitFactory = async () => {
+      createFactoryFormState.submitting = true
+
+      try {
+        const [lng, lat] = appState.factoryLocation as number[]
+        const factory: FactoryPostData = {
+          name: createFactoryFormState.name,
+          others: createFactoryFormState.others,
+          type: createFactoryFormState.type as FactoryType,
+          lng,
+          lat,
+          images: uploadedImages.value.map(i => i.token),
+          nickname: createFactoryFormState.nickname,
+          contact: createFactoryFormState.contact
+        }
+
+        event('createFactory', { lng, lat })
+        const resultFactory = await createFactory(factory)
+        if (mapController.value) {
+          mapController.value.addFactories([resultFactory])
+        }
+      } catch (e) {
+        // TODO: handle create failure
+      } finally {
+        createFactoryFormState.submitting = false
+      }
+
+      // TODO: if error, don't close factory page
+      pageTransition.closeFactoryPage()
+    }
 
     return {
       appState,
@@ -188,7 +230,8 @@ export default createComponent({
       uploadedImages,
       onClickRemoveImage,
       imageUploadFormValid,
-      discardDialog
+      discardDialog,
+      submitFactory
     }
   }
 })

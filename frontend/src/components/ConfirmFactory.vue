@@ -32,8 +32,24 @@
 
     <p>{{ formState.contact }}</p>
 
+    <h2>其他工廠資訊（非必填）</h2>
+
+    <p>提供明確的工廠資訊能夠幫助我們更快速的填寫公文。</p>
+
+    <h3 class="mt-2 mb-2">工廠描述</h3>
+
+    <v-textarea outlined solo v-model="formState.others" placeholder="例：常常散發異味" />
+
+    <h3 class="mt-2 mb-2">工廠外部文字</h3>
+
+    <v-text-field outilned solo v-model="formState.name" placeholder="例：小明化工廠" />
+
+    <h3 class="mt-2 mb-2">工廠類型</h3>
+
+    <v-select :items="factoryTypeItems" v-model="formState.type" solo outlined />
+
     <v-container class="bottom-button-container d-flex justify-center">
-      <v-btn x-large rounded @click="onSubmit" style="width: 100%" v-bind="attrs" v-on="on">
+      <v-btn x-large rounded @click="submit" style="width: 100%" v-bind="attrs" v-on="on">
         確認送出
       </v-btn>
     </v-container>
@@ -46,6 +62,7 @@ import { createComponent, inject, ref, onMounted } from '@vue/composition-api'
 import { MainMapControllerSymbol } from '../symbols'
 import { MapFactoryController, initializeMinimap } from '../lib/map'
 import { useAppState } from '../lib/appState'
+import { FACTORY_TYPE } from '../types'
 
 import Minimap from './Minimap.vue'
 
@@ -62,6 +79,9 @@ export default createComponent({
     previewImages: {
       type: Array,
       default: []
+    },
+    submit: {
+      type: Function
     }
   },
   setup () {
@@ -70,6 +90,11 @@ export default createComponent({
 
     const initialFactories = mapController.value?.factories
     const initialLocation = mapController.value?.mapInstance.map.getView().getCenter()
+
+    const factoryTypeItems: Array<{ text: string, value: string }> = [
+      { text: '未選擇', value: '0' },
+      ...FACTORY_TYPE
+    ]
 
     return {
       appState,
@@ -83,7 +108,8 @@ export default createComponent({
       },
       gotoStepTwo () {
         pageTransition.gotoCreateStep(1)
-      }
+      },
+      factoryTypeItems
     }
   }
 })
@@ -104,6 +130,8 @@ export default createComponent({
   overflow-x: hidden;
 
   padding: 20px 15px;
+
+  padding-bottom: 72px;
 }
 
 .bottom-button-container {

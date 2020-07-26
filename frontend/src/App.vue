@@ -84,7 +84,7 @@
         :openFilterModal="modalActions.openFilterModal"
       />
 
-      <create-factory-steps />
+      <create-factory-steps v-if="appState.isCreateMode" />
     </v-main>
   </v-app>
 </template>
