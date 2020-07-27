@@ -50,6 +50,12 @@ export enum BASE_MAP {
   SATELITE
 }
 
+export const BASE_MAP_NAME = {
+  [BASE_MAP.OSM]: '簡易地圖',
+  [BASE_MAP.TAIWAN]: '詳細地圖',
+  [BASE_MAP.SATELITE]: '衛星地圖'
+}
+
 type ButtonElements = {
   zoomIn: HTMLImageElement,
   zoomOut: HTMLImageElement

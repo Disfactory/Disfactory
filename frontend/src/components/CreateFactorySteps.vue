@@ -40,9 +40,28 @@
         顯示經緯度
       </v-btn>
 
-      <v-btn rounded color="white">
-        切換地圖模式•簡易地圖
-      </v-btn>
+      <v-bottom-sheet v-model="mapModeBottomSheet">
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            rounded
+            color="white"
+            v-bind="attrs"
+            v-on="on"
+          >
+            切換地圖模式•簡易地圖
+          </v-btn>
+        </template>
+        <v-list>
+          <v-subheader>切換地圖模式</v-subheader>
+          <v-list-item
+            v-for="mode in mapModes"
+            :key="mode.type"
+            @click="clickChangeBaseLayer(mode)"
+          >
+            <v-list-item-title>{{ mode.name }}</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-bottom-sheet>
 
       <v-container fluid class="choose-location-btn-container d-flex justify-center" bottom="50">
         <v-btn x-large rounded @click="chooseLocation">
@@ -80,7 +99,7 @@ import { useAppState } from '../lib/appState'
 import { useAlertState } from '../lib/useAlert'
 
 import { MainMapControllerSymbol } from '../symbols'
-import { MapFactoryController } from '../lib/map'
+import { MapFactoryController, BASE_MAP_NAME, BASE_MAP } from '../lib/map'
 import { uploadImages, UploadedImage, createFactory } from '../api'
 
 import ImageUploadForm from './ImageUploadForm.vue'
@@ -126,6 +145,19 @@ export default createComponent({
       }
     }
     useBackPressed(onBack)
+
+    const mapModes = [BASE_MAP.SATELITE, BASE_MAP.OSM, BASE_MAP.TAIWAN].map(type => ({
+      type,
+      name: BASE_MAP_NAME[type]
+    }))
+    const clickChangeBaseLayer = (mode: { type: BASE_MAP, name: string }) => {
+      if (mapController.value) {
+        mapController.value?.mapInstance.changeBaseMap(mode.type)
+
+        mapModeBottomSheet.value = false
+      }
+    }
+    const mapModeBottomSheet = ref(false)
 
     const createFactoryFormState = reactive({
       nickname: '',
@@ -231,7 +263,10 @@ export default createComponent({
       onClickRemoveImage,
       imageUploadFormValid,
       discardDialog,
-      submitFactory
+      submitFactory,
+      mapModes,
+      clickChangeBaseLayer,
+      mapModeBottomSheet
     }
   }
 })
