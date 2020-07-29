@@ -9,6 +9,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.db import transaction
 from django_q.tasks import async_task
 from rest_framework.decorators import api_view
+from django.db.models import Max
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -99,12 +100,15 @@ def _handle_create_factory(request):
             status=400,
         )
 
+    num = Factory.objects.aggregate(Max('display_number'))
+
     new_factory_field = {
         'name': post_body["name"],
         'lat': post_body["lat"],
         'lng': post_body["lng"],
         'factory_type': post_body["type"],
         'status_time': datetime.datetime.now(),
+        'display_number': num["display_number__max"]+1,
     }
 
     new_report_record_field = {

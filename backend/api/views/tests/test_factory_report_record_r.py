@@ -12,12 +12,13 @@ class GetFactoryReportRecordTestCase(TestCase):
         self.factory = self.create_factory()
         self.cli = Client()
 
-    def create_factory(self):
+    def create_factory(self, display_number=None):
         return Factory.objects.create(
             name="test_factory",
             lat=24,
             lng=121,
             status_time=datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc),
+            display_number=display_number or 666,
         )
 
     def create_report_record(self, factory, action_type=None, action_body=None):
@@ -34,7 +35,7 @@ class GetFactoryReportRecordTestCase(TestCase):
         rr2 = self.create_report_record(self.factory)
         rr3 = self.create_report_record(self.factory)
 
-        factory2 = self.create_factory()
+        factory2 = self.create_factory(777)
         rr4 = self.create_report_record(factory2)
         rr5 = self.create_report_record(factory2)
 
