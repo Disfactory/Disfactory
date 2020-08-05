@@ -27,18 +27,22 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         self.assertEqual(resp.content, b"Missing query parameter: lat.")
 
         # case 2: not querying Taiwan
-        resp = self.cli.get("/api/factories?lat=39.9046126&lng=116.3977254&range=1")
+        resp = self.cli.get(
+            "/api/factories?lat=39.9046126&lng=116.3977254&range=1")
         self.assertEqual(resp.status_code, 400)
-        self.assertIn(b"The query position is not in the range of Taiwan.", resp.content)
+        self.assertIn(
+            b"The query position is not in the range of Taiwan.", resp.content)
 
         # case 3: wrong query radius
         resp = self.cli.get("/api/factories?lat=23&lng=121&range=10000")
         self.assertEqual(resp.status_code, 400)
-        self.assertEqual(resp.content, b"`range` should be within 0.01 to 100 km, but got 10000.0")
+        self.assertEqual(
+            resp.content, b"`range` should be within 0.01 to 100 km, but got 10000.0")
 
         resp = self.cli.get("/api/factories?lat=23&lng=121&range=0.001")
         self.assertEqual(resp.status_code, 400)
-        self.assertEqual(resp.content, b"`range` should be within 0.01 to 100 km, but got 0.001")
+        self.assertEqual(
+            resp.content, b"`range` should be within 0.01 to 100 km, but got 0.001")
 
     def test_get_nearby_factory_called_util_func_correctly(self):
 
@@ -84,9 +88,12 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         nickname = "路過的家庭主婦"
         contact = "07-7533967"
         factory_type = "2-3"
-        im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
-        im2 = Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
-        im_not_related = Image.objects.create(image_path="https://i.imgur.com/T3pdEyR.jpg")
+        im1 = Image.objects.create(
+            image_path="https://i.imgur.com/RxArJUc.png")
+        im2 = Image.objects.create(
+            image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
+        im_not_related = Image.objects.create(
+            image_path="https://i.imgur.com/T3pdEyR.jpg")
         request_body = {
             "name": "a new factory",
             "type": factory_type,
@@ -100,9 +107,11 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         pnt = Point(lng, lat, srid=4326)
         pnt.transform(settings.POSTGIS_SRID)
 
-        test_time = datetime.datetime(2019, 11, 11, 11, 11, 11, tzinfo=datetime.timezone.utc)
+        test_time = datetime.datetime(
+            2019, 11, 11, 11, 11, 11, tzinfo=datetime.timezone.utc)
         with freeze_time(test_time):
-            resp = self.cli.post("/api/factories", data=request_body, content_type="application/json")
+            resp = self.cli.post(
+                "/api/factories", data=request_body, content_type="application/json")
 
         self.assertEqual(resp.status_code, 200, resp.content)
 
@@ -125,19 +134,22 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         self.assertEqual(report_record.others, others)
         self.assertEqual(report_record.created_at, test_time)
 
-        related_images = Image.objects.only("factory_id").filter(id__in=[im1.id, im2.id])
+        related_images = Image.objects.only(
+            "factory_id").filter(id__in=[im1.id, im2.id])
         self.assertEqual(
             set([str(img.factory_id) for img in related_images]),
             set([new_factory_id]),
         )
-        not_related_images = Image.objects.only("factory_id").filter(id__in=[im_not_related.id])
+        not_related_images = Image.objects.only(
+            "factory_id").filter(id__in=[im_not_related.id])
         self.assertEqual(
             set([str(img.factory_id) for img in not_related_images]),
             set(['None']),
         )
 
     def test_create_new_factory_raise_if_image_id_not_exist(self):
-        im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
+        im1 = Image.objects.create(
+            image_path="https://i.imgur.com/RxArJUc.png")
         Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
         request_body = {
             "name": "a new factory",
@@ -149,7 +161,8 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
             "nickname": "路過的家庭主婦",
             "contact": "07-7533967",
         }
-        resp = self.cli.post("/api/factories", data=request_body, content_type="application/json")
+        resp = self.cli.post(
+            "/api/factories", data=request_body, content_type="application/json")
 
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(resp.content, b'please check if every image id exist')
@@ -164,7 +177,8 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
             "lng": 120.1,
             "nickname": "",
         }
-        resp = self.cli.post("/api/factories", data=request_body, content_type="application/json")
+        resp = self.cli.post(
+            "/api/factories", data=request_body, content_type="application/json")
 
         self.assertEqual(resp.status_code, 200)
 
@@ -179,7 +193,38 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
             "nickname": "",
             "contact": "07-7533967",
         }
-        resp = self.cli.post("/api/factories", data=request_body, content_type="application/json")
+        resp = self.cli.post(
+            "/api/factories", data=request_body, content_type="application/json")
 
         self.assertEqual(resp.status_code, 400)
         self.assertIn("lat", resp.json())
+
+    def test_create_new_factory_raise_if_type_is_not_invalid(self):
+        lat = 23.234
+        lng = 120.1
+        others = "這個工廠實在太臭啦，趕緊檢舉吧"
+        nickname = "路過的家庭主婦"
+        contact = "07-7533967"
+        im1 = Image.objects.create(
+            image_path="https://i.imgur.com/RxArJUc.png")
+        im2 = Image.objects.create(
+            image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
+        request_body = {
+            "name": "a new factory",
+            "type": "aaaaa",
+            "images": [str(im1.id), str(im2.id)],
+            "others": others,
+            "lat": lat,
+            "lng": lng,
+            "nickname": nickname,
+            "contact": contact,
+        }
+
+        resp = self.cli.post(
+            "/api/factories",
+            data=request_body,
+            content_type="application/json"
+        )
+
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("type", resp.json())

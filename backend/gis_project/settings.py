@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "django_q",
     "django_db_logger",
     "rangefilter",
+    "drf_yasg",
 
     # Local
     "users.apps.UsersConfig",

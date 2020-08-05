@@ -10,17 +10,42 @@ from api.models import Image, Factory, ReportRecord
 from api.serializers import ImageSerializer
 from .utils import _get_client_ip
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 LOGGER = logging.getLogger('django')
 
 
+@swagger_auto_schema(
+    method="post",
+    operation_summary='上傳指定 id 的工廠圖片',
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'url': openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description='image url',
+            ),
+            'DateTimeOriginal': openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description='YYYY:mm:dd HH:MM:SS',
+            )
+        }
+    ),
+    responses={
+        200: openapi.Response('圖片資料', ImageSerializer),
+        400: "request failed"
+    }
+)
 @api_view(['POST'])
 def post_factory_image_url(request, factory_id):
     user_ip = _get_client_ip(request)
 
     try:
-        post_body = json.loads(request.body)
+        post_body = request.data
     except json.JSONDecodeError:
-        LOGGER.error(f'post_factory_image_url received non-json body from {user_ip}')
+        LOGGER.error(
+            f'post_factory_image_url received non-json body from {user_ip}')
         return HttpResponse('Post body should be JSON', status=400)
 
     if 'url' not in post_body:
@@ -28,7 +53,8 @@ def post_factory_image_url(request, factory_id):
         return HttpResponse('`url` should be in post body', status=400)
 
     if not Factory.objects.filter(pk=factory_id).exists():
-        LOGGER.warning(f"post_factory_image_url receiving {factory_id} that does not exist from {user_ip}")
+        LOGGER.warning(
+            f"post_factory_image_url receiving {factory_id} that does not exist from {user_ip}")
         return HttpResponse(
             f"Factory ID {factory_id} does not exist.",
             status=400,
@@ -45,7 +71,8 @@ def post_factory_image_url(request, factory_id):
                 "%Y:%m:%d %H:%M:%S",
             )
         except ValueError:
-            LOGGER.warning(f'post_image_url cannot parse DateTimeOriginal {orig_time_str}')
+            LOGGER.warning(
+                f'post_image_url cannot parse DateTimeOriginal {orig_time_str}')
             orig_time = None
     else:
         orig_time = None
