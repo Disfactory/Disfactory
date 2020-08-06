@@ -4,11 +4,10 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.html import mark_safe
 
-from api.models import ReportRecord, Factory, Image
-from .mixins import ExportCsvMixin, RestoreMixin
+from api.models import ReportRecord, Image
+from api.admin.actions import ExportCsvMixin, RestoreMixin, ExportLabelMixin, ExportDocMixin
 from rangefilter.filter import DateRangeFilter
 
-from .mixins import ExportCsvMixin, ExportLabelMixin, RestoreMixin
 
 class FactoryWithReportRecords(DateRangeFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
@@ -27,7 +26,8 @@ class FactoryWithReportRecords(DateRangeFilter):
                 .values("factory_id")
                 .distinct()
             )
-            factory_ids = [factory_id["factory_id"] for factory_id in factory_ids]
+            factory_ids = [factory_id["factory_id"]
+                           for factory_id in factory_ids]
             queryset = queryset.filter(id__in=factory_ids)
 
         return queryset
@@ -141,7 +141,6 @@ class ImageInlineForFactory(admin.TabularInline):
     get_report_contact.short_description = "Contact"
 
 
-
 class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDocMixin):
 
     list_display = (
@@ -167,7 +166,6 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDoc
     ordering = ["-created_at"]
 
     actions = ["export_as_csv", "export_labels_as_docx", "export_as_docx"]
-
 
     inlines = [ImageInlineForFactory, ReportRecordInline]
 

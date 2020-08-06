@@ -22,6 +22,8 @@ django-q = "==1.0.2"
 django-db-logger = "*"
 django-admin-rangefilter = "*"
 drf-yasg = "*"
+python-docx = "*"
+docxcompose = "*"
 
 [requires]
 python_version = "3.7"
