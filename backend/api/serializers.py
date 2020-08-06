@@ -59,7 +59,8 @@ class FactorySerializer(ModelSerializer):
 
     def get_data_complete(self, obj):
         images = Image.objects.only("id").filter(factory=obj)
-        report_records = ReportRecord.objects.only("created_at").filter(factory=obj).order_by("-created_at")
+        report_records = ReportRecord.objects.only("created_at").filter(
+            factory=obj).order_by("-created_at")
         has_type = obj.factory_type is not None
         has_photo = len(images) > 0
         if report_records:
@@ -75,11 +76,22 @@ class FactorySerializer(ModelSerializer):
 
     def validate_lat(self, value):
         if value < settings.TAIWAN_MIN_LATITUDE or value > settings.TAIWAN_MAX_LATITUDE:
-            raise ValidationError(f"latitude should be within {settings.TAIWAN_MIN_LATITUDE} ~ {settings.TAIWAN_MAX_LATITUDE}, but got {value}")
+            raise ValidationError(
+                f"latitude should be within {settings.TAIWAN_MIN_LATITUDE} ~ {settings.TAIWAN_MAX_LATITUDE}, but got {value}"
+            )
 
     def validate_lng(self, value):
         if value < settings.TAIWAN_MIN_LONGITUDE or value > settings.TAIWAN_MAX_LONGITUDE:
-            raise ValidationError(f"longitude should be within {settings.TAIWAN_MIN_LONGITUDE} ~ {settings.TAIWAN_MAX_LONGITUDE}, but got {value}")
+            raise ValidationError(
+                f"longitude should be within {settings.TAIWAN_MIN_LONGITUDE} ~ {settings.TAIWAN_MAX_LONGITUDE}, but got {value}"
+            )
+
+    def validate_type(self, value):
+        valid_types = [t[0] for t in Factory.factory_type_list]
+        if value not in valid_types:
+            from django.core.exceptions import ValidationError
+            raise ValidationError('Factory Type "{}" is not one of the permitted values: {}'.format(
+                value, ', '.join(valid_types)))
 
 
 class ReportRecordSerializer(ModelSerializer):
