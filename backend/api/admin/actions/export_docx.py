@@ -16,10 +16,9 @@ from docxcompose.composer import Composer
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 DOC_RESOURCES_PATH = os.path.join(
     CURRENT_DIR, "..", "..", "..", "doc_resources")
-DOC_TEMPLATES_PATH = os.path.join(DOC_RESOURCES_PATH, "template.docx")
 SEAL_IMAGE_PATH = os.path.join(DOC_RESOURCES_PATH, "seal.png")
 
-DEFAULT_FONT = "BiauKai"
+DEFAULT_FONT = "標楷體"
 
 UPPER_CASE_NUMBERS = {
     "0": '零',
@@ -304,8 +303,9 @@ class FactoryReportDocumentWriter:
 
 
 def new_document():
-    document = Document(DOC_TEMPLATES_PATH)
-
+    document = Document()
+    document.styles['Normal'].font.name = DEFAULT_FONT
+    document.styles['Normal']._element.rPr.rFonts.set(qn('w:eastAsia'), DEFAULT_FONT)
     return document
 
 
