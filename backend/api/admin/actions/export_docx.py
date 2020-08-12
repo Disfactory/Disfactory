@@ -83,23 +83,22 @@ class ParagraphGenerator:
 
     def new(self, document, context, font_size):
         paragraph = document.add_paragraph()
-        if self._alignment:
+        if self._alignment is not None:
             paragraph.paragraph_format.alignment = self._alignment
 
-        if self._line_spacing:
+        if self._line_spacing is not None:
             paragraph.paragraph_format.line_spacing = self._line_spacing
 
-        if self._space_before:
+        if self._space_before is not None:
             paragraph.paragraph_format.space_before = self._space_before
 
-        if self._space_after:
+        if self._space_after is not None:
             paragraph.paragraph_format.space_after = self._space_after
 
-        if self._left_indent:
-            print(self._left_indent)
+        if self._left_indent is not None:
             paragraph.paragraph_format.left_indent = self._left_indent
 
-        if self._first_line_indent:
+        if self._first_line_indent is not None:
             paragraph.paragraph_format.first_line_indent = self._first_line_indent
 
         run = Run(context, font_size)
@@ -160,8 +159,7 @@ class FactoryReportDocumentWriter:
         # Cover
         self._title()
         self._sender()
-        self._receiver()
-        self._metadata("000000")
+        self._receiver("00000000000")
         self._subject()
         self._context()
         self._cc("UNKNOWN")
@@ -193,16 +191,21 @@ class FactoryReportDocumentWriter:
 
         generator = ParagraphGenerator() \
             .alignment(ParagraphGenerator.ALIGN_RIGHT) \
-            .line_spacing(12) \
+            .line_spacing(15) \
             .space_after(0)
 
         for line in context:
             generator.new(self.document, line, 10)
 
-    def _receiver(self):
+    def _receiver(self, serial):
         context = [
             '',
-            '受文者：如正、副本行文單位'
+            '受文者：如正、副本行文單位',
+            '發文日期：中華民國109年6月31日',
+            f'發文字號：地球公民違字第 {serial} 號',
+            '速別：普通件',
+            '附件：舉證照片',
+            ''
         ]
 
         generator = ParagraphGenerator() \
@@ -213,23 +216,6 @@ class FactoryReportDocumentWriter:
         for line in context:
             generator.new(self.document, line, 14)
 
-    def _metadata(self, serial):
-        context = [
-            '發文日期：中華民國109年6月31日',
-            f'發文字號：地球公民違字第 {serial} 號',
-            '速別：普通件',
-            '附件：舉證照片',
-            ''
-
-        ]
-        generator = ParagraphGenerator() \
-            .alignment(ParagraphGenerator.ALIGN_LEFT) \
-            .line_spacing(18) \
-            .space_after(0)
-
-        for line in context:
-            generator.new(self.document, line, 12)
-
     def _subject(self):
         context = [
             f'主旨：舉報 {self.factory_location} 地號土地疑有違法新增建築情事。',
@@ -239,7 +225,7 @@ class FactoryReportDocumentWriter:
 
         generator = ParagraphGenerator() \
             .alignment(ParagraphGenerator.ALIGN_LEFT) \
-            .line_spacing(25) \
+            .line_spacing(21) \
             .space_after(0)
 
         for line in context:
@@ -273,7 +259,7 @@ class FactoryReportDocumentWriter:
 
         generator = ParagraphGenerator() \
             .alignment(ParagraphGenerator.ALIGN_LEFT) \
-            .line_spacing(18) \
+            .line_spacing(12) \
             .space_after(0)
 
         for line in context:
