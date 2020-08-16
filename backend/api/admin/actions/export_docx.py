@@ -1,6 +1,9 @@
 import os
+import json
+import logging
 from io import BytesIO
 from urllib.request import urlopen
+import requests
 
 from django.http import HttpResponse
 
@@ -13,11 +16,14 @@ from docx.oxml.ns import qn
 
 from docxcompose.composer import Composer
 
+LOGGER = logging.getLogger('django')
+
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-DOC_RESOURCES_PATH = os.path.join(
-    CURRENT_DIR, "..", "..", "..", "doc_resources")
+DOC_RESOURCES_PATH = os.path.join(CURRENT_DIR, "..", "..", "..",
+                                  "doc_resources")
 SEAL_IMAGE_PATH = os.path.join(DOC_RESOURCES_PATH, "seal.png")
 
+FIND_TAIWAN_LEGISLATOR_API = "https://ftl.disfactory.tw"
 DEFAULT_FONT = "標楷體"
 
 UPPER_CASE_NUMBERS = {
@@ -55,6 +61,29 @@ def ConvertToUpperCaseNumbers(number):
 def ConvertToLowerCaseNumbers(number):
     result = list(map(lambda s: LOWER_CASE_NUMBERS[s], str(number)))
     return ''.join(result)
+
+
+def find_taiwan_legislator_name_by_location(lat, lng):
+    try:
+        resp = requests.get(FIND_TAIWAN_LEGISLATOR_API,
+                            params={
+                                "lat": lat,
+                                "lng": lng
+                            })
+
+        data = resp.json()
+        print(resp.url)
+        print(data)
+        if data:
+            return data[0].get('name', "UNKNOWN")
+        else:
+            return "UNKNOWN"
+
+    except Exception as e:
+        LOGGER.error(
+            f"Can't get the legislator information from {FIND_TAIWAN_LEGISLATOR_API} - {e}"
+        )
+        return "UNKNOWN"
 
 
 class Run:
@@ -155,14 +184,17 @@ class FactoryReportDocumentWriter:
 
     def _generate_docx(self):
         self._init_document()
+        legislator_name = find_taiwan_legislator_name_by_location(
+            lat=self.factory.lat, lng=self.factory.lng)
 
         # Cover
         self._title()
+        self._original()
         self._sender()
         self._receiver("00000000000")
         self._subject()
         self._context()
-        self._cc("UNKNOWN")
+        self._cc(legislator_name)
         self._seal()
 
         self._page_break()
@@ -180,7 +212,17 @@ class FactoryReportDocumentWriter:
         generator.new(self.document, "地球公民基金會 函", 20)
         generator.new(self.document, "", 20)
 
+    def _original(self):
+        generator = ParagraphGenerator() \
+            .alignment(ParagraphGenerator.ALIGN_LEFT) \
+            .line_spacing(20) \
+            .space_before(0) \
+            .space_after(0)
+
+        generator.new(self.document, "正本", 16)
+
     def _sender(self):
+        # yapf: disable
         context = [
             '地址：10049台北市北平東路28號9樓之2',
             '電話：02-23920371 ',
@@ -188,6 +230,7 @@ class FactoryReportDocumentWriter:
             '連絡人：吳沅諭',
             '電子信箱：eva@cet-taiwan.org'
         ]
+        # yapf: enable
 
         generator = ParagraphGenerator() \
             .alignment(ParagraphGenerator.ALIGN_RIGHT) \
@@ -198,6 +241,7 @@ class FactoryReportDocumentWriter:
             generator.new(self.document, line, 10)
 
     def _receiver(self, serial):
+        # yapf: disable
         context = [
             '',
             '受文者：如正、副本行文單位',
@@ -207,6 +251,7 @@ class FactoryReportDocumentWriter:
             '附件：舉證照片',
             ''
         ]
+        # yapf: enable
 
         generator = ParagraphGenerator() \
             .alignment(ParagraphGenerator.ALIGN_LEFT) \
@@ -217,11 +262,13 @@ class FactoryReportDocumentWriter:
             generator.new(self.document, line, 14)
 
     def _subject(self):
+        # yapf: disable
         context = [
             f'主旨：舉報 {self.factory_location} 地號土地疑有違法新增建築情事。',
             '',
             '說明：'
         ]
+        # yapf: enable
 
         generator = ParagraphGenerator() \
             .alignment(ParagraphGenerator.ALIGN_LEFT) \
@@ -232,10 +279,12 @@ class FactoryReportDocumentWriter:
             generator.new(self.document, line, 14)
 
     def _context(self):
+        # yapf: disable
         context = [
             '一、　依工廠管理輔導法第28-1、28-12條辦理。',
             f"二、　{self.factory_location} 地號土地新發現新增建情形，經地球公民基金會志工拍攝存證，如附件一。因懷疑係屬非法建築行為，函請貴府調查處理。若有不法情事，並應依法裁處，請貴府將查處情形，惠知本會。"
         ]
+        # yapf: enable
 
         generator = ParagraphGenerator() \
             .alignment(ParagraphGenerator.ALIGN_LEFT) \
@@ -251,11 +300,13 @@ class FactoryReportDocumentWriter:
             townname = townname[:3]
         else:
             townname = "UNKNOWN"
+
+        # yapf: enable
         context = [
-            '',
-            f"正本：{townname} 政府",
-            f"副本：內政部、行政院農委會、經濟部工業局、經濟部中部辦公室、立法委員 {legislator} 國會辦公室"
+            '', f"正本：{townname} 政府",
+            f"副本：內政部、行政院農委會、經濟部工業局、經濟部中部辦公室、立法委員{legislator}國會辦公室"
         ]
+        # yapf: disable
 
         generator = ParagraphGenerator() \
             .alignment(ParagraphGenerator.ALIGN_LEFT) \
