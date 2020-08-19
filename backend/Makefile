@@ -15,7 +15,7 @@ run:
 run-dev:
 	docker-compose -f docker-compose.dev.yml up -d
 
-.PHONY: run-db 
+.PHONY: run-db
 run-db:
 	docker-compose -f docker-compose.dev.yml run --service-ports -d db
 
