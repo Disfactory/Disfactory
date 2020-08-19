@@ -167,6 +167,32 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDoc
 
     actions = ["export_as_csv", "export_labels_as_docx", "export_as_docx"]
 
+    readonly_fields = ("id", "created_at", "updated_at")
+    fieldsets = (
+        (None, {
+            "fields": (
+                # TODO: "factory_number",
+                "id",
+                ("cet_review_status", "cet_report_status"),
+                # TODO: "gov_reply_summary",
+                "cet_reviewer",
+                # TODO: "cet_staff",
+            ),
+        }),
+        ("Detail", {
+            "classes": (),
+            "fields": (
+                ("townname", "landcode"),
+                ("sectname", "sectcode"),
+                ("lng", "lat"),
+                "factory_type",
+                "name",
+                ("created_at", "updated_at"),
+                # TODO: "cet_doc_number",
+            ),
+        }),
+    )
+
     inlines = [ImageInlineForFactory, ReportRecordInline]
 
     def get_name(self, obj):
