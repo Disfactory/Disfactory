@@ -4,9 +4,10 @@
 
 ## Architecture
 
-![](backend.png)
+![architecture](backend.png)
 
 ## 跳坑準備
+
 ----
 
 當你想跳坑可是又不知道要用什麼姿勢的時候，可以參考下面的連結
@@ -36,23 +37,24 @@ Docker 與 docker-compose 可以協助你快速架設專案所需要的 Database
 - [Github Issues](https://github.com/Disfactory/Disfactory/issues)
 
 ## 設定開發環境
+
 ----
 
-以下的環境設定都是以 Mac 與 Linux 為主， 
+以下的環境設定都是以 Mac 與 Linux 為主，
 Windows 的話需要使用 WSL2 + Docker Desktop 才有辦法依照下面的步驟設定。
 
 [安裝 WSL2](https://docs.microsoft.com/zh-tw/windows/wsl/install-win10)
 
 [WSL2 + Docker Desktop](https://docs.docker.com/docker-for-windows/wsl/)
 
-### 建立 `.env` 檔 
+### 建立 `.env` 檔
 
 在這個專案 `.env` 檔是非常重要的檔案，因為 `docker-compose` 會使用環境變數設定 container 內的環境變數。
 並且 django server 在啟動的時候，也會使用 `python-dotenv` 來讀取 `.env` 檔。
 
 因此在設定開發環境之前，需要建立一個 `.env` 檔，內容如下
 
-```
+```env
 DISFACTORY_BACKEND_DEFAULT_DB_NAME=disfactory_data
 DISFACTORY_BACKEND_DEFAULT_DB_USER=postgres
 DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD=postgres
@@ -79,7 +81,7 @@ DISFACTORY_BACKEND_DOMAIN="https://api.disfactory.tw/"
 
 也可以直接複製 `.env.example` 到 `.env`。
 
-最後我們要使用 `.env` 來設定目前的環境變數 
+最後我們要使用 `.env` 來設定目前的環境變數
 
 ( 如果使用 pipenv 或 docker 的話可以跳過這一個步驟，因為 pipenv 會自動讀取 .env 的內容來設定環境變數，而 docker container 啟動時會呼叫 pipenv )
 
@@ -95,25 +97,24 @@ disfactory_data
 
 如果覺的安裝 Python, pipenv 與 PostgreSQL 等東西很麻煩話，那麼可以選擇完全使用 Docker + docker-compose 作為開發環境。只需要安裝 `Docker` 與 `docker-compose` 就可以快速運行整個後端服務。
 
-安裝方式請參考 
+安裝方式請參考
 
 - [Get Docker](https://docs.docker.com/get-docker/)
 - [Install Docker Compose](https://docs.docker.com/compose/install/)
 
-
 有安裝 `make` 的話可以直接使用
 
-```
+```bash
 make run-dev
 ```
 
 或使用 docker-compose 指令來啟動
 
-```
+```bash
 docker-compose -f docker-compose.dev.yml up -d
 ```
 
-更詳細的使用方式請看 
+更詳細的使用方式請看
 
 [Setup with docker-compose](docs/SETUP_COMPOSE.md)
 
@@ -121,26 +122,26 @@ docker-compose -f docker-compose.dev.yml up -d
 
 ### 設定 Python 環境
 
-請確認系統是否有安裝 `Python 3.7`， 
+請確認系統是否有安裝 `Python 3.7`，
 如果是 Linux, Mac 或 Windows WSL 環境的話可以使用 [pyenv](https://github.com/pyenv/pyenv) 來安裝特定版本的 Python。
 
 #### 安裝 pipenv
 
 Mac
 
-```
+```bash
 brew install pipenv
 ```
 
 Debian Buster+
 
-```
+```bash
 sudo apt install pipenv
 ```
 
 或者使用
 
-```
+```bash
 pip install pipenv
 ```
 
@@ -153,13 +154,13 @@ PostgreSQL 與 PostGIS 有兩種設定方式，可以使用 Docker + docker-comp
 
 #### 使用 Docker + docker-compose
 
-```
+```bash
 docker-compose -f docker-compose.dev.yml run --service-ports -d db
 ```
 
 有安裝 `make` 的話也可以使用 `make run-db` 來啟動
 
-這個指令只會啟動 docker-compose.dev.yml 裡面的 `db` service，並且將 container 的 `5432` port 對應到 
+這個指令只會啟動 docker-compose.dev.yml 裡面的 `db` service，並且將 container 的 `5432` port 對應到
 `.env` 內的 `DISFACTORY_BACKEND_DEFAULT_DB_DEV_PORT` 指定的 port  ( .env.example 裡面是 5433 )
 
 在 container 啟動之後，還需要設定 `.env` 裡面的 `DISFACTORY_BACKEND_DEFAULT_DB_HOST` 到 `127.0.0.1`。
@@ -186,7 +187,7 @@ P.S
 
 如果想要在本機端啟動 django server 來進行測試的話，可以用下面的指令啟動 django 的測試 server。
 
-```
+```bash
 python manage.py runserver
 ```
 
@@ -194,7 +195,7 @@ python manage.py runserver
 
 如果有安裝 `make` 的話，可以使用
 
-```
+```bash
 make test
 ```
 
@@ -202,4 +203,4 @@ make test
 
 ### API
 
-https://g0v.hackmd.io/FZFghtuoQ0aaGIl9xXzuKw#API
+<https://g0v.hackmd.io/FZFghtuoQ0aaGIl9xXzuKw#API>
