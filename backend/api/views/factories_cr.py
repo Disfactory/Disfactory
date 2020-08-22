@@ -21,15 +21,16 @@ from ..serializers import FactorySerializer
 LOGGER = logging.getLogger('django')
 
 
-def _not_in_taiwan(lat, lng):
-    lat_invalid = lat < settings.TAIWAN_MIN_LATITUDE or lat > settings.TAIWAN_MAX_LATITUDE
-    lng_invalid = lng < settings.TAIWAN_MIN_LONGITUDE or lng > settings.TAIWAN_MAX_LONGITUDE
-    return lat_invalid or lng_invalid
+def _in_taiwan(lat, lng):
+    return (
+        settings.TAIWAN_MIN_LATITUDE <= lat <= settings.TAIWAN_MAX_LATITUDE
+        and settings.TAIWAN_MIN_LONGITUDE <= lng <= settings.TAIWAN_MAX_LONGITUDE
+    )
 
 
-def _radius_strange(radius):
+def _in_reasonable_radius_range(radius):
     # NOTE: need discussion about it
-    return radius > 100 or radius < 0.01
+    return 0.01 <= radius <= 100
 
 
 def _all_image_id_exist(image_ids: List[str]) -> bool:
@@ -50,9 +51,8 @@ def _handle_get_factories(request):
             status=400,
         )
 
-    latitude = float(latitude)
-    longitude = float(longitude)
-    if _not_in_taiwan(latitude, longitude):
+    latitude, longitude = float(latitude), float(longitude)
+    if not _in_taiwan(latitude, longitude):
         return HttpResponse(
             "The query position is not in the range of Taiwan."
             "Valid query parameters should be: "
@@ -62,7 +62,7 @@ def _handle_get_factories(request):
         )
 
     radius = float(radius)
-    if _radius_strange(radius):
+    if not _in_reasonable_radius_range(radius):
         return HttpResponse(
             f"`range` should be within 0.01 to 100 km, but got {radius}",
             status=400,

@@ -106,7 +106,7 @@ class Factory(SoftDeleteMixin):
     def save(self, *args, **kwargs):
         self.point = Point(self.lng, self.lat, srid=4326)
         self.point.transform(settings.POSTGIS_SRID)
-        super(Factory, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class RecycledFactory(Factory):

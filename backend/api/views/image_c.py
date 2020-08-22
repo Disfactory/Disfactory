@@ -44,7 +44,7 @@ LOGGER = logging.getLogger('django')
                 )
             ),
         400:
-            "request failed"
+            "request failed",
     }
 )
 @api_view(['POST'])
