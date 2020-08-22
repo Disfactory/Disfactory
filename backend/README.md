@@ -170,6 +170,8 @@ P.S
 
 最好先使用 `make run-dev` 或者 `docker-compose -f docker-compose.dev.yml up -d`
 啟動一次所有服務，讓 django 初始化 db 資料，db 才能正常運作。
+若 pipenv 有新的套件，為了更新 docker image（不然會用 cache），則需要
+`docker-compose -f docker-compose.dev.yml up -d --build --force-recreate`
 
 不然就必須在 db 啟動之後，使用 `python manage.py migrate` 來初始化 db
 
