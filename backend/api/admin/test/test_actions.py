@@ -51,6 +51,7 @@ TEST_FACTORY_DATA = [
         "lng": 120.1,
         "landcode": "03750000",
         "status_time": datetime.datetime.now(),
+        "display_number": 666,
     }, {
         "name": "Test Factory 2",
         "factory_type": "2-1",
@@ -62,6 +63,7 @@ TEST_FACTORY_DATA = [
         "lng": 120.2,
         "landcode": "03750000",
         "status_time": datetime.datetime.now(),
+        "display_number": 777,
     }
 ]
 

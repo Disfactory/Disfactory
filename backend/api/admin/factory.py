@@ -145,6 +145,7 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDoc
 
     list_display = (
         "id",
+        "display_number",
         "updated_at",
         "townname",
         "sectname",

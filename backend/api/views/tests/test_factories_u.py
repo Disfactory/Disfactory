@@ -17,6 +17,7 @@ class PutUpdateFactoryAttribute(TestCase):
             lat=24,
             lng=121,
             status_time=datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc),
+            display_number=666,
         )
 
     def test_update_factory_normal_attribute(self):

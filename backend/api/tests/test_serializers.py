@@ -32,6 +32,7 @@ class FactorySerializersTestCase(TestCase):
             factory_type="2-1",
             cet_report_status="A",
             status_time=datetime.now(),
+            display_number=666,
         )
         factory.save()
 
@@ -114,7 +115,8 @@ class FactorySerializersTestCase(TestCase):
             factory_type=None,
             before_release=True,
             cet_report_status="A",
-            status_time=datetime.now()
+            status_time=datetime.now(),
+            display_number=666,
         )
         report_record2 = ReportRecord.objects.create(
             factory=factory,
@@ -143,6 +145,7 @@ class FactorySerializersTestCase(TestCase):
             cet_report_status="A",
             created_at=datetime.now() - timedelta(days=100),
             status_time=datetime.now(),
+            display_number=666,
         )
         ReportRecord.objects.create(
             factory=factory,
@@ -166,6 +169,7 @@ class FactorySerializersTestCase(TestCase):
                 factory_type="8",
                 before_release=True,
                 cet_report_status="A",
+                display_number=666,
             )
             report_record = ReportRecord.objects.create(
                 factory=factory,
@@ -194,6 +198,7 @@ class FactorySerializersTestCase(TestCase):
                 factory_type="8",
                 before_release=True,
                 cet_report_status="A",
+                display_number=666,
             )
         report_time = datetime.now() - timedelta(days=364)
         with freeze_time(report_time):
@@ -223,6 +228,7 @@ class FactorySerializersTestCase(TestCase):
                 factory_type="8",
                 before_release=False,
                 cet_report_status="A",
+                display_number=666,
             )
         report_time = datetime.now() - timedelta(days=364)
         with freeze_time(report_time):
@@ -252,6 +258,7 @@ class FactorySerializersTestCase(TestCase):
                 factory_type="8",
                 before_release=False,
                 cet_report_status="A",
+                display_number=666,
             )
         report_time = datetime.now() - timedelta(days=364)
         with freeze_time(report_time):
@@ -276,6 +283,7 @@ class FactorySerializersTestCase(TestCase):
                 factory_type="8",
                 before_release=False,
                 cet_report_status="A",
+                display_number=666,
             )
         report_time = datetime.now() - timedelta(days=366)
         with freeze_time(report_time):
