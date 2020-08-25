@@ -2,9 +2,12 @@ import uuid
 
 from django.contrib.gis.db import models
 from django.contrib.gis.geos import Point
+from django.contrib.auth import get_user_model
 from django.conf import settings
 
 from .mixins import SoftDeleteMixin
+
+CustomUser = get_user_model()
 
 
 class Factory(SoftDeleteMixin):
@@ -45,12 +48,15 @@ class Factory(SoftDeleteMixin):
         ("U", "使用者"),
     ]
 
-    # All  Features
-    id =  models.UUIDField(
+    # All Features
+    id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
         verbose_name="ID",
+    )
+    display_number = models.IntegerField(
+        unique=True,
     )
 
     lat = models.FloatField()
@@ -85,6 +91,14 @@ class Factory(SoftDeleteMixin):
         choices=cet_report_status_list,
         default="A",
     )  # 地球公民基金會的舉報狀態
+
+    cet_reviewer = models.ForeignKey(
+        to=CustomUser,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    ) # 審查人
+
     status_time = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

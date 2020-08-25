@@ -4,6 +4,8 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.html import mark_safe
 
+from api.admin.actions import (ExportCsvMixin, ExportDocMixin,
+                               ExportLabelMixin, RestoreMixin)
 from api.models import Factory, Image, ReportRecord
 from rangefilter.filter import DateRangeFilter
 
@@ -142,9 +144,11 @@ class ImageInlineForFactory(admin.TabularInline):
     get_report_contact.short_description = "Contact"
 
 
-class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin):
+class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDocMixin):
+
     list_display = (
         "id",
+        "display_number",
         "updated_at",
         "townname",
         "sectname",
@@ -164,7 +168,34 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin):
         FactoryFilteredByCounty,
     )
     ordering = ["-created_at"]
-    actions = ["export_as_csv", "export_labels_as_docx"]
+
+    actions = ["export_as_csv", "export_labels_as_docx", "export_as_docx"]
+
+    readonly_fields = ("id", "created_at", "updated_at")
+    fieldsets = (
+        (None, {
+            "fields": (
+                # TODO: "factory_number",
+                "id",
+                ("cet_review_status", "cet_report_status"),
+                # TODO: "gov_reply_summary",
+                "cet_reviewer",
+                # TODO: "cet_staff",
+            ),
+        }),
+        ("Detail", {
+            "classes": (),
+            "fields": (
+                ("townname", "landcode"),
+                ("sectname", "sectcode"),
+                ("lng", "lat"),
+                "factory_type",
+                "name",
+                ("created_at", "updated_at"),
+                # TODO: "cet_doc_number",
+            ),
+        }),
+    )
 
     inlines = [ImageInlineForFactory, ReportRecordInline]
 

@@ -23,6 +23,9 @@ django-db-logger = "*"
 django-admin-rangefilter = "*"
 docx = "*"
 docxtpl = "*"
+drf-yasg = "*"
+python-docx = "*"
+docxcompose = "*"
 
 [requires]
 python_version = "3.7"
