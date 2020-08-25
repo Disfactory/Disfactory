@@ -4,9 +4,12 @@ from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.html import mark_safe
 
-from api.models import ReportRecord, Image
-from api.admin.actions import ExportCsvMixin, RestoreMixin, ExportLabelMixin, ExportDocMixin
+from api.admin.actions import (ExportCsvMixin, ExportDocMixin,
+                               ExportLabelMixin, RestoreMixin)
+from api.models import Factory, Image, ReportRecord
 from rangefilter.filter import DateRangeFilter
+
+from .mixins import ExportCsvMixin, ExportLabelMixin, RestoreMixin
 
 
 class FactoryWithReportRecords(DateRangeFilter):

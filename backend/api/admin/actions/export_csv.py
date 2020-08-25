@@ -1,5 +1,18 @@
 import csv
+import json
+import operator
+from datetime import datetime
+from functools import reduce
+from io import BytesIO
+from zipfile import ZipFile
+
+import requests
+from django.conf import settings
+from django.db.models import Q
 from django.http import HttpResponse
+
+from api.models import Factory, GovAgency
+from docxtpl import DocxTemplate
 
 
 class ExportCsvMixin:
@@ -9,7 +22,8 @@ class ExportCsvMixin:
         field_names = [field.name for field in meta.fields]
 
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+        response['Content-Disposition'] = 'attachment; filename={}.csv'.format(
+            meta)
         response.write(u'\ufeff'.encode('utf8'))
         writer = csv.writer(response)
 
