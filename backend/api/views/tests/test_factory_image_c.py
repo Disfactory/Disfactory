@@ -22,6 +22,7 @@ class PostFactoryImageViewTestCase(TestCase):
             lat=24,
             lng=121,
             status_time=datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc),
+            display_number=666,
         )
         self.nickname = "somebody"
         self.contact = "0900000000"

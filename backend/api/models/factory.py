@@ -48,12 +48,15 @@ class Factory(SoftDeleteMixin):
         ("U", "使用者"),
     ]
 
-    # All  Features
-    id =  models.UUIDField(
+    # All Features
+    id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
         verbose_name="ID",
+    )
+    display_number = models.IntegerField(
+        unique=True,
     )
 
     lat = models.FloatField()

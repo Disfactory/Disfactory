@@ -11,7 +11,6 @@ from ...models import Factory, ReportRecord, Image
 
 
 class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
-
     def setUp(self):
         self.cli = Client()
 
@@ -65,17 +64,19 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
 
         factories = resp.json()
         self.assertEqual(len(factories), 9)
-        self.assertCountEqual([f["name"] for f in factories], [
-            "既有違章工廠 No.2",
-            "既有違章工廠 No.3",
-            "既有違章工廠 No.8",
-            "既有違章工廠 No.9",
-            "既有違章工廠 No.10",
-            "既有違章工廠 No.11",
-            "既有違章工廠 No.12",
-            "既有違章工廠 No.13",
-            "既有違章工廠 No.22",
-        ])
+        self.assertCountEqual(
+            [f["name"] for f in factories], [
+                "既有違章工廠 No.2",
+                "既有違章工廠 No.3",
+                "既有違章工廠 No.8",
+                "既有違章工廠 No.9",
+                "既有違章工廠 No.10",
+                "既有違章工廠 No.11",
+                "既有違章工廠 No.12",
+                "既有違章工廠 No.13",
+                "既有違章工廠 No.22",
+            ]
+        )
 
     def test_create_new_factory_db_status_correct(self):
         lat = 23.234
@@ -102,7 +103,9 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
 
         test_time = datetime.datetime(2019, 11, 11, 11, 11, 11, tzinfo=datetime.timezone.utc)
         with freeze_time(test_time):
-            resp = self.cli.post("/api/factories", data=request_body, content_type="application/json")
+            resp = self.cli.post(
+                "/api/factories", data=request_body, content_type="application/json"
+            )
 
         self.assertEqual(resp.status_code, 200, resp.content)
 
@@ -183,3 +186,27 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
 
         self.assertEqual(resp.status_code, 400)
         self.assertIn("lat", resp.json())
+
+    def test_create_new_factory_raise_if_type_is_not_invalid(self):
+        lat = 23.234
+        lng = 120.1
+        others = "這個工廠實在太臭啦，趕緊檢舉吧"
+        nickname = "路過的家庭主婦"
+        contact = "07-7533967"
+        im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
+        im2 = Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
+        request_body = {
+            "name": "a new factory",
+            "type": "aaaaa",
+            "images": [str(im1.id), str(im2.id)],
+            "others": others,
+            "lat": lat,
+            "lng": lng,
+            "nickname": nickname,
+            "contact": contact,
+        }
+
+        resp = self.cli.post("/api/factories", data=request_body, content_type="application/json")
+
+        self.assertEqual(resp.status_code, 400)
+        self.assertIn("type", resp.json())

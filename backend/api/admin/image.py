@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .mixins import ExportCsvMixin, RestoreMixin
+from api.admin.actions import ExportCsvMixin, RestoreMixin
 
 
 class ImageAdmin(admin.ModelAdmin, ExportCsvMixin):

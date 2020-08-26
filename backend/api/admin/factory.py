@@ -5,8 +5,8 @@ from django.contrib.admin import SimpleListFilter
 from django.utils.html import mark_safe
 from django.contrib.gis.db import models
 
-from api.models import ReportRecord, Factory, Image
-from .mixins import ExportCsvMixin, RestoreMixin
+from api.models import ReportRecord, Image
+from api.admin.actions import ExportCsvMixin, RestoreMixin, ExportLabelMixin, ExportDocMixin
 from rangefilter.filter import DateRangeFilter
 from mapwidgets.widgets import GooglePointFieldWidget
 
@@ -28,7 +28,8 @@ class FactoryWithReportRecords(DateRangeFilter):
                 .values("factory_id")
                 .distinct()
             )
-            factory_ids = [factory_id["factory_id"] for factory_id in factory_ids]
+            factory_ids = [factory_id["factory_id"]
+                           for factory_id in factory_ids]
             queryset = queryset.filter(id__in=factory_ids)
 
         return queryset
@@ -162,9 +163,11 @@ class ImageInlineForFactory(admin.TabularInline):
     get_report_contact.short_description = "Contact"
 
 
-class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
+class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDocMixin):
+
     list_display = (
         "id",
+        "display_number",
         "updated_at",
         "townname",
         "sectname",
@@ -172,7 +175,7 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
         "landcode",
         "factory_type",
         "source",
-        "get_name",
+        "name",
     )
     search_fields = ["townname", "sectname"]
     list_filter = (
@@ -184,7 +187,8 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
         FactoryFilteredByCounty,
     )
     ordering = ["-created_at"]
-    actions = ["export_as_csv"]
+
+    actions = ["export_as_csv", "export_labels_as_docx", "export_as_docx"]
 
     formfield_overrides = {
         models.PointField: {"widget": GooglePointFieldWidget}
@@ -221,8 +225,6 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
 
     def get_name(self, obj):
         return obj.name or "_"
-
-    get_name.short_description = "name"
 
 
 class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):

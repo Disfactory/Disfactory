@@ -14,17 +14,17 @@ import os
 import pathlib
 import warnings
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
-SECRET_KEY = os.environ.get("DISFACTORY_BACKEND_SECRET_KEY","!6m1_y3-d#07typf2v^te0z+1pz!i0+y!2n-c5)1by3ux2=*(q")
+SECRET_KEY = os.environ.get(
+    "DISFACTORY_BACKEND_SECRET_KEY", "!6m1_y3-d#07typf2v^te0z+1pz!i0+y!2n-c5)1by3ux2=*(q"
+)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get("DISFACTORY_BACKEND_DEBUG", "true").lower() == "true"
@@ -41,9 +41,13 @@ if hosts_in_env != None:
         for host in hosts_in_env.split(","):
             allowed_hosts.append(host.split(";")[0])
     except:
-        print("error occurs when parsing allowed_hosts, please check the environment variable `DISFACTORY_ALLOWED_HOST`")
+        print(
+            "error occurs when parsing allowed_hosts, please check the environment variable `DISFACTORY_ALLOWED_HOST`"
+        )
 else:
-    print("can't read allowed_hosts, please check the environment variable `DISFACTORY_ALLOWED_HOST`")
+    print(
+        "can't read allowed_hosts, please check the environment variable `DISFACTORY_ALLOWED_HOST`"
+    )
 
 ALLOWED_HOSTS = allowed_hosts
 
@@ -66,6 +70,7 @@ INSTALLED_APPS = [
     "django_db_logger",
     "rangefilter",
     "mapwidgets",
+    "drf_yasg",
 
     # Local
     "users.apps.UsersConfig",
@@ -75,36 +80,43 @@ INSTALLED_APPS = [
 if DEBUG:
     DJANGO_LOGGER_HANDLER = ["file", "console", "db"]
 else:
-    DJANGO_LOGGER_HANDLER = ["db", "file", "console"]  # no need to log to console and file since we cannot access both on middle2
+    DJANGO_LOGGER_HANDLER = [
+        "db", "file", "console"
+    ]  # no need to log to console and file since we cannot access both on middle2
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters": {
-        "basic": {
-            "format": "%(asctime)s [%(levelname)s] %(message)s (%(module)s %(lineno)d)"
+    "formatters":
+        {
+            "basic": {
+                "format": "%(asctime)s [%(levelname)s] %(message)s (%(module)s %(lineno)d)"
             }
         },
-    "handlers": {
-        "file": {
-            "level": "INFO",
-            "class": "logging.FileHandler",
-            "filename": os.environ.get("DISFACTORY_BACKEND_LOG_FILE", "./debug.log"),
-            "formatter": "basic"
+    "handlers":
+        {
+            "file":
+                {
+                    "level": "INFO",
+                    "class": "logging.FileHandler",
+                    "filename": os.environ.get("DISFACTORY_BACKEND_LOG_FILE", "./debug.log"),
+                    "formatter": "basic"
+                },
+            "console": {
+                "class": "logging.StreamHandler",
+            },
+            "db": {
+                'class': 'django_db_logger.db_log_handler.DatabaseLogHandler'
+            },
         },
-        "console": {
-            "class": "logging.StreamHandler",
+    "loggers":
+        {
+            "django":
+                {
+                    "handlers": DJANGO_LOGGER_HANDLER,
+                    "level": os.environ.get("DISFACTORY_BACKEND_LOG_LEVEL", "INFO"),
+                    "propagate": True,
+                },
         },
-        "db": {
-            'class': 'django_db_logger.db_log_handler.DatabaseLogHandler'
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": DJANGO_LOGGER_HANDLER,
-            "level": os.environ.get("DISFACTORY_BACKEND_LOG_LEVEL", "INFO"),
-            "propagate": True,
-        },
-    },
 }
 
 MIDDLEWARE = [
@@ -125,45 +137,53 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [],
         "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ]
-        },
+        "OPTIONS":
+            {
+                "context_processors":
+                    [
+                        "django.template.context_processors.debug",
+                        "django.template.context_processors.request",
+                        "django.contrib.auth.context_processors.auth",
+                        "django.contrib.messages.context_processors.messages",
+                    ]
+            },
     }
 ]
 
 WSGI_APPLICATION = "gis_project.wsgi.application"
 
-
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
-        "NAME": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_NAME", "postgres"),
-        "USER": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_USER", "postgres"),
-        "PASSWORD": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD", "postgres"),
-        "HOST": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_HOST", "db"),
-        "PORT": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PORT", 5432),
-    }
+    "default":
+        {
+            "ENGINE": "django.contrib.gis.db.backends.postgis",
+            "NAME": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_NAME", "postgres"),
+            "USER": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_USER", "postgres"),
+            "PASSWORD": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD", "postgres"),
+            "HOST": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_HOST", "db"),
+            "PORT": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PORT", 5432),
+        }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
+    },
 ]
-
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
@@ -177,7 +197,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/

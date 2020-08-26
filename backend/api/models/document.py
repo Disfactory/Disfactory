@@ -8,6 +8,8 @@ from users.models import CustomUser
 
 class Document(SoftDeleteMixin):
 
+    cet_staff = models.CharField(max_length=100, null=True, blank=True)
+    note = models.TextField(null=True, blank=True)
     code = models.CharField(max_length=100, help_text='公文號')
     factory = models.ForeignKey(
         Factory,
