@@ -251,7 +251,7 @@ MAP_WIDGETS = {
         ("GooglePlaceAutocompleteOptions", {'componentRestrictions': {'country': 'tw'}}),
         ("markerFitZoom", 12),
     ),
-    "GOOGLE_MAP_API_KEY": "AIzaSyC3mo0SxFn5H8hWRq19Nk0ZBRkWT6XQDYs"
+    "GOOGLE_MAP_API_KEY": os.environ.get("GOOGLE_MAP_API_KEY", "")
 }
 
 MEDIA_URL = '/media/'
