@@ -3,10 +3,12 @@ from datetime import datetime, timedelta
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.html import mark_safe
+from django.contrib.gis.db import models
 
 from api.models import ReportRecord, Factory, Image
 from .mixins import ExportCsvMixin, RestoreMixin
 from rangefilter.filter import DateRangeFilter
+from mapwidgets.widgets import GooglePointFieldWidget
 
 
 class FactoryWithReportRecords(DateRangeFilter):
@@ -184,6 +186,10 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
     ordering = ["-created_at"]
     actions = ["export_as_csv"]
 
+    formfield_overrides = {
+        models.PointField: {"widget": GooglePointFieldWidget}
+    }
+
     readonly_fields = ("id", "created_at", "updated_at")
     fieldsets = (
         (None, {
@@ -202,6 +208,7 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin):
                 ("townname", "landcode"),
                 ("sectname", "sectcode"),
                 ("lng", "lat"),
+                "point",
                 "factory_type",
                 "name",
                 ("created_at", "updated_at"),
