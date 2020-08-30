@@ -69,6 +69,7 @@ INSTALLED_APPS = [
     "django_q",
     "django_db_logger",
     "rangefilter",
+    "mapwidgets",
     "drf_yasg",
 
     # Local
@@ -240,6 +241,17 @@ Q_CLUSTER = {
     'label': 'Django Q',
     'orm': 'default',
     'bulk': 4,
+}
+
+# Map Widgets
+MAP_WIDGETS = {
+    "GooglePointFieldWidget": (
+        ("zoom", 15),
+        ("mapCenterLocationName", "taipei"),
+        ("GooglePlaceAutocompleteOptions", {'componentRestrictions': {'country': 'tw'}}),
+        ("markerFitZoom", 12),
+    ),
+    "GOOGLE_MAP_API_KEY": os.environ.get("GOOGLE_MAP_API_KEY", "")
 }
 
 MEDIA_URL = '/media/'

@@ -3,10 +3,12 @@ from datetime import datetime, timedelta
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.html import mark_safe
+from django.contrib.gis.db import models
 
 from api.models import ReportRecord, Image
 from api.admin.actions import ExportCsvMixin, RestoreMixin, ExportLabelMixin, ExportDocMixin
 from rangefilter.filter import DateRangeFilter
+from mapwidgets.widgets import GooglePointFieldWidget
 
 
 class FactoryWithReportRecords(DateRangeFilter):
@@ -76,6 +78,26 @@ class FactoryFilteredByCounty(SimpleListFilter):
             queryset = queryset.filter(townname__iregex=re_str)
 
         return queryset
+
+
+class DescriptionInline(admin.TabularInline):
+    model = ReportRecord
+    verbose_name = "Description"
+    verbose_name_plural = "Description"
+    can_delete = False
+    show_change_link = False
+    max_num = 0
+    fields = (
+        "created_at",
+        "others",
+        "user_ip",
+    )
+    readonly_fields = (
+        "created_at",
+        "others",
+        "user_ip",
+    )
+    extra = 0
 
 
 class ReportRecordInline(admin.TabularInline):
@@ -168,6 +190,10 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDoc
 
     actions = ["export_as_csv", "export_labels_as_docx", "export_as_docx"]
 
+    formfield_overrides = {
+        models.PointField: {"widget": GooglePointFieldWidget}
+    }
+
     readonly_fields = ("id", "created_at", "updated_at")
     fieldsets = (
         (None, {
@@ -180,12 +206,13 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDoc
                 # TODO: "cet_staff",
             ),
         }),
-        ("Detail", {
+        ("DETAIL", {
             "classes": (),
             "fields": (
                 ("townname", "landcode"),
                 ("sectname", "sectcode"),
                 ("lng", "lat"),
+                "point",
                 "factory_type",
                 "name",
                 ("created_at", "updated_at"),
@@ -194,7 +221,7 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDoc
         }),
     )
 
-    inlines = [ImageInlineForFactory, ReportRecordInline]
+    inlines = [DescriptionInline, ImageInlineForFactory, ReportRecordInline]
 
     def get_name(self, obj):
         return obj.name or "_"
