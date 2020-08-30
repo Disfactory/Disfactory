@@ -145,7 +145,11 @@ jobs:
           paths:
             - ".venv"
           key: disfactory-backend-cache-191118-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
-
+  backend-deploy:
+    <<: *backend_docker_default
+    steps:
+      - checkout:
+          path: ~/Disfactory
 workflows:
   version: 2
   build:
@@ -174,3 +178,9 @@ workflows:
             branches:
               only: production
       - backend-all
+      - backend-deploy:
+          requires:
+            - backend-all
+          filters:
+            tags:
+              only: /^v.*/
