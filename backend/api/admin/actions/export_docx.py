@@ -72,8 +72,6 @@ def find_taiwan_legislator_name_by_location(lat, lng):
                             })
 
         data = resp.json()
-        print(resp.url)
-        print(data)
         if data:
             return data[0].get('name', "UNKNOWN")
         else:
@@ -173,7 +171,7 @@ class FactoryReportDocumentWriter:
         section = self.document.sections[0]
 
         # Margins
-        section.top_margin = Inches(1)
+        section.top_margin = Inches(0.5)
         section.bottom_margin = Inches(1)
         section.left_margin = Inches(1)
         section.right_margin = Inches(1)
@@ -188,8 +186,8 @@ class FactoryReportDocumentWriter:
             lat=self.factory.lat, lng=self.factory.lng)
 
         # Cover
-        self._title()
         self._original()
+        self._title()
         self._sender()
         self._receiver("00000000000")
         self._subject()
@@ -219,7 +217,8 @@ class FactoryReportDocumentWriter:
             .space_before(0) \
             .space_after(0)
 
-        generator.new(self.document, "正本", 16)
+        generator.new(self.document, "正本", 12)
+        generator.new(self.document, "", 20)
 
     def _sender(self):
         # yapf: disable
@@ -234,7 +233,7 @@ class FactoryReportDocumentWriter:
 
         generator = ParagraphGenerator() \
             .alignment(ParagraphGenerator.ALIGN_RIGHT) \
-            .line_spacing(15) \
+            .line_spacing(10) \
             .space_after(0)
 
         for line in context:
@@ -303,7 +302,7 @@ class FactoryReportDocumentWriter:
 
         # yapf: enable
         context = [
-            '', f"正本：{townname} 政府",
+            '', f"正本：{townname}政府",
             f"副本：內政部、行政院農委會、經濟部工業局、經濟部中部辦公室、立法委員{legislator}國會辦公室"
         ]
         # yapf: disable
