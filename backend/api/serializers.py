@@ -33,6 +33,7 @@ class FactorySerializer(ModelSerializer):
         model = Factory
         fields = [
             "id",
+            "display_number",
             "lat",
             "lng",
             "name",
@@ -46,6 +47,9 @@ class FactorySerializer(ModelSerializer):
             "data_complete",
             "status",  # should be DEPRECATED
         ]
+        extra_kwargs = {
+            "display_number": {"required": False},
+        }
 
     def get_status(self, obj):
         return obj.cet_report_status
