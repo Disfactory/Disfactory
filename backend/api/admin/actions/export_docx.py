@@ -16,6 +16,8 @@ from docx.oxml.ns import qn
 
 from docxcompose.composer import Composer
 
+import PIL
+
 LOGGER = logging.getLogger('django')
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -332,7 +334,16 @@ class FactoryReportDocumentWriter:
             generator.new(
                 self.document, f"附件 {ConvertToLowerCaseNumbers(index)}", 12)
             data = urlopen(image.image_path).read()
-            self.document.add_picture(BytesIO(data), width=Mm(150))
+
+            image_data = PIL.Image.open(BytesIO(data))
+            if image_data.format == "JPEG":
+                # Use PIL to save all jpeg files again to workaround python-docx bug
+                # https://github.com/python-openxml/python-docx/issues/187
+                tmp_image_data = BytesIO()
+                image_data.save(tmp_image_data, format="jpeg")
+                self.document.add_picture(tmp_image_data, width=Mm(150))
+            else:
+                self.document.add_picture(BytesIO(data), width=Mm(150))
 
     def _page_break(self):
         self.document.add_page_break()

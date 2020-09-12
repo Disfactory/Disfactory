@@ -57,7 +57,12 @@ TEST_FACTORY_DATA = [
         "factory_type": "2-1",
         "images": [
             "https://i.imgur.com/3XPyVuF.png",
+            # python-docx can't parse this image correctly
+            # https://github.com/python-openxml/python-docx/issues/187
+            "https://i.imgur.com/Q3fplPG.jpg",
             "https://i.imgur.com/eHQ8uWo.jpg",
+            "https://i.imgur.com/4AiXzf8.jpg",
+            "https://i.imgur.com/Jvh1OQm.jpg",
         ],
         "lat": 23.123,
         "lng": 120.2,
@@ -118,3 +123,20 @@ class ModelAdminTests(TestCase):
         assert response[
             'Content-Type'
         ] == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+
+    def test_python_docx_workaround(self):
+        # python-docx can't parse some jpeg image correctly
+        # https://github.com/python-openxml/python-docx/issues/187
+        # So we use PIL to format the JPEG file to workaround this.
+        data = {
+            'action': 'export_as_docx',
+            'select_across': 0,
+            'index': 0,
+            '_selected_action': self.factories[1].id
+        }
+        response = self.client.post('/admin/api/factory/', data)
+
+        assert response.status_code == 200, f"status_code should be 200 but {response.status_code}"
+        assert response[
+                   'Content-Type'
+               ] == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
