@@ -40,6 +40,7 @@ class FactorySerializersTestCase(TestCase):
         # should have null reported_at
         serialized_factory = FactorySerializer(factory)
         self.assertEqual(serialized_factory.data["type"], factory.factory_type)
+        self.assertEqual(serialized_factory.data["display_number"], factory.display_number)
         self.assertIsNone(serialized_factory.data["reported_at"])
 
         report_record1 = ReportRecord.objects.create(
