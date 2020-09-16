@@ -6,6 +6,15 @@ from .factory import Factory
 from users.models import CustomUser
 
 
+class DocumentDisplayStatusEnum:
+
+    # TODO
+    CHOICES = [
+        (0, "狀態一"),
+        (1, "狀態二"),
+    ]
+
+
 class Document(SoftDeleteMixin):
 
     cet_staff = models.CharField(max_length=100, null=True, blank=True)
@@ -25,7 +34,10 @@ class Document(SoftDeleteMixin):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
-
+    display_status = models.IntegerField(
+        default=0,  # TODO
+        choices=DocumentDisplayStatusEnum.CHOICES,
+    )
 
 
 class FollowUp(SoftDeleteMixin):
