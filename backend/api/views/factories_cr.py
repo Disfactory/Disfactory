@@ -106,7 +106,7 @@ def _handle_create_factory(request):
         'name': post_body["name"],
         'lat': post_body["lat"],
         'lng': post_body["lng"],
-        'factory_type': post_body["type"],
+        'factory_type': post_body.get("type"),
         'status_time': datetime.datetime.now(),
         'display_number': num["display_number__max"]+1,
     }
