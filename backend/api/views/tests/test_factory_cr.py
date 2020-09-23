@@ -171,6 +171,19 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
 
         self.assertEqual(resp.status_code, 200)
 
+    def test_create_new_factory_allow_empty_type(self):
+        request_body = {
+            "name": "a new factory",
+            "images": [],
+            "others": "",
+            "lat": 23.234,
+            "lng": 120.1,
+            "nickname": "",
+        }
+        resp = self.cli.post("/api/factories", data=request_body, content_type="application/json")
+
+        self.assertEqual(resp.status_code, 200)
+
     def test_create_new_factory_raise_if_not_in_Taiwan(self):
         request_body = {
             "name": "a new factory",
