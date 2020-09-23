@@ -8,11 +8,16 @@ from users.models import CustomUser
 
 class DocumentDisplayStatusEnum:
 
-    # TODO
     CHOICES = [
-        (0, "狀態一"),
-        (1, "狀態二"),
+        (0, "已檢舉"),
+        (1, "已排程稽查"),
+        (2, "陳述意見期"),
+        (3, "已勒令停工"),
+        (4, "已發函斷電"),
+        (5, "已排程拆除"),
+        (6, "不再追蹤"),
     ]
+    INDICES = {val: idx for idx, val in CHOICES}
 
 
 class Document(SoftDeleteMixin):
@@ -35,7 +40,7 @@ class Document(SoftDeleteMixin):
 
     created_at = models.DateTimeField(auto_now_add=True)
     display_status = models.IntegerField(
-        default=0,  # TODO
+        default=DocumentDisplayStatusEnum.INDICES["已檢舉"],  # TODO
         choices=DocumentDisplayStatusEnum.CHOICES,
     )
 
