@@ -303,6 +303,20 @@ class FactorySerializersTestCase(TestCase):
         serializer = FactorySerializer(factory)
         self.assertFalse(serializer.data["data_complete"])
 
+    def test_allow_empty_factory_type(self):
+        post_body_wo_type = {
+            "name": "a new factory",
+            "images": [self.im1.id, self.im2.id],
+            "other": "這個工廠實在太臭啦，趕緊檢舉吧",
+            "lat": 23.234,
+            "lng": 120.1,
+            "nickname": "路過的家庭主婦",
+            "contact": "07-7533967",
+        }
+        serializer = FactorySerializer(data=post_body_wo_type)
+        self.assertTrue(serializer.is_valid())
+        self.assertEqual(serializer.errors, {})
+
 
 class ImageSerializersTestCase(TestCase):
 
