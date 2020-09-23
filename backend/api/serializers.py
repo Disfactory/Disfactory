@@ -28,7 +28,7 @@ class ImageSerializer(ModelSerializer):
 class FactorySerializer(ModelSerializer):
 
     images = ImageSerializer(many=True, read_only=True)
-    type = CharField(source="factory_type", required=False)
+    type = CharField(source="factory_type", required=False, allow_null=True)
     reported_at = SerializerMethodField()
     data_complete = SerializerMethodField()
     status = SerializerMethodField()  # should be DEPRECATED
