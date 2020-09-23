@@ -15,7 +15,7 @@ class Factory(SoftDeleteMixin):
 
     # List of fact_type & status
     factory_type_list = [
-        ("2-1","沖床、銑床、車床、鏜孔"),
+        ("2-1", "沖床、銑床、車床、鏜孔"),
         ("2-2", "焊接、鑄造、熱處理"),
         ("2-3", "金屬表面處理、噴漆"),
         ("3", "塑膠加工、射出"),
@@ -97,7 +97,7 @@ class Factory(SoftDeleteMixin):
         on_delete=models.SET_NULL,
         blank=True,
         null=True,
-    ) # 審查人
+    )  # 審查人
 
     status_time = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
