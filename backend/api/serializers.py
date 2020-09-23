@@ -6,10 +6,14 @@ from rest_framework.serializers import (
     SerializerMethodField,
     ValidationError,
 )
-from django.utils import timezone
 from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 from .models import Factory, Image, ReportRecord
+
+
+VALID_FACTORY_TYPES = [t[0] for t in Factory.factory_type_list]
 
 
 class ImageSerializer(ModelSerializer):
@@ -24,7 +28,7 @@ class ImageSerializer(ModelSerializer):
 class FactorySerializer(ModelSerializer):
 
     images = ImageSerializer(many=True, read_only=True)
-    type = CharField(source="factory_type")
+    type = CharField(source="factory_type", required=False)
     reported_at = SerializerMethodField()
     data_complete = SerializerMethodField()
     status = SerializerMethodField()  # should be DEPRECATED
@@ -91,11 +95,9 @@ class FactorySerializer(ModelSerializer):
             )
 
     def validate_type(self, value):
-        valid_types = [t[0] for t in Factory.factory_type_list]
-        if value not in valid_types:
-            from django.core.exceptions import ValidationError
+        if (value is not None) and (value not in VALID_FACTORY_TYPES):
             raise ValidationError('Factory Type "{}" is not one of the permitted values: {}'.format(
-                value, ', '.join(valid_types)))
+                value, ', '.join(VALID_FACTORY_TYPES)))
 
 
 class ReportRecordSerializer(ModelSerializer):
