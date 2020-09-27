@@ -1,12 +1,16 @@
-from datetime import datetime, timedelta
-
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.html import mark_safe
 from django.contrib.gis.db import models
 
 from api.models import ReportRecord, Image
-from api.admin.actions import ExportCsvMixin, RestoreMixin, ExportLabelMixin, ExportDocMixin
+from api.admin.actions import (
+    ExportCsvMixin,
+    RestoreMixin,
+    ExportLabelMixin,
+    ExportDocMixin,
+    GenerateDocsMixin,
+)
 from rangefilter.filter import DateRangeFilter
 from mapwidgets.widgets import GooglePointFieldWidget
 
@@ -28,8 +32,7 @@ class FactoryWithReportRecords(DateRangeFilter):
                 .values("factory_id")
                 .distinct()
             )
-            factory_ids = [factory_id["factory_id"]
-                           for factory_id in factory_ids]
+            factory_ids = [factory_id["factory_id"] for factory_id in factory_ids]
             queryset = queryset.filter(id__in=factory_ids)
 
         return queryset
@@ -163,7 +166,13 @@ class ImageInlineForFactory(admin.TabularInline):
     get_report_contact.short_description = "Contact"
 
 
-class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDocMixin):
+class FactoryAdmin(
+    admin.ModelAdmin,
+    ExportCsvMixin,
+    ExportLabelMixin,
+    ExportDocMixin,
+    GenerateDocsMixin,
+):
 
     list_display = (
         "id",
@@ -188,37 +197,46 @@ class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, ExportDoc
     )
     ordering = ["-created_at"]
 
-    actions = ["export_as_csv", "export_labels_as_docx", "export_as_docx"]
+    actions = [
+        "export_as_csv",
+        "export_labels_as_docx",
+        "export_as_docx",
+        "generate_docs",
+    ]
 
-    formfield_overrides = {
-        models.PointField: {"widget": GooglePointFieldWidget}
-    }
+    formfield_overrides = {models.PointField: {"widget": GooglePointFieldWidget}}
 
     readonly_fields = ("id", "created_at", "updated_at")
     fieldsets = (
-        (None, {
-            "fields": (
-                # TODO: "factory_number",
-                "id",
-                ("cet_review_status", "cet_report_status"),
-                # TODO: "gov_reply_summary",
-                "cet_reviewer",
-                # TODO: "cet_staff",
-            ),
-        }),
-        ("DETAIL", {
-            "classes": (),
-            "fields": (
-                ("townname", "landcode"),
-                ("sectname", "sectcode"),
-                ("lng", "lat"),
-                "point",
-                "factory_type",
-                "name",
-                ("created_at", "updated_at"),
-                # TODO: "cet_doc_number",
-            ),
-        }),
+        (
+            None,
+            {
+                "fields": (
+                    # TODO: "factory_number",
+                    "id",
+                    ("cet_review_status", "cet_report_status"),
+                    # TODO: "gov_reply_summary",
+                    "cet_reviewer",
+                    # TODO: "cet_staff",
+                ),
+            },
+        ),
+        (
+            "DETAIL",
+            {
+                "classes": (),
+                "fields": (
+                    ("townname", "landcode"),
+                    ("sectname", "sectcode"),
+                    ("lng", "lat"),
+                    "point",
+                    "factory_type",
+                    "name",
+                    ("created_at", "updated_at"),
+                    # TODO: "cet_doc_number",
+                ),
+            },
+        ),
     )
 
     inlines = [DescriptionInline, ImageInlineForFactory, ReportRecordInline]
