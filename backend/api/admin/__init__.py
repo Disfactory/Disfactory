@@ -1,3 +1,4 @@
+from api.models.document import Document
 from django.contrib import admin
 
 from api.models import (
@@ -11,6 +12,7 @@ from api.models.report_record import RecycledReportRecord
 from .factory import FactoryAdmin, RecycledFactoryAdmin
 from .image import ImageAdmin, RecycledImageAdmin
 from .report_record import ReportRecordAdmin, RecycledReportRecordAdmin
+from api.admin.document import DocumentAdmin
 
 
 # Register your models here.
@@ -22,3 +24,6 @@ admin.register(RecycledImage)(RecycledImageAdmin)
 
 admin.register(ReportRecord)(ReportRecordAdmin)
 admin.register(RecycledReportRecord)(RecycledReportRecordAdmin)
+
+
+admin.register(Document)(DocumentAdmin)

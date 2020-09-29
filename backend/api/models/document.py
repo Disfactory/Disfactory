@@ -25,7 +25,7 @@ class Document(SoftDeleteMixin):
 
     cet_staff = models.CharField(max_length=100, null=True, blank=True)
     note = models.TextField(null=True, blank=True)
-    code = models.IntegerField(help_text="公文號")
+    code = models.IntegerField(verbose_name="公文號")
     factory = models.ForeignKey(
         Factory, on_delete=models.PROTECT, related_name="documents",
     )
@@ -46,8 +46,12 @@ class Document(SoftDeleteMixin):
 class FollowUp(SoftDeleteMixin):
 
     document = models.ForeignKey(
-        Factory, on_delete=models.PROTECT, related_name="follow_ups",
+        Document,
+        on_delete=models.PROTECT,
+        related_name="follow_ups",
+        null=True,
     )
+
     staff = models.ForeignKey(
         CustomUser,
         null=True,
@@ -58,6 +62,15 @@ class FollowUp(SoftDeleteMixin):
     note = models.TextField(help_text="此次進度追蹤備註")
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def __unicode__(self):
+            return "#{}".format(self.id)
+
+    def __str__(self):
+        staff_name = "UNKNOWN"
+        if self.staff:
+            staff_name = self.staff.username
+
+        return "#{} - {} (created_at:{})".format(self.id, staff_name, self.created_at)
 
 class RecycledDocument(Document):
     class Meta:

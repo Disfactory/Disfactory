@@ -4,6 +4,7 @@ import logging
 from io import BytesIO
 from urllib.request import urlopen
 import requests
+import datetime
 
 from django.http import HttpResponse
 
@@ -161,8 +162,9 @@ class ParagraphGenerator:
 
 
 class FactoryReportDocumentWriter:
-    def __init__(self, factory, document):
-        self.factory = factory
+    def __init__(self, model, document):
+        self.document_model = model
+        self.factory = model.factory
         self.document = document
         self.factory_location = f"{self.factory.townname}({self.factory.sectcode}) {self.factory.landcode}"
 
@@ -190,8 +192,8 @@ class FactoryReportDocumentWriter:
         # Cover
         self._original()
         self._title()
-        self._sender()
-        self._receiver("00000000000")
+        self._sender(self.document_model.cet_staff)
+        self._receiver(self.document_model.code)
         self._subject()
         self._context()
         self._cc(legislator_name)
@@ -222,13 +224,13 @@ class FactoryReportDocumentWriter:
         generator.new(self.document, "正本", 12)
         generator.new(self.document, "", 20)
 
-    def _sender(self):
+    def _sender(self, sender_name):
         # yapf: disable
         context = [
             '地址：10049台北市北平東路28號9樓之2',
             '電話：02-23920371 ',
             '傳真：02-23920381',
-            '連絡人：吳沅諭',
+            '連絡人：{}'.format(sender_name),
             '電子信箱：eva@cet-taiwan.org'
         ]
         # yapf: enable
@@ -242,11 +244,14 @@ class FactoryReportDocumentWriter:
             generator.new(self.document, line, 10)
 
     def _receiver(self, serial):
+        utcnow = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+        twnow = utcnow.astimezone(datetime.timezone(datetime.timedelta(hours=8)))
+
         # yapf: disable
         context = [
             '',
             '受文者：如正、副本行文單位',
-            '發文日期：中華民國109年6月31日',
+            f'發文日期：中華民國{twnow.year}年{twnow.month}月{twnow.day}日',
             f'發文字號：地球公民違字第 {serial} 號',
             '速別：普通件',
             '附件：舉證照片',
@@ -356,11 +361,11 @@ def new_document():
     return document
 
 
-def generate_factories_document(factories):
+def generate_factories_document(model_list):
     documents = []
-    for factory in factories:
+    for model in model_list:
         document = new_document()
-        FactoryReportDocumentWriter(factory, document)
+        FactoryReportDocumentWriter(model, document)
         documents.append(document)
     return documents
 

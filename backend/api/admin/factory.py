@@ -8,7 +8,6 @@ from api.admin.actions import (
     ExportCsvMixin,
     RestoreMixin,
     ExportLabelMixin,
-    ExportDocMixin,
     GenerateDocsMixin,
 )
 from rangefilter.filter import DateRangeFilter
@@ -170,7 +169,6 @@ class FactoryAdmin(
     admin.ModelAdmin,
     ExportCsvMixin,
     ExportLabelMixin,
-    ExportDocMixin,
     GenerateDocsMixin,
 ):
 
@@ -200,7 +198,6 @@ class FactoryAdmin(
     actions = [
         "export_as_csv",
         "export_labels_as_docx",
-        "export_as_docx",
         "generate_docs",
     ]
 
