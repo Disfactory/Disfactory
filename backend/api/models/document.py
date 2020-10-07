@@ -44,7 +44,6 @@ class Document(SoftDeleteMixin):
     )
 
 class FollowUp(SoftDeleteMixin):
-
     document = models.ForeignKey(
         Document,
         on_delete=models.PROTECT,
