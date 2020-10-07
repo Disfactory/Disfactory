@@ -4,7 +4,6 @@ from rest_framework.serializers import (
     ModelSerializer,
     CharField,
     SerializerMethodField,
-    ValidationError,
 )
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -67,8 +66,11 @@ class FactorySerializer(ModelSerializer):
 
     def get_data_complete(self, obj):
         images = Image.objects.only("id").filter(factory=obj)
-        report_records = ReportRecord.objects.only("created_at").filter(
-            factory=obj).order_by("-created_at")
+        report_records = (
+            ReportRecord.objects.only("created_at")
+            .filter(factory=obj)
+            .order_by("-created_at")
+        )
         has_type = obj.factory_type is not None
         has_photo = len(images) > 0
         if report_records:
@@ -85,19 +87,27 @@ class FactorySerializer(ModelSerializer):
     def validate_lat(self, value):
         if value < settings.TAIWAN_MIN_LATITUDE or value > settings.TAIWAN_MAX_LATITUDE:
             raise ValidationError(
-                f"latitude should be within {settings.TAIWAN_MIN_LATITUDE} ~ {settings.TAIWAN_MAX_LATITUDE}, but got {value}"
+                f"latitude should be within {settings.TAIWAN_MIN_LATITUDE} "
+                f"~ {settings.TAIWAN_MAX_LATITUDE}, but got {value}"
             )
 
     def validate_lng(self, value):
-        if value < settings.TAIWAN_MIN_LONGITUDE or value > settings.TAIWAN_MAX_LONGITUDE:
+        if (
+            value < settings.TAIWAN_MIN_LONGITUDE
+            or value > settings.TAIWAN_MAX_LONGITUDE
+        ):
             raise ValidationError(
-                f"longitude should be within {settings.TAIWAN_MIN_LONGITUDE} ~ {settings.TAIWAN_MAX_LONGITUDE}, but got {value}"
+                f"longitude should be within {settings.TAIWAN_MIN_LONGITUDE} "
+                f"~ {settings.TAIWAN_MAX_LONGITUDE}, but got {value}"
             )
 
     def validate_type(self, value):
         if (value is not None) and (value not in VALID_FACTORY_TYPES):
-            raise ValidationError('Factory Type "{}" is not one of the permitted values: {}'.format(
-                value, ', '.join(VALID_FACTORY_TYPES)))
+            raise ValidationError(
+                'Factory Type "{}" is not one of the permitted values: {}'.format(
+                    value, ", ".join(VALID_FACTORY_TYPES)
+                )
+            )
 
 
 class ReportRecordSerializer(ModelSerializer):
@@ -107,14 +117,14 @@ class ReportRecordSerializer(ModelSerializer):
     class Meta:
         model = ReportRecord
         fields = [
-            'id',
-            'factory',
-            'user_ip',
-            'action_type',
-            'action_body',
-            'created_at',
-            'nickname',
-            'contact',
-            'others',
-            'images',
+            "id",
+            "factory",
+            "user_ip",
+            "action_type",
+            "action_body",
+            "created_at",
+            "nickname",
+            "contact",
+            "others",
+            "images",
         ]
