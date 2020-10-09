@@ -14,9 +14,7 @@ class ReportRecordAdmin(admin.ModelAdmin, ExportCsvMixin):
         'others',
         'id',
     )
-    list_filter = (
-        'action_type',
-    )
+    list_filter = ('action_type', )
     ordering = ["-created_at"]
     actions = ["export_as_csv"]
 
@@ -28,8 +26,6 @@ class RecycledReportRecordAdmin(admin.ModelAdmin, RestoreMixin):
         'action_type',
         'id',
     )
-    list_filter = (
-        'action_type',
-    )
+    list_filter = ('action_type', )
     ordering = ["-deleted_at"]
     actions = ["restore"]

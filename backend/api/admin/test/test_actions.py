@@ -56,6 +56,7 @@ TEST_FACTORY_DATA = [
     }
 ]
 
+
 class ModelAdminTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -116,11 +117,13 @@ class ModelAdminTests(TestCase):
             'index': 0,
             '_selected_action': document_model_list[0].id
         }
+
         response = self.client.post('/admin/api/document/', data)
-        assert response.status_code == 200, f"status_code should be 200 but {response.status_code}"
-        assert response[
-            'Content-Type'
-        ] == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response['Content-Type'],
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        )
 
     def test_python_docx_workaround(self):
         # Remove all document models
@@ -148,7 +151,8 @@ class ModelAdminTests(TestCase):
         }
         response = self.client.post('/admin/api/document/', data)
 
-        assert response.status_code == 200, f"status_code should be 200 but {response.status_code}"
-        assert response[
-            'Content-Type'
-        ] == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response['Content-Type'],
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        )
