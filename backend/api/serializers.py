@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from .models import Factory, Image, ReportRecord
+from .models import Factory, Image, ReportRecord, Document
 
 
 VALID_FACTORY_TYPES = [t[0] for t in Factory.factory_type_list]
@@ -31,6 +31,7 @@ class FactorySerializer(ModelSerializer):
     reported_at = SerializerMethodField()
     data_complete = SerializerMethodField()
     status = SerializerMethodField()  # should be DEPRECATED
+    document_display_status = SerializerMethodField()
 
     class Meta:
         model = Factory
@@ -49,6 +50,7 @@ class FactorySerializer(ModelSerializer):
             "reported_at",
             "data_complete",
             "status",  # should be DEPRECATED
+            "document_display_status",
         ]
         extra_kwargs = {
             "display_number": {"required": False},
@@ -83,6 +85,14 @@ class FactorySerializer(ModelSerializer):
             return has_photo and reported_within_1_year and has_type
         else:
             return has_photo and reported_within_1_year
+
+    def get_document_display_status(self, obj):
+        latestDocument = Document.objects.only("display_status").filter(factory=obj).order_by("-created_at")
+
+        if len(latestDocument) == 0:
+            return None
+        else:
+            return latestDocument[0].get_display_status_display()
 
     def validate_lat(self, value):
         if value < settings.TAIWAN_MIN_LATITUDE or value > settings.TAIWAN_MAX_LATITUDE:
