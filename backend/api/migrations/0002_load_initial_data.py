@@ -41,6 +41,7 @@ def forward_func(apps, schema_editor):
 
     Factory.objects.bulk_create(seed_factories)
 
+
 class Migration(migrations.Migration):
 
     dependencies = [

@@ -1,8 +1,7 @@
 import json
 import logging
-from datetime import datetime
-from tempfile import mkstemp
 import uuid
+from datetime import datetime
 
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
@@ -16,6 +15,7 @@ from .utils import (
     _get_image_original_date,
 )
 LOGGER = logging.getLogger('django')
+
 
 @api_view(['POST'])
 def post_image(request):

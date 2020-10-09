@@ -1,5 +1,4 @@
 import os
-import json
 import logging
 from io import BytesIO
 from urllib.request import urlopen

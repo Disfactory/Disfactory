@@ -87,16 +87,8 @@ class DescriptionInline(admin.TabularInline):
     can_delete = False
     show_change_link = False
     max_num = 0
-    fields = (
-        "created_at",
-        "others",
-        "user_ip",
-    )
-    readonly_fields = (
-        "created_at",
-        "others",
-        "user_ip",
-    )
+    fields = ("created_at", "others", "user_ip")
+    readonly_fields = ("created_at", "others", "user_ip")
     extra = 0
 
 

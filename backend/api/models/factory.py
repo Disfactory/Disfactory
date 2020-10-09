@@ -55,9 +55,7 @@ class Factory(SoftDeleteMixin):
         editable=False,
         verbose_name="ID",
     )
-    display_number = models.IntegerField(
-        unique=True,
-    )
+    display_number = models.IntegerField(unique=True)
 
     lat = models.FloatField()
     lng = models.FloatField()

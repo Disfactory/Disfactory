@@ -155,7 +155,8 @@ class PostFactoryImageViewTestCase(TestCase):
                         'image': f_img,
                         'json': json.dumps(post_data),
                     },
-                format='multipart')
+                    format='multipart',
+                )
 
         self.assertEqual(resp.status_code, 200)
         patch_async_tasks.assert_not_called()

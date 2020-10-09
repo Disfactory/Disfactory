@@ -36,11 +36,11 @@ allowed_hosts = []
 hosts_in_env = os.environ.get("DISFACTORY_ALLOWED_HOST", None)
 print(hosts_in_env)
 
-if hosts_in_env != None:
+if hosts_in_env is not None:
     try:
         for host in hosts_in_env.split(","):
             allowed_hosts.append(host.split(";")[0])
-    except:
+    except Exception:
         print(
             "error occurs when parsing allowed_hosts, please check the environment variable `DISFACTORY_ALLOWED_HOST`"
         )
@@ -94,18 +94,17 @@ LOGGING = {
         },
     "handlers":
         {
-            "file":
-                {
-                    "level": "INFO",
-                    "class": "logging.FileHandler",
-                    "filename": os.environ.get("DISFACTORY_BACKEND_LOG_FILE", "./debug.log"),
-                    "formatter": "basic"
-                },
+            "file": {
+                "level": "INFO",
+                "class": "logging.FileHandler",
+                "filename": os.environ.get("DISFACTORY_BACKEND_LOG_FILE", "./debug.log"),
+                "formatter": "basic",
+            },
             "console": {
                 "class": "logging.StreamHandler",
             },
             "db": {
-                'class': 'django_db_logger.db_log_handler.DatabaseLogHandler'
+                'class': 'django_db_logger.db_log_handler.DatabaseLogHandler',
             },
         },
     "loggers":
@@ -137,17 +136,15 @@ TEMPLATES = [
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         "DIRS": [os.path.join(BASE_DIR, "templates")],
         "APP_DIRS": True,
-        "OPTIONS":
-            {
-                "context_processors":
-                    [
-                        "django.template.context_processors.debug",
-                        "django.template.context_processors.request",
-                        "django.contrib.auth.context_processors.auth",
-                        "django.contrib.messages.context_processors.messages",
-                    ]
-            },
-    }
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
 ]
 
 WSGI_APPLICATION = "gis_project.wsgi.application"

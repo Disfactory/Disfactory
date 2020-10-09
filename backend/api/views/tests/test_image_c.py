@@ -61,4 +61,3 @@ class PostImageUrlViewTestCase(TestCase):
                 content_type="application/json",
             )
         self.assertEqual(resp.status_code, 400)
-

@@ -31,12 +31,12 @@ LOGGER = logging.getLogger('django')
                 openapi.Schema(
                     type=openapi.TYPE_STRING,
                     description='YYYY:mm:dd HH:MM:SS',
-                )
-        }
+                ),
+        },
     ),
     responses={
         200: openapi.Response('圖片資料', ImageSerializer),
-        400: "request failed"
+        400: "request failed",
     }
 )
 @api_view(['POST'])

@@ -49,6 +49,7 @@ def forward_func(apps, schema_editor):
 def backward_func(apps, schema_editor):
     pass
 
+
 class Migration(migrations.Migration):
 
     dependencies = [

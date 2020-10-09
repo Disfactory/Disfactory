@@ -1,6 +1,5 @@
 import logging
 from typing import List
-import json
 import datetime
 
 from django.conf import settings
@@ -108,7 +107,7 @@ def _handle_create_factory(request):
         'lng': post_body["lng"],
         'factory_type': post_body.get("type"),
         'status_time': datetime.datetime.now(),
-        'display_number': num["display_number__max"]+1,
+        'display_number': num["display_number__max"] + 1,
     }
 
     new_report_record_field = {
@@ -126,11 +125,11 @@ def _handle_create_factory(request):
             factory=new_factory,
             **new_report_record_field,
         )
-        Image.objects.filter(id__in=image_ids
-                            ).update(factory=new_factory, report_record=report_record)
+        Image.objects.filter(id__in=image_ids).update(factory=new_factory, report_record=report_record)
     serializer = FactorySerializer(new_factory)
     LOGGER.info(
-        f"{user_ip}: <Create new factory> at {(post_body['lng'], post_body['lat'])} id:{new_factory.id} {new_factory_field['name']} {new_factory_field['factory_type']}"
+        f"{user_ip}: <Create new factory> at {(post_body['lng'], post_body['lat'])} "
+        f"id:{new_factory.id} {new_factory_field['name']} {new_factory_field['factory_type']}",
     )
     async_task("api.tasks.update_landcode", new_factory.id)
     return JsonResponse(serializer.data, safe=False)

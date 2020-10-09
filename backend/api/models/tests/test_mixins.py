@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 
 from django.test import TestCase
 from django.db import connection
-from django.core.management.color import no_style
 from django.db.utils import ProgrammingError
 from django.db.models.base import ModelBase
 from freezegun import freeze_time

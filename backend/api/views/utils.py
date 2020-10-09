@@ -29,10 +29,8 @@ def _get_client_ip(request):
     # ref: https://stackoverflow.com/a/30558984
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[-1].strip()
+        return x_forwarded_for.split(',')[-1].strip()
     elif request.META.get('HTTP_X_REAL_IP'):
-        ip = request.META.get('HTTP_X_REAL_IP')
+        return request.META.get('HTTP_X_REAL_IP')
     else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
-
+        return request.META.get('REMOTE_ADDR')
