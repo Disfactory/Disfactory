@@ -19,8 +19,10 @@ def get_session():
     # XXX don't need this?
     # sess.headers.update({"User-Agent": "Mozilla/5.0"})
     resp = sess.get(easymap_url)
-    if not "JSESSIONID" in sess.cookies:
-        raise WebRequestError("Failed getting session from easymap", resp.status_code, resp.text)
+    if "JSESSIONID" not in sess.cookies:
+        raise WebRequestError(
+            "Failed getting session from easymap", resp.status_code, resp.text
+        )
     return sess
 
 
@@ -32,7 +34,7 @@ def get_point_city(sess, x, y):
         raise WebRequestError("Failed getting city code", resp.status_code, resp.text)
     try:
         return resp.json()
-    except:
+    except Exception:
         raise WebRequestError("Failed parsing city code", resp.status_code, resp.text)
 
 
@@ -43,7 +45,7 @@ def get_token(sess):
     if resp.status_code != requests.codes.ok:
         raise WebRequestError("Failed getting token", resp.status_code, resp.text)
     token = dict([(m.group(1), m.group(2)) for m in token_re.finditer(resp.text)])
-    if not "token" in token:
+    if "token" not in token:
         raise WebRequestError("Failed parsing token", resp.status_code, resp.text)
     return token
 
@@ -56,7 +58,7 @@ def get_door_info(sess, x, y, city, token):
         raise WebRequestError("Failed getting door info", resp.status_code, resp.text)
     try:
         return resp.json()
-    except:
+    except Exception:
         raise WebRequestError("Failed parsing door info", resp.status_code, resp.text)
 
 
@@ -71,7 +73,7 @@ def get_land_number(x, y):
     token = get_token(sess)
     land_number = get_door_info(sess, x=x, y=y, city=city, token=token)
     sess.close()
-    land_number['townname'] = towninfo.code2name.get(land_number['towncode'], '')
+    land_number["townname"] = towninfo.code2name.get(land_number["towncode"], "")
     return land_number
 
 
