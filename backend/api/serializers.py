@@ -76,7 +76,11 @@ class FactorySerializer(ModelSerializer):
             and latest_record.created_at > timezone.now() - timedelta(days=365)
         ):
             return False  # not reported or outdated
-        return not obj.before_release or (obj.factory_type is not None)
+
+        if obj.before_release:
+            return obj.factory_type is not None
+        else:
+            return True
 
     def get_document_display_status(self, obj):
         latestDocument = Document.objects.only("display_status").filter(factory=obj).order_by("-created_at")
