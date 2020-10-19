@@ -55,9 +55,7 @@ class Factory(SoftDeleteMixin):
         editable=False,
         verbose_name="ID",
     )
-    display_number = models.IntegerField(
-        unique=True,
-    )
+    display_number = models.IntegerField(unique=True)
 
     lat = models.FloatField()
     lng = models.FloatField()
@@ -106,7 +104,7 @@ class Factory(SoftDeleteMixin):
     def save(self, *args, **kwargs):
         self.point = Point(self.lng, self.lat, srid=4326)
         self.point.transform(settings.POSTGIS_SRID)
-        super(Factory, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 
 class RecycledFactory(Factory):

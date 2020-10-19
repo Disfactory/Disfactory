@@ -17,7 +17,7 @@ def _get_image_original_date(f_image):
 
     try:
         return datetime.strptime(exif["DateTimeOriginal"], "%Y:%m:%d %H:%M:%S")
-    except:
+    except Exception:
         return None
 
 

@@ -1,6 +1,5 @@
 import logging
 from typing import List
-import json
 import datetime
 
 from django.conf import settings
@@ -21,15 +20,16 @@ from ..serializers import FactorySerializer
 LOGGER = logging.getLogger('django')
 
 
-def _not_in_taiwan(lat, lng):
-    lat_invalid = lat < settings.TAIWAN_MIN_LATITUDE or lat > settings.TAIWAN_MAX_LATITUDE
-    lng_invalid = lng < settings.TAIWAN_MIN_LONGITUDE or lng > settings.TAIWAN_MAX_LONGITUDE
-    return lat_invalid or lng_invalid
+def _in_taiwan(lat, lng):
+    return (
+        settings.TAIWAN_MIN_LATITUDE <= lat <= settings.TAIWAN_MAX_LATITUDE
+        and settings.TAIWAN_MIN_LONGITUDE <= lng <= settings.TAIWAN_MAX_LONGITUDE
+    )
 
 
-def _radius_strange(radius):
+def _in_reasonable_radius_range(radius):
     # NOTE: need discussion about it
-    return radius > 100 or radius < 0.01
+    return 0.01 <= radius <= 100
 
 
 def _all_image_id_exist(image_ids: List[str]) -> bool:
@@ -50,9 +50,8 @@ def _handle_get_factories(request):
             status=400,
         )
 
-    latitude = float(latitude)
-    longitude = float(longitude)
-    if _not_in_taiwan(latitude, longitude):
+    latitude, longitude = float(latitude), float(longitude)
+    if not _in_taiwan(latitude, longitude):
         return HttpResponse(
             "The query position is not in the range of Taiwan."
             "Valid query parameters should be: "
@@ -62,7 +61,7 @@ def _handle_get_factories(request):
         )
 
     radius = float(radius)
-    if _radius_strange(radius):
+    if not _in_reasonable_radius_range(radius):
         return HttpResponse(
             f"`range` should be within 0.01 to 100 km, but got {radius}",
             status=400,
@@ -108,7 +107,7 @@ def _handle_create_factory(request):
         'lng': post_body["lng"],
         'factory_type': post_body.get("type"),
         'status_time': datetime.datetime.now(),
-        'display_number': num["display_number__max"]+1,
+        'display_number': num["display_number__max"] + 1,
     }
 
     new_report_record_field = {
@@ -126,11 +125,11 @@ def _handle_create_factory(request):
             factory=new_factory,
             **new_report_record_field,
         )
-        Image.objects.filter(id__in=image_ids
-                            ).update(factory=new_factory, report_record=report_record)
+        Image.objects.filter(id__in=image_ids).update(factory=new_factory, report_record=report_record)
     serializer = FactorySerializer(new_factory)
     LOGGER.info(
-        f"{user_ip}: <Create new factory> at {(post_body['lng'], post_body['lat'])} id:{new_factory.id} {new_factory_field['name']} {new_factory_field['factory_type']}"
+        f"{user_ip}: <Create new factory> at {(post_body['lng'], post_body['lat'])} "
+        f"id:{new_factory.id} {new_factory_field['name']} {new_factory_field['factory_type']}",
     )
     async_task("api.tasks.update_landcode", new_factory.id)
     return JsonResponse(serializer.data, safe=False)

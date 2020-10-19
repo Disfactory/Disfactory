@@ -160,7 +160,7 @@ class FactorySerializersTestCase(TestCase):
         self.assertFalse(serializer.data["data_complete"])
 
     def test_data_complete_false_if_last_report_longer_than_one_year_ago(self):
-        test_time = datetime.now() - timedelta(days=365*2)
+        test_time = datetime.now() - timedelta(days=365 * 2)
         with freeze_time(test_time):
             factory = Factory.objects.create(
                 name="test factory",
@@ -274,7 +274,7 @@ class FactorySerializersTestCase(TestCase):
         self.assertFalse(serializer.data["data_complete"])
 
     def test_data_complete_false_after_long_time_no_report(self):
-        factory_create = datetime.now() - timedelta(days=365*2)
+        factory_create = datetime.now() - timedelta(days=365 * 2)
         with freeze_time(factory_create):
             factory = Factory.objects.create(
                 name="test factory",
@@ -317,7 +317,7 @@ class FactorySerializersTestCase(TestCase):
         self.assertTrue(serializer.is_valid())
         self.assertEqual(serializer.errors, {})
 
-    def test_allow_empty_factory_type(self):
+    def test_allow_None_factory_type(self):
         post_body_wo_type = {
             "name": "a new factory",
             "type": None,

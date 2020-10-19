@@ -1,6 +1,5 @@
 {
-    "python.pythonPath": ".venv/bin/python",
-    "python.linting.pylintEnabled": true,
+  "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
     "python.linting.pylintArgs": [
       "--load-plugins=pylint_django",

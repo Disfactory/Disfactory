@@ -63,28 +63,24 @@ class FactorySerializer(ModelSerializer):
         report_records = ReportRecord.objects.only("created_at").filter(factory=obj)
         if len(report_records) == 0:
             return None
-        reported_date = [record.created_at for record in report_records]
-        return sorted(reported_date, reverse=True)[0]
+        return max(record.created_at for record in report_records)
 
     def get_data_complete(self, obj):
-        images = Image.objects.only("id").filter(factory=obj)
-        report_records = (
-            ReportRecord.objects.only("created_at")
-            .filter(factory=obj)
-            .order_by("-created_at")
-        )
-        has_type = obj.factory_type is not None
-        has_photo = len(images) > 0
-        if report_records:
-            last_year = timezone.now() - timedelta(days=365)
-            reported_within_1_year = report_records[0].created_at > last_year
-        else:  # don't have any report records
-            reported_within_1_year = False
+        # has_photo and reported_within_1_year and (not before_release or has_type)
+        if len(Image.objects.only("id").filter(factory=obj)) == 0:
+            return False  # no photo
+        latest_record = ReportRecord.objects.only("created_at").filter(
+            factory=obj).latest('created_at')
+        if not (
+            latest_record
+            and latest_record.created_at > timezone.now() - timedelta(days=365)
+        ):
+            return False  # not reported or outdated
 
         if obj.before_release:
-            return has_photo and reported_within_1_year and has_type
+            return obj.factory_type is not None
         else:
-            return has_photo and reported_within_1_year
+            return True
 
     def get_document_display_status(self, obj):
         latestDocument = Document.objects.only("display_status").filter(factory=obj).order_by("-created_at")
@@ -95,17 +91,14 @@ class FactorySerializer(ModelSerializer):
             return latestDocument[0].get_display_status_display()
 
     def validate_lat(self, value):
-        if value < settings.TAIWAN_MIN_LATITUDE or value > settings.TAIWAN_MAX_LATITUDE:
+        if not (settings.TAIWAN_MIN_LATITUDE <= value <= settings.TAIWAN_MAX_LATITUDE):
             raise ValidationError(
                 f"latitude should be within {settings.TAIWAN_MIN_LATITUDE} "
                 f"~ {settings.TAIWAN_MAX_LATITUDE}, but got {value}"
             )
 
     def validate_lng(self, value):
-        if (
-            value < settings.TAIWAN_MIN_LONGITUDE
-            or value > settings.TAIWAN_MAX_LONGITUDE
-        ):
+        if not (settings.TAIWAN_MIN_LONGITUDE <= value <= settings.TAIWAN_MAX_LONGITUDE):
             raise ValidationError(
                 f"longitude should be within {settings.TAIWAN_MIN_LONGITUDE} "
                 f"~ {settings.TAIWAN_MAX_LONGITUDE}, but got {value}"
@@ -113,10 +106,9 @@ class FactorySerializer(ModelSerializer):
 
     def validate_type(self, value):
         if (value is not None) and (value not in VALID_FACTORY_TYPES):
+            valid_type_msg = ", ".join(VALID_FACTORY_TYPES)
             raise ValidationError(
-                'Factory Type "{}" is not one of the permitted values: {}'.format(
-                    value, ", ".join(VALID_FACTORY_TYPES)
-                )
+                f'Factory Type "{value}" is not one of the permitted values: {valid_type_msg}',
             )
 
 

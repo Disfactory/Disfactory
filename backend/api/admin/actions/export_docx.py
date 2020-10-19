@@ -1,5 +1,4 @@
 import os
-import json
 import logging
 from io import BytesIO
 from urllib.request import urlopen
@@ -22,48 +21,28 @@ import PIL
 LOGGER = logging.getLogger('django')
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-DOC_RESOURCES_PATH = os.path.join(CURRENT_DIR, "..", "..", "..",
-                                  "doc_resources")
+DOC_RESOURCES_PATH = os.path.join(CURRENT_DIR, "..", "..", "..", "doc_resources")
 SEAL_IMAGE_PATH = os.path.join(DOC_RESOURCES_PATH, "seal.png")
 
 FIND_TAIWAN_LEGISLATOR_API = "https://ftl.disfactory.tw"
 DEFAULT_FONT = "標楷體"
 
 UPPER_CASE_NUMBERS = {
-    "0": '零',
-    "1": '壹',
-    "2": '貳',
-    "3": '參',
-    "4": '肆',
-    "5": '伍',
-    "6": '陸',
-    "7": '柒',
-    "8": '捌',
-    "9": '玖'
+    str(i): chinese_char
+    for i, chinese_char in enumerate('零壹貳參肆伍陸柒捌玖')
 }
-
 LOWER_CASE_NUMBERS = {
-    "0": '〇',
-    "1": '一',
-    "2": '二',
-    "3": '三',
-    "4": '四',
-    "5": '五',
-    "6": '六',
-    "7": '七',
-    "8": '八',
-    "9": '九'
+    str(i): chinese_char
+    for i, chinese_char in enumerate('〇一二三四五六七八九')
 }
 
 
 def ConvertToUpperCaseNumbers(number):
-    result = list(map(lambda s: UPPER_CASE_NUMBERS[s], str(number)))
-    return ''.join(result)
+    return ''.join(map(lambda s: UPPER_CASE_NUMBERS[s], str(number)))
 
 
 def ConvertToLowerCaseNumbers(number):
-    result = list(map(lambda s: LOWER_CASE_NUMBERS[s], str(number)))
-    return ''.join(result)
+    return ''.join(map(lambda s: LOWER_CASE_NUMBERS[s], str(number)))
 
 
 def find_taiwan_legislator_name_by_location(lat, lng):

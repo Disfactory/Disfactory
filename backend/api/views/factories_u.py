@@ -1,5 +1,4 @@
 import logging
-import json
 from datetime import datetime
 
 from rest_framework.decorators import api_view

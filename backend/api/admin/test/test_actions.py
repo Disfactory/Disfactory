@@ -3,29 +3,10 @@ from api.models.document import Document
 from api.models.image import Image
 import datetime
 
-from django import forms
-from django.contrib.admin.models import ADDITION, CHANGE, DELETION, LogEntry
-from django.contrib.admin.options import (
-    HORIZONTAL,
-    VERTICAL,
-    ModelAdmin,
-    TabularInline,
-    get_content_type_for_model,
-)
+from django.contrib.admin.options import ModelAdmin
 from django.contrib.admin.sites import AdminSite
-from django.contrib.admin.widgets import (
-    AdminDateWidget,
-    AdminRadioSelect,
-    AutocompleteSelect,
-    AutocompleteSelectMultiple,
-)
 from users.models import CustomUser as User
-from django.db import models
-from django.forms.widgets import Select
-from django.test import SimpleTestCase, TestCase
-from django.test.utils import isolate_apps
-
-from django.urls import NoReverseMatch, resolve, reverse
+from django.test import TestCase
 
 
 class MockRequest:
@@ -74,6 +55,7 @@ TEST_FACTORY_DATA = [
         "townname": "新北市三峽路中山區",
     }
 ]
+
 
 class ModelAdminTests(TestCase):
     @classmethod
@@ -135,11 +117,13 @@ class ModelAdminTests(TestCase):
             'index': 0,
             '_selected_action': document_model_list[0].id
         }
+
         response = self.client.post('/admin/api/document/', data)
-        assert response.status_code == 200, f"status_code should be 200 but {response.status_code}"
-        assert response[
-            'Content-Type'
-        ] == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response['Content-Type'],
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        )
 
     def test_python_docx_workaround(self):
         # Remove all document models
@@ -167,7 +151,8 @@ class ModelAdminTests(TestCase):
         }
         response = self.client.post('/admin/api/document/', data)
 
-        assert response.status_code == 200, f"status_code should be 200 but {response.status_code}"
-        assert response[
-                   'Content-Type'
-               ] == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response['Content-Type'],
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        )

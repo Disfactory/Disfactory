@@ -43,6 +43,7 @@ class Document(SoftDeleteMixin):
         choices=DocumentDisplayStatusEnum.CHOICES,
     )
 
+
 class FollowUp(SoftDeleteMixin):
     document = models.ForeignKey(
         Document,

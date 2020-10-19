@@ -2,8 +2,6 @@ from datetime import datetime, timezone
 from uuid import uuid4
 
 from django.test import TestCase, Client
-from django.conf import settings
-from django.contrib.gis.geos import Point
 from freezegun import freeze_time
 
 from api.models import Factory, ReportRecord

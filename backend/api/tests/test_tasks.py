@@ -9,12 +9,13 @@ from ..tasks import _upload_image_to_imgur, upload_image
 
 FAKE_IMAGE_URI = "https://ingur.fake/12i34uhoi2"
 
-class MockResponse:
-        def __init__(self, json_data):
-            self.json_data = json_data
 
-        def json(self):
-            return self.json_data
+class MockResponse:
+    def __init__(self, json_data):
+        self.json_data = json_data
+
+    def json(self):
+        return self.json_data
 
 
 class TasksTestCase(TestCase):

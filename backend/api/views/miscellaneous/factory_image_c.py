@@ -20,6 +20,7 @@ from .utils import (
 
 LOGGER = logging.getLogger('django')
 
+
 @api_view(['POST'])
 def post_factory_image(request, factory_id):
     client_ip = _get_client_ip(request)

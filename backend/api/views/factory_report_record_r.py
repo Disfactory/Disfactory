@@ -14,7 +14,7 @@ from ..serializers import ReportRecordSerializer
     operation_summary='取得指定 id 工廠的 Report',
     responses={
         200: openapi.Response('Report 資料', ReportRecordSerializer),
-    }
+    },
 )
 @api_view(['GET'])
 def get_factory_report(request, factory_id):

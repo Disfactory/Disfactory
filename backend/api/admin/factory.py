@@ -22,9 +22,7 @@ class FactoryWithReportRecords(DateRangeFilter):
     def queryset(self, request, queryset):
         if self.form.is_valid():
             validated_data = dict(self.form.cleaned_data.items())
-
             query_params = super()._make_query_filter(request, validated_data)
-
             factory_ids = (
                 ReportRecord.objects.only("factory_id", "created_at",)
                 .filter(**query_params)
@@ -89,16 +87,8 @@ class DescriptionInline(admin.TabularInline):
     can_delete = False
     show_change_link = False
     max_num = 0
-    fields = (
-        "created_at",
-        "others",
-        "user_ip",
-    )
-    readonly_fields = (
-        "created_at",
-        "others",
-        "user_ip",
-    )
+    fields = ("created_at", "others", "user_ip")
+    readonly_fields = ("created_at", "others", "user_ip")
     extra = 0
 
 
