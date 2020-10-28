@@ -6,13 +6,13 @@ from api.models import (
     ReportRecord,
 )
 from api.models.factory import RecycledFactory
-from api.models.document import Document
+from api.models.document import Document, CETNext, CETReportStatus, GovResponseStatus
 from api.models.image import RecycledImage
 from api.models.report_record import RecycledReportRecord
 from .factory import FactoryAdmin, RecycledFactoryAdmin
 from .image import ImageAdmin, RecycledImageAdmin
 from .report_record import ReportRecordAdmin, RecycledReportRecordAdmin
-from api.admin.document import DocumentAdmin
+from api.admin.document import DocumentAdmin, CETNextAdmin, CETReportStatusAdmin, GovResponseStatusAdmin
 
 # Register your models here.
 admin.register(Factory)(FactoryAdmin)
@@ -25,3 +25,7 @@ admin.register(ReportRecord)(ReportRecordAdmin)
 admin.register(RecycledReportRecord)(RecycledReportRecordAdmin)
 
 admin.register(Document)(DocumentAdmin)
+
+admin.register(CETNext)(CETNextAdmin)
+admin.register(CETReportStatus)(CETReportStatusAdmin)
+admin.register(GovResponseStatus)(GovResponseStatusAdmin)
