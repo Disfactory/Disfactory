@@ -26,6 +26,8 @@ class DocumentAdmin(
 
     actions = ["export_as_docx"]
 
+    list_filter = ["cet_next_tags", "display_status"]
+
     inlines = (FollowUpInline, )
 
     list_display = (
@@ -33,8 +35,16 @@ class DocumentAdmin(
         "cet_staff",
         "display_status",
         "factory_townname",
+        "get_cet_next_tags"
     )
+
     search_fields = ("factory__townname", )
+
+    autocomplete_fields = [
+       'cet_report_status_tags',
+       'cet_next_tags',
+       'gov_response_status_tags',
+    ]
 
     fieldsets = (
         (None, {
@@ -44,16 +54,18 @@ class DocumentAdmin(
             'Tags',
             {
                 'fields': (
-                    #'cet_report_status_tags',
-                    #'cet_next_tags',
-                    #'gov_response_status_tags',
-                    'display_status', ),
+                        'display_status',
+                        'cet_report_status_tags',
+                        'cet_next_tags',
+                        'gov_response_status_tags',
+                    ),
             }),
         ('Factory', {
             'fields': (
                 "factory_display_number",
                 "factory_townname",
                 "factory_name",
+
                 ("factory_lat", "factory_lng"),
                 "factory_map_link",
                 "images",
@@ -127,14 +139,8 @@ class DocumentAdmin(
     images.allow_tags = True
     images.short_description = "工廠照片"
 
-    def cet_report_status(self, obj):
-        return ",".join([p.name for p in obj.cet_report_status_tags.all()])
-
-    def cet_next(self, obj):
+    def get_cet_next_tags(self, obj):
         return ",".join([p.name for p in obj.cet_next_tags.all()])
-
-    def gov_response_status(self, obj):
-        return ",".join([p.name for p in obj.gov_response_status_tags.all()])
 
     def display_status(self, obj):
         return ",".join([p.name for p in obj.display_status_tags.all()])
@@ -151,3 +157,16 @@ class DocumentAdmin(
             return instances
         else:
             return formset.save()
+
+
+class CETReportStatusAdmin(admin.ModelAdmin):
+    search_fields = ['name', ]
+    list_display = ['name']
+
+class CETNextAdmin(admin.ModelAdmin):
+    search_fields = ['name', ]
+    list_display = ['name']
+
+class GovResponseStatusAdmin(admin.ModelAdmin):
+    search_fields = ['name', ]
+    list_display = ['name']
