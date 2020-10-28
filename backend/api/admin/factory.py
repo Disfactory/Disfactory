@@ -1,3 +1,5 @@
+from django.db.models import Max
+
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
 from django.utils.html import mark_safe
@@ -24,7 +26,10 @@ class FactoryWithReportRecords(DateRangeFilter):
             validated_data = dict(self.form.cleaned_data.items())
             query_params = super()._make_query_filter(request, validated_data)
             factory_ids = (
-                ReportRecord.objects.only("factory_id", "created_at",)
+                ReportRecord.objects.only(
+                    "factory_id",
+                    "created_at",
+                )
                 .filter(**query_params)
                 .values("factory_id")
                 .distinct()
@@ -146,9 +151,7 @@ class ImageInlineForFactory(admin.TabularInline):
         return obj.report_record.nickname
 
     def image_show(self, obj):
-        return mark_safe(
-            f'<img src="{obj.image_path}" style="max-width:500px; height:auto"/>'
-        )
+        return mark_safe(f'<img src="{obj.image_path}" style="max-width:500px; height:auto"/>')
 
     image_show.short_description = "Image Preview"
     get_report_nickname.short_description = "Nickname"
@@ -166,6 +169,7 @@ class FactoryAdmin(
         "id",
         "display_number",
         "updated_at",
+        "reportrecord_lastest_created_at",
         "townname",
         "sectname",
         "sectcode",
@@ -228,8 +232,15 @@ class FactoryAdmin(
 
     inlines = [DescriptionInline, ImageInlineForFactory, ReportRecordInline]
 
-    def get_name(self, obj):
-        return obj.name or "_"
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        queryset = queryset.annotate(reportrecord_lastest_created_at=Max('report_records__created_at'))
+
+        return queryset
+
+    def reportrecord_lastest_created_at(self, obj):
+        return obj.reportrecord_lastest_created_at
+    reportrecord_lastest_created_at.admin_order_field = 'reportrecord_lastest_created_at'
 
 
 class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):
