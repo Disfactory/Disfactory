@@ -25,17 +25,11 @@ class FactoryWithReportRecords(DateRangeFilter):
         if self.form.is_valid():
             validated_data = dict(self.form.cleaned_data.items())
             query_params = super()._make_query_filter(request, validated_data)
-            factory_ids = (
-                ReportRecord.objects.only(
-                    "factory_id",
-                    "created_at",
-                )
-                .filter(**query_params)
-                .values("factory_id")
-                .distinct()
+
+            queryset = queryset.filter(
+                reportrecord_latest_created_at__gte=query_params["created_at__gte"],
+                reportrecord_latest_created_at__lte=query_params["created_at__lte"],
             )
-            factory_ids = [factory_id["factory_id"] for factory_id in factory_ids]
-            queryset = queryset.filter(id__in=factory_ids)
 
         return queryset
 
@@ -233,13 +227,16 @@ class FactoryAdmin(
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.annotate(reportrecord_latest_created_at=Max('report_records__created_at'))
+        queryset = queryset.annotate(
+            reportrecord_latest_created_at=Max("report_records__created_at")
+        )
 
         return queryset
 
     def reportrecord_latest_created_at(self, obj):
         return obj.reportrecord_latest_created_at
-    reportrecord_latest_created_at.admin_order_field = 'reportrecord_latest_created_at'
+
+    reportrecord_latest_created_at.admin_order_field = "reportrecord_latest_created_at"
 
 
 class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):
