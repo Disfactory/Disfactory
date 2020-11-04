@@ -169,7 +169,7 @@ class FactoryAdmin(
         "id",
         "display_number",
         "updated_at",
-        "reportrecord_lastest_created_at",
+        "reportrecord_latest_created_at",
         "townname",
         "sectname",
         "sectcode",
@@ -178,7 +178,7 @@ class FactoryAdmin(
         "source",
         "name",
     )
-    search_fields = ["townname", "sectname"]
+    search_fields = ["townname", "sectname", "display_number"]
     list_filter = (
         # XXX: actually not using `factory.created_at` but `repordRecord.created_at`
         ("created_at", FactoryWithReportRecords),
@@ -197,14 +197,13 @@ class FactoryAdmin(
 
     formfield_overrides = {models.PointField: {"widget": GooglePointFieldWidget}}
 
-    readonly_fields = ("id", "created_at", "updated_at")
+    readonly_fields = ("id", "display_number", "created_at", "updated_at")
     fieldsets = (
         (
             None,
             {
                 "fields": (
-                    # TODO: "factory_number",
-                    "id",
+                    ("id", "display_number"),
                     ("cet_review_status", "cet_report_status"),
                     # TODO: "gov_reply_summary",
                     "cet_reviewer",
@@ -234,13 +233,13 @@ class FactoryAdmin(
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        queryset = queryset.annotate(reportrecord_lastest_created_at=Max('report_records__created_at'))
+        queryset = queryset.annotate(reportrecord_latest_created_at=Max('report_records__created_at'))
 
         return queryset
 
-    def reportrecord_lastest_created_at(self, obj):
-        return obj.reportrecord_lastest_created_at
-    reportrecord_lastest_created_at.admin_order_field = 'reportrecord_lastest_created_at'
+    def reportrecord_latest_created_at(self, obj):
+        return obj.reportrecord_latest_created_at
+    reportrecord_latest_created_at.admin_order_field = 'reportrecord_latest_created_at'
 
 
 class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):
