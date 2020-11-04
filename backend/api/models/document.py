@@ -117,6 +117,7 @@ class FollowUp(SoftDeleteMixin):
                                                  self.created_at)
 
 
+
 class RecycledDocument(Document):
     class Meta:
         proxy = True

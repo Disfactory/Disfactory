@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from api.models import FollowUp, Image
+from api.models import Document, DocumentDisplayStatusEnum, FollowUp, Image
 from api.admin.actions import ExportDocMixin
 
 
@@ -12,10 +12,7 @@ class FollowUpInline(admin.StackedInline):
     fields = ['note']
 
 
-class DocumentAdmin(
-        admin.ModelAdmin,
-        ExportDocMixin,
-):
+class DocumentAdmin(admin.ModelAdmin, ExportDocMixin):
     class Media:
         js = []
         css = {"all": ["/static/css/document.css"]}
@@ -158,14 +155,28 @@ class DocumentAdmin(
         else:
             return formset.save()
 
+    def save_model(self, request, obj, form, change):
+        old_obj = Document.objects.get(id=obj.id)
+        if obj.display_status != old_obj.display_status:
+            ods, ds = old_obj.display_status, obj.display_status
+            FollowUp.objects.create(
+                document=obj,
+                note=f"{DocumentDisplayStatusEnum.CHOICES[ods][1]} -> "
+                    f"{DocumentDisplayStatusEnum.CHOICES[ds][1]}",
+            )
+
+        super().save_model(request, obj, form, change)
+
 
 class CETReportStatusAdmin(admin.ModelAdmin):
     search_fields = ['name', ]
     list_display = ['name']
 
+
 class CETNextAdmin(admin.ModelAdmin):
     search_fields = ['name', ]
     list_display = ['name']
+
 
 class GovResponseStatusAdmin(admin.ModelAdmin):
     search_fields = ['name', ]
