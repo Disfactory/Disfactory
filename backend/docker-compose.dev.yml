@@ -26,7 +26,8 @@ services:
       - -c
       - |
         python manage.py migrate
-        python manage.py runserver 0.0.0.0:8000
+        python manage.py check
+        python manage.py runserver 0.0.0.0:${DISFACTORY_BACKEND_PORT}
 
   db:
     image: mdillon/postgis:11-alpine
@@ -38,6 +39,11 @@ services:
       POSTGRES_DB: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
       POSTGRES_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
       POSTGRES_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   worker:
     build:
