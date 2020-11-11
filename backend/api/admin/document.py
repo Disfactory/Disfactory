@@ -102,12 +102,10 @@ class DocumentAdmin(admin.ModelAdmin, ExportDocMixin):
 
     @set_function_attributes(short_description="Google Map 連結")
     def factory_map_link(self, obj):
-        return format_html(
+        html_template = (
             "<a href='http://www.google.com/maps/place/{lat},{lng}' target='_blank'>Link</a>"
-            .format(
-                lat=obj.factory.lat,
-                lng=obj.factory.lng,
-            ))
+        )
+        return format_html(html_template.format(lat=obj.factory.lat, lng=obj.factory.lng))
 
     @set_function_attributes(short_description="Lat")
     def factory_lat(self, obj):
@@ -120,8 +118,6 @@ class DocumentAdmin(admin.ModelAdmin, ExportDocMixin):
     @set_function_attributes(allow_tags=True, short_description="工廠照片")
     def images(self, obj):
         images = Image.objects.filter(factory_id=obj.factory.id)
-        urls = []
-
         image_html_template = """
             <div class="imgbox">
                 <a href="{image_path}" target='_blank' class="center-fit">
@@ -130,10 +126,10 @@ class DocumentAdmin(admin.ModelAdmin, ExportDocMixin):
             </div>
         """
 
-        for image in images:
-            urls.append(
-                image_html_template.format(image_path=image.image_path))
-
+        urls = [
+            image_html_template.format(image_path=img.image_path)
+            for img in images
+        ]
         return format_html("\n".join(urls))
 
     def get_cet_next_tags(self, obj):

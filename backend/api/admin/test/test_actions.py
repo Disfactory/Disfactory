@@ -35,7 +35,8 @@ TEST_FACTORY_DATA = [
         "status_time": datetime.datetime.now(),
         "display_number": 666,
         "townname": "新北市三峽路中山區",
-    }, {
+    },
+    {
         "name": "Test Factory 2",
         "factory_type": "2-1",
         "images": [
@@ -67,12 +68,10 @@ class ModelAdminTests(TestCase):
         factories = []
         for data in TEST_FACTORY_DATA:
             # Insert images
-            image_path_list = data.get('images', [])
-            images = []
-            for image_path in image_path_list:
-                image = Image.objects.create(image_path=image_path)
-                images.append(image)
-            del data['images']
+            images = [
+                Image.objects.create(image_path=image_path)
+                for image_path in data.pop('images', [])
+            ]
 
             # Create factory
             factory = Factory.objects.create(**data)
