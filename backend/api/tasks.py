@@ -17,10 +17,9 @@ def _upload_image_to_imgur(image_buffer, client_id):
     with open(tmp_path, 'wb') as fw:
         fw.write(image_buffer)
     headers = {'Authorization': f'Client-ID {client_id}'}
-    data = {'image': image_buffer}
     resp = requests.post(
         'https://api.imgur.com/3/image',
-        data=data,
+        data={'image': image_buffer},
         headers=headers,
     )
     try:
@@ -48,17 +47,14 @@ def update_landcode_with_custom_factory_model(factory_id, factory_model):
     factory = factory_model.objects.get(pk=factory_id)
     landinfo = easymap.get_land_number(factory.lng, factory.lat)
     landcode = landinfo.get('landno')
-    sectname = landinfo.get('sectName')
-    sectcode = landinfo.get('sectno')
-    townname = landinfo.get('townname')
-    towncode = landinfo.get('towncode')
+
     LOGGER.info(f"Factory {factory_id} retrieved land number {landcode}")
     factory_model.objects.filter(pk=factory_id).update(
         landcode=landcode,
-        sectcode=sectcode,
-        sectname=sectname,
-        towncode=towncode,
-        townname=townname,
+        sectcode=landinfo.get('sectno'),
+        sectname=landinfo.get('sectName'),
+        towncode=landinfo.get('towncode'),
+        townname=landinfo.get('townname'),
     )
 
 
@@ -67,6 +63,7 @@ def upload_image(image_path, client_id, image_id):
     try:
         with open(image_path, 'rb') as f:
             image_buffer = f.read()
+
         path = _upload_image_to_imgur(image_buffer, client_id)
         try:
             Image.objects.filter(pk=image_id).update(image_path=path)

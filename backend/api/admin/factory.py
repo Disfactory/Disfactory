@@ -67,17 +67,13 @@ class FactoryFilteredByCounty(SimpleListFilter):
         return self.county_mappings
 
     def queryset(self, request, queryset):
-        county_dict = dict(self.county_mappings)
-
         if self.value():
+            county_dict = dict(self.county_mappings)
             county = county_dict[self.value()]
-            re_str = county
-            if "臺" in county:
-                re_str = county.replace("臺", "(台|臺)")
-
-            queryset = queryset.filter(townname__iregex=re_str)
-
-        return queryset
+            standardized_county = county.replace("臺", "(台|臺)")
+            return queryset.filter(townname__iregex=standardized_county)
+        else:
+            return queryset
 
 
 class DescriptionInline(admin.TabularInline):
@@ -152,12 +148,7 @@ class ImageInlineForFactory(admin.TabularInline):
         return mark_safe(f'<img src="{obj.image_path}" style="max-width:500px; height:auto"/>')
 
 
-class FactoryAdmin(
-    admin.ModelAdmin,
-    ExportCsvMixin,
-    ExportLabelMixin,
-    GenerateDocsMixin,
-):
+class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, GenerateDocsMixin):
 
     list_display = (
         "id",
@@ -230,7 +221,6 @@ class FactoryAdmin(
         queryset = queryset.annotate(
             reportrecord_latest_created_at=Max("report_records__created_at")
         )
-
         return queryset
 
     @set_function_attributes(admin_order_field="reportrecord_latest_created_at")
