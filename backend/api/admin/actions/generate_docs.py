@@ -1,6 +1,8 @@
 import datetime
 from django.db.models import Max
+
 from api.models import Document
+from api.utils import set_function_attributes
 
 
 def choose_cet_staff(townname):
@@ -17,6 +19,8 @@ def choose_cet_staff(townname):
 
 
 class GenerateDocsMixin:
+
+    @set_function_attributes(short_description="產生公文")
     def generate_docs(self, request, queryset):
         user = request.user
         taiwan_year = datetime.date.today().year - 1911
@@ -39,5 +43,3 @@ class GenerateDocsMixin:
         ]
 
         Document.objects.bulk_create(docs)
-
-    generate_docs.short_description = "產生公文"

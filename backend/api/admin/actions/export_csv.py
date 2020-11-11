@@ -1,9 +1,12 @@
 import csv
 from django.http import HttpResponse
 
+from api.utils import set_function_attributes
+
 
 class ExportCsvMixin:
 
+    @set_function_attributes(short_description="輸出成 csv 檔")
     def export_as_csv(self, request, queryset):
         meta = self.model._meta
         field_names = [field.name for field in meta.fields]
@@ -18,5 +21,3 @@ class ExportCsvMixin:
             writer.writerow([getattr(obj, field) for field in field_names])
 
         return response
-
-    export_as_csv.short_description = '輸出成 csv 檔'

@@ -12,6 +12,7 @@ from api.admin.actions import (
     ExportLabelMixin,
     GenerateDocsMixin,
 )
+from api.utils import set_function_attributes
 from rangefilter.filter import DateRangeFilter
 from mapwidgets.widgets import GooglePointFieldWidget
 
@@ -138,18 +139,17 @@ class ImageInlineForFactory(admin.TabularInline):
     )
     extra = 0
 
+    @set_function_attributes(short_description="Contact")
     def get_report_contact(self, obj):
         return obj.report_record.contact
 
+    @set_function_attributes(short_description="Nickname")
     def get_report_nickname(self, obj):
         return obj.report_record.nickname
 
+    @set_function_attributes(short_description="Image Preview")
     def image_show(self, obj):
         return mark_safe(f'<img src="{obj.image_path}" style="max-width:500px; height:auto"/>')
-
-    image_show.short_description = "Image Preview"
-    get_report_nickname.short_description = "Nickname"
-    get_report_contact.short_description = "Contact"
 
 
 class FactoryAdmin(
@@ -233,10 +233,9 @@ class FactoryAdmin(
 
         return queryset
 
+    @set_function_attributes(admin_order_field="reportrecord_latest_created_at")
     def reportrecord_latest_created_at(self, obj):
         return obj.reportrecord_latest_created_at
-
-    reportrecord_latest_created_at.admin_order_field = "reportrecord_latest_created_at"
 
 
 class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):
@@ -251,7 +250,6 @@ class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):
 
     inlines = [ImageInlineForFactory, ReportRecordInline]
 
+    @set_function_attributes(short_description="name")
     def get_name(self, obj):
         return obj.name or "_"
-
-    get_name.short_description = "name"

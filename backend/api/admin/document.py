@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from api.models import Document, DocumentDisplayStatusEnum, FollowUp, Image
 from api.admin.actions import ExportDocMixin
+from api.utils import set_function_attributes
 
 
 class FollowUpInline(admin.StackedInline):
@@ -38,36 +39,43 @@ class DocumentAdmin(admin.ModelAdmin, ExportDocMixin):
     search_fields = ("factory__townname", )
 
     autocomplete_fields = [
-       'cet_report_status_tags',
-       'cet_next_tags',
-       'gov_response_status_tags',
+        'cet_report_status_tags',
+        'cet_next_tags',
+        'gov_response_status_tags',
     ]
 
     fieldsets = (
-        (None, {
-            'fields': ('code', )
-        }),
+        (
+            None,
+            {
+                'fields': ('code', )
+            },
+        ),
         (
             'Tags',
             {
                 'fields': (
-                        'display_status',
-                        'cet_report_status_tags',
-                        'cet_next_tags',
-                        'gov_response_status_tags',
-                    ),
-            }),
-        ('Factory', {
-            'fields': (
-                "factory_display_number",
-                "factory_townname",
-                "factory_name",
+                    'display_status',
+                    'cet_report_status_tags',
+                    'cet_next_tags',
+                    'gov_response_status_tags',
+                ),
+            }
+        ),
+        (
+            'Factory',
+            {
+                'fields': (
+                    "factory_display_number",
+                    "factory_townname",
+                    "factory_name",
 
-                ("factory_lat", "factory_lng"),
-                "factory_map_link",
-                "images",
-            ),
-        }),
+                    ("factory_lat", "factory_lng"),
+                    "factory_map_link",
+                    "images",
+                ),
+            },
+        ),
     )
 
     readonly_fields = [
@@ -80,21 +88,19 @@ class DocumentAdmin(admin.ModelAdmin, ExportDocMixin):
         "factory_lng",
     ]
 
+    @set_function_attributes(short_description="工廠號碼")
     def factory_display_number(self, obj):
         return obj.factory.display_number
 
-    factory_display_number.short_description = '工廠號碼'
-
+    @set_function_attributes(short_description="鄉鎮市")
     def factory_townname(self, obj):
         return obj.factory.townname
 
-    factory_townname.short_description = '鄉鎮市'
-
+    @set_function_attributes(short_description="工廠名稱")
     def factory_name(self, obj):
         return obj.factory.name
 
-    factory_name.short_description = '工廠名稱'
-
+    @set_function_attributes(short_description="Google Map 連結")
     def factory_map_link(self, obj):
         return format_html(
             "<a href='http://www.google.com/maps/place/{lat},{lng}' target='_blank'>Link</a>"
@@ -103,18 +109,15 @@ class DocumentAdmin(admin.ModelAdmin, ExportDocMixin):
                 lng=obj.factory.lng,
             ))
 
-    factory_map_link.short_description = 'Google Map 連結'
-
+    @set_function_attributes(short_description="Lat")
     def factory_lat(self, obj):
         return obj.factory.lat
 
-    factory_lat.short_description = "Lat"
-
+    @set_function_attributes(short_description="Lng")
     def factory_lng(self, obj):
         return obj.factory.lng
 
-    factory_lng.short_description = "Lng"
-
+    @set_function_attributes(allow_tags=True, short_description="工廠照片")
     def images(self, obj):
         images = Image.objects.filter(factory_id=obj.factory.id)
         urls = []
@@ -132,9 +135,6 @@ class DocumentAdmin(admin.ModelAdmin, ExportDocMixin):
                 image_html_template.format(image_path=image.image_path))
 
         return format_html("\n".join(urls))
-
-    images.allow_tags = True
-    images.short_description = "工廠照片"
 
     def get_cet_next_tags(self, obj):
         return ",".join([p.name for p in obj.cet_next_tags.all()])
@@ -162,7 +162,7 @@ class DocumentAdmin(admin.ModelAdmin, ExportDocMixin):
             FollowUp.objects.create(
                 document=obj,
                 note=f"{DocumentDisplayStatusEnum.CHOICES[ods][1]} -> "
-                    f"{DocumentDisplayStatusEnum.CHOICES[ds][1]}",
+                     f"{DocumentDisplayStatusEnum.CHOICES[ds][1]}",
             )
 
         super().save_model(request, obj, form, change)

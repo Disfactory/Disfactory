@@ -8,6 +8,7 @@ import datetime
 from django.http import HttpResponse
 
 from api.models import Image
+from api.utils import set_function_attributes
 
 from docx import Document
 from docx.shared import Inches, Pt, Mm
@@ -369,6 +370,8 @@ def export_document(document):
 
 
 class ExportDocMixin:
+
+    @set_function_attributes(short_description="輸出成 docx 檔")
     def export_as_docx(self, request, queryset):
         documents = generate_factories_document(list(queryset))
         merged_docment = merge_documents(documents)
@@ -379,11 +382,8 @@ class ExportDocMixin:
 
         response = HttpResponse(
             docx_file.getvalue(),
-            content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         )
-        response['Content-Disposition'] = 'attachment; filename=' + \
-            'api.factory.docx'
+        response['Content-Disposition'] = 'attachment; filename=api.factory.docx'
         response['Content-Length'] = length
         return response
-
-    export_as_docx.short_description = '輸出成 docx 檔'
