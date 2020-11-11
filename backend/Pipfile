@@ -10,7 +10,7 @@ pylint = "*"
 pylint-django = "*"
 
 [packages]
-django = "==2.2.13"
+django = "==2.2.16"
 "psycopg2-binary" = "==2.8.3"
 djangorestframework = "==3.9.2"
 python-dotenv = "==0.10.3"
@@ -22,9 +22,10 @@ django-q = "==1.0.2"
 django-db-logger = "*"
 django-admin-rangefilter = "*"
 django-map-widgets = "*"
-drf-yasg = "*"
+drf-yasg = "==1.17.1"
 python-docx = "*"
 docxcompose = "*"
+django-import-export = "*"
 
 [requires]
 python_version = "3.7"
