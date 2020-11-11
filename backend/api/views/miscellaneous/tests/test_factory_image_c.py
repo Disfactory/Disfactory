@@ -1,6 +1,6 @@
 import json
 from uuid import uuid4
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from unittest.mock import patch
 from pathlib import Path
 
@@ -22,7 +22,7 @@ class PostFactoryImageViewTestCase(TestCase):
             name="test_factory",
             lat=24,
             lng=121,
-            status_time=datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc),
+            status_time=datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8))),
             display_number=666,
         )
 
@@ -31,7 +31,7 @@ class PostFactoryImageViewTestCase(TestCase):
         cli = Client()
         nickname = "somebody"
         contact = "0900000000"
-        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
+        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8)))
         with freeze_time(test_time):
             with open(HERE / "20180311_132133.jpg", "rb") as f_img:
                 with patch('uuid.uuid4', return_value='temp_image'):
@@ -47,7 +47,7 @@ class PostFactoryImageViewTestCase(TestCase):
         img_id = resp_data['id']
         img = Image.objects.get(pk=img_id)
         self.assertEqual(img.created_at, test_time)
-        self.assertEqual(img.orig_time, datetime(2018, 3, 11, 13, 21, 33, tzinfo=timezone.utc))
+        self.assertEqual(img.orig_time, datetime(2018, 3, 11, 13, 21, 33, tzinfo=timezone(timedelta(hours=8))))
         self.assertEqual(img.factory_id, self.factory.id)
 
         report_record_id = img.report_record_id
@@ -67,7 +67,7 @@ class PostFactoryImageViewTestCase(TestCase):
     @patch("django_q.tasks.async_task")
     def test_image_without_exif_db_correct(self, patch_async_tasks):
         cli = Client()
-        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
+        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8)))
         with freeze_time(test_time):
             with open(HERE / "20180311_132133_noexif.jpg", "rb") as f_img:
                 with patch('uuid.uuid4', return_value='temp_image'):
@@ -146,7 +146,7 @@ class PostFactoryImageViewTestCase(TestCase):
             }
         }
         cli = Client()
-        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
+        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8)))
         with freeze_time(test_time):
             with open(HERE / "20180311_132133_noexif.jpg", "rb") as f_img:
                 resp = cli.post(
@@ -177,7 +177,7 @@ class PostFactoryImageViewTestCase(TestCase):
         self.assertEqual(img.image_path, fake_path)
         self.assertEqual(
             img.orig_time,
-            datetime.strptime(fake_datetime_str, "%Y:%m:%d %H:%M:%S").replace(tzinfo=timezone.utc),
+            datetime.strptime(fake_datetime_str, "%Y:%m:%d %H:%M:%S").replace(tzinfo=timezone(timedelta(hours=8))),
         )
         self.assertEqual(img.orig_lat, fake_lat)
         self.assertEqual(img.orig_lng, fake_lng)

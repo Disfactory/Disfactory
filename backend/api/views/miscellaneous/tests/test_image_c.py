@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import json
 from unittest.mock import patch
 from pathlib import Path
@@ -19,7 +19,7 @@ class PostImageViewTestCase(TestCase):
     @patch("django_q.tasks.async_task")
     def test_image_with_exif_db_correct(self, patch_async_tasks):
         cli = Client()
-        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
+        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8)))
         with freeze_time(test_time):
             with open(HERE / "20180311_132133.jpg", "rb") as f_img:
                 with patch('uuid.uuid4', return_value='temp_image'):
@@ -32,7 +32,7 @@ class PostImageViewTestCase(TestCase):
         img_id = resp_data['token']
         img = Image.objects.get(pk=img_id)
         self.assertEqual(img.created_at, test_time)
-        self.assertEqual(img.orig_time, datetime(2018, 3, 11, 13, 21, 33, tzinfo=timezone.utc))
+        self.assertEqual(img.orig_time, datetime(2018, 3, 11, 13, 21, 33, tzinfo=timezone(timedelta(hours=8))))
         patch_async_tasks.assert_called_once_with(
             'api.tasks.upload_image',
             '/tmp/temp_image.jpg',
@@ -44,7 +44,7 @@ class PostImageViewTestCase(TestCase):
     @patch("django_q.tasks.async_task")
     def test_image_without_exif_db_correct(self, patch_async_tasks, _):
         cli = Client()
-        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
+        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8)))
         with freeze_time(test_time):
             with open(HERE / "20180311_132133.jpg", "rb") as f_img:
                 with patch('uuid.uuid4', return_value='temp_image'):
@@ -106,7 +106,7 @@ class PostImageViewTestCase(TestCase):
         self.assertEqual(img.image_path, fake_path)
         self.assertEqual(
             img.orig_time,
-            datetime.strptime(fake_datetime_str, "%Y:%m:%d %H:%M:%S").replace(tzinfo=timezone.utc),
+            datetime.strptime(fake_datetime_str, "%Y:%m:%d %H:%M:%S").replace(tzinfo=timezone(timedelta(hours=8))),
         )
         self.assertEqual(img.orig_lat, fake_lat)
         self.assertEqual(img.orig_lng, fake_lng)

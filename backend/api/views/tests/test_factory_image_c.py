@@ -1,5 +1,5 @@
 from uuid import uuid4
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from freezegun import freeze_time
 from django.test import TestCase, Client
@@ -18,7 +18,7 @@ class PostFactoryImageViewTestCase(TestCase):
             name="test_factory",
             lat=24,
             lng=121,
-            status_time=datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc),
+            status_time=datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8))),
             display_number=666,
         )
         self.nickname = "somebody"
@@ -30,7 +30,7 @@ class PostFactoryImageViewTestCase(TestCase):
         self.fake_datetime = datetime.strptime(
             self.fake_datetime_str,
             "%Y:%m:%d %H:%M:%S",
-        ).replace(tzinfo=timezone.utc)
+        ).replace(tzinfo=timezone(timedelta(hours=8)))
         self.post_body = {
             'url': self.fake_url,
             'Latitude': self.fake_lat,
@@ -41,7 +41,7 @@ class PostFactoryImageViewTestCase(TestCase):
         }
 
     def test_image_upload_db_correct(self):
-        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
+        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8)))
         with freeze_time(test_time):
             resp = self.cli.post(
                 f"/api/factories/{self.factory.id}/images",
