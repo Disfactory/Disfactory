@@ -24,11 +24,9 @@ services:
       DISFACTORY_BACKEND_LOG_LEVEL: info
       DISFACTORY_BACKEND_DEBUG: 'false'
     command:
-      - /bin/sh
+      - /bin/bash
       - -c
-      - |
-        python manage.py migrate
-        python manage.py runserver 0.0.0.0:8000
+      - "/Disfactory/scripts/start.sh"
 
   db:
     image: mdillon/postgis:11-alpine
@@ -56,8 +54,6 @@ services:
       DISFACTORY_ALLOWED_HOST: ${DISFACTORY_ALLOWED_HOST}
       DISFACTORY_IMGUR_CLIENT_ID: ''
     command:
-      - /bin/sh
+      - /bin/bash
       - -c
-      - |
-        python manage.py migrate
-        python manage.py qcluster
+      - "/Disfactory/scripts/start_worker.sh"
