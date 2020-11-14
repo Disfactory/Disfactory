@@ -23,7 +23,7 @@ Docker 與 docker-compose 可以協助你快速架設專案所需要的 Database
 
 ### API Framework
 
-- [Django](https://www.djangoproject.com/) - 目前使用 Django 2.x 版本 (最新版本為 3.x)
+- [Django](https://docs.djangoproject.com/en/2.0/ref/contrib/admin/) - 目前使用 Django 2.x 版本 (最新版本為 3.x)
 - [Django REST Framework](https://www.django-rest-framework.org/)
 
 ### Database
@@ -178,12 +178,6 @@ P.S
 #### 在本機端上安裝 PostgreSQL + PostGIS
 
 [手動設定 PostgreSQL 與 PostGIS](docs/SETUP_MANUAL.md)
-
-## 使用線上開發環境
-
-如果不想在本機端上開發的話，也可以嘗試使用線上的開發環境
-
-[用 Gitpod 立即設定線上開發環境](https://github.com/Disfactory/Disfactory/blob/master/docs/gitpod.md)
 
 ## 啟動 django server
 
