@@ -4,9 +4,7 @@
 
 ![logo](https://github.com/yoyo930021/Disfactory/raw/master/docs/images/Logo_Banner.png)
 
-[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/yoyo930021/Disfactory)
-
-(↑ gitpod 怎麼用？[看這裡](./docs/gitpod.md))
+### 前端的程式碼已經移到 [Disfactory/frontend](https://github.com/Disfactory/frontend)，這裡主要是放後端的程式碼，開發時請 cd 進 [backend/](backend/) 資料夾。
 
 - [跳坑首頁 (hackfoldr)](https://beta.hackfoldr.org/Disfactory)
 - [跳坑首頁 (HackMD)](https://g0v.hackmd.io/@yukaii/Disfactory)
