@@ -38,11 +38,7 @@ LOWER_CASE_NUMBERS = {
 }
 
 
-def ConvertToUpperCaseNumbers(number):
-    return ''.join(UPPER_CASE_NUMBERS[ch] for ch in str(number))
-
-
-def ConvertToLowerCaseNumbers(number):
+def to_lower_chinese_numbers(number):
     return ''.join(LOWER_CASE_NUMBERS[ch] for ch in str(number))
 
 
@@ -313,8 +309,7 @@ class FactoryReportDocumentWriter:
 
         images = Image.objects.only("id").filter(factory=self.factory)
         for index, image in enumerate(images, start=1):
-            generator.new(
-                self.document, f"附件 {ConvertToLowerCaseNumbers(index)}", 12)
+            generator.new(self.document, f"附件 {to_lower_chinese_numbers(index)}", 12)
             data = urlopen(image.image_path).read()
 
             image_data = PIL.Image.open(BytesIO(data))
