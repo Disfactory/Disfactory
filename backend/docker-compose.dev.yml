@@ -22,11 +22,9 @@ services:
       DISFACTORY_IMGUR_CLIENT_ID: ${DISFACTORY_IMGUR_CLIENT_ID}
       DISFACTORY_BACKEND_DEBUG: 'true'
     command:
-      - /bin/sh
+      - /bin/bash
       - -c
-      - |
-        python manage.py migrate
-        python manage.py runserver 0.0.0.0:8000
+      - "/Disfactory/scripts/start.sh"
 
   db:
     image: mdillon/postgis:11-alpine
@@ -59,10 +57,8 @@ services:
       DISFACTORY_IMGUR_CLIENT_ID: ${DISFACTORY_IMGUR_CLIENT_ID}
       DISFACTORY_BACKEND_DEBUG: 'true'
     command:
-      - /bin/sh
+      - /bin/bash
       - -c
-      - |
-        python manage.py migrate
-        python manage.py qcluster
+      - "/Disfactory/scripts/start_worker.sh"
 volumes:
   postgres_data:

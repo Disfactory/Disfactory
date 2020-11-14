@@ -11,12 +11,13 @@ WORKDIR /Disfactory
 RUN apt-get update
 RUN apt-get install -y binutils libproj-dev gdal-bin
 RUN pip install pipenv
+RUN pipenv --three
 
 COPY . /Disfactory/
 
 # Dev image
 FROM base AS dev
-RUN pipenv install --dev --system
+RUN pipenv install --system --dev
 
 # Prod image
 FROM base AS prod
