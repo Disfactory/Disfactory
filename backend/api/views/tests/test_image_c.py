@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from django.test import TestCase, Client
 from freezegun import freeze_time
@@ -19,14 +19,14 @@ class PostImageUrlViewTestCase(TestCase):
         fake_datetime = datetime.strptime(
             fake_datetime_str,
             "%Y:%m:%d %H:%M:%S",
-        ).replace(tzinfo=timezone.utc)
+        ).replace(tzinfo=timezone(timedelta(hours=8)))
         request_body = {
             'url': fake_url,
             'Latitude': fake_lat,
             'Longitude': fake_lng,
             'DateTimeOriginal': fake_datetime_str,
         }
-        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
+        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8)))
         with freeze_time(test_time):
             resp = self.cli.post(
                 "/api/images",
@@ -53,7 +53,7 @@ class PostImageUrlViewTestCase(TestCase):
             'Longitude': fake_lng,
             'DateTimeOriginal': fake_datetime_str,
         }
-        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
+        test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8)))
         with freeze_time(test_time):
             resp = self.cli.post(
                 "/api/images",
