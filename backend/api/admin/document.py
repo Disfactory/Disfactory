@@ -128,7 +128,7 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
         image_html_template = """
             <div class="imgbox">
                 <a href="{image_path}" target='_blank' class="center-fit">
-                    <img src={image_path} class="center-fit"/>
+                    <img src={image_path} class="center-fit" style="width: 100%; max-width: 400px; margin-bottom: 30px;" />
                 </a>
             </div>
         """
