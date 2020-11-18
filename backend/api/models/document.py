@@ -8,17 +8,16 @@ from users.models import CustomUser
 
 class DocumentDisplayStatusEnum:
 
-    CHOICES = list(
-        enumerate([
-            "已檢舉",
-            "已排程稽查",
-            "陳述意見期",
-            "已勒令停工",
-            "已發函斷電",
-            "已排程拆除",
-            "已拆除",
-            "不再追蹤",
-        ]))
+    CHOICES = list(enumerate([
+        "已檢舉",
+        "已排程稽查",
+        "陳述意見期",
+        "已勒令停工",
+        "已發函斷電",
+        "已排程拆除",
+        "已拆除",
+        "不再追蹤",
+    ]))
     INDICES = {val: idx for idx, val in CHOICES}
 
 
@@ -33,7 +32,6 @@ class CETReportStatus(models.Model):
         return self.name
 
 
-
 class CETNext(models.Model):
     name = models.CharField(max_length=64)
     description = models.TextField(null=True, blank=True)
@@ -45,7 +43,6 @@ class CETNext(models.Model):
         return self.name
 
 
-
 class GovResponseStatus(models.Model):
     name = models.CharField(max_length=64)
     description = models.TextField(null=True, blank=True)
@@ -55,7 +52,6 @@ class GovResponseStatus(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 class Document(SoftDeleteMixin):
@@ -106,16 +102,11 @@ class FollowUp(SoftDeleteMixin):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __unicode__(self):
-        return "#{}".format(self.id)
+        return f"#{self.id}"
 
     def __str__(self):
-        staff_name = "UNKNOWN"
-        if self.staff:
-            staff_name = self.staff.username
-
-        return "#{} - {} (created_at:{})".format(self.id, staff_name,
-                                                 self.created_at)
-
+        staff_name = self.staff.username if self.staff else "UNKNOWN"
+        return f"#{self.id} - {staff_name} (created_at:{self.created_at})"
 
 
 class RecycledDocument(Document):

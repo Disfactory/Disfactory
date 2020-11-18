@@ -8,6 +8,7 @@ import datetime
 from django.http import HttpResponse
 
 from api.models import Image
+from api.utils import set_function_attributes
 
 from docx import Document
 from docx.shared import Inches, Pt, Mm
@@ -37,31 +38,22 @@ LOWER_CASE_NUMBERS = {
 }
 
 
-def ConvertToUpperCaseNumbers(number):
-    return ''.join(map(lambda s: UPPER_CASE_NUMBERS[s], str(number)))
-
-
-def ConvertToLowerCaseNumbers(number):
-    return ''.join(map(lambda s: LOWER_CASE_NUMBERS[s], str(number)))
+def to_lower_chinese_numbers(number):
+    return ''.join(LOWER_CASE_NUMBERS[ch] for ch in str(number))
 
 
 def find_taiwan_legislator_name_by_location(lat, lng):
     try:
-        resp = requests.get(FIND_TAIWAN_LEGISLATOR_API,
-                            params={
-                                "lat": lat,
-                                "lng": lng
-                            })
-
+        resp = requests.get(
+            FIND_TAIWAN_LEGISLATOR_API,
+            params={"lat": lat, "lng": lng},
+        )
         data = resp.json()
-        if data:
-            return data[0].get('name', "UNKNOWN")
-        else:
-            return "UNKNOWN"
+        return data[0]['name'] if (data and 'name' in data[0]) else "UNKNOWN"
 
     except Exception as e:
         LOGGER.error(
-            f"Can't get the legislator information from {FIND_TAIWAN_LEGISLATOR_API} - {e}"
+            f"Can't get the legislator information from {FIND_TAIWAN_LEGISLATOR_API} - {e}",
         )
         return "UNKNOWN"
 
@@ -166,7 +158,9 @@ class FactoryReportDocumentWriter:
     def _generate_docx(self):
         self._init_document()
         legislator_name = find_taiwan_legislator_name_by_location(
-            lat=self.factory.lat, lng=self.factory.lng)
+            lat=self.factory.lat,
+            lng=self.factory.lng,
+        )
 
         # Cover
         self._original()
@@ -234,7 +228,7 @@ class FactoryReportDocumentWriter:
             f'發文字號：地球公民違字第 {serial} 號',
             '速別：普通件',
             '附件：舉證照片',
-            ''
+            '',
         ]
         # yapf: enable
 
@@ -280,16 +274,16 @@ class FactoryReportDocumentWriter:
             generator.new(self.document, line, 14)
 
     def _cc(self, legislator):
-        townname = self.factory.townname
-        if townname:
-            townname = townname[:3]
+        if self.factory.townname:
+            townname = self.factory.townname[:3]
         else:
             townname = "UNKNOWN"
 
         # yapf: enable
         context = [
-            '', f"正本：{townname}政府",
-            f"副本：內政部、行政院農委會、經濟部工業局、經濟部中部辦公室、立法委員{legislator}國會辦公室"
+            '',
+            f"正本：{townname}政府",
+            f"副本：內政部、行政院農委會、經濟部工業局、經濟部中部辦公室、立法委員{legislator}國會辦公室",
         ]
         # yapf: disable
 
@@ -315,8 +309,7 @@ class FactoryReportDocumentWriter:
 
         images = Image.objects.only("id").filter(factory=self.factory)
         for index, image in enumerate(images, start=1):
-            generator.new(
-                self.document, f"附件 {ConvertToLowerCaseNumbers(index)}", 12)
+            generator.new(self.document, f"附件 {to_lower_chinese_numbers(index)}", 12)
             data = urlopen(image.image_path).read()
 
             image_data = PIL.Image.open(BytesIO(data))
@@ -354,7 +347,6 @@ def merge_documents(documents):
         document.add_page_break()
 
     composer = Composer(documents[0])
-
     for document in documents[1:]:
         composer.append(document)
 
@@ -369,6 +361,8 @@ def export_document(document):
 
 
 class ExportDocMixin:
+
+    @set_function_attributes(short_description="輸出成 docx 檔")
     def export_as_docx(self, request, queryset):
         documents = generate_factories_document(list(queryset))
         merged_docment = merge_documents(documents)
@@ -379,11 +373,8 @@ class ExportDocMixin:
 
         response = HttpResponse(
             docx_file.getvalue(),
-            content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+            content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         )
-        response['Content-Disposition'] = 'attachment; filename=' + \
-            'api.factory.docx'
+        response['Content-Disposition'] = 'attachment; filename=api.factory.docx'
         response['Content-Length'] = length
         return response
-
-    export_as_docx.short_description = '輸出成 docx 檔'

@@ -12,6 +12,7 @@ from api.admin.actions import (
     ExportLabelMixin,
     GenerateDocsMixin,
 )
+from api.utils import set_function_attributes
 from rangefilter.filter import DateRangeFilter
 from mapwidgets.widgets import GooglePointFieldWidget
 
@@ -66,17 +67,13 @@ class FactoryFilteredByCounty(SimpleListFilter):
         return self.county_mappings
 
     def queryset(self, request, queryset):
-        county_dict = dict(self.county_mappings)
-
         if self.value():
+            county_dict = dict(self.county_mappings)
             county = county_dict[self.value()]
-            re_str = county
-            if "臺" in county:
-                re_str = county.replace("臺", "(台|臺)")
-
-            queryset = queryset.filter(townname__iregex=re_str)
-
-        return queryset
+            standardized_county = county.replace("臺", "(台|臺)")
+            return queryset.filter(townname__iregex=standardized_county)
+        else:
+            return queryset
 
 
 class DescriptionInline(admin.TabularInline):
@@ -138,26 +135,20 @@ class ImageInlineForFactory(admin.TabularInline):
     )
     extra = 0
 
+    @set_function_attributes(short_description="Contact")
     def get_report_contact(self, obj):
         return obj.report_record.contact
 
+    @set_function_attributes(short_description="Nickname")
     def get_report_nickname(self, obj):
         return obj.report_record.nickname
 
+    @set_function_attributes(short_description="Image Preview")
     def image_show(self, obj):
         return mark_safe(f'<img src="{obj.image_path}" style="max-width:500px; height:auto"/>')
 
-    image_show.short_description = "Image Preview"
-    get_report_nickname.short_description = "Nickname"
-    get_report_contact.short_description = "Contact"
 
-
-class FactoryAdmin(
-    admin.ModelAdmin,
-    ExportCsvMixin,
-    ExportLabelMixin,
-    GenerateDocsMixin,
-):
+class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, GenerateDocsMixin):
 
     list_display = (
         "id",
@@ -230,13 +221,11 @@ class FactoryAdmin(
         queryset = queryset.annotate(
             reportrecord_latest_created_at=Max("report_records__created_at")
         )
-
         return queryset
 
+    @set_function_attributes(admin_order_field="reportrecord_latest_created_at")
     def reportrecord_latest_created_at(self, obj):
         return obj.reportrecord_latest_created_at
-
-    reportrecord_latest_created_at.admin_order_field = "reportrecord_latest_created_at"
 
 
 class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):
@@ -251,7 +240,6 @@ class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):
 
     inlines = [ImageInlineForFactory, ReportRecordInline]
 
+    @set_function_attributes(short_description="name")
     def get_name(self, obj):
         return obj.name or "_"
-
-    get_name.short_description = "name"

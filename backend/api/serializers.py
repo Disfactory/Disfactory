@@ -61,9 +61,10 @@ class FactorySerializer(ModelSerializer):
 
     def get_reported_at(self, obj):
         report_records = ReportRecord.objects.only("created_at").filter(factory=obj)
-        if len(report_records) == 0:
-            return None
-        return max(record.created_at for record in report_records)
+        return max(
+            (record.created_at for record in report_records),
+            default=None,
+        )
 
     def get_data_complete(self, obj):
         # has_photo and reported_within_1_year and (not before_release or has_type)
@@ -84,11 +85,10 @@ class FactorySerializer(ModelSerializer):
 
     def get_document_display_status(self, obj):
         latestDocument = Document.objects.only("display_status").filter(factory=obj).order_by("-created_at")
-
-        if len(latestDocument) == 0:
-            return None
-        else:
-            return latestDocument[0].get_display_status_display()
+        return (
+            latestDocument[0].get_display_status_display() if len(latestDocument) > 0
+            else None
+        )
 
     def validate_lat(self, value):
         if not (settings.TAIWAN_MIN_LATITUDE <= value <= settings.TAIWAN_MAX_LATITUDE):
