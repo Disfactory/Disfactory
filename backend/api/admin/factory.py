@@ -15,6 +15,7 @@ from api.admin.actions import (
 from api.utils import set_function_attributes
 from rangefilter.filter import DateRangeFilter
 from mapwidgets.widgets import GooglePointFieldWidget
+from import_export.admin import ImportExportModelAdmin
 
 
 class FactoryWithReportRecords(DateRangeFilter):
@@ -148,8 +149,12 @@ class ImageInlineForFactory(admin.TabularInline):
         return mark_safe(f'<img src="{obj.image_path}" style="max-width:500px; height:auto"/>')
 
 
-class FactoryAdmin(admin.ModelAdmin, ExportCsvMixin, ExportLabelMixin, GenerateDocsMixin):
-
+class FactoryAdmin(
+    ImportExportModelAdmin,
+    ExportCsvMixin,
+    ExportLabelMixin,
+    GenerateDocsMixin,
+):
     list_display = (
         "id",
         "display_number",

@@ -3,6 +3,8 @@ from django.utils.html import format_html
 from api.models import Document, DocumentDisplayStatusEnum, FollowUp, Image
 from api.admin.actions import ExportDocMixin
 from api.utils import set_function_attributes
+from import_export.admin import ImportExportModelAdmin
+from import_export import resources
 
 
 class FollowUpInline(admin.StackedInline):
@@ -12,8 +14,13 @@ class FollowUpInline(admin.StackedInline):
     exclude = ['deleted_at']
     fields = ['note']
 
+class DocumentResource(resources.ModelResource):
+    class Meta:
+        model = Document
 
-class DocumentAdmin(admin.ModelAdmin, ExportDocMixin):
+
+class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
+    resource_class = DocumentResource
     class Media:
         js = []
         css = {"all": ["/static/css/document.css"]}
@@ -164,16 +171,19 @@ class DocumentAdmin(admin.ModelAdmin, ExportDocMixin):
         super().save_model(request, obj, form, change)
 
 
-class CETReportStatusAdmin(admin.ModelAdmin):
+class CETReportStatusAdmin(ImportExportModelAdmin):
     search_fields = ['name', ]
-    list_display = ['name']
+    list_display = ['id', 'name', 'description']
 
 
-class CETNextAdmin(admin.ModelAdmin):
+class CETNextAdmin(ImportExportModelAdmin):
     search_fields = ['name', ]
-    list_display = ['name']
+    list_display = ['id', 'name', 'description']
 
 
-class GovResponseStatusAdmin(admin.ModelAdmin):
+class GovResponseStatusAdmin(ImportExportModelAdmin):
     search_fields = ['name', ]
-    list_display = ['name']
+    list_display = ['id', 'name', 'description']
+
+class FollowUpAdmin(ImportExportModelAdmin):
+    pass

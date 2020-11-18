@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     "rangefilter",
     "mapwidgets",
     "drf_yasg",
+    "import_export",
 
     # Local
     "users.apps.UsersConfig",
