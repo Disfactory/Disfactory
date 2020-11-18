@@ -9,16 +9,16 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /Disfactory
 
 RUN apt-get update
-RUN apt-get install -y binutils libproj-dev gdal-bin
-RUN pip install pipenv
-RUN pipenv --three
+RUN apt-get install -y binutils libproj-dev gdal-bin curl
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+RUN poetry config virtualenvs.create false
 
 COPY . /Disfactory/
 
 # Dev image
 FROM base AS dev
-RUN pipenv install --system --dev
+RUN poetry install
 
 # Prod image
 FROM base AS prod
-RUN pipenv install --system
+RUN poetry install --no-dev
