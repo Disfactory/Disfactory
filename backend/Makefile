@@ -1,4 +1,5 @@
 .DEFAULT_GOAL := all
+-include $(ROOT_DIR)/.env
 
 .PHONY: unittest
 unittest:
@@ -18,6 +19,10 @@ run-dev:
 .PHONY: run-db
 run-db:
 	docker-compose -f docker-compose.dev.yml run --service-ports -d db
+
+.PHONY: run-db-backup
+run-db-backup:
+	docker-compose exec db bash -c 'pg_dump -d $(DISFACTORY_BACKEND_DEFAULT_DB_NAME) -U $(DISFACTORY_BACKEND_DEFAULT_DB_USER) -F t > /tmp/db_dump/`date +"%Y%m%d%H%M%S"`.tar'
 
 .PHONY: clean
 clean:

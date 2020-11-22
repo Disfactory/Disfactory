@@ -29,7 +29,8 @@ services:
   db:
     image: mdillon/postgis:11-alpine
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - ${DISFACTORY_PGDATA_PATH}:/var/lib/postgresql/data/
+      - ${DISFACTORY_PGDATA_BACKUP_PATH}:/tmp/db_dump/
     ports:
       - ${DISFACTORY_BACKEND_DEFAULT_DB_DEV_PORT}:5432
     environment:
@@ -60,5 +61,3 @@ services:
       - /bin/bash
       - -c
       - "/Disfactory/scripts/start_worker.sh"
-volumes:
-  postgres_data:
