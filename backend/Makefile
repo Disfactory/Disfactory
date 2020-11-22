@@ -16,6 +16,18 @@ run:
 run-dev:
 	docker-compose -f docker-compose.dev.yml up -d
 
+.PHONY: logs
+logs:
+	docker-compose -f docker-compose.yml logs -f
+
+.PHONY: logs-dev
+logs-dev:
+	docker-compose -f docker-compose.dev.yml logs -f
+
+.PHONY: clean-dev
+clean-dev:
+	docker-compose -f docker-compose.dev.yml down
+
 .PHONY: run-db
 run-db:
 	docker-compose -f docker-compose.dev.yml run --service-ports -d db
