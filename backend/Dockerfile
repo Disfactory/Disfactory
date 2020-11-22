@@ -1,5 +1,5 @@
 # Pull base image
-FROM python:3.7-slim AS base
+FROM python:3.7 AS base
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE 1
@@ -9,10 +9,11 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /Disfactory
 
 RUN apt-get update
-RUN apt-get install -y binutils libproj-dev gdal-bin curl
+RUN apt-get install -y libproj-dev gdal-bin binutils curl
+# RUN wget --quiet --output-document=- http://ftp.debian.org/debian/pool/main/c/curl/libcurl4_7.72.0-1_amd64.deb | dpkg --install -
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+ENV PATH "${PATH}:/root/.poetry/bin"
 RUN poetry config virtualenvs.create false
-
 COPY . /Disfactory/
 
 # Dev image

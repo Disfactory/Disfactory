@@ -67,7 +67,6 @@ INSTALLED_APPS = [
     "rest_framework",
     "corsheaders",
     "django_q",
-    "django_db_logger",
     "rangefilter",
     "mapwidgets",
     "drf_yasg",
@@ -79,10 +78,10 @@ INSTALLED_APPS = [
 ]
 
 if DEBUG:
-    DJANGO_LOGGER_HANDLER = ["file", "console", "db"]
+    DJANGO_LOGGER_HANDLER = ["file", "console"]
 else:
     DJANGO_LOGGER_HANDLER = [
-        "db", "file", "console"
+        "file", "console"
     ]  # no need to log to console and file since we cannot access both on middle2
 LOGGING = {
     "version": 1,
@@ -103,9 +102,6 @@ LOGGING = {
             },
             "console": {
                 "class": "logging.StreamHandler",
-            },
-            "db": {
-                'class': 'django_db_logger.db_log_handler.DatabaseLogHandler',
             },
         },
     "loggers":
@@ -210,11 +206,6 @@ POSTGIS_SRID = 3857
 # ref: https://epsg.io/3857
 
 IMGUR_CLIENT_ID = os.environ.get("DISFACTORY_IMGUR_CLIENT_ID")
-if IMGUR_CLIENT_ID is None:
-    warnings.warn(
-        "Imgur Client ID is not provided, some image related API may not work. "
-        "To enable it, provide DISFACTORY_IMGUR_CLIENT_ID as a environment variable."
-    )
 
 DEFAULT_CORS_ORIGIN_WHITELIST = [
     "https://dev.disfactory.tw",

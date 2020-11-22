@@ -202,18 +202,6 @@ Django = ">=2.2"
 
 [[package]]
 category = "main"
-description = "Django logging in database"
-name = "django-db-logger"
-optional = false
-python-versions = "*"
-version = "0.1.10"
-
-[package.dependencies]
-django = ">=1.6"
-six = "*"
-
-[[package]]
-category = "main"
 description = "Django application and library for importing and exporting data with included admin integration."
 name = "django-import-export"
 optional = false
@@ -225,7 +213,7 @@ Django = ">=2.0"
 diff-match-patch = "*"
 
 [package.dependencies.tablib]
-extras = ["xlsx", "html", "ods", "xls", "yaml"]
+extras = ["yaml", "xls", "ods", "html", "xlsx"]
 version = ">=0.14.0"
 
 [[package]]
@@ -886,7 +874,7 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["jaraco.itertools", "func-timeout"]
 
 [metadata]
-content-hash = "52913aefa2512852d13a5a0cac428e88651bf575686798f74bb01349dbda0536"
+content-hash = "91ef80b418ce9ce34825bb466e23532bd1d8c1f01f946e067e3cfc94bb3871cf"
 python-versions = "^3.6"
 
 [metadata.files]
@@ -960,10 +948,6 @@ django-admin-rangefilter = [
 django-cors-headers = [
     {file = "django-cors-headers-3.5.0.tar.gz", hash = "sha256:db82b2840f667d47872ae3e4a4e0a0d72fbecb42779b8aa233fa8bb965f7836a"},
     {file = "django_cors_headers-3.5.0-py3-none-any.whl", hash = "sha256:9322255c296d5f75089571f29e520c83ff9693df17aa3cf9f6a4bea7c6740169"},
-]
-django-db-logger = [
-    {file = "django-db-logger-0.1.10.tar.gz", hash = "sha256:0853fd3e790356140defc92a9b4001d83c5da88b703cc902a2f5f5b0b1246fc7"},
-    {file = "django_db_logger-0.1.10-py3-none-any.whl", hash = "sha256:99151840cc660fc3ed1a9969ede1d12aab9c364cc714dd1a5ee338594d182bad"},
 ]
 django-import-export = [
     {file = "django-import-export-2.4.0.tar.gz", hash = "sha256:401d76eca0a5c6cf43bffed16c06e509b9044ce8f6bcff264b776e3952830f1a"},
