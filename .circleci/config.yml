@@ -120,12 +120,14 @@ jobs:
          path: ~/Disfactory
       - restore_cache:
           keys:
-            - disfactory-backend-cache-191118-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+            - disfactory-backend-cache-191118-{{ .Branch }}-{{ checksum "poetry.lock" }}
             - disfactory-backend-cache-191118-{{ .Branch }}
-
+      - run: 
+          name: Install poetry
+          command: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
       - run:
           name: Install
-          command: pipenv install --dev
+          command: poetry install
       - run:
           name: Install GDAL
           command: |
@@ -140,7 +142,7 @@ jobs:
       # TODO: fuck you black. Use flake8 or pylint instead
       - run:
           name: Unittest
-          command: pipenv run python manage.py test -v 2
+          command: poetry run python manage.py test -v 2
       - save_cache:
           paths:
             - ".venv"
