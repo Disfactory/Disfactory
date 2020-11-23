@@ -1,3 +1,4 @@
+from api.models.document import Document
 from django.db.models import Max
 
 from django.contrib import admin
@@ -16,6 +17,8 @@ from api.utils import set_function_attributes
 from rangefilter.filter import DateRangeFilter
 from mapwidgets.widgets import GooglePointFieldWidget
 from import_export.admin import ImportExportModelAdmin
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 
 class FactoryWithReportRecords(DateRangeFilter):
@@ -112,6 +115,34 @@ class ReportRecordInline(admin.TabularInline):
         "id",
     )
     extra = 0
+
+class DocumentInline(admin.TabularInline):
+    model = Document
+    fields = (
+        "code_link",
+        "cet_staff",
+        "display_status",
+        "get_cet_next_tags"
+    )
+    readonly_fields = (
+        "code_link",
+        "cet_staff",
+        "display_status",
+        "get_cet_next_tags"
+    )
+    extra = 0
+
+    def code_link(self, obj):
+        return mark_safe('<a href="{}">{}</a>'.format(
+            reverse("admin:api_document_change", args=(obj.id,)),
+            obj.code
+        ))
+
+    def get_cet_next_tags(self, obj):
+        return ",".join([p.name for p in obj.cet_next_tags.all()])
+
+    def display_status(self, obj):
+        return ",".join([p.name for p in obj.display_status_tags.all()])
 
 
 class ImageInlineForFactory(admin.TabularInline):
@@ -219,7 +250,7 @@ class FactoryAdmin(
         ),
     )
 
-    inlines = [DescriptionInline, ImageInlineForFactory, ReportRecordInline]
+    inlines = [DescriptionInline, ImageInlineForFactory, ReportRecordInline, DocumentInline]
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
