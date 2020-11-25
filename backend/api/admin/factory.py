@@ -3,8 +3,7 @@ from django.db.models import Max
 
 from django.contrib import admin
 from django.contrib.admin import SimpleListFilter
-from django.utils.html import mark_safe
-from django.contrib.gis.db import models
+from django.utils.html import format_html
 
 from api.models import ReportRecord, Image
 from api.admin.actions import (
@@ -15,7 +14,6 @@ from api.admin.actions import (
 )
 from api.utils import set_function_attributes
 from rangefilter.filter import DateRangeFilter
-from mapwidgets.widgets import GooglePointFieldWidget
 from import_export.admin import ImportExportModelAdmin
 from django.urls import reverse
 from django.utils.safestring import mark_safe
@@ -116,27 +114,19 @@ class ReportRecordInline(admin.TabularInline):
     )
     extra = 0
 
+
 class DocumentInline(admin.TabularInline):
     model = Document
-    fields = (
-        "code_link",
-        "cet_staff",
-        "display_status",
-        "get_cet_next_tags"
-    )
-    readonly_fields = (
-        "code_link",
-        "cet_staff",
-        "display_status",
-        "get_cet_next_tags"
-    )
+    fields = ("code_link", "cet_staff", "display_status", "get_cet_next_tags")
+    readonly_fields = ("code_link", "cet_staff", "display_status", "get_cet_next_tags")
     extra = 0
 
     def code_link(self, obj):
-        return mark_safe('<a href="{}">{}</a>'.format(
-            reverse("admin:api_document_change", args=(obj.id,)),
-            obj.code
-        ))
+        return mark_safe(
+            '<a href="{}">{}</a>'.format(
+                reverse("admin:api_document_change", args=(obj.id,)), obj.code
+            )
+        )
 
     def get_cet_next_tags(self, obj):
         return ",".join([p.name for p in obj.cet_next_tags.all()])
@@ -216,9 +206,7 @@ class FactoryAdmin(
         "generate_docs",
     ]
 
-    formfield_overrides = {models.PointField: {"widget": GooglePointFieldWidget}}
-
-    readonly_fields = ("id", "display_number", "created_at", "updated_at")
+    readonly_fields = ("id", "display_number", "created_at", "updated_at", "google_map_link")
     fieldsets = (
         (
             None,
@@ -240,7 +228,7 @@ class FactoryAdmin(
                     ("townname", "landcode"),
                     ("sectname", "sectcode"),
                     ("lng", "lat"),
-                    "point",
+                    "google_map_link",
                     "factory_type",
                     "name",
                     ("created_at", "updated_at"),
@@ -262,6 +250,14 @@ class FactoryAdmin(
     @set_function_attributes(admin_order_field="reportrecord_latest_created_at")
     def reportrecord_latest_created_at(self, obj):
         return obj.reportrecord_latest_created_at
+
+    @set_function_attributes(short_description="Google Map 連結")
+    def google_map_link(self, obj):
+        html_template = (
+            "<a href='http://www.google.com/maps/place/{lat},{lng}' target='_blank'>Link</a>"
+        )
+
+        return format_html(html_template.format(lat=obj.lat, lng=obj.lng))
 
 
 class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):
