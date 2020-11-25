@@ -23,4 +23,4 @@ class Review(SoftDeleteMixin):
         related_name="reviews",
     )
     created_at = models.DateTimeField(auto_now_add=True)
-    reason = models.TextField(help_text='')
+    reason = models.TextField(help_text="")

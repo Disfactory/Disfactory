@@ -25,7 +25,6 @@ class ReportRecord(SoftDeleteMixin):
 
 
 class RecycledReportRecord(ReportRecord):
-
     class Meta:
         proxy = True
 

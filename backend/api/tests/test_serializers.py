@@ -8,7 +8,6 @@ from ..models import Factory, ReportRecord, Image
 
 
 class FactorySerializersTestCase(TestCase):
-
     def setUp(self):
         self.im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
         self.im2 = Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
@@ -49,12 +48,12 @@ class FactorySerializersTestCase(TestCase):
             action_body={},
             contact="0800-092000",
             others="猴～被我拍到了吧",
-            created_at=factory.created_at + timedelta(seconds=1)
+            created_at=factory.created_at + timedelta(seconds=1),
         )
         im1 = Image.objects.create(
             image_path="https://i.imgur.com/RxArJUc.png",
             factory=factory,
-            report_record=report_record1
+            report_record=report_record1,
         )
         report_record2 = ReportRecord.objects.create(
             factory=factory,
@@ -75,7 +74,7 @@ class FactorySerializersTestCase(TestCase):
             action_body={"status": "D"},
             contact="02-2392-0371",
             others="已呈報",
-            created_at=factory.created_at + timedelta(days=2)
+            created_at=factory.created_at + timedelta(days=2),
         )  # this one should be the `reported_at` of serialized factory
         factory.refresh_from_db()
         serialized_factory = FactorySerializer(factory)
@@ -83,10 +82,13 @@ class FactorySerializersTestCase(TestCase):
             serialized_factory.data["reported_at"],
             report_record_latest.created_at,
         )
-        self.assertCountEqual(serialized_factory.data["images"], [
-            ImageSerializer(im1).data,
-            ImageSerializer(im2).data,
-        ])
+        self.assertCountEqual(
+            serialized_factory.data["images"],
+            [
+                ImageSerializer(im1).data,
+                ImageSerializer(im2).data,
+            ],
+        )
 
     def test_factory_serializer_validate_body(self):
         serializer = FactorySerializer(data=self.request_body)
@@ -334,9 +336,8 @@ class FactorySerializersTestCase(TestCase):
 
 
 class ImageSerializersTestCase(TestCase):
-
     def test_image_serializer_coorect_url(self):
         img = Image(image_path="https://imgur.com/qwer")
         serialized_img = ImageSerializer(img)
 
-        self.assertEqual(serialized_img.data['url'], img.image_path)
+        self.assertEqual(serialized_img.data["url"], img.image_path)

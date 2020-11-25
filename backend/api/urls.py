@@ -21,7 +21,6 @@ from .views import (
     get_factory_report,
     post_image_url,
     post_factory_image_url,
-
     # to be deprecated
     post_image,
     post_factory_image,
@@ -33,7 +32,6 @@ urlpatterns = [
     path("factories/<factory_id>/report_records", get_factory_report),
     path("factories/<factory_id>/images", post_factory_image_url),
     path("images", post_image_url),
-
     # to be deprecated, these are direct image upload api
     path("legacy/factories/<factory_id>/images", post_factory_image),
     path("legacy/images", post_image),

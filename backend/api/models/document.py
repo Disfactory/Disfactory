@@ -8,16 +8,20 @@ from users.models import CustomUser
 
 class DocumentDisplayStatusEnum:
 
-    CHOICES = list(enumerate([
-        "已檢舉",
-        "已排程稽查",
-        "陳述意見期",
-        "已勒令停工",
-        "已發函斷電",
-        "已排程拆除",
-        "已拆除",
-        "不再追蹤",
-    ]))
+    CHOICES = list(
+        enumerate(
+            [
+                "已檢舉",
+                "已排程稽查",
+                "陳述意見期",
+                "已勒令停工",
+                "已發函斷電",
+                "已排程拆除",
+                "已拆除",
+                "不再追蹤",
+            ]
+        )
+    )
     INDICES = {val: idx for idx, val in CHOICES}
 
 

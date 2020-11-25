@@ -20,9 +20,7 @@ def get_session():
     # sess.headers.update({"User-Agent": "Mozilla/5.0"})
     resp = sess.get(easymap_url)
     if "JSESSIONID" not in sess.cookies:
-        raise WebRequestError(
-            "Failed getting session from easymap", resp.status_code, resp.text
-        )
+        raise WebRequestError("Failed getting session from easymap", resp.status_code, resp.text)
     return sess
 
 

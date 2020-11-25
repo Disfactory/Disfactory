@@ -11,7 +11,6 @@ FAKE_IMGUR_PATH = "https://i.imgur.com/RxArJUc.png"
 
 
 class PostFactoryImageViewTestCase(TestCase):
-
     def setUp(self):
         self.cli = Client()
         self.factory = Factory.objects.create(
@@ -23,7 +22,7 @@ class PostFactoryImageViewTestCase(TestCase):
         )
         self.nickname = "somebody"
         self.contact = "0900000000"
-        self.fake_url = 'https://i.imgur.com/123456.png'
+        self.fake_url = "https://i.imgur.com/123456.png"
         self.fake_lat = 23.12
         self.fake_lng = 121.5566
         self.fake_datetime_str = "2020:03:21 12:33:59"
@@ -32,12 +31,12 @@ class PostFactoryImageViewTestCase(TestCase):
             "%Y:%m:%d %H:%M:%S",
         ).replace(tzinfo=timezone(timedelta(hours=8)))
         self.post_body = {
-            'url': self.fake_url,
-            'Latitude': self.fake_lat,
-            'Longitude': self.fake_lng,
-            'DateTimeOriginal': self.fake_datetime_str,
-            'nickname': self.nickname,
-            'contact': self.contact,
+            "url": self.fake_url,
+            "Latitude": self.fake_lat,
+            "Longitude": self.fake_lng,
+            "DateTimeOriginal": self.fake_datetime_str,
+            "nickname": self.nickname,
+            "contact": self.contact,
         }
 
     def test_image_upload_db_correct(self):
@@ -52,7 +51,7 @@ class PostFactoryImageViewTestCase(TestCase):
         self.assertEqual(resp.status_code, 200)
         resp_data = resp.json()
 
-        img_id = resp_data['id']
+        img_id = resp_data["id"]
         img = Image.objects.get(pk=img_id)
         self.assertEqual(img.image_path, self.fake_url)
         self.assertEqual(img.created_at, test_time)
@@ -71,11 +70,11 @@ class PostFactoryImageViewTestCase(TestCase):
 
     def test_return_400_if_url_not_provided(self):
         wrong_body = {
-            'Latitude': self.fake_lat,
-            'Longitude': self.fake_lng,
-            'DateTimeOriginal': self.fake_datetime_str,
-            'nickname': self.nickname,
-            'contact': self.contact,
+            "Latitude": self.fake_lat,
+            "Longitude": self.fake_lng,
+            "DateTimeOriginal": self.fake_datetime_str,
+            "nickname": self.nickname,
+            "contact": self.contact,
         }
         resp = self.cli.post(
             f"/api/factories/{self.factory.id}/images",
@@ -95,5 +94,5 @@ class PostFactoryImageViewTestCase(TestCase):
         )
 
         self.assertEqual(resp.status_code, 400)
-        expected_msg = f'Factory ID {not_exist_factory_id} does not exist.'
-        self.assertEqual(resp.content, expected_msg.encode('utf8'))
+        expected_msg = f"Factory ID {not_exist_factory_id} does not exist."
+        self.assertEqual(resp.content, expected_msg.encode("utf8"))

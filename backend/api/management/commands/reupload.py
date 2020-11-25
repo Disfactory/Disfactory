@@ -12,10 +12,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for img in Image.objects.all():
-            if 'https://i.imgur.com' not in img.image_path:
+            if "https://i.imgur.com" not in img.image_path:
                 image_path_on_server = os.path.join(
                     settings.MEDIA_ROOT,
-                    img.image_path.split('/')[-1],
+                    img.image_path.split("/")[-1],
                 )
                 success = upload_image(
                     image_path_on_server,
@@ -23,6 +23,6 @@ class Command(BaseCommand):
                     img.id,
                 )
                 if not success:
-                    raise CommandError(f'Uploading image {img.id} failed.')
+                    raise CommandError(f"Uploading image {img.id} failed.")
 
-        self.stdout.write(self.style.SUCCESS('Successfully uploading all images to imgur'))
+        self.stdout.write(self.style.SUCCESS("Successfully uploading all images to imgur"))

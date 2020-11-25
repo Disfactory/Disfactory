@@ -27,10 +27,10 @@ def _get_nearby_factories(latitude, longitude, radius):
 
 def _get_client_ip(request):
     # ref: https://stackoverflow.com/a/30558984
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    x_forwarded_for = request.META.get("HTTP_X_FORWARDED_FOR")
     if x_forwarded_for:
-        return x_forwarded_for.split(',')[-1].strip()
-    elif request.META.get('HTTP_X_REAL_IP'):
-        return request.META.get('HTTP_X_REAL_IP')
+        return x_forwarded_for.split(",")[-1].strip()
+    elif request.META.get("HTTP_X_REAL_IP"):
+        return request.META.get("HTTP_X_REAL_IP")
     else:
-        return request.META.get('REMOTE_ADDR')
+        return request.META.get("REMOTE_ADDR")

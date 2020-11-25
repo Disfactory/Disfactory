@@ -73,7 +73,9 @@ class Factory(SoftDeleteMixin):
         blank=True,
         null=True,
     )
-    before_release = models.BooleanField(default=False)  # 從 full-info.csv 匯入的那些都是 True ，使用者新增的通通是 False
+    before_release = models.BooleanField(
+        default=False
+    )  # 從 full-info.csv 匯入的那些都是 True ，使用者新增的通通是 False
     source = models.CharField(
         max_length=1,
         choices=source_list,
@@ -108,7 +110,6 @@ class Factory(SoftDeleteMixin):
 
 
 class RecycledFactory(Factory):
-
     class Meta:
         proxy = True
 

@@ -16,7 +16,7 @@ from .utils import _get_client_ip
 
 from django.core.exceptions import ObjectDoesNotExist
 
-LOGGER = logging.getLogger('django')
+LOGGER = logging.getLogger("django")
 
 
 def _handle_get_factory_attributes(request, factory_id):
@@ -86,22 +86,16 @@ def _handle_update_factory_attributes(request, factory_id):
 
 @swagger_auto_schema(
     method="get",
-    operation_summary='取得指定 id 的工廠資料',
-    responses={
-        200: openapi.Response('工廠資料', FactorySerializer),
-        400: "request failed"
-    }
+    operation_summary="取得指定 id 的工廠資料",
+    responses={200: openapi.Response("工廠資料", FactorySerializer), 400: "request failed"},
 )
 @swagger_auto_schema(
     method="put",
-    operation_summary='更新指定 id 的工廠資料',
+    operation_summary="更新指定 id 的工廠資料",
     request_body=FactorySerializer,
-    responses={
-        200: openapi.Response('更新後的工廠資料', FactorySerializer),
-        400: "request failed"
-    }
+    responses={200: openapi.Response("更新後的工廠資料", FactorySerializer), 400: "request failed"},
 )
-@api_view(['PUT', 'GET'])
+@api_view(["PUT", "GET"])
 def update_factory_attribute(request, factory_id):
     if request.method == "PUT":
         return _handle_update_factory_attributes(request, factory_id)

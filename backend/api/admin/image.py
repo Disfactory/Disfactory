@@ -4,25 +4,25 @@ from api.admin.actions import ExportCsvMixin, RestoreMixin
 
 class ImageAdmin(admin.ModelAdmin, ExportCsvMixin):
     list_display = (
-        'created_at',
-        'image_path',
-        'orig_time',
-        'factory',
-        'report_record',
-        'id',
+        "created_at",
+        "image_path",
+        "orig_time",
+        "factory",
+        "report_record",
+        "id",
     )
-    raw_id_fields = ('factory', )
-    ordering = ['orig_time', '-created_at']
+    raw_id_fields = ("factory",)
+    ordering = ["orig_time", "-created_at"]
     actions = ["export_as_csv"]
 
 
 class RecycledImageAdmin(admin.ModelAdmin, RestoreMixin):
     list_display = (
-        'deleted_at',
-        'image_path',
-        'factory',
-        'report_record',
-        'id',
+        "deleted_at",
+        "image_path",
+        "factory",
+        "report_record",
+        "id",
     )
     actions = ["restore"]
-    ordering = ['-deleted_at']
+    ordering = ["-deleted_at"]

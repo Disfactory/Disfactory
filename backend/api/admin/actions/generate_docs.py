@@ -19,7 +19,6 @@ def choose_cet_staff(townname):
 
 
 class GenerateDocsMixin:
-
     @set_function_attributes(short_description="產生公文")
     def generate_docs(self, request, queryset):
         user = request.user

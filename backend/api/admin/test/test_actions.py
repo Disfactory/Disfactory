@@ -54,7 +54,7 @@ TEST_FACTORY_DATA = [
         "status_time": datetime.datetime.now(),
         "display_number": 777,
         "townname": "新北市三峽路中山區",
-    }
+    },
 ]
 
 
@@ -62,7 +62,7 @@ class ModelAdminTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.superuser = User.objects.create_superuser(
-            username='super', password='secret', email='super@example.com'
+            username="super", password="secret", email="super@example.com"
         )
 
         factories = []
@@ -70,7 +70,7 @@ class ModelAdminTests(TestCase):
             # Insert images
             images = [
                 Image.objects.create(image_path=image_path)
-                for image_path in data.pop('images', [])
+                for image_path in data.pop("images", [])
             ]
 
             # Create factory
@@ -90,7 +90,7 @@ class ModelAdminTests(TestCase):
 
     def test_modeladmin_str(self):
         ma = ModelAdmin(Factory, self.site)
-        self.assertEqual(str(ma), 'api.ModelAdmin')
+        self.assertEqual(str(ma), "api.ModelAdmin")
 
     def test_export_doc_action(self):
         # Remove all document models
@@ -98,30 +98,32 @@ class ModelAdminTests(TestCase):
 
         # Generate document model for factory
         document_request = {
-            'action': 'generate_docs',
-            'select_across': 0,
-            'index': 0,
-            '_selected_action': str(self.factories[0].id)
+            "action": "generate_docs",
+            "select_across": 0,
+            "index": 0,
+            "_selected_action": str(self.factories[0].id),
         }
 
         print(document_request)
-        response = self.client.post('/admin/api/factory/', document_request)
-        assert response.status_code == 302, f"status_code of generate_docs action should be 302 but {response.status_code}"
+        response = self.client.post("/admin/api/factory/", document_request)
+        assert (
+            response.status_code == 302
+        ), f"status_code of generate_docs action should be 302 but {response.status_code}"
 
         # Generate docx for document
         document_model_list = Document.objects.all()
         data = {
-            'action': 'export_as_docx',
-            'select_across': 0,
-            'index': 0,
-            '_selected_action': document_model_list[0].id
+            "action": "export_as_docx",
+            "select_across": 0,
+            "index": 0,
+            "_selected_action": document_model_list[0].id,
         }
 
-        response = self.client.post('/admin/api/document/', data)
+        response = self.client.post("/admin/api/document/", data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response['Content-Type'],
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            response["Content-Type"],
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
 
     def test_python_docx_workaround(self):
@@ -130,28 +132,30 @@ class ModelAdminTests(TestCase):
 
         # Generate document model for factory
         create_document_request = {
-            'action': 'generate_docs',
-            'select_across': 0,
-            'index': 0,
-            '_selected_action': self.factories[1].id
+            "action": "generate_docs",
+            "select_across": 0,
+            "index": 0,
+            "_selected_action": self.factories[1].id,
         }
-        response = self.client.post('/admin/api/factory/', create_document_request)
-        assert response.status_code == 302, f"status_code of generate_docs action should be 302 but {response.status_code}"
+        response = self.client.post("/admin/api/factory/", create_document_request)
+        assert (
+            response.status_code == 302
+        ), f"status_code of generate_docs action should be 302 but {response.status_code}"
 
         document_model_list = Document.objects.all()
         # python-docx can't parse some jpeg image correctly
         # https://github.com/python-openxml/python-docx/issues/187
         # So we use PIL to format the JPEG file to workaround this.
         data = {
-            'action': 'export_as_docx',
-            'select_across': 0,
-            'index': 0,
-            '_selected_action': document_model_list[0].id
+            "action": "export_as_docx",
+            "select_across": 0,
+            "index": 0,
+            "_selected_action": document_model_list[0].id,
         }
-        response = self.client.post('/admin/api/document/', data)
+        response = self.client.post("/admin/api/document/", data)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
-            response['Content-Type'],
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            response["Content-Type"],
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )

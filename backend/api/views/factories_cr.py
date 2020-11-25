@@ -17,7 +17,7 @@ from .utils import _get_nearby_factories, _get_client_ip
 from ..models import Factory, Image, ReportRecord
 from ..serializers import FactorySerializer
 
-LOGGER = logging.getLogger('django')
+LOGGER = logging.getLogger("django")
 
 
 def _in_taiwan(lat, lng):
@@ -91,7 +91,7 @@ def _handle_create_factory(request):
             status=400,
         )
 
-    image_ids = post_body.get('images', [])
+    image_ids = post_body.get("images", [])
     if not _all_image_id_exist(image_ids):
         LOGGER.warning(f"{user_ip} : <please check if every image id exist> ")
         return HttpResponse(
@@ -99,23 +99,23 @@ def _handle_create_factory(request):
             status=400,
         )
 
-    num = Factory.objects.aggregate(Max('display_number'))
+    num = Factory.objects.aggregate(Max("display_number"))
 
     new_factory_field = {
-        'name': post_body["name"],
-        'lat': post_body["lat"],
-        'lng': post_body["lng"],
-        'factory_type': post_body.get("type"),
-        'status_time': datetime.datetime.now(),
-        'display_number': num["display_number__max"] + 1,
+        "name": post_body["name"],
+        "lat": post_body["lat"],
+        "lng": post_body["lng"],
+        "factory_type": post_body.get("type"),
+        "status_time": datetime.datetime.now(),
+        "display_number": num["display_number__max"] + 1,
     }
 
     new_report_record_field = {
-        'user_ip': user_ip,
-        'action_type': "POST",
+        "user_ip": user_ip,
+        "action_type": "POST",
         "action_body": post_body,
-        'nickname': post_body.get("nickname"),
-        'contact': post_body.get("contact"),
+        "nickname": post_body.get("nickname"),
+        "contact": post_body.get("contact"),
         "others": post_body.get("others", ""),
     }
 
@@ -125,7 +125,9 @@ def _handle_create_factory(request):
             factory=new_factory,
             **new_report_record_field,
         )
-        Image.objects.filter(id__in=image_ids).update(factory=new_factory, report_record=report_record)
+        Image.objects.filter(id__in=image_ids).update(
+            factory=new_factory, report_record=report_record
+        )
     serializer = FactorySerializer(new_factory)
     LOGGER.info(
         f"{user_ip}: <Create new factory> at {(post_body['lng'], post_body['lat'])} "
@@ -137,31 +139,28 @@ def _handle_create_factory(request):
 
 @swagger_auto_schema(
     method="get",
-    operation_summary='得到中心座標往外指定範圍的已有工廠資料',
-    responses={
-        200: openapi.Response('工廠資料', FactorySerializer),
-        400: "request failed"
-    },
+    operation_summary="得到中心座標往外指定範圍的已有工廠資料",
+    responses={200: openapi.Response("工廠資料", FactorySerializer), 400: "request failed"},
     manual_parameters=[
         openapi.Parameter(
-            name='lng',
+            name="lng",
             in_=openapi.IN_QUERY,
             description=f"{settings.TAIWAN_MIN_LONGITUDE} < lng < {settings.TAIWAN_MAX_LONGITUDE}",
             type=openapi.TYPE_NUMBER,
             required=True,
-            example="Custom Example Data"
+            example="Custom Example Data",
         ),
         openapi.Parameter(
-            name='lat',
+            name="lat",
             in_=openapi.IN_QUERY,
             description=f"{settings.TAIWAN_MIN_LATITUDE} < lat < {settings.TAIWAN_MAX_LATITUDE}",
             type=openapi.TYPE_NUMBER,
             required=True,
         ),
         openapi.Parameter(
-            name='range',
+            name="range",
             in_=openapi.IN_QUERY,
-            description='km',
+            description="km",
             type=openapi.TYPE_NUMBER,
             required=True,
         ),
@@ -169,12 +168,9 @@ def _handle_create_factory(request):
 )
 @swagger_auto_schema(
     method="post",
-    operation_summary='新增指定 id 的工廠欄位資料',
+    operation_summary="新增指定 id 的工廠欄位資料",
     request_body=FactorySerializer,
-    responses={
-        200: openapi.Response('新增的工廠資料', FactorySerializer),
-        400: "request failed"
-    },
+    responses={200: openapi.Response("新增的工廠資料", FactorySerializer), 400: "request failed"},
 )
 @api_view(["GET", "POST"])
 def get_nearby_or_create_factories(request):

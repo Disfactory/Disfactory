@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import pathlib
-import warnings
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -60,7 +59,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-
     # for gis
     "django.contrib.gis",
     # 3rd party
@@ -71,7 +69,6 @@ INSTALLED_APPS = [
     "mapwidgets",
     "drf_yasg",
     "import_export",
-
     # Local
     "users.apps.UsersConfig",
     "api.apps.ApiConfig",
@@ -81,38 +78,33 @@ if DEBUG:
     DJANGO_LOGGER_HANDLER = ["file", "console"]
 else:
     DJANGO_LOGGER_HANDLER = [
-        "file", "console"
+        "file",
+        "console",
     ]  # no need to log to console and file since we cannot access both on middle2
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "formatters":
-        {
-            "basic": {
-                "format": "%(asctime)s [%(levelname)s] %(message)s (%(module)s %(lineno)d)"
-            }
+    "formatters": {
+        "basic": {"format": "%(asctime)s [%(levelname)s] %(message)s (%(module)s %(lineno)d)"}
+    },
+    "handlers": {
+        "file": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.environ.get("DISFACTORY_BACKEND_LOG_FILE", "./debug.log"),
+            "formatter": "basic",
         },
-    "handlers":
-        {
-            "file": {
-                "level": "INFO",
-                "class": "logging.FileHandler",
-                "filename": os.environ.get("DISFACTORY_BACKEND_LOG_FILE", "./debug.log"),
-                "formatter": "basic",
-            },
-            "console": {
-                "class": "logging.StreamHandler",
-            },
+        "console": {
+            "class": "logging.StreamHandler",
         },
-    "loggers":
-        {
-            "django":
-                {
-                    "handlers": DJANGO_LOGGER_HANDLER,
-                    "level": os.environ.get("DISFACTORY_BACKEND_LOG_LEVEL", "INFO"),
-                    "propagate": True,
-                },
+    },
+    "loggers": {
+        "django": {
+            "handlers": DJANGO_LOGGER_HANDLER,
+            "level": os.environ.get("DISFACTORY_BACKEND_LOG_LEVEL", "INFO"),
+            "propagate": True,
         },
+    },
 }
 
 MIDDLEWARE = [
@@ -150,33 +142,24 @@ WSGI_APPLICATION = "gis_project.wsgi.application"
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
 DATABASES = {
-    "default":
-        {
-            "ENGINE": "django.contrib.gis.db.backends.postgis",
-            "NAME": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_NAME", "postgres"),
-            "USER": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_USER", "postgres"),
-            "PASSWORD": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD", "postgres"),
-            "HOST": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_HOST", "db"),
-            "PORT": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PORT", 5432),
-        }
+    "default": {
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "NAME": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_NAME", "postgres"),
+        "USER": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_USER", "postgres"),
+        "PASSWORD": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD", "postgres"),
+        "HOST": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_HOST", "db"),
+        "PORT": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PORT", 5432),
+    }
 }
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"
-    },
+    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
+    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
+    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
 
 # Internationalization
@@ -197,7 +180,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static'),
+    os.path.join(BASE_DIR, "static"),
 ]
 
 AUTH_USER_MODEL = "users.CustomUser"
@@ -211,11 +194,11 @@ DEFAULT_CORS_ORIGIN_WHITELIST = [
     "https://dev.disfactory.tw",
     "https://disfactory.tw",
 ]
-CORS_ORIGIN_WHITELIST = os.environ.get('DISFACTORY_BACKEND_CORS_ORIGIN_WHITELIST')
-if CORS_ORIGIN_WHITELIST is None or CORS_ORIGIN_WHITELIST == '':
+CORS_ORIGIN_WHITELIST = os.environ.get("DISFACTORY_BACKEND_CORS_ORIGIN_WHITELIST")
+if CORS_ORIGIN_WHITELIST is None or CORS_ORIGIN_WHITELIST == "":
     CORS_ORIGIN_WHITELIST = DEFAULT_CORS_ORIGIN_WHITELIST
 else:
-    CORS_ORIGIN_WHITELIST = DEFAULT_CORS_ORIGIN_WHITELIST + CORS_ORIGIN_WHITELIST.split(',')
+    CORS_ORIGIN_WHITELIST = DEFAULT_CORS_ORIGIN_WHITELIST + CORS_ORIGIN_WHITELIST.split(",")
 CORS_ALLOWED_ORIGIN_REGEXES = [r"^https://[\d\-\w]+\.netlify\.app$"]  # new UI url
 
 TAIWAN_MAX_LATITUDE = 25.298401
@@ -226,15 +209,15 @@ TAIWAN_MIN_LONGITUDE = 120.035141
 MAX_FACTORY_PER_GET = int(os.environ.get("DISFACTORY_BACKEND_MAX_FACTORY_PER_GET", 50))
 
 Q_CLUSTER = {
-    'name': 'disfactory',
-    'workers': 4,
-    'recycle': 50,
-    'timeout': 60,
-    'compress': True,
-    'cpu_affinity': 1,
-    'label': 'Django Q',
-    'orm': 'default',
-    'bulk': 4,
+    "name": "disfactory",
+    "workers": 4,
+    "recycle": 50,
+    "timeout": 60,
+    "compress": True,
+    "cpu_affinity": 1,
+    "label": "Django Q",
+    "orm": "default",
+    "bulk": 4,
 }
 
 # Map Widgets
@@ -242,13 +225,13 @@ MAP_WIDGETS = {
     "GooglePointFieldWidget": (
         ("zoom", 15),
         ("mapCenterLocationName", "taipei"),
-        ("GooglePlaceAutocompleteOptions", {'componentRestrictions': {'country': 'tw'}}),
+        ("GooglePlaceAutocompleteOptions", {"componentRestrictions": {"country": "tw"}}),
         ("markerFitZoom", 12),
     ),
-    "GOOGLE_MAP_API_KEY": os.environ.get("GOOGLE_MAP_API_KEY", "")
+    "GOOGLE_MAP_API_KEY": os.environ.get("GOOGLE_MAP_API_KEY", ""),
 }
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.environ.get('DISFACTORY_BACKEND_MEDIA_ROOT', '/tmp')
+MEDIA_URL = "/media/"
+MEDIA_ROOT = os.environ.get("DISFACTORY_BACKEND_MEDIA_ROOT", "/tmp")
 pathlib.Path(MEDIA_ROOT).mkdir(parents=True, exist_ok=True)
-DOMAIN = os.environ.get('DISFACTORY_BACKEND_DOMAIN', 'https://api.disfactory.tw/')
+DOMAIN = os.environ.get("DISFACTORY_BACKEND_DOMAIN", "https://api.disfactory.tw/")
