@@ -1,12 +1,19 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from api.models import Document, DocumentDisplayStatusEnum, FollowUp, Image
-from api.admin.actions import ExportDocMixin
-from api.utils import set_function_attributes
-from import_export.admin import ImportExportModelAdmin
-from import_export import resources
-from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.urls import reverse
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
+
+from api.admin.actions import ExportDocMixin
+from api.models import (
+    Document,
+    DocumentDisplayStatusEnum,
+    FollowUp,
+    Image,
+    ReportRecord,
+)
+from api.utils import set_function_attributes
 
 
 class FollowUpInline(admin.StackedInline):
@@ -15,6 +22,7 @@ class FollowUpInline(admin.StackedInline):
     ordering = ['-created_at']
     exclude = ['deleted_at']
     fields = ['note']
+
 
 class DocumentResource(resources.ModelResource):
     class Meta:
@@ -77,11 +85,12 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
                 'fields': (
                     "factory_display_number",
                     "factory_townname",
+                    ("factory_sectname", "factory_landcode"),
                     "factory_name",
-
                     ("factory_lat", "factory_lng"),
                     "factory_map_link",
                     "images",
+                    "others",
                 ),
             },
         ),
@@ -91,10 +100,13 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
         "factory_townname",
         "factory_name",
         "images",
+        "others",
         "factory_display_number",
         "factory_map_link",
         "factory_lat",
         "factory_lng",
+        "factory_sectname",
+        "factory_landcode",
     ]
 
     @set_function_attributes(short_description="工廠號碼")
@@ -107,6 +119,14 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
     @set_function_attributes(short_description="鄉鎮市")
     def factory_townname(self, obj):
         return obj.factory.townname
+
+    @set_function_attributes(short_description="地段名")
+    def factory_sectname(self, obj):
+        return obj.factory.sectname
+
+    @set_function_attributes(short_description="地段號")
+    def factory_landcode(self, obj):
+        return obj.factory.landcode
 
     @set_function_attributes(short_description="工廠名稱")
     def factory_name(self, obj):
@@ -143,6 +163,24 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
             for img in images
         ]
         return format_html("\n".join(urls))
+
+    @set_function_attributes(allow_tags=True, short_description="補充敘述")
+    def others(self, obj):
+        rrs = ReportRecord.objects.filter(factory_id=obj.factory.id)
+        rr_template = """
+            <li>{nickname} ({contact}): {message} @{created_at}</li>
+        """
+
+        urls = [
+            rr_template.format(
+                nickname=rr.nickname,
+                contact=rr.contact,
+                created_at=rr.created_at,
+                message=rr.others,
+            )
+            for rr in rrs
+        ]
+        return format_html("<ul>" + "\n".join(urls) + "</ul>")
 
     def get_cet_next_tags(self, obj):
         return ",".join([p.name for p in obj.cet_next_tags.all()])
@@ -189,6 +227,7 @@ class CETNextAdmin(ImportExportModelAdmin):
 class GovResponseStatusAdmin(ImportExportModelAdmin):
     search_fields = ['name', ]
     list_display = ['id', 'name', 'description']
+
 
 class FollowUpAdmin(ImportExportModelAdmin):
     pass
