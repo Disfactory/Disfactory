@@ -114,19 +114,10 @@ class FactorySerializer(ModelSerializer):
 
 class ReportRecordSerializer(ModelSerializer):
 
-    images = ImageSerializer(many=True, read_only=True)
-
     class Meta:
         model = ReportRecord
         fields = [
             "id",
-            "factory",
-            "user_ip",
-            "action_type",
-            "action_body",
             "created_at",
-            "nickname",
-            "contact",
             "others",
-            "images",
         ]
