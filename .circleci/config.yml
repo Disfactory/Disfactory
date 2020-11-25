@@ -14,7 +14,6 @@ ref:
     working_directory: ~/Disfactory/backend
     environment:
       WORKON_HOME: ~/Disfactory/backend/.venv
-      PIPENV_VENV_IN_PROJECT: true
 
 version: 2
 jobs:
@@ -146,7 +145,7 @@ jobs:
       - save_cache:
           paths:
             - ".venv"
-          key: disfactory-backend-cache-191118-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: disfactory-backend-cache-191118-{{ .Branch }}-{{ checksum "poetry.lock" }}
 
 workflows:
   version: 2
