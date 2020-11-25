@@ -5,6 +5,8 @@ from api.admin.actions import ExportDocMixin
 from api.utils import set_function_attributes
 from import_export.admin import ImportExportModelAdmin
 from import_export import resources
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 
 
 class FollowUpInline(admin.StackedInline):
@@ -97,7 +99,10 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
 
     @set_function_attributes(short_description="工廠號碼")
     def factory_display_number(self, obj):
-        return obj.factory.display_number
+        return mark_safe('<a href="{}">{}</a>'.format(
+            reverse("admin:api_factory_change", args=(obj.factory.id,)),
+            obj.factory.display_number
+        ))
 
     @set_function_attributes(short_description="鄉鎮市")
     def factory_townname(self, obj):
