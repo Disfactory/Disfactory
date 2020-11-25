@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := all
--include $(ROOT_DIR)/.env
+-include .env
 
 .PHONY: unittest
 unittest:
