@@ -203,7 +203,7 @@ class FactoryAdmin(
     list_filter = (
         # XXX: actually not using `factory.created_at` but `repordRecord.created_at`
         ("created_at", FactoryWithReportRecords),
-        "cet_report_status",
+        "cet_review_status",
         "source",
         "factory_type",
         FactoryFilteredByCounty,
