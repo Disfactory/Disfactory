@@ -17,6 +17,7 @@ from rangefilter.filter import DateRangeFilter
 from import_export.admin import ImportExportModelAdmin
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+import easymap
 
 
 class FactoryWithReportRecords(DateRangeFilter):
@@ -258,6 +259,18 @@ class FactoryAdmin(
         )
 
         return format_html(html_template.format(lat=obj.lat, lng=obj.lng))
+
+    def save_model(self, request, obj, form, change):
+        landinfo = easymap.get_land_number(obj.lng, obj.lat)
+        landcode = landinfo.get('landno')
+
+        obj.landcode = landcode
+        obj.sectno = landinfo.get('sectno')
+        obj.sectname = landinfo.get('sectName')
+        obj.towncode = landinfo.get('towncode')
+        obj.townname = landinfo.get('townname')
+
+        super().save_model(request, obj, form, change)
 
 
 class RecycledFactoryAdmin(admin.ModelAdmin, RestoreMixin):
