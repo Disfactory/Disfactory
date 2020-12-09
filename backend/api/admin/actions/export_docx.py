@@ -137,7 +137,7 @@ class FactoryReportDocumentWriter:
         self.document_model = model
         self.factory = model.factory
         self.document = document
-        self.factory_location = f"{self.factory.townname}({self.factory.sectcode}) {self.factory.landcode}"
+        self.factory_location = f"{self.factory.townname}{self.factory.sectname} ({self.factory.sectcode}) {self.factory.landcode}"
 
         self._generate_docx()
 
@@ -201,7 +201,7 @@ class FactoryReportDocumentWriter:
         # yapf: disable
         context = [
             '地址：10049台北市北平東路28號9樓之2',
-            '電話：02-23920371 ',
+            '電話：02-23920371',
             '傳真：02-23920381',
             '連絡人：{}'.format(sender_name),
             '電子信箱：eva@cet-taiwan.org'
