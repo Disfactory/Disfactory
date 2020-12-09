@@ -275,7 +275,7 @@ class FactoryReportDocumentWriter:
 
     def _cc(self, legislator):
         if self.factory.townname:
-            townname = self.factory.townname[:3]
+            townname = self.factory.townname.replace('臺灣省', '').replace('台灣省', '')[:3]
         else:
             townname = "UNKNOWN"
 
