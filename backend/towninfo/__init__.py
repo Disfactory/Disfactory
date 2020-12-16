@@ -9,7 +9,7 @@ name2code = {}
 for xml_path in HERE.glob('*.xml'):
     with xml_path.open('r') as f:
         tree = ET.fromstring(f.read())
-        if tree:
+        if tree is not None:
             for child in tree.getchildren():
                 code = child.find('towncode').text
                 name = child.find('townname').text

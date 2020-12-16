@@ -11,6 +11,7 @@ class ImageAdmin(admin.ModelAdmin, ExportCsvMixin):
         'report_record',
         'id',
     )
+    raw_id_fields = ('factory', )
     ordering = ['orig_time', '-created_at']
     actions = ["export_as_csv"]
 
