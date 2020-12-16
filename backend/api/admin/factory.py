@@ -1,3 +1,6 @@
+import os
+
+from urllib.parse import urljoin
 from api.models.document import Document
 from django.db.models import Max
 
@@ -207,7 +210,7 @@ class FactoryAdmin(
         "generate_docs",
     ]
 
-    readonly_fields = ("id", "display_number", "created_at", "updated_at", "google_map_link")
+    readonly_fields = ("id", "display_number", "created_at", "updated_at", "google_map_link", "disfactory_map_link")
     fieldsets = (
         (
             None,
@@ -230,6 +233,7 @@ class FactoryAdmin(
                     ("sectname", "sectcode"),
                     ("lng", "lat"),
                     "google_map_link",
+                    "disfactory_map_link",
                     "factory_type",
                     "name",
                     ("created_at", "updated_at"),
@@ -259,6 +263,18 @@ class FactoryAdmin(
         )
 
         return format_html(html_template.format(lat=obj.lat, lng=obj.lng))
+
+    @set_function_attributes(short_description="Disfactory Map 連結")
+    def disfactory_map_link(self, obj):
+        disfactory_frontend_domain = os.environ.get("DISFACTORY_FRONTEND_DOMAIN", "https://disfactory.tw/")
+
+        url = urljoin(disfactory_frontend_domain, f"/#map=16.00/{obj.lng}/{obj.lat}")
+
+        html_template = (
+            f"<a href='{url}' target='_blank'>Link</a>"
+        )
+
+        return format_html(html_template)
 
     def save_model(self, request, obj, form, change):
         landinfo = easymap.get_land_number(obj.lng, obj.lat)
