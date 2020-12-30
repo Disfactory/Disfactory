@@ -37,6 +37,10 @@ LOWER_CASE_NUMBERS = {
     for i, chinese_char in enumerate('〇一二三四五六七八九')
 }
 
+CET_STAFF_EMAIL = {
+    "蔡佳昇": "pisces@cet-taiwan.org",
+    "吳沅諭": "eva@cet-taiwan.org",
+}
 
 def to_lower_chinese_numbers(number):
     return ''.join(LOWER_CASE_NUMBERS[ch] for ch in str(number))
@@ -198,13 +202,14 @@ class FactoryReportDocumentWriter:
         generator.new(self.document, "", 20)
 
     def _sender(self, sender_name):
+        email = CET_STAFF_EMAIL.get(sender_name, "cet@cet-taiwan.org")
         # yapf: disable
         context = [
             '地址：10049台北市北平東路28號9樓之2',
             '電話：02-23920371',
             '傳真：02-23920381',
             '連絡人：{}'.format(sender_name),
-            '電子信箱：eva@cet-taiwan.org'
+            f"電子信箱：{email}"
         ]
         # yapf: enable
 
