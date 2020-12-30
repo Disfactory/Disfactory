@@ -5,7 +5,7 @@ from django.urls import reverse
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
-from api.admin.actions import ExportDocMixin
+from api.admin.actions import ExportDocMixin, ExportCsvMixin
 from api.models import (
     Document,
     DocumentDisplayStatusEnum,
@@ -29,7 +29,7 @@ class DocumentResource(resources.ModelResource):
         model = Document
 
 
-class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
+class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin, ExportCsvMixin):
     resource_class = DocumentResource
 
     class Media:
@@ -40,7 +40,7 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
 
     raw_id_fields = ("factory",)
 
-    actions = ["export_as_docx"]
+    actions = ["export_as_csv", "export_as_docx"]
 
     list_filter = ["cet_next_tags", "display_status"]
 
