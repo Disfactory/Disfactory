@@ -19,9 +19,9 @@ from api.utils import set_function_attributes
 class FollowUpInline(admin.StackedInline):
     model = FollowUp
     extra = 0
-    ordering = ['-created_at']
-    exclude = ['deleted_at']
-    fields = ['note']
+    ordering = ["-created_at"]
+    exclude = ["deleted_at"]
+    fields = ["note"]
 
 
 class DocumentResource(resources.ModelResource):
@@ -31,58 +31,51 @@ class DocumentResource(resources.ModelResource):
 
 class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
     resource_class = DocumentResource
+
     class Media:
         js = []
         css = {"all": ["/static/css/document.css"]}
 
     change_form_template = "admin/document/change_form.html"
 
-    raw_id_fields = ('factory', )
+    raw_id_fields = ("factory",)
 
     actions = ["export_as_docx"]
 
     list_filter = ["cet_next_tags", "display_status"]
 
-    inlines = (FollowUpInline, )
+    inlines = (FollowUpInline,)
 
-    list_display = (
-        "code",
-        "cet_staff",
-        "display_status",
-        "factory_townname",
-        "get_cet_next_tags"
-    )
+    list_display = ("code", "cet_staff", "display_status", "factory_townname", "get_cet_next_tags")
 
-    search_fields = ("factory__townname", )
+    search_fields = ("factory__townname",)
 
     autocomplete_fields = [
-        'cet_report_status_tags',
-        'cet_next_tags',
-        'gov_response_status_tags',
+        "cet_report_status_tags",
+        "cet_next_tags",
+        "gov_response_status_tags",
     ]
 
     fieldsets = (
         (
             None,
+            {"fields": ("code",)},
+        ),
+        (
+            "Tags",
             {
-                'fields': ('code', )
+                "fields": (
+                    "display_status",
+                    "cet_report_status_tags",
+                    "cet_next_tags",
+                    "gov_response_status_tags",
+                ),
             },
         ),
         (
-            'Tags',
+            "Factory",
             {
-                'fields': (
-                    'display_status',
-                    'cet_report_status_tags',
-                    'cet_next_tags',
-                    'gov_response_status_tags',
-                ),
-            }
-        ),
-        (
-            'Factory',
-            {
-                'fields': (
+                "fields": (
                     "factory_display_number",
                     "factory_townname",
                     ("factory_sectname", "factory_landcode"),
@@ -111,10 +104,12 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
 
     @set_function_attributes(short_description="工廠號碼")
     def factory_display_number(self, obj):
-        return mark_safe('<a href="{}">{}</a>'.format(
-            reverse("admin:api_factory_change", args=(obj.factory.id,)),
-            obj.factory.display_number
-        ))
+        return mark_safe(
+            '<a href="{}">{}</a>'.format(
+                reverse("admin:api_factory_change", args=(obj.factory.id,)),
+                obj.factory.display_number,
+            )
+        )
 
     @set_function_attributes(short_description="鄉鎮市")
     def factory_townname(self, obj):
@@ -158,10 +153,7 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
             </div>
         """
 
-        urls = [
-            image_html_template.format(image_path=img.image_path)
-            for img in images
-        ]
+        urls = [image_html_template.format(image_path=img.image_path) for img in images]
         return format_html("\n".join(urls))
 
     @set_function_attributes(allow_tags=True, short_description="補充敘述")
@@ -208,25 +200,31 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
             FollowUp.objects.create(
                 document=obj,
                 note=f"{DocumentDisplayStatusEnum.CHOICES[ods][1]} -> "
-                     f"{DocumentDisplayStatusEnum.CHOICES[ds][1]}",
+                f"{DocumentDisplayStatusEnum.CHOICES[ds][1]}",
             )
 
         super().save_model(request, obj, form, change)
 
 
 class CETReportStatusAdmin(ImportExportModelAdmin):
-    search_fields = ['name', ]
-    list_display = ['id', 'name', 'description']
+    search_fields = [
+        "name",
+    ]
+    list_display = ["id", "name", "description"]
 
 
 class CETNextAdmin(ImportExportModelAdmin):
-    search_fields = ['name', ]
-    list_display = ['id', 'name', 'description']
+    search_fields = [
+        "name",
+    ]
+    list_display = ["id", "name", "description"]
 
 
 class GovResponseStatusAdmin(ImportExportModelAdmin):
-    search_fields = ['name', ]
-    list_display = ['id', 'name', 'description']
+    search_fields = [
+        "name",
+    ]
+    list_display = ["id", "name", "description"]
 
 
 class FollowUpAdmin(ImportExportModelAdmin):

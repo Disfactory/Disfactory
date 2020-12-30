@@ -4,11 +4,10 @@ from django.contrib.gis.measure import D
 
 
 class ViewsUtilsTestCase(TestCase):
-
     def test_get_nearby_factories_called_db_correctlly(self):
         lat = 25
         lng = 120
-        radius = 2.  # km
+        radius = 2.0  # km
         pnt = Point(x=lng, y=lat, srid=4326)
         pnt.transform(3857)
         D(km=radius)

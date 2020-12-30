@@ -9,6 +9,7 @@ from .report_record import ReportRecord
 
 class Image(SoftDeleteMixin):
     """Images of factories that are uploaded by user."""
+
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -39,7 +40,6 @@ class Image(SoftDeleteMixin):
 
 
 class RecycledImage(Image):
-
     class Meta:
         proxy = True
 

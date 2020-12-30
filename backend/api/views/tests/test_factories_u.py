@@ -8,7 +8,6 @@ from api.models import Factory, ReportRecord
 
 
 class PutUpdateFactoryAttribute(TestCase):
-
     def setUp(self):
         self.factory = Factory.objects.create(
             name="test_factory",
@@ -27,7 +26,9 @@ class PutUpdateFactoryAttribute(TestCase):
             "name": "correct_factory",
             "factory_type": "6",
         }
-        resp = cli.put(f"/api/factories/{self.factory.id}", data=put_body, content_type="application/json")
+        resp = cli.put(
+            f"/api/factories/{self.factory.id}", data=put_body, content_type="application/json"
+        )
         self.assertEqual(resp.status_code, 200)
 
         factory = Factory.objects.get(pk=self.factory.id)
@@ -52,7 +53,9 @@ class PutUpdateFactoryAttribute(TestCase):
             "contact": "0800092000",
             "others": "這工廠讓我坐骨神經痛",
         }
-        resp = cli.put(f"/api/factories/{self.factory.id}", data=put_body, content_type="application/json")
+        resp = cli.put(
+            f"/api/factories/{self.factory.id}", data=put_body, content_type="application/json"
+        )
         self.assertEqual(resp.status_code, 200)
 
         factory = Factory.objects.get(pk=self.factory.id)
@@ -105,10 +108,10 @@ class PutUpdateFactoryAttribute(TestCase):
         cli = Client()
         resp = cli.get(f"/api/factories/{self.factory.id}")
         resp_data = resp.json()
-        self.assertEqual(resp_data['name'], self.factory.name)
-        self.assertEqual(resp_data['lat'], self.factory.lat)
-        self.assertEqual(resp_data['lng'], self.factory.lng)
-        self.assertEqual(resp_data['cet_report_status'], self.factory.cet_report_status)
+        self.assertEqual(resp_data["name"], self.factory.name)
+        self.assertEqual(resp_data["lat"], self.factory.lat)
+        self.assertEqual(resp_data["lng"], self.factory.lng)
+        self.assertEqual(resp_data["cet_report_status"], self.factory.cet_report_status)
 
     def test_get_single_factory_not_exist(self):
         cli = Client()

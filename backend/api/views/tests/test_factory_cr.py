@@ -65,7 +65,8 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         factories = resp.json()
         self.assertEqual(len(factories), 9)
         self.assertCountEqual(
-            [f["name"] for f in factories], [
+            [f["name"] for f in factories],
+            [
                 "既有違章工廠 No.2",
                 "既有違章工廠 No.3",
                 "既有違章工廠 No.8",
@@ -75,7 +76,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
                 "既有違章工廠 No.12",
                 "既有違章工廠 No.13",
                 "既有違章工廠 No.22",
-            ]
+            ],
         )
 
     def test_create_new_factory_db_status_correct(self):
@@ -136,7 +137,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         not_related_images = Image.objects.only("factory_id").filter(id__in=[im_not_related.id])
         self.assertEqual(
             set([str(img.factory_id) for img in not_related_images]),
-            set(['None']),
+            set(["None"]),
         )
 
     def test_create_new_factory_raise_if_image_id_not_exist(self):
@@ -155,7 +156,7 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
         resp = self.cli.post("/api/factories", data=request_body, content_type="application/json")
 
         self.assertEqual(resp.status_code, 400)
-        self.assertEqual(resp.content, b'please check if every image id exist')
+        self.assertEqual(resp.content, b"please check if every image id exist")
 
     def test_create_new_factory_allow_no_contact(self):
         request_body = {

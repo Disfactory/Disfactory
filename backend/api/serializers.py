@@ -73,12 +73,10 @@ class FactorySerializer(ModelSerializer):
         # has_photo and reported_within_1_year and (not before_release or has_type)
         if len(Image.objects.only("id").filter(factory=obj)) == 0:
             return False  # no photo
-        latest_record = ReportRecord.objects.only("created_at").filter(
-            factory=obj).latest('created_at')
-        if not (
-            latest_record
-            and latest_record.created_at > timezone.now() - timedelta(days=365)
-        ):
+        latest_record = (
+            ReportRecord.objects.only("created_at").filter(factory=obj).latest("created_at")
+        )
+        if not (latest_record and latest_record.created_at > timezone.now() - timedelta(days=365)):
             return False  # not reported or outdated
 
         if obj.before_release:
@@ -87,11 +85,10 @@ class FactorySerializer(ModelSerializer):
             return True
 
     def get_document_display_status(self, obj):
-        latestDocument = Document.objects.only("display_status").filter(factory=obj).order_by("-created_at")
-        return (
-            latestDocument[0].get_display_status_display() if len(latestDocument) > 0
-            else None
+        latestDocument = (
+            Document.objects.only("display_status").filter(factory=obj).order_by("-created_at")
         )
+        return latestDocument[0].get_display_status_display() if len(latestDocument) > 0 else None
 
     def validate_lat(self, value):
         if not (settings.TAIWAN_MIN_LATITUDE <= value <= settings.TAIWAN_MAX_LATITUDE):
@@ -116,7 +113,6 @@ class FactorySerializer(ModelSerializer):
 
 
 class ReportRecordSerializer(ModelSerializer):
-
     class Meta:
         model = ReportRecord
         fields = [

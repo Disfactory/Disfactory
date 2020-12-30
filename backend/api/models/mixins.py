@@ -15,18 +15,12 @@ class RecycleBinQuerySet(query.QuerySet):
 
 class SoftDeleteManager(models.Manager):
     def get_queryset(self):
-        return SoftDeleteQuerySet(
-            self.model,
-            using=self._db
-        ).filter(deleted_at__isnull=True)
+        return SoftDeleteQuerySet(self.model, using=self._db).filter(deleted_at__isnull=True)
 
 
 class RecycleBinManager(models.Manager):
     def get_queryset(self):
-        return RecycleBinQuerySet(
-            self.model,
-            using=self._db
-        ).filter(deleted_at__isnull=False)
+        return RecycleBinQuerySet(self.model, using=self._db).filter(deleted_at__isnull=False)
 
 
 class SoftDeleteMixin(models.Model):

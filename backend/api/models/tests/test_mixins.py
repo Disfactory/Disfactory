@@ -20,11 +20,11 @@ class AbstractModelMixinTestCase(TestCase):
     def setUp(self):
         # Create a dummy model which extends the mixin. A RuntimeWarning will
         # occur if the model is registered twice
-        if not hasattr(self, 'model'):
+        if not hasattr(self, "model"):
             self.model = ModelBase(
-                '__TestModel__' +
-                self.mixin.__name__, (self.mixin,),
-                {'__module__': self.mixin.__module__}
+                "__TestModel__" + self.mixin.__name__,
+                (self.mixin,),
+                {"__module__": self.mixin.__module__},
             )
 
         # Create the schema for our test model. If the table already exists,
