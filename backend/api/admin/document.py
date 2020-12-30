@@ -46,9 +46,9 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin):
 
     inlines = (FollowUpInline,)
 
-    list_display = ("code", "cet_staff", "display_status", "factory_townname", "get_cet_next_tags")
+    list_display = ("code", "cet_staff", "display_status", "factory_townname", "get_cet_next_tags", "factory_sectname")
 
-    search_fields = ("factory__townname",)
+    search_fields = ("factory__townname", "factory__sectname", "code")
 
     autocomplete_fields = [
         "cet_report_status_tags",
