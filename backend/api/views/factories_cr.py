@@ -171,6 +171,7 @@ def _handle_create_factory(request):
     operation_summary="新增指定 id 的工廠欄位資料",
     request_body=FactorySerializer,
     responses={200: openapi.Response("新增的工廠資料", FactorySerializer), 400: "request failed"},
+    auto_schema=None
 )
 @api_view(["GET", "POST"])
 def get_nearby_or_create_factories(request):

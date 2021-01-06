@@ -7,6 +7,7 @@ from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 import django_q.tasks
 from rest_framework.decorators import api_view
+from drf_yasg.utils import swagger_auto_schema
 
 from api.models import Image
 from ..utils import _get_client_ip
@@ -18,6 +19,10 @@ from .utils import (
 LOGGER = logging.getLogger("django")
 
 
+@swagger_auto_schema(
+    method="post",
+    auto_schema=None
+)
 @api_view(["POST"])
 def post_image(request):
     client_ip = _get_client_ip(request)

@@ -42,6 +42,7 @@ LOGGER = logging.getLogger("django")
         ),
         400: "request failed",
     },
+    auto_schema=None
 )
 @api_view(["POST"])
 def post_image_url(request):
