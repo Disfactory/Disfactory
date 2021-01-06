@@ -17,14 +17,14 @@ class Image(SoftDeleteMixin):
     )
     factory = models.ForeignKey(
         Factory,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="images",
         blank=True,
         null=True,
     )
     report_record = models.ForeignKey(
         ReportRecord,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         related_name="images",
         blank=True,
         null=True,
