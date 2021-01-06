@@ -42,6 +42,7 @@ CET_STAFF_EMAIL = {
     "吳沅諭": "eva@cet-taiwan.org",
 }
 
+
 def to_lower_chinese_numbers(number):
     return ''.join(LOWER_CASE_NUMBERS[ch] for ch in str(number))
 

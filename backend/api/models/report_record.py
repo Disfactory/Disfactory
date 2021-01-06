@@ -14,7 +14,7 @@ class ReportRecord(SoftDeleteMixin):
     """
 
     id = models.AutoField(primary_key=True)
-    factory = models.ForeignKey(Factory, on_delete=models.PROTECT, related_name="report_records")
+    factory = models.ForeignKey(Factory, on_delete=models.CASCADE, related_name="report_records")
     user_ip = models.GenericIPAddressField(default="192.168.0.1", blank=True, null=True)
     action_type = models.CharField(max_length=10)  # PUT, POST
     action_body = JSONField()  # request body
