@@ -7,6 +7,7 @@ from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.db import transaction
 import django_q.tasks
+from drf_yasg.utils import swagger_auto_schema
 
 from rest_framework.decorators import api_view
 
@@ -21,6 +22,10 @@ from .utils import (
 LOGGER = logging.getLogger("django")
 
 
+@swagger_auto_schema(
+    method="post",
+    auto_schema=None
+)
 @api_view(["POST"])
 def post_factory_image(request, factory_id):
     client_ip = _get_client_ip(request)
