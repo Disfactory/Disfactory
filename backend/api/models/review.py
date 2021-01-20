@@ -19,7 +19,7 @@ class Review(SoftDeleteMixin):
         Factory,
         null=True,
         blank=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name="reviews",
     )
     created_at = models.DateTimeField(auto_now_add=True)

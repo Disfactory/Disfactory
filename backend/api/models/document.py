@@ -65,7 +65,8 @@ class Document(SoftDeleteMixin):
     code = models.IntegerField(verbose_name="公文號")
     factory = models.ForeignKey(
         Factory,
-        on_delete=models.PROTECT,
+        null=True,
+        on_delete=models.SET_NULL,
         related_name="documents",
     )
     creator = models.ForeignKey(
