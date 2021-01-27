@@ -2,10 +2,35 @@ from django.http import HttpResponse, JsonResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view
+import datetime
 
 from ..models import Factory, Document, Image, ReportRecord
 from ..models.document import DocumentDisplayStatusEnum
 
+CITIES = [
+'臺北市',
+'新北市',
+'基隆市',
+'桃園市',
+'新竹縣',
+'新竹市',
+'苗栗縣',
+'臺中市',
+'南投縣',
+'彰化縣',
+'雲林縣',
+'嘉義縣',
+'嘉義市',
+'臺南市',
+'高雄市',
+'屏東縣',
+'宜蘭縣',
+'花蓮縣',
+'臺東縣',
+'澎湖縣',
+'金門縣',
+'連江縣',
+]
 
 def _generate_factories_query_set(townname, source, display_status):
     # display_status
@@ -264,8 +289,50 @@ def get_report_records_count_by_townname(request):
 
     factories_queryset = _generate_factories_query_set(townname, source, display_status)
     id_list = factories_queryset.values_list('id', flat=True)
-    queryset = ReportRecord.objects.prefetch_related('factory').filter(factory__id__in=id_list)
+    queryset = ReportRecord.objects.prefetch_related('factory').filter(factory__in=id_list)
 
     return JsonResponse({
         "count": queryset.count()
     })
+
+
+@api_view(["GET"])
+def get_statistics_total(request):
+    result = {}
+    for city in CITIES:
+        result[city] = {}
+
+        # factories
+        city = city.replace("台", "臺")
+        factories = Factory.objects.filter(
+            townname__startswith=city)
+        result[city]["factories"] = factories.count()
+
+        # report records
+        factory_id_list = factories.values_list('id', flat=True)
+        report_records = ReportRecord.objects.prefetch_related('factory').filter(factory__id__in=factory_id_list)
+        result[city]["report_records"] = report_records.count()
+
+        # display_status
+        docs = Document.objects.prefetch_related("factory")\
+                               .order_by("factory__id", "-created_at")\
+                               .distinct('factory__id')\
+                               .filter(factory__id__in=factory_id_list)
+
+        ## 處理中
+        result[city]["未處理"] = 0
+        result[city]["處理中"] = 0
+        result[city]["已斷電"] = 0
+        result[city]["已拆除"] = 0
+
+        for doc in docs:
+            if doc.display_status == 0:
+                result[city]["未處理"] += 1
+            elif doc.display_status >= 1 and doc.display_status <= 3:
+                result[city]["處理中"] += 1
+            elif doc.display_status == 4:
+                result[city]["已斷電"] += 1
+            elif doc.display_status == 5:
+                result[city]["已拆除"] += 1
+
+    return JsonResponse(result)

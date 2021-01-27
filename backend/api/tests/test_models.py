@@ -3,7 +3,6 @@ from django.contrib.gis.geos import Point
 from django.contrib.gis.measure import D
 
 from api.models import Factory
-from api.models
 
 
 class ModelsTestCase(TestCase):
@@ -27,7 +26,3 @@ class ModelsTestCase(TestCase):
                 ]
             ),
         )
-
-    def test_get_nearby_factories(self):
-
-        pass

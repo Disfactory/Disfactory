@@ -185,3 +185,61 @@ class GetStatisticsTestCase(TestCase):
 
         resp = self.cli.get("/api/statistics/report_records?townname=台北市大同區")
         assert resp.json()["count"] == 0, f"expect 0 but {resp.json()['count']}"
+
+    def test_get_total(self):
+        cli = Client()
+        id_list = []
+        for index in range(0, 10):
+            result = create_factory(cli)
+            id_list.append(result)
+
+        for factory_id in id_list:
+            Document.objects.create(
+                cet_staff="AAA",
+                code="123456",
+                factory=Factory.objects.get(id=factory_id),
+                display_status=0
+            )
+
+        resp = self.cli.get("/api/statistics/total")
+        count = resp.json()["臺北市"]["未處理"]
+        assert count == 10, f"expect 10 but {count}"
+
+        for factory in Factory.objects.order_by("-created_at").all()[:5]:
+            Document.objects.create(
+                cet_staff="AAA",
+                code="123456",
+                factory=factory,
+                display_status=1
+            )
+
+        resp = self.cli.get("/api/statistics/total")
+        count = resp.json()["臺南市"]["處理中"]
+        assert count == 5, f"expect 5 but {count}"
+
+        for factory in Factory.objects.order_by("-created_at").all()[5:10]:
+            Document.objects.create(
+                cet_staff="AAA",
+                code="123456",
+                factory=factory,
+                display_status=2
+            )
+
+        resp = self.cli.get("/api/statistics/total")
+        count = resp.json()["臺南市"]["處理中"]
+        assert count == 10, f"expect 10 but {count}"
+
+        for factory in Factory.objects.order_by("-created_at"):
+            Document.objects.create(
+                cet_staff="AAA",
+                code="123456",
+                factory=factory,
+                display_status=3
+            )
+
+        resp = self.cli.get("/api/statistics/total")
+        count = resp.json()["臺南市"]["處理中"]
+        assert count == 101, f"expect 101 but {count}"
+
+        count = resp.json()["臺北市"]["處理中"]
+        assert count == 10, f"expect 10 but {count}"
