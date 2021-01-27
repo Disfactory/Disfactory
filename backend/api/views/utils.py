@@ -1,8 +1,7 @@
 import random
 
 from django.conf import settings
-from django.contrib.gis.geos import Point
-from django.contrib.gis.measure import D
+from django.db.models.functions.math import Radians, Cos, ACos, Sin
 
 from ..models import Factory
 
@@ -15,13 +14,17 @@ def _sample(objs, k):
 
 def _get_nearby_factories(latitude, longitude, radius):
     """Return nearby factories based on position and search range."""
-    # NOTE: if we use h3 for geoencoding in the future, we can use h3.k_ring():
-    # ref: https://observablehq.com/@nrabinowitz/h3-radius-lookup
-    pnt = Point(x=longitude, y=latitude, srid=4326)
-    pnt.transform(settings.POSTGIS_SRID)
-    ids = Factory.objects.only("id").filter(point__distance_lte=(pnt, D(km=radius)))
+
+    distance = 6371 * ACos(
+        Cos(Radians(latitude)) * Cos(Radians("lat")) * Cos(Radians("lng") - Radians(longitude))
+        + Sin(Radians(latitude)) * Sin(Radians("lat"))
+    )
+
+    ids = Factory.objects.annotate(distance=distance).only("id").filter(distance__lt=radius).order_by("id")
+
     if len(ids) > settings.MAX_FACTORY_PER_GET:
         ids = _sample(ids, settings.MAX_FACTORY_PER_GET)
+
     return Factory.objects.filter(id__in=[obj.id for obj in ids])
 
 
