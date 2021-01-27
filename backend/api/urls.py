@@ -24,6 +24,9 @@ from .views import (
     # to be deprecated
     post_image,
     post_factory_image,
+    get_factories_count_by_townname,
+    get_images_count_by_townname,
+    get_report_records_count_by_townname,
 )
 
 urlpatterns = [
@@ -31,6 +34,11 @@ urlpatterns = [
     path("factories/<factory_id>", update_factory_attribute),
     path("factories/<factory_id>/report_records", get_factory_report),
     path("factories/<factory_id>/images", post_factory_image_url),
+
+    path("statistics/factories", get_factories_count_by_townname),
+    path("statistics/images", get_images_count_by_townname),
+    path("statistics/report_records", get_report_records_count_by_townname),
+
     path("images", post_image_url),
     # to be deprecated, these are direct image upload api
     path("legacy/factories/<factory_id>/images", post_factory_image),

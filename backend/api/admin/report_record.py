@@ -14,6 +14,7 @@ class ReportRecordAdmin(admin.ModelAdmin, ExportCsvMixin):
         "others",
         "id",
     )
+    raw_id_fields = ("factory",)
     list_filter = ("action_type",)
     ordering = ["-created_at"]
     actions = ["export_as_csv"]
