@@ -35,6 +35,7 @@ run-db:
 .PHONY: run-db-backup
 run-db-backup:
 	docker-compose exec db bash -c 'pg_dump -d $(DISFACTORY_BACKEND_DEFAULT_DB_NAME) -U $(DISFACTORY_BACKEND_DEFAULT_DB_USER) -F t > /tmp/db_dump/`date +"%Y%m%d%H%M%S"`.tar'
+# pg_restore -U disfactory -h localhost -d disfactory_data -c /tmp/db_dump/XXX.tar
 
 .PHONY: clean
 clean:
