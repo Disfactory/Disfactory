@@ -1,0 +1,73 @@
+name: Tests
+on:
+  push:
+    paths-ignore:
+      - 'docs/**'
+    branches:
+      - master
+
+  pull_request:
+    paths-ignore:
+      - 'docs/**'
+    branches:
+      - "**"
+
+jobs:
+  tests:
+    services:
+       # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgis/postgis:11-3.1-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: disfactory_data
+        ports:
+          - 5432:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 30s
+          --health-retries 5
+
+    runs-on: ubuntu-latest
+    # Docker Hub image that job executes in
+    container: python:3.7
+
+    strategy:
+      matrix:
+        poetry-version: [1.1.4]
+
+    defaults:
+          run:
+            working-directory: ./backend
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Install poetry ${{ matrix.poetry-version }}
+        run: |
+          python -m ensurepip
+          python -m pip install --upgrade pip
+          python -m pip install poetry==${{ matrix.poetry-version }}
+          poetry --version
+
+      - name: Install dependencies
+        run: |
+          python -m poetry install
+
+      - name: Install GDAL
+        run: |
+          apt-get update
+          apt-get install -y gdal-bin python3-gdal
+
+      - name: Setup .env
+        run: |
+          cp .env.sample .env
+          sed -i -e s/DISFACTORY_BACKEND_DEFAULT_DB_HOST=db/DISFACTORY_BACKEND_DEFAULT_DB_HOST=postgres/g .env
+
+      - name: Run unittest
+        run: |
+          python -m poetry run python manage.py test -v 2
