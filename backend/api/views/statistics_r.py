@@ -6,31 +6,7 @@ import datetime
 
 from ..models import Factory, Document, Image, ReportRecord
 from ..models.document import DocumentDisplayStatusEnum
-
-CITIES = [
-'臺北市',
-'新北市',
-'基隆市',
-'桃園市',
-'新竹縣',
-'新竹市',
-'苗栗縣',
-'臺中市',
-'南投縣',
-'彰化縣',
-'雲林縣',
-'嘉義縣',
-'嘉義市',
-'臺南市',
-'高雄市',
-'屏東縣',
-'宜蘭縣',
-'花蓮縣',
-'臺東縣',
-'澎湖縣',
-'金門縣',
-'連江縣',
-]
+from .zipcode import ZIP_CODE
 
 def _generate_factories_query_set(townname, source, display_status):
     # display_status
@@ -82,17 +58,59 @@ def _generate_factories_query_set(townname, source, display_status):
 
     return queryset
 
-
 @swagger_auto_schema(
     method="get",
     operation_summary="取得某個地區的工廠數量",
     responses={
         200: openapi.Response(
-            "工廠數量",
+            "工廠, 公文與回報數量",
             openapi.Schema(
                 type=openapi.TYPE_OBJECT,
                 properties={
-                    "count": openapi.Schema(type=openapi.TYPE_STRING, description="統計數量"),
+                    "<縣市名稱>": openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            "factories": openapi.Schema(
+                                type=openapi.TYPE_STRING,
+                                description="工廠數量"
+                            ),
+                            "documents": openapi.Schema(
+                                type=openapi.TYPE_STRING,
+                                description="公文數量"
+                            ),
+                            "report_records": openapi.Schema(
+                                type=openapi.TYPE_STRING,
+                                description="回報數量"
+                            ),
+                            "images": openapi.Schema(
+                                type=openapi.TYPE_STRING,
+                                description="回報數量"
+                            ),
+                            "towns": openapi.Schema(
+                                type=openapi.TYPE_OBJECT,
+                                description="鄉鎮市的資料",
+                                properties={
+                                    "<鄉鎮市名>": openapi.Schema(
+                                        type=openapi.TYPE_OBJECT,
+                                        properties={
+                                            "factories": openapi.Schema(
+                                                type=openapi.TYPE_STRING,
+                                                description="工廠數量"
+                                            ),
+                                            "documents": openapi.Schema(
+                                                type=openapi.TYPE_STRING,
+                                                description="公文數量"
+                                            ),
+                                            "report_records": openapi.Schema(
+                                                type=openapi.TYPE_STRING,
+                                                description="回報數量"
+                                            ),
+                                        }
+                                    )
+                                }
+                            )
+                        }
+                    ),
                 },
             ),
         ),
@@ -102,7 +120,7 @@ def _generate_factories_query_set(townname, source, display_status):
         openapi.Parameter(
             name="townname",
             in_=openapi.IN_QUERY,
-            description=f"可以只輸入縣市名稱，例如 (臺南市) 或者更詳細一點，例如 (臺南市善化區)，不輸入的話會回傳全台灣的統計",
+            description=f"輸入縣市名稱，例如 (臺南市)，不輸入的話會回傳全台灣的統計",
             type=openapi.TYPE_STRING,
             required=False,
             example="臺南市",
@@ -146,11 +164,48 @@ def get_factories_count_by_townname(request):
     source = request.GET.get("source", None)
     display_status = request.GET.get("display_status", None)
 
-    queryset = _generate_factories_query_set(townname, source, display_status)
+    if townname is None:
+        cities = ZIP_CODE.keys()
+        town = None
+    else:
+        city = townname[:3]
+        town = townname[3:]
 
-    return JsonResponse({
-        "count": queryset.count()
-    })
+        if city and city not in ZIP_CODE:
+            return HttpResponse(
+                f"invalid townname {city}",
+                status=400,
+            )
+        cities = [city]
+
+    result = {}
+    for city in cities:
+        result[city] = _get_factories_information(city, source, display_status)
+        if town:
+            towns = [town]
+        else:
+            towns = ZIP_CODE[city].keys()
+
+        for town in towns:
+            full_town_name = f"{city}{town}"
+            data = _get_factories_information(full_town_name, source, display_status)
+            result[city][town] = data
+
+    return JsonResponse(result)
+
+
+def _get_factories_information(townname, source, display_status):
+    factories_queryset = _generate_factories_query_set(townname, source, display_status)
+
+    id_list = factories_queryset.values_list('id', flat=True)
+    report_records_queryset = ReportRecord.objects.prefetch_related('factory').filter(factory__in=id_list)
+    documents_queryset = Document.objects.prefetch_related('factory').filter(factory__in=id_list)
+
+    return {
+        "factories": factories_queryset.count(),
+        "documents": documents_queryset.count(),
+        "report_records": report_records_queryset.count()
+    }
 
 
 @swagger_auto_schema(
@@ -299,7 +354,8 @@ def get_report_records_count_by_townname(request):
 @api_view(["GET"])
 def get_statistics_total(request):
     result = {}
-    for city in CITIES:
+    cities = ZIP_CODE.keys()
+    for city in cities:
         result[city] = {}
 
         # factories
