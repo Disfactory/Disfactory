@@ -55,41 +55,59 @@ class GetStatisticsTestCase(TestCase):
     def test_get_factory_statistics(self):
         cli = Client()
 
+        # Create 10 factories in 臺北市中山區
         id_list = []
         for index in range(0, 10):
             result = create_factory(cli)
             id_list.append(result)
 
         resp = self.cli.get("/api/statistics/factories?source=U")
-        assert resp.json()["count"] == 10
+        assert resp.json()["factories"] == 10
+
+        resp = self.cli.get("/api/statistics/factories?source=U&level=city")
+        assert resp.json()["cities"]["臺北市"]["factories"] == 10
+        assert resp.json()["cities"]["臺南市"]["factories"] == 0
+
+        resp = self.cli.get("/api/statistics/factories?source=G&level=city")
+        assert resp.json()["cities"]["臺南市"]["factories"] == 101
 
         resp = self.cli.get("/api/statistics/factories?townname=台北市")
-        assert resp.json()["count"] == 10
+        assert resp.json()["cities"]["臺北市"]["factories"] == 10
 
         resp = self.cli.get("/api/statistics/factories?townname=台北市中山區")
-        assert resp.json()["count"] == 10
+        assert resp.json()["cities"]["臺北市"]["towns"]["中山區"]["factories"] == 10
 
         resp = self.cli.get("/api/statistics/factories?townname=台南市")
-        assert resp.json()["count"] == 101
+        assert resp.json()["cities"]["臺南市"]["factories"] == 101
 
         resp = self.cli.get("/api/statistics/factories?display_status=已檢舉")
-        assert resp.json()["count"] == 0
+        assert resp.json()["factories"] == 0
 
+        # Add a document to factory in 臺北市中山區
         Document.objects.create(
             cet_staff="AAA",
             code="123456",
             factory=Factory.objects.get(id=id_list[0]),
             display_status=0
         )
+        resp = self.cli.get("/api/statistics/factories?townname=臺北市")
+        assert resp.json()["cities"]["臺北市"]["factories"] == 10
+        assert resp.json()["cities"]["臺北市"]["documents"] == 1
 
         resp = self.cli.get("/api/statistics/factories?display_status=已檢舉")
-        assert resp.json()["count"] == 1, f"expect 1 but {resp.json()['count']}"
+        assert resp.json()["factories"] == 1
+        assert resp.json()["documents"] == 1
+
+        resp = self.cli.get("/api/statistics/factories?display_status=已檢舉&level=city")
+        assert resp.json()["cities"]["臺北市"]["factories"] == 1
+        assert resp.json()["cities"]["臺北市"]["documents"] == 1
 
         resp = self.cli.get("/api/statistics/factories?townname=台南市&display_status=已檢舉")
-        assert resp.json()["count"] == 0, f"expect 0 but {resp.json()['count']}"
+        assert resp.json()["cities"]["臺南市"]["factories"] == 0
 
         resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=已檢舉")
-        assert resp.json()["count"] == 1, f"expect 1 but {resp.json()['count']}"
+        assert resp.json()["cities"]["臺北市"]["factories"] == 1
+        assert resp.json()["cities"]["臺北市"]["documents"] == 1
 
         Document.objects.create(
             cet_staff="AAA",
@@ -98,17 +116,22 @@ class GetStatisticsTestCase(TestCase):
             display_status=1
         )
         resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=已檢舉")
-        assert resp.json()["count"] == 0, f"expect 0 but {resp.json()['count']}"
+        assert resp.json()["factories"] == 1
+        assert resp.json()["cities"]["臺北市"]["factories"] == 1
 
         resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=已排程稽查")
-        assert resp.json()["count"] == 1, f"expect 1 but {resp.json()['count']}"
+        assert resp.json()["factories"] == 1
+        assert resp.json()["cities"]["臺北市"]["factories"] == 1
 
         resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=已排程稽查&source=U")
-        assert resp.json()["count"] == 1, f"expect 1 but {resp.json()['count']}"
+        assert resp.json()["factories"] == 1
+        assert resp.json()["cities"]["臺北市"]["factories"] == 1
 
         resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=已排程稽查&source=G")
-        assert resp.json()["count"] == 0, f"expect 0 but {resp.json()['count']}"
+        assert resp.json()["factories"] == 0
+        assert resp.json()["cities"]["臺北市"]["factories"] == 0
 
+        # Add 3 documents to factories in 臺北市中山區
         Document.objects.create(
             cet_staff="AAA",
             code="123457",
@@ -128,8 +151,13 @@ class GetStatisticsTestCase(TestCase):
             display_status=2
         )
 
+        resp = self.cli.get("/api/statistics/factories?townname=台北市")
+        assert resp.json()["documents"] == 5
+        assert resp.json()["cities"]["臺北市"]["documents"] == 5
+
         resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=處理中")
-        assert resp.json()["count"] == 3, f"expect 3 but {resp.json()['count']}"
+        assert resp.json()["documents"] == 3
+        assert resp.json()["cities"]["臺北市"]["documents"] == 3
 
         Document.objects.create(
             cet_staff="AAA",
@@ -145,7 +173,7 @@ class GetStatisticsTestCase(TestCase):
         )
 
         resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=處理中")
-        assert resp.json()["count"] == 4, f"expect 4 but {resp.json()['count']}"
+        assert resp.json()["documents"] == 4
 
 
     def test_get_image_statistics(self):
