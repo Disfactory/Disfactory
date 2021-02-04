@@ -81,6 +81,7 @@ class Document(SoftDeleteMixin):
     display_status = models.IntegerField(
         default=DocumentDisplayStatusEnum.INDICES["已檢舉"],
         choices=DocumentDisplayStatusEnum.CHOICES,
+        db_index=True
     )
 
     cet_report_status_tags = models.ManyToManyField(CETReportStatus, blank=True)
