@@ -230,6 +230,7 @@ class GetStatisticsTestCase(TestCase):
             )
 
         resp = self.cli.get("/api/statistics/total")
+        assert resp.json()["臺北市"]["documents"] == 10
         count = resp.json()["臺北市"]["未處理"]
         assert count == 10, f"expect 10 but {count}"
 
@@ -242,6 +243,7 @@ class GetStatisticsTestCase(TestCase):
             )
 
         resp = self.cli.get("/api/statistics/total")
+        assert resp.json()["臺南市"]["documents"] == 5
         count = resp.json()["臺南市"]["處理中"]
         assert count == 5, f"expect 5 but {count}"
 
@@ -254,6 +256,7 @@ class GetStatisticsTestCase(TestCase):
             )
 
         resp = self.cli.get("/api/statistics/total")
+        assert resp.json()["臺南市"]["documents"] == 10
         count = resp.json()["臺南市"]["處理中"]
         assert count == 10, f"expect 10 but {count}"
 
@@ -266,6 +269,7 @@ class GetStatisticsTestCase(TestCase):
             )
 
         resp = self.cli.get("/api/statistics/total")
+        assert resp.json()["臺南市"]["documents"] == 101
         count = resp.json()["臺南市"]["處理中"]
         assert count == 101, f"expect 101 but {count}"
 

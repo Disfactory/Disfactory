@@ -406,10 +406,10 @@ def get_statistics_total(request):
     result = {}
     cities = ZIP_CODE.keys()
     for city in cities:
+        city = city.replace("台", "臺")
         result[city] = {}
 
         # factories
-        city = city.replace("台", "臺")
         factories = Factory.objects.filter(
             townname__startswith=city)
         result[city]["factories"] = factories.count()
@@ -424,6 +424,8 @@ def get_statistics_total(request):
                                .order_by("factory__id", "-created_at")\
                                .distinct('factory__id')\
                                .filter(factory__id__in=factory_id_list)
+
+        result[city]["documents"] = docs.count()
 
         ## 處理中
         result[city]["未處理"] = 0
