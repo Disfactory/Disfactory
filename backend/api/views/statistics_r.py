@@ -75,11 +75,7 @@ def _generate_factories_query_set(townname, source, display_status):
                             ),
                             "report_records": openapi.Schema(
                                 type=openapi.TYPE_STRING,
-                                description="回報數量"
-                            ),
-                            "images": openapi.Schema(
-                                type=openapi.TYPE_STRING,
-                                description="回報數量"
+                                description="總回報數量"
                             ),
                             "towns": openapi.Schema(
                                 type=openapi.TYPE_OBJECT,
@@ -401,6 +397,62 @@ def get_report_records_count_by_townname(request):
     })
 
 
+@swagger_auto_schema(
+    method="get",
+    operation_summary="統計全台灣各縣市的工廠情況, 處理進度與回報情況",
+    responses={
+        200: openapi.Response(
+            "工廠, 公文與已回報的工廠數量",
+            openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    "<縣市名稱>": openapi.Schema(
+                        type=openapi.TYPE_OBJECT,
+                        properties={
+                            "factories": openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="工廠數量"
+                            ),
+                            "documents": openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="公文數量"
+                            ),
+                            "report_records": openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="已經被回報的工廠的數量 (如果一個工廠有被回報多次，只會以一次計算)"
+                            ),
+                            "處理中": openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="""
+                                    狀態為 "已排程稽查", "陳述意見期", "已勒令停工" 的工廠數量
+                                """
+                            ),
+                            "未處理": openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="""
+                                    狀態為 "未處理" 的工廠數量
+                                """
+                            ),
+                            "已斷電": openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="""
+                                    狀態為 "已斷電" 的工廠數量
+                                """
+                            ),
+                            "已拆除": openapi.Schema(
+                                type=openapi.TYPE_INTEGER,
+                                description="""
+                                    狀態為 "已拆除" 的工廠數量
+                                """
+                            ),
+                        }
+                    ),
+                },
+            ),
+        ),
+        400: "request failed"
+    },
+)
 @api_view(["GET"])
 def get_statistics_total(request):
     result = {}
@@ -416,7 +468,7 @@ def get_statistics_total(request):
 
         # report records
         factory_id_list = factories.values_list('id', flat=True)
-        report_records = ReportRecord.objects.prefetch_related('factory').filter(factory__id__in=factory_id_list)
+        report_records = ReportRecord.objects.prefetch_related('factory').filter(factory__id__in=factory_id_list).distinct("factory_id")
         result[city]["report_records"] = report_records.count()
 
         # display_status
