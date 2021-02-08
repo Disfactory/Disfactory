@@ -62,7 +62,7 @@ class Factory(SoftDeleteMixin):
     point = models.PointField(srid=settings.POSTGIS_SRID)
     landcode = models.CharField(max_length=50, blank=True, null=True)
     towncode = models.CharField(max_length=50, blank=True, null=True)
-    townname = models.CharField(max_length=50, blank=True, null=True)
+    townname = models.CharField(max_length=50, blank=True, null=True, db_index=True)
     sectcode = models.CharField(max_length=50, blank=True, null=True)
     sectname = models.CharField(max_length=50, blank=True, null=True)
 

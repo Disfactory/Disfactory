@@ -4,6 +4,7 @@ from django.test import TestCase, Client
 from freezegun import freeze_time
 
 from ...models import Image, Factory, Document, ReportRecord
+from ...models.document import DocumentDisplayStatusEnum
 
 
 def update_landcode_with_custom_factory_model(factory_id):
@@ -136,19 +137,19 @@ class GetStatisticsTestCase(TestCase):
             cet_staff="AAA",
             code="123457",
             factory=Factory.objects.get(id=id_list[0]),
-            display_status=2
+            display_status=DocumentDisplayStatusEnum.INDICES["已排程稽查"]
         )
         Document.objects.create(
             cet_staff="AAA",
             code="123457",
             factory=Factory.objects.get(id=id_list[1]),
-            display_status=2
+            display_status=DocumentDisplayStatusEnum.INDICES["陳述意見期"]
         )
         Document.objects.create(
             cet_staff="AAA",
             code="123457",
             factory=Factory.objects.get(id=id_list[2]),
-            display_status=2
+            display_status=DocumentDisplayStatusEnum.INDICES["已勒令停工"]
         )
 
         resp = self.cli.get("/api/statistics/factories?townname=台北市")
@@ -163,13 +164,13 @@ class GetStatisticsTestCase(TestCase):
             cet_staff="AAA",
             code="123457",
             factory=Factory.objects.get(id=id_list[3]),
-            display_status=0
+            display_status=DocumentDisplayStatusEnum.INDICES["已檢舉"]
         )
         Document.objects.create(
             cet_staff="AAA",
             code="123457",
             factory=Factory.objects.get(id=id_list[3]),
-            display_status=1
+            display_status=DocumentDisplayStatusEnum.INDICES["已排程拆除"]
         )
 
         resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=處理中")
@@ -230,6 +231,7 @@ class GetStatisticsTestCase(TestCase):
             )
 
         resp = self.cli.get("/api/statistics/total")
+        assert resp.json()["臺北市"]["documents"] == 10
         count = resp.json()["臺北市"]["未處理"]
         assert count == 10, f"expect 10 but {count}"
 
@@ -242,6 +244,7 @@ class GetStatisticsTestCase(TestCase):
             )
 
         resp = self.cli.get("/api/statistics/total")
+        assert resp.json()["臺南市"]["documents"] == 5
         count = resp.json()["臺南市"]["處理中"]
         assert count == 5, f"expect 5 but {count}"
 
@@ -254,6 +257,7 @@ class GetStatisticsTestCase(TestCase):
             )
 
         resp = self.cli.get("/api/statistics/total")
+        assert resp.json()["臺南市"]["documents"] == 10
         count = resp.json()["臺南市"]["處理中"]
         assert count == 10, f"expect 10 but {count}"
 
@@ -266,6 +270,7 @@ class GetStatisticsTestCase(TestCase):
             )
 
         resp = self.cli.get("/api/statistics/total")
+        assert resp.json()["臺南市"]["documents"] == 101
         count = resp.json()["臺南市"]["處理中"]
         assert count == 101, f"expect 101 but {count}"
 
