@@ -4,6 +4,7 @@ from django.test import TestCase, Client
 from freezegun import freeze_time
 
 from ...models import Image, Factory, Document, ReportRecord
+from ...models.document import DocumentDisplayStatusEnum
 
 
 def update_landcode_with_custom_factory_model(factory_id):
@@ -136,19 +137,19 @@ class GetStatisticsTestCase(TestCase):
             cet_staff="AAA",
             code="123457",
             factory=Factory.objects.get(id=id_list[0]),
-            display_status=2
+            display_status=DocumentDisplayStatusEnum.INDICES["已排程稽查"]
         )
         Document.objects.create(
             cet_staff="AAA",
             code="123457",
             factory=Factory.objects.get(id=id_list[1]),
-            display_status=2
+            display_status=DocumentDisplayStatusEnum.INDICES["陳述意見期"]
         )
         Document.objects.create(
             cet_staff="AAA",
             code="123457",
             factory=Factory.objects.get(id=id_list[2]),
-            display_status=2
+            display_status=DocumentDisplayStatusEnum.INDICES["已勒令停工"]
         )
 
         resp = self.cli.get("/api/statistics/factories?townname=台北市")
@@ -163,13 +164,13 @@ class GetStatisticsTestCase(TestCase):
             cet_staff="AAA",
             code="123457",
             factory=Factory.objects.get(id=id_list[3]),
-            display_status=0
+            display_status=DocumentDisplayStatusEnum.INDICES["已檢舉"]
         )
         Document.objects.create(
             cet_staff="AAA",
             code="123457",
             factory=Factory.objects.get(id=id_list[3]),
-            display_status=1
+            display_status=DocumentDisplayStatusEnum.INDICES["已排程拆除"]
         )
 
         resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=處理中")

@@ -21,9 +21,10 @@ def _generate_factories_query_set(townname, source, display_status):
         display_status_options = map((lambda item: item[1]),DocumentDisplayStatusEnum.CHOICES)
         if display_status == "處理中":
             display_status = [
-                DocumentDisplayStatusEnum.INDICES["陳述意見期"],
                 DocumentDisplayStatusEnum.INDICES["已排程稽查"],
+                DocumentDisplayStatusEnum.INDICES["陳述意見期"],
                 DocumentDisplayStatusEnum.INDICES["已勒令停工"],
+                DocumentDisplayStatusEnum.INDICES["已排程拆除"],
             ]
             docs = docs.filter(display_status__in=display_status)
         else:
@@ -45,7 +46,7 @@ def _generate_factories_query_set(townname, source, display_status):
     # townname
     if townname:
         queryset = queryset.filter(
-            townname__startswith=townname)
+            townname__contains=townname)
 
     # source
     if source is not None:
@@ -130,7 +131,7 @@ def _generate_factories_query_set(townname, source, display_status):
             in_=openapi.IN_QUERY,
             description="""
             除了 document 預設的 display_status 之外，還有一個 "處理中" 的選項可以用，這個代表
-            "已排程稽查", "陳述意見期", "已勒令停工" 這三種 display_status
+            "已排程稽查", "陳述意見期", "已勒令停工", "已排程拆除" 這四種 display_status
             """,
             enum=[
                 "已檢舉",
@@ -424,7 +425,7 @@ def get_report_records_count_by_townname(request):
                             "處理中": openapi.Schema(
                                 type=openapi.TYPE_INTEGER,
                                 description="""
-                                    狀態為 "已排程稽查", "陳述意見期", "已勒令停工" 的工廠數量
+                                    狀態為 "已排程稽查", "陳述意見期", "已勒令停工", "已排程拆除" 的工廠數量
                                 """
                             ),
                             "未處理": openapi.Schema(
@@ -463,7 +464,7 @@ def get_statistics_total(request):
 
         # factories
         factories = Factory.objects.filter(
-            townname__startswith=city)
+            townname__contains=city)
         result[city]["factories"] = factories.count()
 
         # report records
@@ -486,13 +487,16 @@ def get_statistics_total(request):
         result[city]["已拆除"] = 0
 
         for doc in docs:
-            if doc.display_status == 0:
+            if doc.display_status == DocumentDisplayStatusEnum.INDICES["已檢舉"]:
                 result[city]["未處理"] += 1
-            elif doc.display_status >= 1 and doc.display_status <= 3:
+            elif doc.display_status == DocumentDisplayStatusEnum.INDICES["已排程稽查"] or \
+                 doc.display_status == DocumentDisplayStatusEnum.INDICES["陳述意見期"] or \
+                 doc.display_status == DocumentDisplayStatusEnum.INDICES["已勒令停工"] or \
+                 doc.display_status == DocumentDisplayStatusEnum.INDICES["已排程拆除"]:
                 result[city]["處理中"] += 1
-            elif doc.display_status == 4:
+            elif doc.display_status == DocumentDisplayStatusEnum.INDICES["已發函斷電"]:
                 result[city]["已斷電"] += 1
-            elif doc.display_status == 5:
+            elif doc.display_status == DocumentDisplayStatusEnum.INDICES["已拆除"]:
                 result[city]["已拆除"] += 1
 
     return JsonResponse(result)
