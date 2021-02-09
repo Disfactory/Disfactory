@@ -4,6 +4,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view
 import datetime
 import time
+from django.db.models import Q
 
 from ..models import Factory, Document, Image, ReportRecord
 from ..models.document import DocumentDisplayStatusEnum
@@ -45,8 +46,7 @@ def _generate_factories_query_set(townname, source, display_status):
 
     # townname
     if townname:
-        queryset = queryset.filter(
-            townname__contains=townname)
+        queryset = queryset.filter(Q(townname__startswith=townname) | Q(townname__startswith=f"臺灣省{townname}"))
 
     # source
     if source is not None:
@@ -463,8 +463,7 @@ def get_statistics_total(request):
         result[city] = {}
 
         # factories
-        factories = Factory.objects.filter(
-            townname__contains=city)
+        factories = Factory.objects.filter(Q(townname__startswith=city) | Q(townname__startswith=f"臺灣省{city}"))
         result[city]["factories"] = factories.count()
 
         # report records
