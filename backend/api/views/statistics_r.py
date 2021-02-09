@@ -41,7 +41,6 @@ def _generate_factories_query_set(townname, source, display_status):
 
         factory_id_list = list(map(lambda item: item.factory_id, docs))
         queryset = Factory.objects.filter(id__in=factory_id_list)
-        doc_num = docs.count()
     else:
         queryset = Factory.objects
 
@@ -234,20 +233,20 @@ def get_factories_count_by_townname(request):
 
 def _get_factories_information(townname, source, display_status):
     factories_queryset = _generate_factories_query_set(townname, source, display_status)
-    factories = factories_queryset.count()
+    n_factories = factories_queryset.count()
 
     id_list = factories_queryset.values_list('id', flat=True)
     report_records_queryset = ReportRecord.objects.prefetch_related('factory').filter(factory__in=id_list)
     if display_status:
         # Because the factories are filtered by document, so the number of factories should be equal to number of documents
-        documents = factories
+        n_documents = n_factories
     else:
         documents_queryset = Document.objects.prefetch_related('factory').filter(factory__in=id_list)
-        documents = documents_queryset.count()
+        n_documents = documents_queryset.count()
 
     return {
-        "factories": factories,
-        "documents": documents,
+        "factories": n_factories,
+        "documents": n_documents,
         "report_records": report_records_queryset.count()
     }
 
