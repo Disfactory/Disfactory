@@ -2,11 +2,11 @@ import datetime
 from django.db.models import Max
 
 from api.models import Document, Factory
-from api.utils import set_function_attributes
+from api.utils import set_function_attributes, normalize_townname
 
 
 def choose_cet_staff(townname):
-    normalized_townname = townname.replace("台", "臺")
+    normalized_townname = normalize_townname(townname)
 
     cet_staff_mappings = {
         "蔡佳昇": {"臺北市", "桃園市", "新北市", "新竹縣", "新竹市", "苗栗縣", "臺中縣", "南投縣", "宜蘭縣", "花蓮縣", "金門縣"},

@@ -6,3 +6,7 @@ def set_function_attributes(**kwargs):
         return func
 
     return decorator
+
+
+def normalize_townname(townname):
+    return townname.replace("台", "臺")
