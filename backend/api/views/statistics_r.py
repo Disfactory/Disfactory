@@ -8,6 +8,7 @@ from django.db.models import Q
 
 from ..models import Factory, Document, Image, ReportRecord
 from ..models.document import DocumentDisplayStatusEnum
+from ..utils import normalize_townname
 from .zipcode import ZIP_CODE
 
 def _generate_factories_query_set(townname, source, display_status):
@@ -162,7 +163,7 @@ def _generate_factories_query_set(townname, source, display_status):
 def get_factories_count_by_townname(request):
     townname = request.GET.get("townname", None)
     if townname:
-        townname = townname.replace("台", "臺")
+        townname = normalize_townname(townname)
 
     source = request.GET.get("source", None)
     if source and source not in ["G", "U"]:
@@ -312,7 +313,7 @@ def _get_factories_information(townname, source, display_status):
 def get_images_count_by_townname(request):
     townname = request.GET.get("townname", None)
     if townname:
-        townname = townname.replace("台", "臺")
+        townname = normalize_townname(townname)
     source = request.GET.get("source", None)
     display_status = request.GET.get("display_status", None)
 
@@ -385,7 +386,7 @@ def get_images_count_by_townname(request):
 def get_report_records_count_by_townname(request):
     townname = request.GET.get("townname", None)
     if townname:
-        townname = townname.replace("台", "臺")
+        townname = normalize_townname(townname)
     source = request.GET.get("source", None)
     display_status = request.GET.get("display_status", None)
 
