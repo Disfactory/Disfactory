@@ -7,7 +7,3 @@ from .statistics_r import get_factories_count_by_townname
 from .statistics_r import get_images_count_by_townname
 from .statistics_r import get_report_records_count_by_townname
 from .statistics_r import get_statistics_total
-
-# To be deprecated
-from .miscellaneous.image_c import post_image
-from .miscellaneous.factory_image_c import post_factory_image
