@@ -15,6 +15,12 @@ from .models import Factory, Image, ReportRecord, Document
 VALID_FACTORY_TYPES = [t[0] for t in Factory.factory_type_list]
 
 
+def _get_latest_time_or_none(objs):
+    return max(
+        (obj.created_at for obj in objs),
+        default=None,
+    )
+
 class ImageSerializer(ModelSerializer):
 
     url = CharField(source="image_path")
@@ -63,20 +69,15 @@ class FactorySerializer(ModelSerializer):
         return obj.cet_report_status
 
     def get_reported_at(self, obj):
-        report_records = ReportRecord.objects.only("created_at").filter(factory=obj)
-        return max(
-            (record.created_at for record in report_records),
-            default=None,
-        )
+        report_records = obj.report_records.all()
+        return _get_latest_time_or_none(report_records)
 
     def get_data_complete(self, obj):
         # has_photo and reported_within_1_year and (not before_release or has_type)
-        if len(Image.objects.only("id").filter(factory=obj)) == 0:
+        if len(obj.images.all()) == 0:
             return False  # no photo
-        latest_record = (
-            ReportRecord.objects.only("created_at").filter(factory=obj).latest("created_at")
-        )
-        if not (latest_record and latest_record.created_at > timezone.now() - timedelta(days=365)):
+        latest_record_time = _get_latest_time_or_none(obj.report_records.all())
+        if not (latest_record_time and latest_record_time > timezone.now() - timedelta(days=365)):
             return False  # not reported or outdated
 
         if obj.before_release:
@@ -85,10 +86,11 @@ class FactorySerializer(ModelSerializer):
             return True
 
     def get_document_display_status(self, obj):
-        latestDocument = (
-            Document.objects.only("display_status").filter(factory=obj).order_by("-created_at")
-        )
-        return latestDocument[0].get_display_status_display() if len(latestDocument) > 0 else None
+        documents = obj.documents.all()
+        if len(documents) > 0:
+            latest_document = max(documents, key=lambda d: d.created_at)
+            return latest_document.get_display_status_display()
+        return None
 
     def validate_lat(self, value):
         if not (settings.TAIWAN_MIN_LATITUDE <= value <= settings.TAIWAN_MAX_LATITUDE):
