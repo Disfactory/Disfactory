@@ -1,9 +1,10 @@
 import random
 
 from django.conf import settings
+from django.db.models import Prefetch
 from django.db.models.functions.math import Radians, Cos, ACos, Sin
 
-from ..models import Factory
+from ..models import Factory, ReportRecord, Image, Document
 
 
 def _sample(objs, k):
@@ -25,7 +26,13 @@ def _get_nearby_factories(latitude, longitude, radius):
     if len(ids) > settings.MAX_FACTORY_PER_GET:
         ids = _sample(ids, settings.MAX_FACTORY_PER_GET)
 
-    return Factory.objects.filter(id__in=[obj.id for obj in ids])
+    return (
+        Factory.objects.filter(id__in=[obj.id for obj in ids])
+               .prefetch_related(Prefetch('report_records', queryset=ReportRecord.objects.only("created_at").all()))
+               .prefetch_related(Prefetch('images', queryset=Image.objects.only("id").all()))
+               .prefetch_related(Prefetch('documents', queryset=Document.objects.only('created_at', 'display_status').all()))
+               .all()
+    )
 
 
 def _get_client_ip(request):
