@@ -1,15 +1,25 @@
 from django.test import TestCase
-from django.contrib.gis.geos import Point
-from django.contrib.gis.measure import D
+from django.db.models.functions.math import Radians, Cos, ACos, Sin
+
 
 from api.models import Factory
 
 
 class ModelsTestCase(TestCase):
     def test_migration_seed_data_correctly(self):
-        pnt = Point(x=120.1, y=23.234, srid=4326)
-        pnt.transform(3857)
-        factories = Factory.objects.filter(point__distance_lte=(pnt, D(km=1)))
+        longitude = 120.1
+        latitude = 23.234
+        radius_km = 1
+
+        distance = 6371 * ACos(
+            Cos(Radians(latitude)) * Cos(Radians("lat")) * Cos(Radians("lng") - Radians(longitude))
+            + Sin(Radians(latitude)) * Sin(Radians("lat"))
+        )
+
+        factories = Factory.objects.annotate(distance=distance).filter(
+            distance__lt=radius_km
+        )
+
         self.assertEqual(
             set([factory.name for factory in factories]),
             set(

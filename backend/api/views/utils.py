@@ -16,12 +16,14 @@ def _sample(objs, k):
 def _get_nearby_factories(latitude, longitude, radius):
     """Return nearby factories based on position and search range."""
 
+    # ref: https://stackoverflow.com/questions/574691/mysql-great-circle-distance-haversine-formula
     distance = 6371 * ACos(
         Cos(Radians(latitude)) * Cos(Radians("lat")) * Cos(Radians("lng") - Radians(longitude))
         + Sin(Radians(latitude)) * Sin(Radians("lat"))
     )
 
-    ids = Factory.objects.annotate(distance=distance).only("id").filter(distance__lt=radius).order_by("id")
+    radius_km = radius
+    ids = Factory.objects.annotate(distance=distance).only("id").filter(distance__lt=radius_km).order_by("id")
 
     if len(ids) > settings.MAX_FACTORY_PER_GET:
         ids = _sample(ids, settings.MAX_FACTORY_PER_GET)
