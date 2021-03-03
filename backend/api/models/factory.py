@@ -1,9 +1,7 @@
 import uuid
 
-from django.contrib.gis.db import models
-from django.contrib.gis.geos import Point
+from django.db import models
 from django.contrib.auth import get_user_model
-from django.conf import settings
 
 from .mixins import SoftDeleteMixin
 
@@ -59,7 +57,6 @@ class Factory(SoftDeleteMixin):
 
     lat = models.FloatField()
     lng = models.FloatField()
-    point = models.PointField(srid=settings.POSTGIS_SRID)
     landcode = models.CharField(max_length=50, blank=True, null=True)
     towncode = models.CharField(max_length=50, blank=True, null=True)
     townname = models.CharField(max_length=50, blank=True, null=True, db_index=True)
@@ -102,11 +99,6 @@ class Factory(SoftDeleteMixin):
     status_time = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    def save(self, *args, **kwargs):
-        self.point = Point(self.lng, self.lat, srid=4326)
-        self.point.transform(settings.POSTGIS_SRID)
-        super().save(*args, **kwargs)
 
 
 class RecycledFactory(Factory):

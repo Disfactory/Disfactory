@@ -5,7 +5,6 @@ from datetime import datetime
 
 from django.db import migrations
 from django.conf import settings
-from django.contrib.gis.geos import Point
 
 
 SEED_DATA_PATH = os.path.join(settings.BASE_DIR, "fixtures/full-info.csv")
@@ -26,12 +25,9 @@ def forward_func(apps, schema_editor):
                 lat = float(datum["緯度"])
             except ValueError:
                 continue
-            pnt = Point(lng, lat, srid=4326)
-            pnt.transform(3857)
             factory = Factory(
                 lng=lng,
                 lat=lat,
-                point=pnt,
                 landcode=datum["地號"],
                 status="A",
                 status_time=datetime.now(),
