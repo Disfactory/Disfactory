@@ -1,6 +1,6 @@
 import uuid
 
-from django.contrib.gis.db import models
+from django.db import models
 
 from .mixins import SoftDeleteMixin
 from .factory import Factory

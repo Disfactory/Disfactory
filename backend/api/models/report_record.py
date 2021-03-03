@@ -1,4 +1,4 @@
-from django.contrib.gis.db import models
+from django.db import models
 from django.contrib.postgres.fields import JSONField
 
 from .mixins import SoftDeleteMixin
