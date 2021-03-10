@@ -21,3 +21,5 @@ The initial data of suspected illegal factories on farmland are provided by [Ron
 We maintain a [copy](backend/fixtures/full-info.csv) crawed at 2019/7/20 as old suspected illegal factories on farmland. 
 
 系統上的既有違章工廠資料，為 2019/7/20 取自[內政部國土測繪雲](https://maps.nlsc.gov.tw/)/農業與農地資源盤查/農地資源盤查_工廠之圖層資料。資料取得之程式碼來自 [Ronny Wang](https://github.com/ronnywang) 使用 [disfactory-crawler](https://github.com/ronnywang/disfactory-crawler)。
+
+全站由使用者回報之資料及設計圖以CC BY姓名標示4.0釋出，標註「農地違章工廠回報系統貢獻者」。使用者回報資料未涉及個人資訊部分已整理成開放資料與[API](https://api.disfactory.tw/redoc/)。
