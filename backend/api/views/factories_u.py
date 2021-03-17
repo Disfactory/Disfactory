@@ -50,12 +50,6 @@ def _handle_update_factory_attributes(request, factory_id):
     new_lng = put_body.get("lng")
     new_lat = put_body.get("lat")
     if (new_lat is not None) or (new_lng is not None):
-        # factory = Factory.objects.only("lat", "lng").get(pk=factory_id)
-        # new_lng = new_lng or factory.lng
-        # new_lat = new_lat or factory.lat
-        # new_point = Point(new_lng, new_lat, srid=4326)
-        # new_point.transform(settings.POSTGIS_SRID)
-        # updated_factory_fields["point"] = new_point
         LOGGER.warning(f"{client_ip} : <Factory position cannot be modified> ")
         return HttpResponse(
             "Factory position cannot be modified.",

@@ -4,8 +4,6 @@ from uuid import uuid4
 
 from freezegun import freeze_time
 from django.test import TestCase, Client
-from django.conf import settings
-from django.contrib.gis.geos import Point
 
 from ...models import Factory, ReportRecord, Image
 
@@ -99,8 +97,6 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
             "nickname": nickname,
             "contact": contact,
         }
-        pnt = Point(lng, lat, srid=4326)
-        pnt.transform(settings.POSTGIS_SRID)
 
         test_time = datetime.datetime(2019, 11, 11, 11, 11, 11, tzinfo=datetime.timezone.utc)
         with freeze_time(test_time):
@@ -115,7 +111,6 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
 
         self.assertEqual(new_factory.lat, lat)
         self.assertEqual(new_factory.lng, lng)
-        self.assertEqual(new_factory.point, pnt)
         self.assertEqual(new_factory.factory_type, factory_type)
 
         report_records = ReportRecord.objects.filter(factory_id=new_factory_id)

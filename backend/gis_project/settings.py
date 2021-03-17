@@ -59,8 +59,6 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    # for gis
-    "django.contrib.gis",
     # 3rd party
     "rest_framework",
     "corsheaders",
@@ -143,7 +141,7 @@ WSGI_APPLICATION = "gis_project.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.contrib.gis.db.backends.postgis",
+        "ENGINE": "django.db.backends.postgresql",
         "NAME": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_NAME", "postgres"),
         "USER": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_USER", "postgres"),
         "PASSWORD": os.environ.get("DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD", "postgres"),
@@ -184,9 +182,6 @@ STATICFILES_DIRS = [
 ]
 
 AUTH_USER_MODEL = "users.CustomUser"
-
-POSTGIS_SRID = 3857
-# ref: https://epsg.io/3857
 
 IMGUR_CLIENT_ID = os.environ.get("DISFACTORY_IMGUR_CLIENT_ID")
 
