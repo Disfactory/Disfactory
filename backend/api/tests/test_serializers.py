@@ -52,6 +52,7 @@ class FactorySerializersTestCase(TestCase):
         )
         im1 = Image.objects.create(
             image_path="https://i.imgur.com/RxArJUc.png",
+            deletehash="qwerasdfzxcv;",
             factory=factory,
             report_record=report_record1,
         )
@@ -67,6 +68,7 @@ class FactorySerializersTestCase(TestCase):
             image_path="https://imgur.dcard.tw/BB2L2LT.jpg",
             factory=factory,
             report_record=report_record2,
+            deletehash="qwerasdfzxcv;",
         )
         report_record_latest = ReportRecord.objects.create(
             factory=factory,
@@ -133,6 +135,7 @@ class FactorySerializersTestCase(TestCase):
             image_path="https://imgur.dcard.tw/BB2L2LT.jpg",
             factory=factory,
             report_record=report_record2,
+            deletehash="qwerasdfzxcv;"
         )
         serializer = FactorySerializer(factory)
         self.assertFalse(serializer.data["data_complete"])
@@ -185,6 +188,7 @@ class FactorySerializersTestCase(TestCase):
             Image.objects.create(
                 image_path="https://imgur.dcard.tw/BB2L2LT.jpg",
                 factory=factory,
+                deletehash="qwerasdfzxcv;",
                 report_record=report_record,
             )
         serializer = FactorySerializer(factory)
@@ -215,6 +219,7 @@ class FactorySerializersTestCase(TestCase):
             Image.objects.create(
                 image_path="https://imgur.dcard.tw/BB2L2LT.jpg",
                 factory=factory,
+                deletehash="qwerasdfzxcv;",
                 report_record=report_record,
             )
         serializer = FactorySerializer(factory)
@@ -246,6 +251,7 @@ class FactorySerializersTestCase(TestCase):
                 image_path="https://imgur.dcard.tw/BB2L2LT.jpg",
                 factory=factory,
                 report_record=report_record,
+                deletehash="qwerasdfzxcv;",
             )
         serializer = FactorySerializer(factory)
         self.assertTrue(serializer.data["data_complete"])
@@ -301,6 +307,7 @@ class FactorySerializersTestCase(TestCase):
                 image_path="https://imgur.dcard.tw/BB2L2LT.jpg",
                 factory=factory,
                 report_record=report_record,
+                deletehash="qwerasdfzxcv;",
             )
         serializer = FactorySerializer(factory)
         self.assertFalse(serializer.data["data_complete"])
@@ -341,3 +348,4 @@ class ImageSerializersTestCase(TestCase):
         serialized_img = ImageSerializer(img)
 
         self.assertEqual(serialized_img.data["url"], img.image_path)
+        self.assertIsNone(serialized_img.data.get("deletehash"))

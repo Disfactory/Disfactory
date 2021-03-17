@@ -26,6 +26,7 @@ class PostFactoryImageViewTestCase(TestCase):
         self.fake_lat = 23.12
         self.fake_lng = 121.5566
         self.fake_datetime_str = "2020:03:21 12:33:59"
+        self.fake_deletehash = "asdjiwenvnxcvj;"
         self.fake_datetime = datetime.strptime(
             self.fake_datetime_str,
             "%Y:%m:%d %H:%M:%S",
@@ -37,6 +38,7 @@ class PostFactoryImageViewTestCase(TestCase):
             "DateTimeOriginal": self.fake_datetime_str,
             "nickname": self.nickname,
             "contact": self.contact,
+            "deletehash": self.fake_deletehash
         }
 
     def test_image_upload_db_correct(self):
