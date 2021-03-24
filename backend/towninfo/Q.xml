@@ -1,119 +1,109 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
 <townItem>
-    <towncode>10010000</towncode>
-    <townname>臺灣省嘉義縣</townname>
-</townItem>
-
-<townItem>
-    <towncode>10010006</towncode>
-    <townname>臺灣省嘉義縣民政處</townname>
-</townItem>
-
-<townItem>
     <towncode>10010010</towncode>
     <towncode01>Q12</towncode01>
-    <townname>臺灣省嘉義縣太保市</townname>
+    <townname>太保市</townname>
 </townItem>
 
 <townItem>
     <towncode>10010020</towncode>
     <towncode01>Q02</towncode01>
-    <townname>臺灣省嘉義縣朴子市</townname>
+    <townname>朴子市</townname>
 </townItem>
 
 <townItem>
     <towncode>10010030</towncode>
     <towncode01>Q03</towncode01>
-    <townname>臺灣省嘉義縣布袋鎮</townname>
+    <townname>布袋鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10010040</towncode>
     <towncode01>Q04</towncode01>
-    <townname>臺灣省嘉義縣大林鎮</townname>
+    <townname>大林鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10010050</towncode>
     <towncode01>Q05</towncode01>
-    <townname>臺灣省嘉義縣民雄鄉</townname>
+    <townname>民雄鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010060</towncode>
     <towncode01>Q06</towncode01>
-    <townname>臺灣省嘉義縣溪口鄉</townname>
+    <townname>溪口鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010070</towncode>
     <towncode01>Q07</towncode01>
-    <townname>臺灣省嘉義縣新港鄉</townname>
+    <townname>新港鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010080</towncode>
     <towncode01>Q08</towncode01>
-    <townname>臺灣省嘉義縣六腳鄉</townname>
+    <townname>六腳鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010090</towncode>
     <towncode01>Q09</towncode01>
-    <townname>臺灣省嘉義縣東石鄉</townname>
+    <townname>東石鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010100</towncode>
     <towncode01>Q10</towncode01>
-    <townname>臺灣省嘉義縣義竹鄉</townname>
+    <townname>義竹鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010110</towncode>
     <towncode01>Q11</towncode01>
-    <townname>臺灣省嘉義縣鹿草鄉</townname>
+    <townname>鹿草鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010120</towncode>
     <towncode01>Q13</towncode01>
-    <townname>臺灣省嘉義縣水上鄉</townname>
+    <townname>水上鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010130</towncode>
     <towncode01>Q14</towncode01>
-    <townname>臺灣省嘉義縣中埔鄉</townname>
+    <townname>中埔鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010140</towncode>
     <towncode01>Q15</towncode01>
-    <townname>臺灣省嘉義縣竹崎鄉</townname>
+    <townname>竹崎鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010150</towncode>
     <towncode01>Q16</towncode01>
-    <townname>臺灣省嘉義縣梅山鄉</townname>
+    <townname>梅山鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010160</towncode>
     <towncode01>Q17</towncode01>
-    <townname>臺灣省嘉義縣番路鄉</townname>
+    <townname>番路鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010170</towncode>
     <towncode01>Q18</towncode01>
-    <townname>臺灣省嘉義縣大埔鄉</townname>
+    <townname>大埔鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10010180</towncode>
     <towncode01>Q20</towncode01>
-    <townname>臺灣省嘉義縣阿里山鄉</townname>
+    <townname>阿里山鄉</townname>
 </townItem>
 </townItems>

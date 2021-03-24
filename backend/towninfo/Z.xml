@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
+<townItem>
+    <towncode>09007010</towncode>
+    <towncode01>Z01</towncode01>
+    <townname>南竿鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>09007020</towncode>
+    <towncode01>Z02</towncode01>
+    <townname>北竿鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>09007030</towncode>
+    <towncode01>Z03</towncode01>
+    <townname>莒光鄉</townname>
+</townItem>
+
+<townItem>
+    <towncode>09007040</towncode>
+    <towncode01>Z04</towncode01>
+    <townname>東引鄉</townname>
+</townItem>
+</townItems>

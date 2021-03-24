@@ -1,209 +1,199 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
 <townItem>
-    <towncode>10013000</towncode>
-    <townname>臺灣省屏東縣</townname>
-</townItem>
-
-<townItem>
-    <towncode>10013006</towncode>
-    <townname>臺灣省屏東縣民政處</townname>
-</townItem>
-
-<townItem>
     <towncode>10013010</towncode>
     <towncode01>T01</towncode01>
-    <townname>臺灣省屏東縣屏東市</townname>
+    <townname>屏東市</townname>
 </townItem>
 
 <townItem>
     <towncode>10013020</towncode>
     <towncode01>T02</towncode01>
-    <townname>臺灣省屏東縣潮州鎮</townname>
+    <townname>潮州鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10013030</towncode>
     <towncode01>T03</towncode01>
-    <townname>臺灣省屏東縣東港鎮</townname>
+    <townname>東港鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10013040</towncode>
     <towncode01>T04</towncode01>
-    <townname>臺灣省屏東縣恆春鎮</townname>
+    <townname>恆春鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10013050</towncode>
     <towncode01>T05</towncode01>
-    <townname>臺灣省屏東縣萬丹鄉</townname>
+    <townname>萬丹鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013060</towncode>
     <towncode01>T06</towncode01>
-    <townname>臺灣省屏東縣長治鄉</townname>
+    <townname>長治鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013070</towncode>
     <towncode01>T07</towncode01>
-    <townname>臺灣省屏東縣麟洛鄉</townname>
+    <townname>麟洛鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013080</towncode>
     <towncode01>T08</towncode01>
-    <townname>臺灣省屏東縣九如鄉</townname>
+    <townname>九如鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013090</towncode>
     <towncode01>T09</towncode01>
-    <townname>臺灣省屏東縣里港鄉</townname>
+    <townname>里港鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013100</towncode>
     <towncode01>T10</towncode01>
-    <townname>臺灣省屏東縣鹽埔鄉</townname>
+    <townname>鹽埔鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013110</towncode>
     <towncode01>T11</towncode01>
-    <townname>臺灣省屏東縣高樹鄉</townname>
+    <townname>高樹鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013120</towncode>
     <towncode01>T12</towncode01>
-    <townname>臺灣省屏東縣萬巒鄉</townname>
+    <townname>萬巒鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013130</towncode>
     <towncode01>T13</towncode01>
-    <townname>臺灣省屏東縣內埔鄉</townname>
+    <townname>內埔鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013140</towncode>
     <towncode01>T14</towncode01>
-    <townname>臺灣省屏東縣竹田鄉</townname>
+    <townname>竹田鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013150</towncode>
     <towncode01>T15</towncode01>
-    <townname>臺灣省屏東縣新埤鄉</townname>
+    <townname>新埤鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013160</towncode>
     <towncode01>T16</towncode01>
-    <townname>臺灣省屏東縣枋寮鄉</townname>
+    <townname>枋寮鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013170</towncode>
     <towncode01>T17</towncode01>
-    <townname>臺灣省屏東縣新園鄉</townname>
+    <townname>新園鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013180</towncode>
     <towncode01>T18</towncode01>
-    <townname>臺灣省屏東縣崁頂鄉</townname>
+    <townname>崁頂鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013190</towncode>
     <towncode01>T19</towncode01>
-    <townname>臺灣省屏東縣林邊鄉</townname>
+    <townname>林邊鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013200</towncode>
     <towncode01>T20</towncode01>
-    <townname>臺灣省屏東縣南州鄉</townname>
+    <townname>南州鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013210</towncode>
     <towncode01>T21</towncode01>
-    <townname>臺灣省屏東縣佳冬鄉</townname>
+    <townname>佳冬鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013220</towncode>
     <towncode01>T22</towncode01>
-    <townname>臺灣省屏東縣琉球鄉</townname>
+    <townname>琉球鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013230</towncode>
     <towncode01>T23</towncode01>
-    <townname>臺灣省屏東縣車城鄉</townname>
+    <townname>車城鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013240</towncode>
     <towncode01>T24</towncode01>
-    <townname>臺灣省屏東縣滿州鄉</townname>
+    <townname>滿州鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013250</towncode>
     <towncode01>T25</towncode01>
-    <townname>臺灣省屏東縣枋山鄉</townname>
+    <townname>枋山鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013260</towncode>
     <towncode01>T26</towncode01>
-    <townname>臺灣省屏東縣三地門鄉</townname>
+    <townname>三地門鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013270</towncode>
     <towncode01>T27</towncode01>
-    <townname>臺灣省屏東縣霧臺鄉</townname>
+    <townname>霧臺鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013280</towncode>
     <towncode01>T28</towncode01>
-    <townname>臺灣省屏東縣瑪家鄉</townname>
+    <townname>瑪家鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013290</towncode>
     <towncode01>T29</towncode01>
-    <townname>臺灣省屏東縣泰武鄉</townname>
+    <townname>泰武鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013300</towncode>
     <towncode01>T30</towncode01>
-    <townname>臺灣省屏東縣來義鄉</townname>
+    <townname>來義鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013310</towncode>
     <towncode01>T31</towncode01>
-    <townname>臺灣省屏東縣春日鄉</townname>
+    <townname>春日鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013320</towncode>
     <towncode01>T32</towncode01>
-    <townname>臺灣省屏東縣獅子鄉</townname>
+    <townname>獅子鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10013330</towncode>
     <towncode01>T33</towncode01>
-    <townname>臺灣省屏東縣牡丹鄉</townname>
+    <townname>牡丹鄉</townname>
 </townItem>
 </townItems>

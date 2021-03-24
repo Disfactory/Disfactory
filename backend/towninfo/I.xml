@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
+<townItem>
+    <towncode>10020010</towncode>
+    <towncode01>I01</towncode01>
+    <townname>東區</townname>
+</townItem>
+
+<townItem>
+    <towncode>10020020</towncode>
+    <towncode01>I02</towncode01>
+    <townname>西區</townname>
+</townItem>
+</townItems>
