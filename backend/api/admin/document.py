@@ -5,7 +5,7 @@ from django.urls import reverse
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
-from api.admin.actions import ExportDocMixin, ExportCsvMixin
+from api.admin.actions import ExportDocMixin, ExportDocumentCsvMixin
 from api.models import (
     Document,
     DocumentDisplayStatusEnum,
@@ -29,7 +29,7 @@ class DocumentResource(resources.ModelResource):
         model = Document
 
 
-class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin, ExportCsvMixin):
+class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin, ExportDocumentCsvMixin):
     resource_class = DocumentResource
 
     class Media:
