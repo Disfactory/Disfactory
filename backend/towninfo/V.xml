@@ -1,107 +1,97 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
 <townItem>
-    <towncode>10014000</towncode>
-    <townname>臺灣省臺東縣</townname>
-</townItem>
-
-<townItem>
-    <towncode>10014006</towncode>
-    <townname>臺灣省臺東縣民政處</townname>
-</townItem>
-
-<townItem>
     <towncode>10014010</towncode>
     <towncode01>V01</towncode01>
-    <townname>臺灣省臺東縣臺東市</townname>
+    <townname>臺東市</townname>
 </townItem>
 
 <townItem>
     <towncode>10014020</towncode>
     <towncode01>V02</towncode01>
-    <townname>臺灣省臺東縣成功鎮</townname>
+    <townname>成功鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10014030</towncode>
     <towncode01>V03</towncode01>
-    <townname>臺灣省臺東縣關山鎮</townname>
+    <townname>關山鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10014040</towncode>
     <towncode01>V04</towncode01>
-    <townname>臺灣省臺東縣卑南鄉</townname>
+    <townname>卑南鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10014050</towncode>
     <towncode01>V09</towncode01>
-    <townname>臺灣省臺東縣鹿野鄉</townname>
+    <townname>鹿野鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10014060</towncode>
     <towncode01>V10</towncode01>
-    <townname>臺灣省臺東縣池上鄉</townname>
+    <townname>池上鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10014070</towncode>
     <towncode01>V07</towncode01>
-    <townname>臺灣省臺東縣東河鄉</townname>
+    <townname>東河鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10014080</towncode>
     <towncode01>V08</towncode01>
-    <townname>臺灣省臺東縣長濱鄉</townname>
+    <townname>長濱鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10014090</towncode>
     <towncode01>V06</towncode01>
-    <townname>臺灣省臺東縣太麻里鄉</townname>
+    <townname>太麻里鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10014100</towncode>
     <towncode01>V05</towncode01>
-    <townname>臺灣省臺東縣大武鄉</townname>
+    <townname>大武鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10014110</towncode>
     <towncode01>V11</towncode01>
-    <townname>臺灣省臺東縣綠島鄉</townname>
+    <townname>綠島鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10014120</towncode>
     <towncode01>V13</towncode01>
-    <townname>臺灣省臺東縣海端鄉</townname>
+    <townname>海端鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10014130</towncode>
     <towncode01>V12</towncode01>
-    <townname>臺灣省臺東縣延平鄉</townname>
+    <townname>延平鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10014140</towncode>
     <towncode01>V15</towncode01>
-    <townname>臺灣省臺東縣金峰鄉</townname>
+    <townname>金峰鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10014150</towncode>
     <towncode01>V14</towncode01>
-    <townname>臺灣省臺東縣達仁鄉</townname>
+    <townname>達仁鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10014160</towncode>
     <towncode01>V16</towncode01>
-    <townname>臺灣省臺東縣蘭嶼鄉</townname>
+    <townname>蘭嶼鄉</townname>
 </townItem>
 </townItems>

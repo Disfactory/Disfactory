@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
+<townItem>
+    <towncode>10018010</towncode>
+    <towncode01>O01</towncode01>
+    <townname>東區</townname>
+</townItem>
+
+<townItem>
+    <towncode>10018020</towncode>
+    <towncode01>O02</towncode01>
+    <townname>北區</townname>
+</townItem>
+
+<townItem>
+    <towncode>10018030</towncode>
+    <towncode01>O03</towncode01>
+    <townname>香山區</townname>
+</townItem>
+</townItems>

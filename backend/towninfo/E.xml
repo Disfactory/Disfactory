@@ -1,259 +1,229 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
 <townItem>
-    <towncode>64000000</towncode>
-    <townname>高雄市</townname>
-</townItem>
-
-<townItem>
-    <towncode>64000006</towncode>
-    <townname>高雄市兵役局</townname>
-</townItem>
-
-<townItem>
     <towncode>64000010</towncode>
     <towncode01>E01</towncode01>
-    <townname>高雄市鹽埕區</townname>
+    <townname>鹽埕區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000020</towncode>
     <towncode01>E02</towncode01>
-    <townname>高雄市鼓山區</townname>
+    <townname>鼓山區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000030</towncode>
     <towncode01>E03</towncode01>
-    <townname>高雄市左營區</townname>
+    <townname>左營區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000040</towncode>
     <towncode01>E04</towncode01>
-    <townname>高雄市楠梓區</townname>
+    <townname>楠梓區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000050</towncode>
     <towncode01>E05</towncode01>
-    <townname>高雄市三民區</townname>
-</townItem>
-
-<townItem>
-    <towncode>64000051</towncode>
-    <townname>高雄市三民區</townname>
-</townItem>
-
-<townItem>
-    <towncode>64000052</towncode>
-    <townname>高雄市三民區</townname>
+    <townname>三民區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000060</towncode>
     <towncode01>E06</towncode01>
-    <townname>高雄市新興區</townname>
+    <townname>新興區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000070</towncode>
     <towncode01>E07</towncode01>
-    <townname>高雄市前金區</townname>
+    <townname>前金區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000080</towncode>
     <towncode01>E08</towncode01>
-    <townname>高雄市苓雅區</townname>
+    <townname>苓雅區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000090</towncode>
     <towncode01>E09</towncode01>
-    <townname>高雄市前鎮區</townname>
+    <townname>前鎮區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000100</towncode>
     <towncode01>E10</towncode01>
-    <townname>高雄市旗津區</townname>
+    <townname>旗津區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000110</towncode>
     <towncode01>E11</towncode01>
-    <townname>高雄市小港區</townname>
+    <townname>小港區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000120</towncode>
     <towncode01>E12</towncode01>
-    <townname>高雄市鳳山區</townname>
-</townItem>
-
-<townItem>
-    <towncode>64000121</towncode>
-    <townname>高雄市鳳山區</townname>
-</townItem>
-
-<townItem>
-    <towncode>64000122</towncode>
-    <townname>高雄市鳳山區</townname>
+    <townname>鳳山區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000130</towncode>
     <towncode01>E13</towncode01>
-    <townname>高雄市林園區</townname>
+    <townname>林園區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000140</towncode>
     <towncode01>E14</towncode01>
-    <townname>高雄市大寮區</townname>
+    <townname>大寮區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000150</towncode>
     <towncode01>E15</towncode01>
-    <townname>高雄市大樹區</townname>
+    <townname>大樹區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000160</towncode>
     <towncode01>E16</towncode01>
-    <townname>高雄市大社區</townname>
+    <townname>大社區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000170</towncode>
     <towncode01>E17</towncode01>
-    <townname>高雄市仁武區</townname>
+    <townname>仁武區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000180</towncode>
     <towncode01>E18</towncode01>
-    <townname>高雄市鳥松區</townname>
+    <townname>鳥松區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000190</towncode>
     <towncode01>E19</towncode01>
-    <townname>高雄市岡山區</townname>
+    <townname>岡山區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000200</towncode>
     <towncode01>E20</towncode01>
-    <townname>高雄市橋頭區</townname>
+    <townname>橋頭區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000210</towncode>
     <towncode01>E21</towncode01>
-    <townname>高雄市燕巢區</townname>
+    <townname>燕巢區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000220</towncode>
     <towncode01>E22</towncode01>
-    <townname>高雄市田寮區</townname>
+    <townname>田寮區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000230</towncode>
     <towncode01>E23</towncode01>
-    <townname>高雄市阿蓮區</townname>
+    <townname>阿蓮區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000240</towncode>
     <towncode01>E24</towncode01>
-    <townname>高雄市路竹區</townname>
+    <townname>路竹區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000250</towncode>
     <towncode01>E25</towncode01>
-    <townname>高雄市湖內區</townname>
+    <townname>湖內區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000260</towncode>
     <towncode01>E26</towncode01>
-    <townname>高雄市茄萣區</townname>
+    <townname>茄萣區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000270</towncode>
     <towncode01>E27</towncode01>
-    <townname>高雄市永安區</townname>
+    <townname>永安區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000280</towncode>
     <towncode01>E28</towncode01>
-    <townname>高雄市彌陀區</townname>
+    <townname>彌陀區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000290</towncode>
     <towncode01>E29</towncode01>
-    <townname>高雄市梓官區</townname>
+    <townname>梓官區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000300</towncode>
     <towncode01>E30</towncode01>
-    <townname>高雄市旗山區</townname>
+    <townname>旗山區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000310</towncode>
     <towncode01>E31</towncode01>
-    <townname>高雄市美濃區</townname>
+    <townname>美濃區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000320</towncode>
     <towncode01>E32</towncode01>
-    <townname>高雄市六龜區</townname>
+    <townname>六龜區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000330</towncode>
     <towncode01>E33</towncode01>
-    <townname>高雄市甲仙區</townname>
+    <townname>甲仙區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000340</towncode>
     <towncode01>E34</towncode01>
-    <townname>高雄市杉林區</townname>
+    <townname>杉林區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000350</towncode>
     <towncode01>E35</towncode01>
-    <townname>高雄市內門區</townname>
+    <townname>內門區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000360</towncode>
     <towncode01>E36</towncode01>
-    <townname>高雄市茂林區</townname>
+    <townname>茂林區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000370</towncode>
     <towncode01>E37</towncode01>
-    <townname>高雄市桃源區</townname>
+    <townname>桃源區</townname>
 </townItem>
 
 <townItem>
     <towncode>64000380</towncode>
     <towncode01>E38</towncode01>
-    <townname>高雄市那瑪夏區</townname>
+    <townname>那瑪夏區</townname>
 </townItem>
 </townItems>

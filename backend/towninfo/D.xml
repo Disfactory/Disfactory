@@ -1,233 +1,223 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
 <townItem>
-    <towncode>67000000</towncode>
-    <townname>臺南市</townname>
-</townItem>
-
-<townItem>
-    <towncode>67000006</towncode>
-    <townname>臺南市民政局</townname>
-</townItem>
-
-<townItem>
     <towncode>67000010</towncode>
     <towncode01>D09</towncode01>
-    <townname>臺南市新營區</townname>
+    <townname>新營區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000020</towncode>
     <towncode01>D10</towncode01>
-    <townname>臺南市鹽水區</townname>
+    <townname>鹽水區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000030</towncode>
     <towncode01>D12</towncode01>
-    <townname>臺南市白河區</townname>
+    <townname>白河區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000040</towncode>
     <towncode01>D11</towncode01>
-    <townname>臺南市柳營區</townname>
+    <townname>柳營區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000050</towncode>
     <towncode01>D13</towncode01>
-    <townname>臺南市後壁區</townname>
+    <townname>後壁區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000060</towncode>
     <towncode01>D14</towncode01>
-    <townname>臺南市東山區</townname>
+    <townname>東山區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000070</towncode>
     <towncode01>D15</towncode01>
-    <townname>臺南市麻豆區</townname>
+    <townname>麻豆區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000080</towncode>
     <towncode01>D16</towncode01>
-    <townname>臺南市下營區</townname>
+    <townname>下營區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000090</towncode>
     <towncode01>D17</towncode01>
-    <townname>臺南市六甲區</townname>
+    <townname>六甲區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000100</towncode>
     <towncode01>D18</towncode01>
-    <townname>臺南市官田區</townname>
+    <townname>官田區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000110</towncode>
     <towncode01>D19</towncode01>
-    <townname>臺南市大內區</townname>
+    <townname>大內區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000120</towncode>
     <towncode01>D20</towncode01>
-    <townname>臺南市佳里區</townname>
+    <townname>佳里區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000130</towncode>
     <towncode01>D25</towncode01>
-    <townname>臺南市學甲區</townname>
+    <townname>學甲區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000140</towncode>
     <towncode01>D21</towncode01>
-    <townname>臺南市西港區</townname>
+    <townname>西港區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000150</towncode>
     <towncode01>D22</towncode01>
-    <townname>臺南市七股區</townname>
+    <townname>七股區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000160</towncode>
     <towncode01>D23</towncode01>
-    <townname>臺南市將軍區</townname>
+    <townname>將軍區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000170</towncode>
     <towncode01>D24</towncode01>
-    <townname>臺南市北門區</townname>
+    <townname>北門區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000180</towncode>
     <towncode01>D26</towncode01>
-    <townname>臺南市新化區</townname>
+    <townname>新化區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000190</towncode>
     <towncode01>D27</towncode01>
-    <townname>臺南市善化區</townname>
+    <townname>善化區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000200</towncode>
     <towncode01>D28</towncode01>
-    <townname>臺南市新市區</townname>
+    <townname>新市區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000210</towncode>
     <towncode01>D29</towncode01>
-    <townname>臺南市安定區</townname>
+    <townname>安定區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000220</towncode>
     <towncode01>D30</towncode01>
-    <townname>臺南市山上區</townname>
+    <townname>山上區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000230</towncode>
     <towncode01>D36</towncode01>
-    <townname>臺南市玉井區</townname>
+    <townname>玉井區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000240</towncode>
     <towncode01>D37</towncode01>
-    <townname>臺南市楠西區</townname>
+    <townname>楠西區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000250</towncode>
     <towncode01>D38</towncode01>
-    <townname>臺南市南化區</townname>
+    <townname>南化區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000260</towncode>
     <towncode01>D31</towncode01>
-    <townname>臺南市左鎮區</townname>
+    <townname>左鎮區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000270</towncode>
     <towncode01>D32</towncode01>
-    <townname>臺南市仁德區</townname>
+    <townname>仁德區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000280</towncode>
     <towncode01>D33</towncode01>
-    <townname>臺南市歸仁區</townname>
+    <townname>歸仁區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000290</towncode>
     <towncode01>D34</towncode01>
-    <townname>臺南市關廟區</townname>
+    <townname>關廟區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000300</towncode>
     <towncode01>D35</towncode01>
-    <townname>臺南市龍崎區</townname>
+    <townname>龍崎區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000310</towncode>
     <towncode01>D39</towncode01>
-    <townname>臺南市永康區</townname>
+    <townname>永康區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000320</towncode>
     <towncode01>D01</towncode01>
-    <townname>臺南市東區</townname>
+    <townname>東區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000330</towncode>
     <towncode01>D02</towncode01>
-    <townname>臺南市南區</townname>
+    <townname>南區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000340</towncode>
     <towncode01>D04</towncode01>
-    <townname>臺南市北區</townname>
+    <townname>北區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000350</towncode>
     <towncode01>D06</towncode01>
-    <townname>臺南市安南區</townname>
+    <townname>安南區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000360</towncode>
     <towncode01>D07</towncode01>
-    <townname>臺南市安平區</townname>
+    <townname>安平區</townname>
 </townItem>
 
 <townItem>
     <towncode>67000370</towncode>
     <towncode01>D08</towncode01>
-    <townname>臺南市中西區</townname>
+    <townname>中西區</townname>
 </townItem>
 </townItems>

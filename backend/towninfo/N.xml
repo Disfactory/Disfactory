@@ -1,172 +1,157 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
 <townItem>
-    <towncode>10007000</towncode>
-    <townname>臺灣省彰化縣</townname>
-</townItem>
-
-<townItem>
-    <towncode>10007006</towncode>
-    <townname>臺灣省彰化縣民政處</townname>
-</townItem>
-
-<townItem>
     <towncode>10007010</towncode>
     <towncode01>N01</towncode01>
-    <townname>臺灣省彰化縣彰化市</townname>
+    <townname>彰化市</townname>
 </townItem>
 
 <townItem>
     <towncode>10007020</towncode>
     <towncode01>N02</towncode01>
-    <townname>臺灣省彰化縣鹿港鎮</townname>
+    <townname>鹿港鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10007030</towncode>
     <towncode01>N03</towncode01>
-    <townname>臺灣省彰化縣和美鎮</townname>
+    <townname>和美鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10007040</towncode>
     <towncode01>N09</towncode01>
-    <townname>臺灣省彰化縣線西鄉</townname>
+    <townname>線西鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007050</towncode>
     <towncode01>N10</towncode01>
-    <townname>臺灣省彰化縣伸港鄉</townname>
+    <townname>伸港鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007060</towncode>
     <towncode01>N11</towncode01>
-    <townname>臺灣省彰化縣福興鄉</townname>
+    <townname>福興鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007070</towncode>
     <towncode01>N12</towncode01>
-    <townname>臺灣省彰化縣秀水鄉</townname>
+    <townname>秀水鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007080</towncode>
     <towncode01>N13</towncode01>
-    <townname>臺灣省彰化縣花壇鄉</townname>
+    <townname>花壇鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007090</towncode>
     <towncode01>N14</towncode01>
-    <townname>臺灣省彰化縣芬園鄉</townname>
+    <townname>芬園鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007100</towncode>
     <towncode01>N05</towncode01>
-    <townname>臺灣省彰化縣員林市</townname>
-</townItem>
-
-<townItem>
-    <towncode>1000710A</towncode>
-    <townname>臺灣省彰化縣員林鎮</townname>
+    <townname>員林市</townname>
 </townItem>
 
 <townItem>
     <towncode>10007110</towncode>
     <towncode01>N06</towncode01>
-    <townname>臺灣省彰化縣溪湖鎮</townname>
+    <townname>溪湖鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10007120</towncode>
     <towncode01>N07</towncode01>
-    <townname>臺灣省彰化縣田中鎮</townname>
+    <townname>田中鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10007130</towncode>
     <towncode01>N15</towncode01>
-    <townname>臺灣省彰化縣大村鄉</townname>
+    <townname>大村鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007140</towncode>
     <towncode01>N16</towncode01>
-    <townname>臺灣省彰化縣埔鹽鄉</townname>
+    <townname>埔鹽鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007150</towncode>
     <towncode01>N17</towncode01>
-    <townname>臺灣省彰化縣埔心鄉</townname>
+    <townname>埔心鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007160</towncode>
     <towncode01>N18</towncode01>
-    <townname>臺灣省彰化縣永靖鄉</townname>
+    <townname>永靖鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007170</towncode>
     <towncode01>N19</towncode01>
-    <townname>臺灣省彰化縣社頭鄉</townname>
+    <townname>社頭鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007180</towncode>
     <towncode01>N20</towncode01>
-    <townname>臺灣省彰化縣二水鄉</townname>
+    <townname>二水鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007190</towncode>
     <towncode01>N04</towncode01>
-    <townname>臺灣省彰化縣北斗鎮</townname>
+    <townname>北斗鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10007200</towncode>
     <towncode01>N08</towncode01>
-    <townname>臺灣省彰化縣二林鎮</townname>
+    <townname>二林鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10007210</towncode>
     <towncode01>N21</towncode01>
-    <townname>臺灣省彰化縣田尾鄉</townname>
+    <townname>田尾鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007220</towncode>
     <towncode01>N22</towncode01>
-    <townname>臺灣省彰化縣埤頭鄉</townname>
+    <townname>埤頭鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007230</towncode>
     <towncode01>N23</towncode01>
-    <townname>臺灣省彰化縣芳苑鄉</townname>
+    <townname>芳苑鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007240</towncode>
     <towncode01>N24</towncode01>
-    <townname>臺灣省彰化縣大城鄉</townname>
+    <townname>大城鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007250</towncode>
     <towncode01>N25</towncode01>
-    <townname>臺灣省彰化縣竹塘鄉</townname>
+    <townname>竹塘鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10007260</towncode>
     <towncode01>N26</towncode01>
-    <townname>臺灣省彰化縣溪州鄉</townname>
+    <townname>溪州鄉</townname>
 </townItem>
 </townItems>

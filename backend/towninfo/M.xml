@@ -1,89 +1,79 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
 <townItem>
-    <towncode>10008000</towncode>
-    <townname>臺灣省南投縣</townname>
-</townItem>
-
-<townItem>
-    <towncode>10008006</towncode>
-    <townname>臺灣省南投縣民政處</townname>
-</townItem>
-
-<townItem>
     <towncode>10008010</towncode>
     <towncode01>M01</towncode01>
-    <townname>臺灣省南投縣南投市</townname>
+    <townname>南投市</townname>
 </townItem>
 
 <townItem>
     <towncode>10008020</towncode>
     <towncode01>M02</towncode01>
-    <townname>臺灣省南投縣埔里鎮</townname>
+    <townname>埔里鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10008030</towncode>
     <towncode01>M03</towncode01>
-    <townname>臺灣省南投縣草屯鎮</townname>
+    <townname>草屯鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10008040</towncode>
     <towncode01>M04</towncode01>
-    <townname>臺灣省南投縣竹山鎮</townname>
+    <townname>竹山鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10008050</towncode>
     <towncode01>M05</towncode01>
-    <townname>臺灣省南投縣集集鎮</townname>
+    <townname>集集鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>10008060</towncode>
     <towncode01>M06</towncode01>
-    <townname>臺灣省南投縣名間鄉</townname>
+    <townname>名間鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10008070</towncode>
     <towncode01>M07</towncode01>
-    <townname>臺灣省南投縣鹿谷鄉</townname>
+    <townname>鹿谷鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10008080</towncode>
     <towncode01>M08</towncode01>
-    <townname>臺灣省南投縣中寮鄉</townname>
+    <townname>中寮鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10008090</towncode>
     <towncode01>M09</towncode01>
-    <townname>臺灣省南投縣魚池鄉</townname>
+    <townname>魚池鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10008100</towncode>
     <towncode01>M10</towncode01>
-    <townname>臺灣省南投縣國姓鄉</townname>
+    <townname>國姓鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10008110</towncode>
     <towncode01>M11</towncode01>
-    <townname>臺灣省南投縣水里鄉</townname>
+    <townname>水里鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10008120</towncode>
     <towncode01>M12</towncode01>
-    <townname>臺灣省南投縣信義鄉</townname>
+    <townname>信義鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>10008130</towncode>
     <towncode01>M13</towncode01>
-    <townname>臺灣省南投縣仁愛鄉</townname>
+    <townname>仁愛鄉</townname>
 </townItem>
 </townItems>

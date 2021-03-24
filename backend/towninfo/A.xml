@@ -1,103 +1,73 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
 <townItem>
-    <towncode>63000000</towncode>
-    <townname>臺北市</townname>
-</townItem>
-
-<townItem>
-    <towncode>63000006</towncode>
-    <townname>臺北市兵役處</townname>
-</townItem>
-
-<townItem>
     <towncode>63000010</towncode>
     <towncode01>A01</towncode01>
-    <townname>臺北市松山區</townname>
+    <townname>松山區</townname>
 </townItem>
 
 <townItem>
     <towncode>63000020</towncode>
     <towncode01>A17</towncode01>
-    <townname>臺北市信義區</townname>
+    <townname>信義區</townname>
 </townItem>
 
 <townItem>
     <towncode>63000030</towncode>
     <towncode01>A02</towncode01>
-    <townname>臺北市大安區</townname>
+    <townname>大安區</townname>
 </townItem>
 
 <townItem>
     <towncode>63000040</towncode>
     <towncode01>A10</towncode01>
-    <townname>臺北市中山區</townname>
+    <townname>中山區</townname>
 </townItem>
 
 <townItem>
     <towncode>63000050</towncode>
     <towncode01>A03</towncode01>
-    <townname>臺北市中正區</townname>
+    <townname>中正區</townname>
 </townItem>
 
 <townItem>
     <towncode>63000060</towncode>
     <towncode01>A09</towncode01>
-    <townname>臺北市大同區</townname>
+    <townname>大同區</townname>
 </townItem>
 
 <townItem>
     <towncode>63000070</towncode>
     <towncode01>A05</towncode01>
-    <townname>臺北市萬華區</townname>
-</townItem>
-
-<townItem>
-    <towncode>63000071</towncode>
-    <townname>臺北市萬華區</townname>
-</townItem>
-
-<townItem>
-    <towncode>63000072</towncode>
-    <townname>臺北市萬華區</townname>
+    <townname>萬華區</townname>
 </townItem>
 
 <townItem>
     <towncode>63000080</towncode>
     <towncode01>A11</towncode01>
-    <townname>臺北市文山區</townname>
-</townItem>
-
-<townItem>
-    <towncode>63000081</towncode>
-    <townname>臺北市文山區</townname>
-</townItem>
-
-<townItem>
-    <towncode>63000082</towncode>
-    <townname>臺北市文山區</townname>
+    <townname>文山區</townname>
 </townItem>
 
 <townItem>
     <towncode>63000090</towncode>
     <towncode01>A13</towncode01>
-    <townname>臺北市南港區</townname>
+    <townname>南港區</townname>
 </townItem>
 
 <townItem>
     <towncode>63000100</towncode>
     <towncode01>A14</towncode01>
-    <townname>臺北市內湖區</townname>
+    <townname>內湖區</townname>
 </townItem>
 
 <townItem>
     <towncode>63000110</towncode>
     <towncode01>A15</towncode01>
-    <townname>臺北市士林區</townname>
+    <townname>士林區</townname>
 </townItem>
 
 <townItem>
     <towncode>63000120</towncode>
     <towncode01>A16</towncode01>
-    <townname>臺北市北投區</townname>
+    <townname>北投區</townname>
 </townItem>
 </townItems>
