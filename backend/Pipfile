@@ -10,7 +10,7 @@ pylint = "*"
 pylint-django = "*"
 
 [packages]
-django = "==2.2.16"
+django = "==2.2.18"
 "psycopg2-binary" = "==2.8.3"
 djangorestframework = "==3.9.2"
 python-dotenv = "==0.10.3"
