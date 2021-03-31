@@ -31,7 +31,7 @@ def get_point_city(sess, x, y):
     if resp.status_code != requests.codes.ok:
         raise WebRequestError("Failed getting city code", resp.status_code, resp.text)
     try:
-        return resp.json()
+        return resp.json()["cityCode"]
     except Exception:
         raise WebRequestError("Failed parsing city code", resp.status_code, resp.text)
 
@@ -48,9 +48,9 @@ def get_token(sess):
     return token
 
 
-def get_door_info(sess, x, y, city, token):
+def get_door_info(sess, x, y, cityCode, token):
     get_door_info_url = "http://easymap.land.moi.gov.tw/P02/Door_json_getDoorInfoByXY"
-    data = {"city": city["cityCode"], "coordX": x, "coordY": y, **token}
+    data = {"city": cityCode, "coordX": x, "coordY": y, **token}
     resp = sess.post(get_door_info_url, data=data)
     if resp.status_code != requests.codes.ok:
         raise WebRequestError("Failed getting door info", resp.status_code, resp.text)
@@ -67,9 +67,9 @@ def get_land_number(x, y):
     since the easymap API doesn't provide townname, we then insert a townname field by looking up in xml files in ./towncode downloaded from https://api.nlsc.gov.tw/other/ListTown1/{A-Z}
     """
     sess = get_session()
-    city = get_point_city(sess, x=x, y=y)
+    cityCode = get_point_city(sess, x=x, y=y)
     token = get_token(sess)
-    land_number = get_door_info(sess, x=x, y=y, city=city, token=token)
+    land_number = get_door_info(sess, x=x, y=y, cityCode=cityCode, token=token)
     sess.close()
     land_number["townname"] = towninfo.code2name.get(land_number["towncode"], "")
     return land_number
