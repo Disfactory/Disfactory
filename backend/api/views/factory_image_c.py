@@ -40,7 +40,7 @@ LOGGER = logging.getLogger("django")
         200: openapi.Response("圖片資料", ImageSerializer),
         400: "request failed",
     },
-    auto_schema=None
+    auto_schema=None,
 )
 @api_view(["POST"])
 def post_factory_image_url(request, factory_id):

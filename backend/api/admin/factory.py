@@ -210,7 +210,14 @@ class FactoryAdmin(
         "generate_docs",
     ]
 
-    readonly_fields = ("id", "display_number", "created_at", "updated_at", "google_map_link", "disfactory_map_link")
+    readonly_fields = (
+        "id",
+        "display_number",
+        "created_at",
+        "updated_at",
+        "google_map_link",
+        "disfactory_map_link",
+    )
     fieldsets = (
         (
             None,
@@ -266,25 +273,25 @@ class FactoryAdmin(
 
     @set_function_attributes(short_description="Disfactory Map 連結")
     def disfactory_map_link(self, obj):
-        disfactory_frontend_domain = os.environ.get("DISFACTORY_FRONTEND_DOMAIN", "https://disfactory.tw/")
+        disfactory_frontend_domain = os.environ.get(
+            "DISFACTORY_FRONTEND_DOMAIN", "https://disfactory.tw/"
+        )
 
         url = urljoin(disfactory_frontend_domain, f"/#map=16.00/{obj.lng}/{obj.lat}")
 
-        html_template = (
-            f"<a href='{url}' target='_blank'>Link</a>"
-        )
+        html_template = f"<a href='{url}' target='_blank'>Link</a>"
 
         return format_html(html_template)
 
     def save_model(self, request, obj, form, change):
         landinfo = easymap.get_land_number(obj.lng, obj.lat)
-        landcode = landinfo.get('landno')
+        landcode = landinfo.get("landno")
 
         obj.landcode = landcode
-        obj.sectno = landinfo.get('sectno')
-        obj.sectname = landinfo.get('sectName')
-        obj.towncode = landinfo.get('towncode')
-        obj.townname = landinfo.get('townname')
+        obj.sectno = landinfo.get("sectno")
+        obj.sectname = landinfo.get("sectName")
+        obj.towncode = landinfo.get("towncode")
+        obj.townname = landinfo.get("townname")
 
         super().save_model(request, obj, form, change)
 

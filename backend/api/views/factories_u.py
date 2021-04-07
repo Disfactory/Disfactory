@@ -88,7 +88,7 @@ def _handle_update_factory_attributes(request, factory_id):
     operation_summary="更新指定 id 的工廠資料",
     request_body=FactorySerializer,
     responses={200: openapi.Response("更新後的工廠資料", FactorySerializer), 400: "request failed"},
-    auto_schema=None
+    auto_schema=None,
 )
 @api_view(["PUT", "GET"])
 def update_factory_attribute(request, factory_id):
