@@ -3,7 +3,7 @@
 
 .PHONY: unittest
 unittest:
-	docker-compose -f docker-compose.dev.yml exec web python manage.py test -v 2
+	docker-compose -f docker-compose.dev.yml exec web pytest -vv
 
 .PHONY: test
 test: unittest
