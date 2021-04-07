@@ -51,6 +51,7 @@ class FactorySerializer(ModelSerializer):
             "townname",
             "sectname",
             "sectcode",
+            "source",
             "factory_type",
             "type",
             "cet_report_status",

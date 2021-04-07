@@ -77,6 +77,9 @@ class GetNearbyOrCreateFactoriesViewTestCase(TestCase):
             ],
         )
 
+        for f in factories:
+            self.assertEqual(f["source"], "G")
+
     def test_create_new_factory_db_status_correct(self):
         lat = 23.234
         lng = 120.1
