@@ -15,6 +15,7 @@ class PostImageUrlViewTestCase(TestCase):
         fake_lat = 23.12
         fake_lng = 121.5566
         fake_datetime_str = "2020:03:21 12:33:59"
+        fake_deletehash = "asdjiwenvnxcvj;"
         fake_datetime = datetime.strptime(
             fake_datetime_str,
             "%Y:%m:%d %H:%M:%S",
@@ -24,6 +25,7 @@ class PostImageUrlViewTestCase(TestCase):
             "Latitude": fake_lat,
             "Longitude": fake_lng,
             "DateTimeOriginal": fake_datetime_str,
+            "deletehash": fake_deletehash,
         }
         test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8)))
         with freeze_time(test_time):
@@ -47,10 +49,12 @@ class PostImageUrlViewTestCase(TestCase):
         fake_lat = 23.12
         fake_lng = 121.5566
         fake_datetime_str = "2020:03:21 12:33:59"
+        fake_deletehash = "asdjiwenvnxcvj;"
         request_body = {
             "Latitude": fake_lat,
             "Longitude": fake_lng,
             "DateTimeOriginal": fake_datetime_str,
+            "deletehash": fake_deletehash,
         }
         test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8)))
         with freeze_time(test_time):

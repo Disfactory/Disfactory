@@ -30,6 +30,7 @@ class Image(SoftDeleteMixin):
         null=True,
     )
     image_path = models.URLField(max_length=256)  # get from Imgur
+    deletehash = models.TextField(help_text="delete hash", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     # the DB saving time
 

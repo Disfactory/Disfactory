@@ -26,6 +26,10 @@ LOGGER = logging.getLogger("django")
                 type=openapi.TYPE_STRING,
                 description="image url",
             ),
+            "deletehash": openapi.Schema(
+                type=openapi.TYPE_STRING,
+                description="image delete hash",
+            ),
             "DateTimeOriginal": openapi.Schema(
                 type=openapi.TYPE_STRING,
                 description="YYYY:mm:dd HH:MM:SS",
@@ -51,6 +55,10 @@ def post_factory_image_url(request, factory_id):
     if "url" not in post_body:
         LOGGER.error(f"post_factory_image_url received no url from {user_ip}")
         return HttpResponse("`url` should be in post body", status=400)
+
+    if "deletehash" not in post_body:
+        LOGGER.error(f"post_factory_image_url received no deletehash from {user_ip}")
+        return HttpResponse("`deletehash` should be in post body", status=400)
 
     if not Factory.objects.filter(pk=factory_id).exists():
         LOGGER.warning(
@@ -94,6 +102,7 @@ def post_factory_image_url(request, factory_id):
             orig_time=orig_time,
             report_record=report_record,
             factory=factory,
+            deletehash=post_body.get("deletehash"),
         )
 
     img_serializer = ImageSerializer(image)

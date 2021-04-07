@@ -58,6 +58,10 @@ def post_image_url(request):
         LOGGER.error(f"post_image_url received no url from {user_ip}")
         return HttpResponse("`url` should be in post body", status=400)
 
+    if "deletehash" not in post_body:
+        LOGGER.error(f"post_factory_image_url received no deletehash from {user_ip}")
+        return HttpResponse("`deletehash` should be in post body", status=400)
+
     img_url = post_body["url"]
     LOGGER.info(f"post_image_url {img_url} from {user_ip}")
 
@@ -79,6 +83,7 @@ def post_image_url(request):
         orig_lat=post_body.get("Latitude"),
         orig_lng=post_body.get("Longitude"),
         orig_time=orig_time,
+        deletehash=post_body.get("deletehash"),
     )
 
     return JsonResponse({"token": image.id})
