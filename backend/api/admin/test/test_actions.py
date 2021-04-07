@@ -90,7 +90,7 @@ class ModelAdminTests(TestCase):
 
     def test_modeladmin_str(self):
         ma = ModelAdmin(Factory, self.site)
-        self.assertEqual(str(ma), "api.ModelAdmin")
+        assert str(ma) == "api.ModelAdmin"
 
     def test_export_doc_action(self):
         # Remove all document models
@@ -120,10 +120,10 @@ class ModelAdminTests(TestCase):
         }
 
         response = self.client.post("/admin/api/document/", data)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response["Content-Type"],
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        assert response.status_code == 200
+        assert (
+            response["Content-Type"]
+            == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )
 
     def test_python_docx_workaround(self):
@@ -154,8 +154,8 @@ class ModelAdminTests(TestCase):
         }
         response = self.client.post("/admin/api/document/", data)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response["Content-Type"],
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        assert response.status_code == 200
+        assert (
+            response["Content-Type"]
+            == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )

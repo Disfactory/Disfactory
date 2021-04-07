@@ -39,27 +39,24 @@ class GetFactoryReportRecordTestCase(TestCase):
         rr5 = self.create_report_record(factory2)
 
         resp = self.cli.get(f"/api/factories/{self.factory.id}/report_records")
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
 
         rrs = resp.json()
-        self.assertEqual([rr1.id, rr2.id, rr3.id], [rr["id"] for rr in rrs])
+        assert [rr["id"] for rr in rrs] == [rr1.id, rr2.id, rr3.id]
 
         resp = self.cli.get(f"/api/factories/{factory2.id}/report_records")
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
 
         rrs = resp.json()
-        self.assertEqual([rr4.id, rr5.id], [rr["id"] for rr in rrs])
+        assert [rr["id"] for rr in rrs] == [rr4.id, rr5.id]
 
     def test_get_empty_if_no_report_record(self):
         resp = self.cli.get(f"/api/factories/{self.factory.id}/report_records")
-        self.assertEqual(resp.status_code, 200)
 
-        rrs = resp.json()
-        self.assertEqual([], [rr["id"] for rr in rrs])
+        assert resp.status_code == 200
+        assert not resp.json()
 
     def test_get_empty_if_strange_factory_id(self):
         resp = self.cli.get(f"/api/factories/{uuid4()}/report_records")
-        self.assertEqual(resp.status_code, 200)
-
-        rrs = resp.json()
-        self.assertEqual([], [rr["id"] for rr in rrs])
+        assert resp.status_code == 200
+        assert not resp.json()

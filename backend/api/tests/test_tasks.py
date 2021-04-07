@@ -36,7 +36,7 @@ class TasksTestCase(TestCase):
                 data={"image": image_byte_content},
                 headers={"Authorization": f"Client-ID {fake_client_id}"},
             )
-            self.assertEqual(path, mock_imgur_return.json()["data"]["link"])
+            assert path == mock_imgur_return.json()["data"]["link"]
 
     @patch("api.tasks._upload_image_to_imgur", return_value=FAKE_IMAGE_URI)
     def test_upload_image(self, _):
@@ -45,4 +45,4 @@ class TasksTestCase(TestCase):
             upload_image(f.name, "some_client_id", img.id)
 
         new_img = Image.objects.get(pk=img.id)
-        self.assertEqual(new_img.image_path, FAKE_IMAGE_URI)
+        assert new_img.image_path == FAKE_IMAGE_URI

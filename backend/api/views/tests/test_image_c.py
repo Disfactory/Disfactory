@@ -34,16 +34,16 @@ class PostImageUrlViewTestCase(TestCase):
                 data=request_body,
                 content_type="application/json",
             )
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
 
         resp_data = resp.json()
         img_id = resp_data["token"]
         img = Image.objects.get(pk=img_id)
-        self.assertEqual(img.image_path, fake_url)
-        self.assertEqual(img.created_at, test_time)
-        self.assertEqual(img.orig_time, fake_datetime)
-        self.assertEqual(img.orig_lat, fake_lat)
-        self.assertEqual(img.orig_lng, fake_lng)
+        assert img.image_path == fake_url
+        assert img.created_at == test_time
+        assert img.orig_time == fake_datetime
+        assert img.orig_lat == fake_lat
+        assert img.orig_lng == fake_lng
 
     def test_post_image_url_400_if_no_url(self):
         fake_lat = 23.12
@@ -63,4 +63,4 @@ class PostImageUrlViewTestCase(TestCase):
                 data=request_body,
                 content_type="application/json",
             )
-        self.assertEqual(resp.status_code, 400)
+        assert resp.status_code == 400

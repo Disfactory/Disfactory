@@ -50,25 +50,25 @@ class PostFactoryImageViewTestCase(TestCase):
                 content_type="application/json",
             )
 
-        self.assertEqual(resp.status_code, 200)
+        assert resp.status_code == 200
         resp_data = resp.json()
 
         img_id = resp_data["id"]
         img = Image.objects.get(pk=img_id)
-        self.assertEqual(img.image_path, self.fake_url)
-        self.assertEqual(img.created_at, test_time)
-        self.assertEqual(img.orig_time, self.fake_datetime)
-        self.assertEqual(img.orig_lat, self.fake_lat)
-        self.assertEqual(img.orig_lng, self.fake_lng)
-        self.assertEqual(img.factory_id, self.factory.id)
+        assert img.image_path == self.fake_url
+        assert img.created_at == test_time
+        assert img.orig_time == self.fake_datetime
+        assert img.orig_lat == self.fake_lat
+        assert img.orig_lng == self.fake_lng
+        assert img.factory_id == self.factory.id
 
         report_record_id = img.report_record_id
-        self.assertIsNotNone(report_record_id)
+        assert report_record_id is not None
         report_record = ReportRecord.objects.get(pk=report_record_id)
-        self.assertEqual(report_record.factory_id, self.factory.id)
-        self.assertEqual(report_record.action_type, "POST_IMAGE")
-        self.assertEqual(report_record.nickname, self.nickname)
-        self.assertEqual(report_record.contact, self.contact)
+        assert report_record.factory_id == self.factory.id
+        assert report_record.action_type == "POST_IMAGE"
+        assert report_record.nickname == self.nickname
+        assert report_record.contact == self.contact
 
     def test_return_400_if_url_not_provided(self):
         wrong_body = {
@@ -84,7 +84,7 @@ class PostFactoryImageViewTestCase(TestCase):
             content_type="application/json",
         )
 
-        self.assertEqual(resp.status_code, 400)
+        assert resp.status_code == 400
 
     def test_return_400_if_factory_id_not_exist(self):
         cli = Client()
@@ -95,6 +95,6 @@ class PostFactoryImageViewTestCase(TestCase):
             content_type="application/json",
         )
 
-        self.assertEqual(resp.status_code, 400)
+        assert resp.status_code == 400
         expected_msg = f"Factory ID {not_exist_factory_id} does not exist."
-        self.assertEqual(resp.content, expected_msg.encode("utf8"))
+        assert resp.content == expected_msg.encode("utf8")

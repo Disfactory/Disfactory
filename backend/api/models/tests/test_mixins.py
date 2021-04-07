@@ -55,25 +55,25 @@ class SoftDeleteMixinTestCase(AbstractModelMixinTestCase):
         obj2 = self.model.objects.create()
         obj3 = self.model.objects.create()
 
-        self.assertIsNone(obj1.deleted_at)
-        self.assertIsNone(obj2.deleted_at)
-        self.assertIsNone(obj3.deleted_at)
+        assert obj1.deleted_at is None
+        assert obj2.deleted_at is None
+        assert obj3.deleted_at is None
 
         delete_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone.utc)
         with freeze_time(delete_time):
             self.model.objects.filter(id=obj1.id).delete()
 
-        self.assertEqual(self.model.objects.count(), 2)
-        self.assertEqual(self.model.raw_objects.count(), 3)
-        self.assertEqual(self.model.recycle_objects.count(), 1)
+        assert self.model.objects.count() == 2
+        assert self.model.raw_objects.count() == 3
+        assert self.model.recycle_objects.count() == 1
 
         obj1.refresh_from_db()
-        self.assertEqual(obj1.deleted_at, delete_time)
+        assert obj1.deleted_at == delete_time
 
         obj1.undelete()
-        self.assertEqual(self.model.objects.count(), 3)
-        self.assertEqual(self.model.raw_objects.count(), 3)
-        self.assertEqual(self.model.recycle_objects.count(), 0)
+        assert self.model.objects.count() == 3
+        assert self.model.raw_objects.count() == 3
+        assert self.model.recycle_objects.count() == 0
 
         obj1.refresh_from_db()
-        self.assertIsNone(obj1.deleted_at)
+        assert obj1.deleted_at is None
