@@ -1,6 +1,7 @@
+import csv
+import itertools
 import os
 import sys
-import csv
 from datetime import datetime
 
 from django.db import migrations
@@ -13,13 +14,15 @@ SEED_DATA_PATH = os.path.join(settings.BASE_DIR, "fixtures/full-info.csv")
 def forward_func(apps, schema_editor):
     Factory = apps.get_model("api", "Factory")
 
+    # TODO don't import fucking data in migration
     with open(SEED_DATA_PATH, "r") as csvfile:
         reader = csv.DictReader(csvfile)
+        # HACK
+        if any("test" in arg for arg in sys.argv):
+            reader = itertools.islice(reader, 0, 101)
+
         seed_factories = []
         for idx, datum in enumerate(reader):
-            if ("test" in sys.argv) and (idx > 100):
-                # reduce the amount of seed data to speed up testing
-                break
             try:
                 lng = float(datum["經度"])
                 lat = float(datum["緯度"])
