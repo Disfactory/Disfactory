@@ -30,7 +30,7 @@ services:
       - "/Disfactory/scripts/start_prod.sh"
 
   db:
-    image: mdillon/postgis:11-alpine
+    image: postgres:12
     volumes:
       - ${DISFACTORY_PGDATA_PATH}:/var/lib/postgresql/data/
       - ${DISFACTORY_PGDATA_BACKUP_PATH}:/tmp/db_dump/
