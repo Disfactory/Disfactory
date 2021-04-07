@@ -56,10 +56,6 @@ def post_factory_image_url(request, factory_id):
         LOGGER.error(f"post_factory_image_url received no url from {user_ip}")
         return HttpResponse("`url` should be in post body", status=400)
 
-    if "deletehash" not in post_body:
-        LOGGER.error(f"post_factory_image_url received no deletehash from {user_ip}")
-        return HttpResponse("`deletehash` should be in post body", status=400)
-
     if not Factory.objects.filter(pk=factory_id).exists():
         LOGGER.warning(
             f"post_factory_image_url receiving {factory_id} that does not exist from {user_ip}"
