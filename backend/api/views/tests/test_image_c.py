@@ -16,11 +16,13 @@ def test_post_image_url(client):
         fake_datetime_str,
         "%Y:%m:%d %H:%M:%S",
     ).replace(tzinfo=timezone(timedelta(hours=8)))
+    fake_deletehash = "asdjiwenvnxcvj;"
     request_body = {
         "url": fake_url,
         "Latitude": fake_lat,
         "Longitude": fake_lng,
         "DateTimeOriginal": fake_datetime_str,
+        "deletehash": fake_deletehash,
     }
     test_time = datetime(2019, 11, 11, 11, 11, 11, tzinfo=timezone(timedelta(hours=8)))
     with freeze_time(test_time):

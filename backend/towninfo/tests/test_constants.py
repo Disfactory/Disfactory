@@ -1,9 +1,9 @@
-from . import code2name
+from .. import code2name
 
 from conftest import SuperSet
 
 
-def test_code2name(self):
+def test_code2name():
     assert code2name == SuperSet({
         "64000006": "高雄市兵役局",
         "10017006": "臺灣省基隆市民政處",
