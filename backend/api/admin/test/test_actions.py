@@ -3,10 +3,9 @@ from api.models.document import Document
 from api.models.image import Image
 import datetime
 
+import pytest
 from django.contrib.admin.options import ModelAdmin
 from django.contrib.admin.sites import AdminSite
-from users.models import CustomUser as User
-from django.test import TestCase
 
 
 class MockRequest:
@@ -58,13 +57,11 @@ TEST_FACTORY_DATA = [
 ]
 
 
-class ModelAdminTests(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.superuser = User.objects.create_superuser(
-            username="super", password="secret", email="super@example.com"
-        )
+@pytest.mark.django_db
+class TestModelAdmin:
 
+    @pytest.fixture
+    def factories(self, db):
         factories = []
         for data in TEST_FACTORY_DATA:
             # Insert images
@@ -82,17 +79,17 @@ class ModelAdminTests(TestCase):
                 image.factory = factory
                 image.save()
 
-        cls.factories = factories
+        return factories
 
-    def setUp(self):
-        self.site = AdminSite()
-        self.client.force_login(self.superuser)
+    @pytest.fixture
+    def site(self):
+        return AdminSite()
 
-    def test_modeladmin_str(self):
-        ma = ModelAdmin(Factory, self.site)
+    def test_modeladmin_str(self, site):
+        ma = ModelAdmin(Factory, site)
         assert str(ma) == "api.ModelAdmin"
 
-    def test_export_doc_action(self):
+    def test_export_doc_action(self, admin_client, factories):
         # Remove all document models
         Document.objects.all().delete()
 
@@ -101,11 +98,10 @@ class ModelAdminTests(TestCase):
             "action": "generate_docs",
             "select_across": 0,
             "index": 0,
-            "_selected_action": str(self.factories[0].id),
+            "_selected_action": str(factories[0].id),
         }
 
-        print(document_request)
-        response = self.client.post("/admin/api/factory/", document_request)
+        response = admin_client.post("/admin/api/factory/", document_request)
         assert (
             response.status_code == 302
         ), f"status_code of generate_docs action should be 302 but {response.status_code}"
@@ -119,14 +115,14 @@ class ModelAdminTests(TestCase):
             "_selected_action": document_model_list[0].id,
         }
 
-        response = self.client.post("/admin/api/document/", data)
+        response = admin_client.post("/admin/api/document/", data)
         assert response.status_code == 200
         assert (
             response["Content-Type"]
             == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         )
 
-    def test_python_docx_workaround(self):
+    def test_python_docx_workaround(self, factories, admin_client):
         # Remove all document models
         Document.objects.all().delete()
 
@@ -135,9 +131,9 @@ class ModelAdminTests(TestCase):
             "action": "generate_docs",
             "select_across": 0,
             "index": 0,
-            "_selected_action": self.factories[1].id,
+            "_selected_action": factories[1].id,
         }
-        response = self.client.post("/admin/api/factory/", create_document_request)
+        response = admin_client.post("/admin/api/factory/", create_document_request)
         assert (
             response.status_code == 302
         ), f"status_code of generate_docs action should be 302 but {response.status_code}"
@@ -152,7 +148,7 @@ class ModelAdminTests(TestCase):
             "index": 0,
             "_selected_action": document_model_list[0].id,
         }
-        response = self.client.post("/admin/api/document/", data)
+        response = admin_client.post("/admin/api/document/", data)
 
         assert response.status_code == 200
         assert (

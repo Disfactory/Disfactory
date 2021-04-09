@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from django.test import TestCase
+import pytest
 from django.db import connection
 from django.db.utils import ProgrammingError
 from django.db.models.base import ModelBase
@@ -10,13 +10,14 @@ from ..mixins import SoftDeleteMixin
 
 
 # ref: https://stackoverflow.com/a/51146819/5163166
-class AbstractModelMixinTestCase(TestCase):
+class AbstractModelMixin:
     """
     Base class for tests of model mixins/abstract models.
     To use, subclass and specify the mixin class variable.
     A model using the mixin will be made available in self.model
     """
 
+    @pytest.fixture(autouse=True)
     def setUp(self):
         # Create a dummy model which extends the mixin. A RuntimeWarning will
         # occur if the model is registered twice
@@ -32,21 +33,21 @@ class AbstractModelMixinTestCase(TestCase):
         try:
             with connection.schema_editor() as schema_editor:
                 schema_editor.create_model(self.model)
-            super().setUpClass()
         except ProgrammingError:
             pass
 
-    def tearDown(self):
+        yield
+
         # Delete the schema for the test model. If no table, will pass
         try:
             with connection.schema_editor() as schema_editor:
                 schema_editor.delete_model(self.model)
-            super().tearDownClass()
         except ProgrammingError:
             pass
 
 
-class SoftDeleteMixinTestCase(AbstractModelMixinTestCase):
+@pytest.mark.django_db
+class TestSoftDeleteMixin(AbstractModelMixin):
 
     mixin = SoftDeleteMixin
 

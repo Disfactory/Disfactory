@@ -1,8 +1,9 @@
 from uuid import uuid4
 from datetime import datetime, timezone, timedelta
 
+import pytest
 from freezegun import freeze_time
-from django.test import TestCase, Client
+from django.test import Client
 
 from api.models import Factory, Image, ReportRecord
 
@@ -10,9 +11,12 @@ from api.models import Factory, Image, ReportRecord
 FAKE_IMGUR_PATH = "https://i.imgur.com/RxArJUc.png"
 
 
-class PostFactoryImageViewTestCase(TestCase):
-    def setUp(self):
-        self.cli = Client()
+@pytest.mark.django_db
+class TestPostFactoryImageView:
+
+    @pytest.fixture(autouse=True)
+    def setUp(self, client):
+        self.cli = client
         self.factory = Factory.objects.create(
             name="test_factory",
             lat=24,

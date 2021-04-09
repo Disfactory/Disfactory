@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from django.test import TestCase
+import pytest
 from freezegun import freeze_time
 
 from conftest import SuperSet, Unordered
@@ -9,14 +9,22 @@ from ..serializers import FactorySerializer, ImageSerializer
 from ..models import Factory, ReportRecord, Image
 
 
-class FactorySerializersTestCase(TestCase):
-    def setUp(self):
-        self.im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
-        self.im2 = Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
-        self.request_body = {
+@pytest.mark.django_db
+class TestFactorySerializers:
+
+    @pytest.fixture
+    def images(self, db):
+        return [
+            Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png"),
+            Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg"),
+        ]
+
+    @pytest.fixture
+    def request_body(self, images):
+        return {
             "name": "a new factory",
             "type": "2-3",
-            "images": [self.im1.id, self.im2.id],
+            "images": [image.id for image in images],
             "other": "這個工廠實在太臭啦，趕緊檢舉吧",
             "lat": 23.234,
             "lng": 120.1,
@@ -92,21 +100,25 @@ class FactorySerializersTestCase(TestCase):
             ]),
         })
 
-    def test_factory_serializer_validate_body(self):
-        serializer = FactorySerializer(data=self.request_body)
+    def test_factory_serializer_validate_body(self, request_body):
+        serializer = FactorySerializer(data=request_body)
         assert serializer.is_valid()
 
-    def test_factory_serializer_validate_body_with_wrong_lat(self):
-        wrong_request_body = self.request_body.copy()
-        wrong_request_body["lat"] = 70
+    def test_factory_serializer_validate_body_with_wrong_lat(self, request_body):
+        wrong_request_body = {
+            **request_body,
+            "lat": 70,
+        }
         serializer = FactorySerializer(data=wrong_request_body)
 
         assert not serializer.is_valid()
         assert "lat" in serializer.errors
 
-    def test_factory_serializer_validate_body_with_wrong_lng(self):
-        wrong_request_body = self.request_body.copy()
-        wrong_request_body["lng"] = -10
+    def test_factory_serializer_validate_body_with_wrong_lng(self, request_body):
+        wrong_request_body = {
+            **request_body,
+            "lng": -10,
+        }
         serializer = FactorySerializer(data=wrong_request_body)
 
         assert not serializer.is_valid()
@@ -313,38 +325,22 @@ class FactorySerializersTestCase(TestCase):
         serializer = FactorySerializer(factory)
         assert not serializer.data["data_complete"]
 
-    def test_allow_empty_factory_type(self):
-        post_body_wo_type = {
-            "name": "a new factory",
-            "images": [self.im1.id, self.im2.id],
-            "other": "這個工廠實在太臭啦，趕緊檢舉吧",
-            "lat": 23.234,
-            "lng": 120.1,
-            "nickname": "路過的家庭主婦",
-            "contact": "07-7533967",
-        }
-        serializer = FactorySerializer(data=post_body_wo_type)
+    def test_allow_empty_factory_type(self, request_body):
+        request_body.pop('type')
+        serializer = FactorySerializer(data=request_body)
+
         assert serializer.is_valid()
 
-    def test_allow_None_factory_type(self):
-        post_body_wo_type = {
-            "name": "a new factory",
-            "type": None,
-            "images": [self.im1.id, self.im2.id],
-            "other": "這個工廠實在太臭啦，趕緊檢舉吧",
-            "lat": 23.234,
-            "lng": 120.1,
-            "nickname": "路過的家庭主婦",
-            "contact": "07-7533967",
-        }
-        serializer = FactorySerializer(data=post_body_wo_type)
+    def test_allow_None_factory_type(self, request_body):
+        request_body['type'] = None
+        serializer = FactorySerializer(data=request_body)
+
         assert serializer.is_valid()
 
 
-class ImageSerializersTestCase(TestCase):
-    def test_image_serializer_coorect_url(self):
-        img = Image(image_path="https://imgur.com/qwer")
-        serialized_img = ImageSerializer(img)
+def test_image_serializer_coorect_url():
+    img = Image(image_path="https://imgur.com/qwer")
+    serialized_img = ImageSerializer(img)
 
-        assert serialized_img.data["url"] == img.image_path
-        assert serialized_img.data.get("deletehash") is None
+    assert serialized_img.data["url"] == img.image_path
+    assert serialized_img.data.get("deletehash") is None
