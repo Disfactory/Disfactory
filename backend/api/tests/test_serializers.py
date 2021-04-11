@@ -1,20 +1,30 @@
 from datetime import datetime, timedelta
 
-from django.test import TestCase
+import pytest
 from freezegun import freeze_time
+
+from conftest import SuperSet, Unordered
 
 from ..serializers import FactorySerializer, ImageSerializer
 from ..models import Factory, ReportRecord, Image
 
 
-class FactorySerializersTestCase(TestCase):
-    def setUp(self):
-        self.im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
-        self.im2 = Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
-        self.request_body = {
+@pytest.mark.django_db
+class TestFactorySerializers:
+
+    @pytest.fixture
+    def images(self, db):
+        return [
+            Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png"),
+            Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg"),
+        ]
+
+    @pytest.fixture
+    def request_body(self, images):
+        return {
             "name": "a new factory",
             "type": "2-3",
-            "images": [self.im1.id, self.im2.id],
+            "images": [image.id for image in images],
             "other": "這個工廠實在太臭啦，趕緊檢舉吧",
             "lat": 23.234,
             "lng": 120.1,
@@ -38,9 +48,11 @@ class FactorySerializersTestCase(TestCase):
         # created first time, w/o any ReportRecord
         # should have null reported_at
         serialized_factory = FactorySerializer(factory)
-        self.assertEqual(serialized_factory.data["type"], factory.factory_type)
-        self.assertEqual(serialized_factory.data["display_number"], factory.display_number)
-        self.assertIsNone(serialized_factory.data["reported_at"])
+        assert serialized_factory.data == SuperSet({
+            'type': factory.factory_type,
+            'display_number': factory.display_number,
+            'reported_at': None,
+        })
 
         report_record1 = ReportRecord.objects.create(
             factory=factory,
@@ -80,36 +92,37 @@ class FactorySerializersTestCase(TestCase):
         )  # this one should be the `reported_at` of serialized factory
         factory.refresh_from_db()
         serialized_factory = FactorySerializer(factory)
-        self.assertEqual(
-            serialized_factory.data["reported_at"],
-            report_record_latest.created_at,
-        )
-        self.assertCountEqual(
-            serialized_factory.data["images"],
-            [
+        assert serialized_factory.data == SuperSet({
+            'reported_at': report_record_latest.created_at,
+            'images': Unordered([
                 ImageSerializer(im1).data,
                 ImageSerializer(im2).data,
-            ],
-        )
+            ]),
+        })
 
-    def test_factory_serializer_validate_body(self):
-        serializer = FactorySerializer(data=self.request_body)
-        self.assertTrue(serializer.is_valid())
-        self.assertEqual(serializer.errors, {})
+    def test_factory_serializer_validate_body(self, request_body):
+        serializer = FactorySerializer(data=request_body)
+        assert serializer.is_valid()
 
-    def test_factory_serializer_validate_body_with_wrong_lat(self):
-        wrong_request_body = self.request_body.copy()
-        wrong_request_body["lat"] = 70
+    def test_factory_serializer_validate_body_with_wrong_lat(self, request_body):
+        wrong_request_body = {
+            **request_body,
+            "lat": 70,
+        }
         serializer = FactorySerializer(data=wrong_request_body)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn("lat", serializer.errors)
 
-    def test_factory_serializer_validate_body_with_wrong_lng(self):
-        wrong_request_body = self.request_body.copy()
-        wrong_request_body["lng"] = -10
+        assert not serializer.is_valid()
+        assert "lat" in serializer.errors
+
+    def test_factory_serializer_validate_body_with_wrong_lng(self, request_body):
+        wrong_request_body = {
+            **request_body,
+            "lng": -10,
+        }
         serializer = FactorySerializer(data=wrong_request_body)
-        self.assertFalse(serializer.is_valid())
-        self.assertIn("lng", serializer.errors)
+
+        assert not serializer.is_valid()
+        assert "lng" in serializer.errors
 
     def test_data_complete_false_if_no_type_for_old(self):
         factory = Factory.objects.create(
@@ -138,7 +151,7 @@ class FactorySerializersTestCase(TestCase):
             deletehash="qwerasdfzxcv;"
         )
         serializer = FactorySerializer(factory)
-        self.assertFalse(serializer.data["data_complete"])
+        assert not serializer.data["data_complete"]
 
     def test_data_complete_false_if_no_image_for_old(self):
         factory = Factory.objects.create(
@@ -162,7 +175,7 @@ class FactorySerializersTestCase(TestCase):
             created_at=factory.created_at + timedelta(days=1),
         )
         serializer = FactorySerializer(factory)
-        self.assertFalse(serializer.data["data_complete"])
+        assert not serializer.data["data_complete"]
 
     def test_data_complete_false_if_last_report_longer_than_one_year_ago(self):
         test_time = datetime.now() - timedelta(days=365 * 2)
@@ -192,7 +205,7 @@ class FactorySerializersTestCase(TestCase):
                 report_record=report_record,
             )
         serializer = FactorySerializer(factory)
-        self.assertFalse(serializer.data["data_complete"])
+        assert not serializer.data["data_complete"]
 
     def test_data_complete_true(self):
         factory_create = datetime.now() - timedelta(days=365)
@@ -223,7 +236,7 @@ class FactorySerializersTestCase(TestCase):
                 report_record=report_record,
             )
         serializer = FactorySerializer(factory)
-        self.assertTrue(serializer.data["data_complete"])
+        assert serializer.data["data_complete"]
 
     def test_data_complete_true_after_2016(self):
         factory_create = datetime.now() - timedelta(days=365)
@@ -254,7 +267,7 @@ class FactorySerializersTestCase(TestCase):
                 deletehash="qwerasdfzxcv;",
             )
         serializer = FactorySerializer(factory)
-        self.assertTrue(serializer.data["data_complete"])
+        assert serializer.data["data_complete"]
 
     def test_data_complete_true_after_2016_no_image(self):
         factory_create = datetime.now() - timedelta(days=365)
@@ -279,7 +292,7 @@ class FactorySerializersTestCase(TestCase):
                 others="昨天在這裡辦演唱會，但旁邊居然在蓋工廠。不錄了不錄了！",
             )
         serializer = FactorySerializer(factory)
-        self.assertFalse(serializer.data["data_complete"])
+        assert not serializer.data["data_complete"]
 
     def test_data_complete_false_after_long_time_no_report(self):
         factory_create = datetime.now() - timedelta(days=365 * 2)
@@ -310,42 +323,24 @@ class FactorySerializersTestCase(TestCase):
                 deletehash="qwerasdfzxcv;",
             )
         serializer = FactorySerializer(factory)
-        self.assertFalse(serializer.data["data_complete"])
+        assert not serializer.data["data_complete"]
 
-    def test_allow_empty_factory_type(self):
-        post_body_wo_type = {
-            "name": "a new factory",
-            "images": [self.im1.id, self.im2.id],
-            "other": "這個工廠實在太臭啦，趕緊檢舉吧",
-            "lat": 23.234,
-            "lng": 120.1,
-            "nickname": "路過的家庭主婦",
-            "contact": "07-7533967",
-        }
-        serializer = FactorySerializer(data=post_body_wo_type)
-        self.assertTrue(serializer.is_valid())
-        self.assertEqual(serializer.errors, {})
+    def test_allow_empty_factory_type(self, request_body):
+        request_body.pop('type')
+        serializer = FactorySerializer(data=request_body)
 
-    def test_allow_None_factory_type(self):
-        post_body_wo_type = {
-            "name": "a new factory",
-            "type": None,
-            "images": [self.im1.id, self.im2.id],
-            "other": "這個工廠實在太臭啦，趕緊檢舉吧",
-            "lat": 23.234,
-            "lng": 120.1,
-            "nickname": "路過的家庭主婦",
-            "contact": "07-7533967",
-        }
-        serializer = FactorySerializer(data=post_body_wo_type)
-        self.assertTrue(serializer.is_valid())
-        self.assertEqual(serializer.errors, {})
+        assert serializer.is_valid()
+
+    def test_allow_None_factory_type(self, request_body):
+        request_body['type'] = None
+        serializer = FactorySerializer(data=request_body)
+
+        assert serializer.is_valid()
 
 
-class ImageSerializersTestCase(TestCase):
-    def test_image_serializer_coorect_url(self):
-        img = Image(image_path="https://imgur.com/qwer")
-        serialized_img = ImageSerializer(img)
+def test_image_serializer_coorect_url():
+    img = Image(image_path="https://imgur.com/qwer")
+    serialized_img = ImageSerializer(img)
 
-        self.assertEqual(serialized_img.data["url"], img.image_path)
-        self.assertIsNone(serialized_img.data.get("deletehash"))
+    assert serialized_img.data["url"] == img.image_path
+    assert serialized_img.data.get("deletehash") is None

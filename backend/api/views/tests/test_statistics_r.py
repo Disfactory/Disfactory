@@ -1,10 +1,13 @@
 import datetime
 
-from django.test import TestCase, Client
+import pytest
 from freezegun import freeze_time
 
-from ...models import Image, Factory, Document, ReportRecord
+from ...models import Image, Factory, Document
 from ...models.document import DocumentDisplayStatusEnum
+
+
+pytestmark = pytest.mark.django_db
 
 
 def update_landcode_with_custom_factory_model(factory_id):
@@ -49,230 +52,219 @@ def create_factory(cli):
         return data["id"]
 
 
-class GetStatisticsTestCase(TestCase):
-    def setUp(self):
-        self.cli = Client()
+def test_get_factory_statistics(client):
+    # Create 10 factories in 臺北市中山區
+    id_list = []
+    for index in range(0, 10):
+        result = create_factory(client)
+        id_list.append(result)
 
-    def test_get_factory_statistics(self):
-        cli = Client()
+    resp = client.get("/api/statistics/factories?source=U")
+    assert resp.json()["factories"] == 10
 
-        # Create 10 factories in 臺北市中山區
-        id_list = []
-        for index in range(0, 10):
-            result = create_factory(cli)
-            id_list.append(result)
+    resp = client.get("/api/statistics/factories?source=U&level=city")
+    assert resp.json()["cities"]["臺北市"]["factories"] == 10
+    assert resp.json()["cities"]["臺南市"]["factories"] == 0
 
-        resp = self.cli.get("/api/statistics/factories?source=U")
-        assert resp.json()["factories"] == 10
+    resp = client.get("/api/statistics/factories?source=G&level=city")
+    assert resp.json()["cities"]["臺南市"]["factories"] == 101
 
-        resp = self.cli.get("/api/statistics/factories?source=U&level=city")
-        assert resp.json()["cities"]["臺北市"]["factories"] == 10
-        assert resp.json()["cities"]["臺南市"]["factories"] == 0
+    resp = client.get("/api/statistics/factories?townname=台北市")
+    assert resp.json()["cities"]["臺北市"]["factories"] == 10
 
-        resp = self.cli.get("/api/statistics/factories?source=G&level=city")
-        assert resp.json()["cities"]["臺南市"]["factories"] == 101
+    resp = client.get("/api/statistics/factories?townname=台北市中山區")
+    assert resp.json()["cities"]["臺北市"]["towns"]["中山區"]["factories"] == 10
 
-        resp = self.cli.get("/api/statistics/factories?townname=台北市")
-        assert resp.json()["cities"]["臺北市"]["factories"] == 10
+    resp = client.get("/api/statistics/factories?townname=台南市")
+    assert resp.json()["cities"]["臺南市"]["factories"] == 101
 
-        resp = self.cli.get("/api/statistics/factories?townname=台北市中山區")
-        assert resp.json()["cities"]["臺北市"]["towns"]["中山區"]["factories"] == 10
+    resp = client.get("/api/statistics/factories?display_status=已檢舉")
+    assert resp.json()["factories"] == 0
 
-        resp = self.cli.get("/api/statistics/factories?townname=台南市")
-        assert resp.json()["cities"]["臺南市"]["factories"] == 101
+    # Add a document to factory in 臺北市中山區
+    Document.objects.create(
+        cet_staff="AAA",
+        code="123456",
+        factory=Factory.objects.get(id=id_list[0]),
+        display_status=0
+    )
+    resp = client.get("/api/statistics/factories?townname=臺北市")
+    assert resp.json()["cities"]["臺北市"]["factories"] == 10
+    assert resp.json()["cities"]["臺北市"]["documents"] == 1
 
-        resp = self.cli.get("/api/statistics/factories?display_status=已檢舉")
-        assert resp.json()["factories"] == 0
+    resp = client.get("/api/statistics/factories?display_status=已檢舉")
+    assert resp.json()["factories"] == 1
+    assert resp.json()["documents"] == 1
 
-        # Add a document to factory in 臺北市中山區
+    resp = client.get("/api/statistics/factories?display_status=已檢舉&level=city")
+    assert resp.json()["cities"]["臺北市"]["factories"] == 1
+    assert resp.json()["cities"]["臺北市"]["documents"] == 1
+
+    resp = client.get("/api/statistics/factories?townname=台南市&display_status=已檢舉")
+    assert resp.json()["cities"]["臺南市"]["factories"] == 0
+
+    resp = client.get("/api/statistics/factories?townname=台北市&display_status=已檢舉")
+    assert resp.json()["cities"]["臺北市"]["factories"] == 1
+    assert resp.json()["cities"]["臺北市"]["documents"] == 1
+
+    Document.objects.create(
+        cet_staff="AAA",
+        code="123457",
+        factory=Factory.objects.get(id=id_list[0]),
+        display_status=1
+    )
+    resp = client.get("/api/statistics/factories?townname=台北市&display_status=已檢舉")
+    assert resp.json()["factories"] == 1
+    assert resp.json()["cities"]["臺北市"]["factories"] == 1
+
+    resp = client.get("/api/statistics/factories?townname=台北市&display_status=已排程稽查")
+    assert resp.json()["factories"] == 1
+    assert resp.json()["cities"]["臺北市"]["factories"] == 1
+
+    resp = client.get("/api/statistics/factories?townname=台北市&display_status=已排程稽查&source=U")
+    assert resp.json()["factories"] == 1
+    assert resp.json()["cities"]["臺北市"]["factories"] == 1
+
+    resp = client.get("/api/statistics/factories?townname=台北市&display_status=已排程稽查&source=G")
+    assert resp.json()["factories"] == 0
+    assert resp.json()["cities"]["臺北市"]["factories"] == 0
+
+    # Add 3 documents to factories in 臺北市中山區
+    Document.objects.create(
+        cet_staff="AAA",
+        code="123457",
+        factory=Factory.objects.get(id=id_list[0]),
+        display_status=DocumentDisplayStatusEnum.INDICES["已排程稽查"]
+    )
+    Document.objects.create(
+        cet_staff="AAA",
+        code="123457",
+        factory=Factory.objects.get(id=id_list[1]),
+        display_status=DocumentDisplayStatusEnum.INDICES["陳述意見期"]
+    )
+    Document.objects.create(
+        cet_staff="AAA",
+        code="123457",
+        factory=Factory.objects.get(id=id_list[2]),
+        display_status=DocumentDisplayStatusEnum.INDICES["已勒令停工"]
+    )
+
+    resp = client.get("/api/statistics/factories?townname=台北市")
+    assert resp.json()["documents"] == 5
+    assert resp.json()["cities"]["臺北市"]["documents"] == 5
+
+    resp = client.get("/api/statistics/factories?townname=台北市&display_status=處理中")
+    assert resp.json()["documents"] == 3
+    assert resp.json()["cities"]["臺北市"]["documents"] == 3
+
+    Document.objects.create(
+        cet_staff="AAA",
+        code="123457",
+        factory=Factory.objects.get(id=id_list[3]),
+        display_status=DocumentDisplayStatusEnum.INDICES["已檢舉"]
+    )
+    Document.objects.create(
+        cet_staff="AAA",
+        code="123457",
+        factory=Factory.objects.get(id=id_list[3]),
+        display_status=DocumentDisplayStatusEnum.INDICES["已排程拆除"]
+    )
+
+    resp = client.get("/api/statistics/factories?townname=台北市&display_status=處理中")
+    assert resp.json()["documents"] == 4
+
+
+def test_get_image_statistics(client):
+    for _ in range(10):
+        create_factory(client)
+
+    resp = client.get("/api/statistics/images?townname=台北市")
+    assert resp.json()["count"] == 20, f"expect 20 but {resp.json()['count']}"
+
+    resp = client.get("/api/statistics/images")
+    assert resp.json()["count"] == 20, f"expect 20 but {resp.json()['count']}"
+
+    resp = client.get("/api/statistics/images?townname=台南市")
+    assert resp.json()["count"] == 0, f"expect 0 but {resp.json()['count']}"
+
+    resp = client.get("/api/statistics/images?townname=台北市大同區")
+    assert resp.json()["count"] == 0, f"expect 0 but {resp.json()['count']}"
+
+
+def test_get_report_records_statistics(client):
+    for _ in range(10):
+        create_factory(client)
+
+    resp = client.get("/api/statistics/report_records?townname=台北市")
+    assert resp.json()["count"] == 10, f"expect 10 but {resp.json()['count']}"
+
+    resp = client.get("/api/statistics/report_records")
+    assert resp.json()["count"] == 10, f"expect 10 but {resp.json()['count']}"
+
+    resp = client.get("/api/statistics/report_records?townname=台南市")
+    assert resp.json()["count"] == 0, f"expect 0 but {resp.json()['count']}"
+
+    resp = client.get("/api/statistics/report_records?townname=台北市大同區")
+    assert resp.json()["count"] == 0, f"expect 0 but {resp.json()['count']}"
+
+
+def test_get_total(client):
+    id_list = [
+        create_factory(client)
+        for _ in range(10)
+    ]
+
+    for factory_id in id_list:
         Document.objects.create(
             cet_staff="AAA",
             code="123456",
-            factory=Factory.objects.get(id=id_list[0]),
+            factory=Factory.objects.get(id=factory_id),
             display_status=0
         )
-        resp = self.cli.get("/api/statistics/factories?townname=臺北市")
-        assert resp.json()["cities"]["臺北市"]["factories"] == 10
-        assert resp.json()["cities"]["臺北市"]["documents"] == 1
 
-        resp = self.cli.get("/api/statistics/factories?display_status=已檢舉")
-        assert resp.json()["factories"] == 1
-        assert resp.json()["documents"] == 1
+    resp = client.get("/api/statistics/total")
+    assert resp.json()["臺北市"]["documents"] == 10
+    count = resp.json()["臺北市"]["未處理"]
+    assert count == 10, f"expect 10 but {count}"
 
-        resp = self.cli.get("/api/statistics/factories?display_status=已檢舉&level=city")
-        assert resp.json()["cities"]["臺北市"]["factories"] == 1
-        assert resp.json()["cities"]["臺北市"]["documents"] == 1
-
-        resp = self.cli.get("/api/statistics/factories?townname=台南市&display_status=已檢舉")
-        assert resp.json()["cities"]["臺南市"]["factories"] == 0
-
-        resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=已檢舉")
-        assert resp.json()["cities"]["臺北市"]["factories"] == 1
-        assert resp.json()["cities"]["臺北市"]["documents"] == 1
-
+    for factory in Factory.objects.order_by("-created_at").all()[:5]:
         Document.objects.create(
             cet_staff="AAA",
-            code="123457",
-            factory=Factory.objects.get(id=id_list[0]),
+            code="123456",
+            factory=factory,
             display_status=1
         )
-        resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=已檢舉")
-        assert resp.json()["factories"] == 1
-        assert resp.json()["cities"]["臺北市"]["factories"] == 1
 
-        resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=已排程稽查")
-        assert resp.json()["factories"] == 1
-        assert resp.json()["cities"]["臺北市"]["factories"] == 1
+    resp = client.get("/api/statistics/total")
+    assert resp.json()["臺南市"]["documents"] == 5
+    count = resp.json()["臺南市"]["處理中"]
+    assert count == 5, f"expect 5 but {count}"
 
-        resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=已排程稽查&source=U")
-        assert resp.json()["factories"] == 1
-        assert resp.json()["cities"]["臺北市"]["factories"] == 1
-
-        resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=已排程稽查&source=G")
-        assert resp.json()["factories"] == 0
-        assert resp.json()["cities"]["臺北市"]["factories"] == 0
-
-        # Add 3 documents to factories in 臺北市中山區
+    for factory in Factory.objects.order_by("-created_at").all()[5:10]:
         Document.objects.create(
             cet_staff="AAA",
-            code="123457",
-            factory=Factory.objects.get(id=id_list[0]),
-            display_status=DocumentDisplayStatusEnum.INDICES["已排程稽查"]
+            code="123456",
+            factory=factory,
+            display_status=2
         )
+
+    resp = client.get("/api/statistics/total")
+    assert resp.json()["臺南市"]["documents"] == 10
+    count = resp.json()["臺南市"]["處理中"]
+    assert count == 10, f"expect 10 but {count}"
+
+    for factory in Factory.objects.order_by("-created_at"):
         Document.objects.create(
             cet_staff="AAA",
-            code="123457",
-            factory=Factory.objects.get(id=id_list[1]),
-            display_status=DocumentDisplayStatusEnum.INDICES["陳述意見期"]
-        )
-        Document.objects.create(
-            cet_staff="AAA",
-            code="123457",
-            factory=Factory.objects.get(id=id_list[2]),
-            display_status=DocumentDisplayStatusEnum.INDICES["已勒令停工"]
+            code="123456",
+            factory=factory,
+            display_status=3
         )
 
-        resp = self.cli.get("/api/statistics/factories?townname=台北市")
-        assert resp.json()["documents"] == 5
-        assert resp.json()["cities"]["臺北市"]["documents"] == 5
+    resp = client.get("/api/statistics/total")
+    assert resp.json()["臺南市"]["documents"] == 101
+    count = resp.json()["臺南市"]["處理中"]
+    assert count == 101, f"expect 101 but {count}"
 
-        resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=處理中")
-        assert resp.json()["documents"] == 3
-        assert resp.json()["cities"]["臺北市"]["documents"] == 3
-
-        Document.objects.create(
-            cet_staff="AAA",
-            code="123457",
-            factory=Factory.objects.get(id=id_list[3]),
-            display_status=DocumentDisplayStatusEnum.INDICES["已檢舉"]
-        )
-        Document.objects.create(
-            cet_staff="AAA",
-            code="123457",
-            factory=Factory.objects.get(id=id_list[3]),
-            display_status=DocumentDisplayStatusEnum.INDICES["已排程拆除"]
-        )
-
-        resp = self.cli.get("/api/statistics/factories?townname=台北市&display_status=處理中")
-        assert resp.json()["documents"] == 4
-
-
-    def test_get_image_statistics(self):
-        cli = Client()
-        id_list = []
-        for index in range(0, 10):
-            result = create_factory(cli)
-            id_list.append(result)
-
-        resp = self.cli.get("/api/statistics/images?townname=台北市")
-        assert resp.json()["count"] == 20, f"expect 20 but {resp.json()['count']}"
-
-        resp = self.cli.get("/api/statistics/images")
-        assert resp.json()["count"] == 20, f"expect 20 but {resp.json()['count']}"
-
-        resp = self.cli.get("/api/statistics/images?townname=台南市")
-        assert resp.json()["count"] == 0, f"expect 0 but {resp.json()['count']}"
-
-        resp = self.cli.get("/api/statistics/images?townname=台北市大同區")
-        assert resp.json()["count"] == 0, f"expect 0 but {resp.json()['count']}"
-
-    def test_get_report_records_statistics(self):
-        cli = Client()
-        id_list = []
-        for index in range(0, 10):
-            result = create_factory(cli)
-            id_list.append(result)
-
-        resp = self.cli.get("/api/statistics/report_records?townname=台北市")
-        assert resp.json()["count"] == 10, f"expect 10 but {resp.json()['count']}"
-
-        resp = self.cli.get("/api/statistics/report_records")
-        assert resp.json()["count"] == 10, f"expect 10 but {resp.json()['count']}"
-
-        resp = self.cli.get("/api/statistics/report_records?townname=台南市")
-        assert resp.json()["count"] == 0, f"expect 0 but {resp.json()['count']}"
-
-        resp = self.cli.get("/api/statistics/report_records?townname=台北市大同區")
-        assert resp.json()["count"] == 0, f"expect 0 but {resp.json()['count']}"
-
-    def test_get_total(self):
-        cli = Client()
-        id_list = []
-        for index in range(0, 10):
-            result = create_factory(cli)
-            id_list.append(result)
-
-        for factory_id in id_list:
-            Document.objects.create(
-                cet_staff="AAA",
-                code="123456",
-                factory=Factory.objects.get(id=factory_id),
-                display_status=0
-            )
-
-        resp = self.cli.get("/api/statistics/total")
-        assert resp.json()["臺北市"]["documents"] == 10
-        count = resp.json()["臺北市"]["未處理"]
-        assert count == 10, f"expect 10 but {count}"
-
-        for factory in Factory.objects.order_by("-created_at").all()[:5]:
-            Document.objects.create(
-                cet_staff="AAA",
-                code="123456",
-                factory=factory,
-                display_status=1
-            )
-
-        resp = self.cli.get("/api/statistics/total")
-        assert resp.json()["臺南市"]["documents"] == 5
-        count = resp.json()["臺南市"]["處理中"]
-        assert count == 5, f"expect 5 but {count}"
-
-        for factory in Factory.objects.order_by("-created_at").all()[5:10]:
-            Document.objects.create(
-                cet_staff="AAA",
-                code="123456",
-                factory=factory,
-                display_status=2
-            )
-
-        resp = self.cli.get("/api/statistics/total")
-        assert resp.json()["臺南市"]["documents"] == 10
-        count = resp.json()["臺南市"]["處理中"]
-        assert count == 10, f"expect 10 but {count}"
-
-        for factory in Factory.objects.order_by("-created_at"):
-            Document.objects.create(
-                cet_staff="AAA",
-                code="123456",
-                factory=factory,
-                display_status=3
-            )
-
-        resp = self.cli.get("/api/statistics/total")
-        assert resp.json()["臺南市"]["documents"] == 101
-        count = resp.json()["臺南市"]["處理中"]
-        assert count == 101, f"expect 101 but {count}"
-
-        count = resp.json()["臺北市"]["處理中"]
-        assert count == 10, f"expect 10 but {count}"
+    count = resp.json()["臺北市"]["處理中"]
+    assert count == 10, f"expect 10 but {count}"
