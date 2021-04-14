@@ -1,185 +1,175 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
 <townItem>
-    <towncode>65000000</towncode>
-    <townname>新北市</townname>
-</townItem>
-
-<townItem>
-    <towncode>65000006</towncode>
-    <townname>新北市民政局</townname>
-</townItem>
-
-<townItem>
     <towncode>65000010</towncode>
     <towncode01>F14</towncode01>
-    <townname>新北市板橋區</townname>
+    <townname>板橋區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000020</towncode>
     <towncode01>F05</towncode01>
-    <townname>新北市三重區</townname>
+    <townname>三重區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000030</towncode>
     <towncode01>F18</towncode01>
-    <townname>新北市中和區</townname>
+    <townname>中和區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000040</towncode>
     <towncode01>F33</towncode01>
-    <townname>新北市永和區</townname>
+    <townname>永和區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000050</towncode>
     <towncode01>F01</towncode01>
-    <townname>新北市新莊區</townname>
+    <townname>新莊區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000060</towncode>
     <towncode01>F07</towncode01>
-    <townname>新北市新店區</townname>
+    <townname>新店區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000070</towncode>
     <towncode01>F17</towncode01>
-    <townname>新北市樹林區</townname>
+    <townname>樹林區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000080</towncode>
     <towncode01>F16</towncode01>
-    <townname>新北市鶯歌區</townname>
+    <townname>鶯歌區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000090</towncode>
     <towncode01>F15</towncode01>
-    <townname>新北市三峽區</townname>
+    <townname>三峽區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000100</towncode>
     <towncode01>F27</towncode01>
-    <townname>新北市淡水區</townname>
+    <townname>淡水區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000110</towncode>
     <towncode01>F28</towncode01>
-    <townname>新北市汐止區</townname>
+    <townname>汐止區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000120</towncode>
     <towncode01>F21</towncode01>
-    <townname>新北市瑞芳區</townname>
+    <townname>瑞芳區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000130</towncode>
     <towncode01>F19</towncode01>
-    <townname>新北市土城區</townname>
+    <townname>土城區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000140</towncode>
     <towncode01>F04</towncode01>
-    <townname>新北市蘆洲區</townname>
+    <townname>蘆洲區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000150</towncode>
     <towncode01>F03</towncode01>
-    <townname>新北市五股區</townname>
+    <townname>五股區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000160</towncode>
     <towncode01>F06</towncode01>
-    <townname>新北市泰山區</townname>
+    <townname>泰山區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000170</towncode>
     <towncode01>F02</towncode01>
-    <townname>新北市林口區</townname>
+    <townname>林口區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000180</towncode>
     <towncode01>F09</towncode01>
-    <townname>新北市深坑區</townname>
+    <townname>深坑區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000190</towncode>
     <towncode01>F08</towncode01>
-    <townname>新北市石碇區</townname>
+    <townname>石碇區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000200</towncode>
     <towncode01>F10</towncode01>
-    <townname>新北市坪林區</townname>
+    <townname>坪林區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000210</towncode>
     <towncode01>F30</towncode01>
-    <townname>新北市三芝區</townname>
+    <townname>三芝區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000220</towncode>
     <towncode01>F31</towncode01>
-    <townname>新北市石門區</townname>
+    <townname>石門區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000230</towncode>
     <towncode01>F32</towncode01>
-    <townname>新北市八里區</townname>
+    <townname>八里區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000240</towncode>
     <towncode01>F22</towncode01>
-    <townname>新北市平溪區</townname>
+    <townname>平溪區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000250</towncode>
     <towncode01>F23</towncode01>
-    <townname>新北市雙溪區</townname>
+    <townname>雙溪區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000260</towncode>
     <towncode01>F24</towncode01>
-    <townname>新北市貢寮區</townname>
+    <townname>貢寮區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000270</towncode>
     <towncode01>F25</towncode01>
-    <townname>新北市金山區</townname>
+    <townname>金山區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000280</towncode>
     <towncode01>F26</towncode01>
-    <townname>新北市萬里區</townname>
+    <townname>萬里區</townname>
 </townItem>
 
 <townItem>
     <towncode>65000290</towncode>
     <towncode01>F11</towncode01>
-    <townname>新北市烏來區</townname>
+    <townname>烏來區</townname>
 </townItem>
 </townItems>

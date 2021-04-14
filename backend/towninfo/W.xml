@@ -1,47 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?><townItems>
 <townItem>
-    <towncode>09020000</towncode>
-    <townname>福建省金門縣</townname>
-</townItem>
-
-<townItem>
-    <towncode>09020006</towncode>
-    <townname>福建省金門縣民政局</townname>
-</townItem>
-
-<townItem>
     <towncode>09020010</towncode>
     <towncode01>W03</towncode01>
-    <townname>福建省金門縣金城鎮</townname>
+    <townname>金城鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>09020020</towncode>
     <towncode01>W02</towncode01>
-    <townname>福建省金門縣金沙鎮</townname>
+    <townname>金沙鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>09020030</towncode>
     <towncode01>W01</towncode01>
-    <townname>福建省金門縣金湖鎮</townname>
+    <townname>金湖鎮</townname>
 </townItem>
 
 <townItem>
     <towncode>09020040</towncode>
     <towncode01>W04</towncode01>
-    <townname>福建省金門縣金寧鄉</townname>
+    <townname>金寧鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>09020050</towncode>
     <towncode01>W05</towncode01>
-    <townname>福建省金門縣烈嶼鄉</townname>
+    <townname>烈嶼鄉</townname>
 </townItem>
 
 <townItem>
     <towncode>09020060</towncode>
     <towncode01>W06</towncode01>
-    <townname>福建省金門縣烏坵鄉</townname>
+    <townname>烏坵鄉</townname>
 </townItem>
 </townItems>
