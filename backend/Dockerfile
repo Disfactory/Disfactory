@@ -14,12 +14,14 @@ RUN apt-get install -y libproj-dev gdal-bin binutils curl
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
 ENV PATH "${PATH}:/root/.poetry/bin"
 RUN poetry config virtualenvs.create false
-COPY . /Disfactory/
+COPY pyproject.toml poetry.lock ./
 
 # Dev image
 FROM base AS dev
 RUN poetry install
+COPY . /Disfactory/
 
 # Prod image
 FROM base AS prod
 RUN poetry install --no-dev
+COPY . /Disfactory/
