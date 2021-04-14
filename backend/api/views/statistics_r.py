@@ -2,8 +2,6 @@ from django.http import HttpResponse, JsonResponse
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.decorators import api_view
-import datetime
-import time
 from django.db.models import Q
 
 from ..models import Factory, Document, Image, ReportRecord
@@ -11,16 +9,18 @@ from ..models.document import DocumentDisplayStatusEnum
 from ..utils import normalize_townname
 from .zipcode import ZIP_CODE
 
+
 def _generate_factories_query_set(townname, source, display_status):
     # display_status
     if display_status is not None:
 
-        docs = Document.objects\
-            .only("id", "factory_id")\
-            .order_by("factory_id", "-created_at")\
-            .distinct('factory_id')
+        docs = (
+            Document.objects.only("id", "factory_id")
+            .order_by("factory_id", "-created_at")
+            .distinct("factory_id")
+        )
 
-        display_status_options = map((lambda item: item[1]),DocumentDisplayStatusEnum.CHOICES)
+        display_status_options = map((lambda item: item[1]), DocumentDisplayStatusEnum.CHOICES)
         if display_status == "處理中":
             display_status = [
                 DocumentDisplayStatusEnum.INDICES["已排程稽查"],
@@ -32,10 +32,7 @@ def _generate_factories_query_set(townname, source, display_status):
         else:
             if display_status not in display_status_options:
                 display_status_choices = ",".join(display_status_options)
-                return HttpResponse(
-                    f"display_status: [{display_status_choices}]",
-                    status=400
-                )
+                return HttpResponse(f"display_status: [{display_status_choices}]", status=400)
             display_status = DocumentDisplayStatusEnum.INDICES[display_status]
             docs = docs.filter(display_status=display_status)
 
@@ -46,13 +43,16 @@ def _generate_factories_query_set(townname, source, display_status):
 
     # townname
     if townname:
-        queryset = queryset.filter(Q(townname__startswith=townname) | Q(townname__startswith=f"臺灣省{townname}"))
+        queryset = queryset.filter(
+            Q(townname__startswith=townname) | Q(townname__startswith=f"臺灣省{townname}")
+        )
 
     # source
     if source is not None:
         queryset = queryset.filter(source=source)
 
     return queryset
+
 
 @swagger_auto_schema(
     method="get",
@@ -67,16 +67,13 @@ def _generate_factories_query_set(townname, source, display_status):
                         type=openapi.TYPE_OBJECT,
                         properties={
                             "factories": openapi.Schema(
-                                type=openapi.TYPE_STRING,
-                                description="工廠數量"
+                                type=openapi.TYPE_STRING, description="工廠數量"
                             ),
                             "documents": openapi.Schema(
-                                type=openapi.TYPE_STRING,
-                                description="公文數量"
+                                type=openapi.TYPE_STRING, description="公文數量"
                             ),
                             "report_records": openapi.Schema(
-                                type=openapi.TYPE_STRING,
-                                description="總回報數量"
+                                type=openapi.TYPE_STRING, description="總回報數量"
                             ),
                             "towns": openapi.Schema(
                                 type=openapi.TYPE_OBJECT,
@@ -86,33 +83,30 @@ def _generate_factories_query_set(townname, source, display_status):
                                         type=openapi.TYPE_OBJECT,
                                         properties={
                                             "factories": openapi.Schema(
-                                                type=openapi.TYPE_STRING,
-                                                description="工廠數量"
+                                                type=openapi.TYPE_STRING, description="工廠數量"
                                             ),
                                             "documents": openapi.Schema(
-                                                type=openapi.TYPE_STRING,
-                                                description="公文數量"
+                                                type=openapi.TYPE_STRING, description="公文數量"
                                             ),
                                             "report_records": openapi.Schema(
-                                                type=openapi.TYPE_STRING,
-                                                description="回報數量"
+                                                type=openapi.TYPE_STRING, description="回報數量"
                                             ),
-                                        }
+                                        },
                                     )
-                                }
-                            )
-                        }
+                                },
+                            ),
+                        },
                     ),
                 },
             ),
         ),
-        400: "request failed"
+        400: "request failed",
     },
     manual_parameters=[
         openapi.Parameter(
             name="townname",
             in_=openapi.IN_QUERY,
-            description=f"輸入縣市名稱，例如 (臺南市)，不輸入的話會回傳全台灣的統計",
+            description="輸入縣市名稱，例如 (臺南市)，不輸入的話會回傳全台灣的統計",
             type=openapi.TYPE_STRING,
             required=False,
             example="臺南市",
@@ -120,7 +114,7 @@ def _generate_factories_query_set(townname, source, display_status):
         openapi.Parameter(
             name="source",
             in_=openapi.IN_QUERY,
-            description=f"U or G",
+            description="U or G",
             enum=["U", "G"],
             type=openapi.TYPE_STRING,
             required=False,
@@ -156,7 +150,7 @@ def _generate_factories_query_set(townname, source, display_status):
             required=False,
             example="cities",
         ),
-    ]
+    ],
 )
 @api_view(["GET"])
 def get_factories_count_by_townname(request):
@@ -166,18 +160,12 @@ def get_factories_count_by_townname(request):
 
     source = request.GET.get("source", None)
     if source and source not in ["G", "U"]:
-        return HttpResponse(
-            f"source: ['G' or 'U']",
-            status=400
-        )
+        return HttpResponse("source: ['G' or 'U']", status=400)
 
     display_status = request.GET.get("display_status", None)
     level = request.GET.get("level", None)
     if level and (level != "city" and level != "town"):
-        return HttpResponse(
-            400,
-            "level should be city or town"
-        )
+        return HttpResponse(400, "level should be city or town")
 
     if townname is None:
         cities = ZIP_CODE.keys()
@@ -235,19 +223,23 @@ def _get_factories_information(townname, source, display_status):
     factories_queryset = _generate_factories_query_set(townname, source, display_status)
     n_factories = factories_queryset.count()
 
-    id_list = factories_queryset.values_list('id', flat=True)
-    report_records_queryset = ReportRecord.objects.prefetch_related('factory').filter(factory__in=id_list)
+    id_list = factories_queryset.values_list("id", flat=True)
+    report_records_queryset = ReportRecord.objects.prefetch_related("factory").filter(
+        factory__in=id_list
+    )
     if display_status:
         # Because the factories are filtered by document, so the number of factories should be equal to number of documents
         n_documents = n_factories
     else:
-        documents_queryset = Document.objects.prefetch_related('factory').filter(factory__in=id_list)
+        documents_queryset = Document.objects.prefetch_related("factory").filter(
+            factory__in=id_list
+        )
         n_documents = documents_queryset.count()
 
     return {
         "factories": n_factories,
         "documents": n_documents,
-        "report_records": report_records_queryset.count()
+        "report_records": report_records_queryset.count(),
     }
 
 
@@ -264,13 +256,13 @@ def _get_factories_information(townname, source, display_status):
                 },
             ),
         ),
-        400: "request failed"
+        400: "request failed",
     },
     manual_parameters=[
         openapi.Parameter(
             name="townname",
             in_=openapi.IN_QUERY,
-            description=f"可以只輸入縣市名稱，例如 (臺南市) 或者更詳細一點，例如 (臺南市善化區)，不輸入的話會回傳全台灣的統計",
+            description="可以只輸入縣市名稱，例如 (臺南市) 或者更詳細一點，例如 (臺南市善化區)，不輸入的話會回傳全台灣的統計",
             type=openapi.TYPE_STRING,
             required=False,
             example="臺南市",
@@ -278,7 +270,7 @@ def _get_factories_information(townname, source, display_status):
         openapi.Parameter(
             name="source",
             in_=openapi.IN_QUERY,
-            description=f"U or G",
+            description="U or G",
             enum=["U", "G"],
             type=openapi.TYPE_STRING,
             required=False,
@@ -306,7 +298,7 @@ def _get_factories_information(townname, source, display_status):
             required=False,
             example="u",
         ),
-    ]
+    ],
 )
 @api_view(["GET"])
 def get_images_count_by_townname(request):
@@ -317,12 +309,11 @@ def get_images_count_by_townname(request):
     display_status = request.GET.get("display_status", None)
 
     factories_queryset = _generate_factories_query_set(townname, source, display_status)
-    id_list = factories_queryset.values_list('id', flat=True)
-    queryset = Image.objects.prefetch_related('factory').filter(factory__id__in=id_list)
+    id_list = factories_queryset.values_list("id", flat=True)
+    queryset = Image.objects.prefetch_related("factory").filter(factory__id__in=id_list)
 
-    return JsonResponse({
-        "count": queryset.count()
-    })
+    return JsonResponse({"count": queryset.count()})
+
 
 @swagger_auto_schema(
     method="get",
@@ -337,13 +328,13 @@ def get_images_count_by_townname(request):
                 },
             ),
         ),
-        400: "request failed"
+        400: "request failed",
     },
     manual_parameters=[
         openapi.Parameter(
             name="townname",
             in_=openapi.IN_QUERY,
-            description=f"可以只輸入縣市名稱，例如 (臺南市) 或者更詳細一點，例如 (臺南市善化區)，不輸入的話會回傳全台灣的統計",
+            description="可以只輸入縣市名稱，例如 (臺南市) 或者更詳細一點，例如 (臺南市善化區)，不輸入的話會回傳全台灣的統計",
             type=openapi.TYPE_STRING,
             required=False,
             example="臺南市",
@@ -351,7 +342,7 @@ def get_images_count_by_townname(request):
         openapi.Parameter(
             name="source",
             in_=openapi.IN_QUERY,
-            description=f"U or G",
+            description="U or G",
             enum=["U", "G"],
             type=openapi.TYPE_STRING,
             required=False,
@@ -379,7 +370,7 @@ def get_images_count_by_townname(request):
             required=False,
             example="u",
         ),
-    ]
+    ],
 )
 @api_view(["GET"])
 def get_report_records_count_by_townname(request):
@@ -390,12 +381,10 @@ def get_report_records_count_by_townname(request):
     display_status = request.GET.get("display_status", None)
 
     factories_queryset = _generate_factories_query_set(townname, source, display_status)
-    id_list = factories_queryset.values_list('id', flat=True)
-    queryset = ReportRecord.objects.prefetch_related('factory').filter(factory__in=id_list)
+    id_list = factories_queryset.values_list("id", flat=True)
+    queryset = ReportRecord.objects.prefetch_related("factory").filter(factory__in=id_list)
 
-    return JsonResponse({
-        "count": queryset.count()
-    })
+    return JsonResponse({"count": queryset.count()})
 
 
 @swagger_auto_schema(
@@ -411,47 +400,45 @@ def get_report_records_count_by_townname(request):
                         type=openapi.TYPE_OBJECT,
                         properties={
                             "factories": openapi.Schema(
-                                type=openapi.TYPE_INTEGER,
-                                description="工廠數量"
+                                type=openapi.TYPE_INTEGER, description="工廠數量"
                             ),
                             "documents": openapi.Schema(
-                                type=openapi.TYPE_INTEGER,
-                                description="公文數量"
+                                type=openapi.TYPE_INTEGER, description="公文數量"
                             ),
                             "report_records": openapi.Schema(
                                 type=openapi.TYPE_INTEGER,
-                                description="已經被回報的工廠的數量 (如果一個工廠有被回報多次，只會以一次計算)"
+                                description="已經被回報的工廠的數量 (如果一個工廠有被回報多次，只會以一次計算)",
                             ),
                             "處理中": openapi.Schema(
                                 type=openapi.TYPE_INTEGER,
                                 description="""
                                     狀態為 "已排程稽查", "陳述意見期", "已勒令停工", "已排程拆除" 的工廠數量
-                                """
+                                """,
                             ),
                             "未處理": openapi.Schema(
                                 type=openapi.TYPE_INTEGER,
                                 description="""
                                     狀態為 "未處理" 的工廠數量
-                                """
+                                """,
                             ),
                             "已斷電": openapi.Schema(
                                 type=openapi.TYPE_INTEGER,
                                 description="""
                                     狀態為 "已斷電" 的工廠數量
-                                """
+                                """,
                             ),
                             "已拆除": openapi.Schema(
                                 type=openapi.TYPE_INTEGER,
                                 description="""
                                     狀態為 "已拆除" 的工廠數量
-                                """
+                                """,
                             ),
-                        }
+                        },
                     ),
                 },
             ),
         ),
-        400: "request failed"
+        400: "request failed",
     },
 )
 @api_view(["GET"])
@@ -463,23 +450,31 @@ def get_statistics_total(request):
         result[city] = {}
 
         # factories
-        factories = Factory.objects.filter(Q(townname__startswith=city) | Q(townname__startswith=f"臺灣省{city}"))
+        factories = Factory.objects.filter(
+            Q(townname__startswith=city) | Q(townname__startswith=f"臺灣省{city}")
+        )
         result[city]["factories"] = factories.count()
 
         # report records
-        factory_id_list = factories.values_list('id', flat=True)
-        report_records = ReportRecord.objects.prefetch_related('factory').filter(factory__id__in=factory_id_list).distinct("factory_id")
+        factory_id_list = factories.values_list("id", flat=True)
+        report_records = (
+            ReportRecord.objects.prefetch_related("factory")
+            .filter(factory__id__in=factory_id_list)
+            .distinct("factory_id")
+        )
         result[city]["report_records"] = report_records.count()
 
         # display_status
-        docs = Document.objects.prefetch_related("factory")\
-                               .order_by("factory__id", "-created_at")\
-                               .distinct('factory__id')\
-                               .filter(factory__id__in=factory_id_list)
+        docs = (
+            Document.objects.prefetch_related("factory")
+            .order_by("factory__id", "-created_at")
+            .distinct("factory__id")
+            .filter(factory__id__in=factory_id_list)
+        )
 
         result[city]["documents"] = docs.count()
 
-        ## 處理中
+        # 處理中
         result[city]["未處理"] = 0
         result[city]["處理中"] = 0
         result[city]["已斷電"] = 0
@@ -488,10 +483,12 @@ def get_statistics_total(request):
         for doc in docs:
             if doc.display_status == DocumentDisplayStatusEnum.INDICES["已檢舉"]:
                 result[city]["未處理"] += 1
-            elif doc.display_status == DocumentDisplayStatusEnum.INDICES["已排程稽查"] or \
-                 doc.display_status == DocumentDisplayStatusEnum.INDICES["陳述意見期"] or \
-                 doc.display_status == DocumentDisplayStatusEnum.INDICES["已勒令停工"] or \
-                 doc.display_status == DocumentDisplayStatusEnum.INDICES["已排程拆除"]:
+            elif (
+                doc.display_status == DocumentDisplayStatusEnum.INDICES["已排程稽查"]
+                or doc.display_status == DocumentDisplayStatusEnum.INDICES["陳述意見期"]
+                or doc.display_status == DocumentDisplayStatusEnum.INDICES["已勒令停工"]
+                or doc.display_status == DocumentDisplayStatusEnum.INDICES["已排程拆除"]
+            ):
                 result[city]["處理中"] += 1
             elif doc.display_status == DocumentDisplayStatusEnum.INDICES["已發函斷電"]:
                 result[city]["已斷電"] += 1

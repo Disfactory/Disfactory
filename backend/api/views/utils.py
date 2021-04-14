@@ -23,17 +23,28 @@ def _get_nearby_factories(latitude, longitude, radius):
     )
 
     radius_km = radius
-    ids = Factory.objects.annotate(distance=distance).only("id").filter(distance__lt=radius_km).order_by("id")
+    ids = (
+        Factory.objects.annotate(distance=distance)
+        .only("id")
+        .filter(distance__lt=radius_km)
+        .order_by("id")
+    )
 
     if len(ids) > settings.MAX_FACTORY_PER_GET:
         ids = _sample(ids, settings.MAX_FACTORY_PER_GET)
 
     return (
         Factory.objects.filter(id__in=[obj.id for obj in ids])
-               .prefetch_related(Prefetch('report_records', queryset=ReportRecord.objects.only("created_at").all()))
-               .prefetch_related(Prefetch('images', queryset=Image.objects.only("id").all()))
-               .prefetch_related(Prefetch('documents', queryset=Document.objects.only('created_at', 'display_status').all()))
-               .all()
+        .prefetch_related(
+            Prefetch("report_records", queryset=ReportRecord.objects.only("created_at").all())
+        )
+        .prefetch_related(Prefetch("images", queryset=Image.objects.only("id").all()))
+        .prefetch_related(
+            Prefetch(
+                "documents", queryset=Document.objects.only("created_at", "display_status").all()
+            )
+        )
+        .all()
     )
 
 

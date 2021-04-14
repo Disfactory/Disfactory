@@ -42,7 +42,7 @@ class TestPostFactoryImageView:
             "DateTimeOriginal": self.fake_datetime_str,
             "nickname": self.nickname,
             "contact": self.contact,
-            "deletehash": self.fake_deletehash
+            "deletehash": self.fake_deletehash,
         }
 
     def test_image_upload_db_correct(self):

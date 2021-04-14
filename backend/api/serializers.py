@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from .models import Factory, Image, ReportRecord, Document
+from .models import Factory, Image, ReportRecord
 
 
 VALID_FACTORY_TYPES = [t[0] for t in Factory.factory_type_list]
@@ -20,6 +20,7 @@ def _get_latest_time_or_none(objs):
         (obj.created_at for obj in objs),
         default=None,
     )
+
 
 class ImageSerializer(ModelSerializer):
 
