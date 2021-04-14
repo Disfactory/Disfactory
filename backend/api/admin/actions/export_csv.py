@@ -20,3 +20,25 @@ class ExportCsvMixin:
             writer.writerow([getattr(obj, field) for field in field_names])
 
         return response
+
+
+class ExportDocumentCsvMixin:
+    @set_function_attributes(short_description="輸出成 csv 檔")
+    def export_as_csv(self, request, queryset):
+        meta = self.model._meta
+
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = f"attachment; filename={meta}.csv"
+        response.write("\ufeff".encode("utf8"))
+        writer = csv.writer(response)
+
+        field_names = [field.name for field in meta.fields if field.name != 'factory']
+        writer.writerow([*field_names, "factory.townname", "factory.lat", "factory.lng"])
+        for obj in queryset:
+
+            writer.writerow([
+                *[getattr(obj, field) for field in field_names],
+                *[obj.factory.townname, obj.factory.lat, obj.factory.lng],
+            ])
+
+        return response
