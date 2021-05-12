@@ -8,7 +8,7 @@ from django.utils.datastructures import MultiValueDictKeyError
 from django.db import transaction
 from django_q.tasks import async_task
 from rest_framework.decorators import api_view
-from django.db.models import Max
+from django.db.models import Max, Q
 
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -30,7 +30,6 @@ def _in_taiwan(lat, lng):
 def _in_reasonable_radius_range(radius):
     # NOTE: need discussion about it
     return 0.01 <= radius <= 100
-
 
 def _all_image_id_exist(image_ids: List[str]) -> bool:
     images = Image.objects.only("id").filter(id__in=image_ids)
@@ -75,7 +74,6 @@ def _handle_get_factories(request):
 
     serializer = FactorySerializer(nearby_factories, many=True)
     return JsonResponse(serializer.data, safe=False)
-
 
 def _handle_create_factory(request):
     post_body = request.data
@@ -179,3 +177,52 @@ def get_nearby_or_create_factories(request):
         return _handle_get_factories(request)
     elif request.method == "POST":
         return _handle_create_factory(request)
+
+@swagger_auto_schema(
+    method="get",
+    operation_summary="使用地段號取得工廠資料",
+    responses={200: openapi.Response("工廠資料", FactorySerializer), 400: "request failed"},
+    manual_parameters=[
+        openapi.Parameter(
+            name="sectcode",
+            in_=openapi.IN_QUERY,
+            description="地號可以到 https://easymap.land.moi.gov.tw/ 查詢, 例如新莊區海山頭段石龜小段的段號就是 0308",
+            type=openapi.TYPE_NUMBER,
+            required=True,
+            example="0308",
+        ),
+        openapi.Parameter(
+            name="landcode",
+            in_=openapi.IN_QUERY,
+            description="段號, 目前只接受八碼的格式, 例如 82號之18 (82-18) 請使用 00820018 來搜尋",
+            type=openapi.TYPE_NUMBER,
+            required=True,
+            example="00820018"
+        )
+    ],
+)
+def get_factory_by_sectcode(request):
+    try:
+        sectcode:str = request.GET["sectcode"]
+        landcode:str = request.GET["landcode"]
+    except MultiValueDictKeyError:
+        missing_params = [p for p in ("sectcode", "landcode") if p not in request.GET]
+        missing_params = ", ".join(missing_params)
+        return HttpResponse(
+            f"Missing query parameter: {missing_params}.",
+            status=400,
+        )
+
+    # landcode length should be 8
+    if len(landcode) != 8 and not landcode.isnumeric():
+        return HttpResponse(
+            f"The landcode should be number and length is 8 (e.g. landcode 82-18 should be 00820018)",
+            status=400
+        )
+
+    # 因為在資料庫裡面， landcode 有多種儲存格式 82-18, 00820018 所以需要將 landcode 轉成這兩種格式來搜尋
+    landcode_1 = f"{int(landcode[:4])}-{int(landcode[4:])}"
+    factory = Factory.objects.filter(Q(sectcode=sectcode), Q(landcode=landcode) | Q(landcode=landcode_1)).get()
+
+    serializer = FactorySerializer(factory)
+    return JsonResponse(serializer.data, safe=False)
