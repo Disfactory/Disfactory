@@ -1,4 +1,4 @@
-from .factories_cr import get_nearby_or_create_factories
+from .factories_cr import get_nearby_or_create_factories, get_factory_by_sectcode
 from .factories_u import update_factory_attribute
 from .factory_report_record_r import get_factory_report
 from .image_c import post_image_url

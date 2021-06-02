@@ -18,6 +18,7 @@ from ..models import Factory, Image, ReportRecord
 from ..serializers import FactorySerializer
 
 LOGGER = logging.getLogger("django")
+FactoryDoesNotExist = Factory.DoesNotExist
 
 
 def _in_taiwan(lat, lng):
@@ -201,6 +202,7 @@ def get_nearby_or_create_factories(request):
         )
     ],
 )
+@api_view(["GET"])
 def get_factory_by_sectcode(request):
     try:
         sectcode:str = request.GET["sectcode"]
@@ -222,7 +224,13 @@ def get_factory_by_sectcode(request):
 
     # 因為在資料庫裡面， landcode 有多種儲存格式 82-18, 00820018 所以需要將 landcode 轉成這兩種格式來搜尋
     landcode_1 = f"{int(landcode[:4])}-{int(landcode[4:])}"
-    factory = Factory.objects.filter(Q(sectcode=sectcode), Q(landcode=landcode) | Q(landcode=landcode_1)).get()
+    try:
+        factory = Factory.objects.filter(Q(sectcode=sectcode), Q(landcode=landcode) | Q(landcode=landcode_1)).get()
+        serializer = FactorySerializer(factory)
+        return JsonResponse(serializer.data, safe=False)
+    except FactoryDoesNotExist as e:
+        return HttpResponse(
+            f"Does not exist",
+            status=404
+        )
 
-    serializer = FactorySerializer(factory)
-    return JsonResponse(serializer.data, safe=False)

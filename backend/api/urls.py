@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from api.views.factories_cr import get_factory_by_sectcode
 from django.urls import path
 
 from .views import (
@@ -29,6 +30,7 @@ from .views import (
 
 urlpatterns = [
     path("factories", get_nearby_or_create_factories),
+    path("sectcode", get_factory_by_sectcode),
     path("factories/<factory_id>", update_factory_attribute),
     path("factories/<factory_id>/report_records", get_factory_report),
     path("factories/<factory_id>/images", post_factory_image_url),

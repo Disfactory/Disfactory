@@ -223,3 +223,10 @@ def test_create_new_factory_raise_if_type_is_not_invalid(client):
 
     assert resp.status_code == 400
     assert "type" in resp.json()
+
+def test_query_factory_by_sectcode(client):
+    resp = client.get("/api/sectcode?sectcode=5212&landcode=00190009")
+    assert resp.status_code == 200
+
+    data = resp.json()
+    assert data["sectname"] == "新生段"

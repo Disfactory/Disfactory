@@ -22,6 +22,7 @@ def download_list():
 
         print(f"Downloading {item}...")
         resp = requests.get(download_url)
+        os.makedirs(os.path.dirname(data_file_path), exist_ok=True)
         with open(data_file_path, "wb") as fp:
             fp.write(resp.content)
 
