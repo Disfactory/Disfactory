@@ -228,6 +228,7 @@ class FactoryAdmin(
                     # TODO: "gov_reply_summary",
                     "cet_reviewer",
                     # TODO: "cet_staff",
+                    ("building_status", "usage_status", "highlight_category"),
                 ),
             },
         ),
