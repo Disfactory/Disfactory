@@ -46,6 +46,24 @@ class Factory(SoftDeleteMixin):
         ("U", "使用者"),
     ]
 
+    # https://github.com/Disfactory/Disfactory/issues/527
+    building_status_list = [
+        ("A", "既有"),
+        ("B", "新增"),
+        ("C", "興建中"),
+        ("D", "難以判定"),
+    ]
+    usage_status_list = [
+        ("A", "低污染產業"),
+        ("B", "高污染產業"),
+        ("C", "其他用途"),
+        ("D", "難以判定"),
+    ]
+    highlight_category_list = [
+        ("A", "新廠商寄居"),
+        ("B", "倉儲"),
+    ]
+
     # All Features
     id = models.UUIDField(
         primary_key=True,
@@ -88,6 +106,24 @@ class Factory(SoftDeleteMixin):
         choices=cet_report_status_list,
         default="A",
     )  # 地球公民基金會的舉報狀態
+    building_status = models.CharField(
+        max_length=1,
+        choices=building_status_list,
+        blank=True,
+        null=True,
+    )  # 廠房
+    usage_status = models.CharField(
+        max_length=1,
+        choices=usage_status_list,
+        blank=True,
+        null=True,
+    )  # 使用狀況
+    highlight_category = models.CharField(
+        max_length=1,
+        choices=highlight_category_list,
+        blank=True,
+        null=True,
+    )  # 需注意類別
 
     cet_reviewer = models.ForeignKey(
         to=CustomUser,
