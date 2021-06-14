@@ -125,27 +125,21 @@ docker-compose -f docker-compose.dev.yml up -d
 請確認系統是否有安裝 `Python 3.7`，
 如果是 Linux, Mac 或 Windows WSL 環境的話可以使用 [pyenv](https://github.com/pyenv/pyenv) 來安裝特定版本的 Python。
 
-#### 安裝 pipenv
+#### 安裝 poetry
 
-Mac
-
-```bash
-brew install pipenv
-```
-
-Debian Buster+
+osx / linux / bashonwindows install instructions
 
 ```bash
-sudo apt install pipenv
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 ```
 
-或者使用
+windows powershell install instructions
 
-```bash
-pip install pipenv
+```
+(Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -UseBasicParsing).Content | python -
 ```
 
-詳細請參考 Github 上的 [pypa/pipenv](https://github.com/pypa/pipenv)
+詳細可以參考 poetry [poetry](https://python-poetry.org/docs/)
 
 ### 設定 PostgreSQL + PostGIS
 
