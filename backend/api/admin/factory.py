@@ -1,4 +1,5 @@
 import os
+import logging
 
 from urllib.parse import urljoin
 from api.models.document import Document
@@ -22,6 +23,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 import easymap
 
+LOGGER = logging.getLogger("django")
 
 class FactoryWithReportRecords(DateRangeFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
@@ -285,8 +287,12 @@ class FactoryAdmin(
         return format_html(html_template)
 
     def save_model(self, request, obj, form, change):
-        landinfo = easymap.get_land_number(obj.lng, obj.lat)
-        landcode = landinfo.get("landno")
+        try:
+            landinfo = easymap.get_land_number(obj.lng, obj.lat)
+            landcode = landinfo.get("landno")
+        except Exception as e:
+            LOGGER.error("Can't get landcode from easymap")
+            LOGGER.error(e)
 
         obj.landcode = landcode
         obj.sectno = landinfo.get("sectno")
