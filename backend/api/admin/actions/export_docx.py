@@ -230,7 +230,7 @@ class FactoryReportDocumentWriter:
         context = [
             '',
             '受文者：如正、副本行文單位',
-            f'發文日期：中華民國{twnow.year}年{twnow.month}月{twnow.day}日',
+            f'發文日期：中華民國{twnow.year - 1911}年{twnow.month}月{twnow.day}日',
             f'發文字號：地球公民違字第 {serial} 號',
             '速別：普通件',
             '附件：舉證照片',
