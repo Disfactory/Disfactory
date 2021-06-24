@@ -30,11 +30,11 @@ def get_point_city(sess, x, y, timeout=DEFAULT_TIMEOUT):
     data = {"wgs84x": x, "wgs84y": y}
     resp = sess.post(point_city_url, data=data, timeout=timeout)
     if resp.status_code != requests.codes.ok:
-        raise WebRequestError("Failed getting city code", resp.status_code, resp.text)
+        raise WebRequestError(f"Failed getting city code status_code:{resp.status_code}, text:{resp.text}")
     try:
         return resp.json()["cityCode"]
     except Exception:
-        raise WebRequestError("Failed parsing city code", resp.status_code, resp.text)
+        raise WebRequestError(f"Failed parsing city code text:{resp.text}", resp.text)
 
 
 def get_token(sess, timeout=DEFAULT_TIMEOUT):

@@ -290,15 +290,16 @@ class FactoryAdmin(
         try:
             landinfo = easymap.get_land_number(obj.lng, obj.lat)
             landcode = landinfo.get("landno")
+
+            obj.landcode = landcode
+            obj.sectno = landinfo.get("sectno")
+            obj.sectname = landinfo.get("sectName")
+            obj.towncode = landinfo.get("towncode")
+            obj.townname = landinfo.get("townname")
         except Exception as e:
             LOGGER.error("Can't get landcode from easymap")
             LOGGER.error(e)
 
-        obj.landcode = landcode
-        obj.sectno = landinfo.get("sectno")
-        obj.sectname = landinfo.get("sectName")
-        obj.towncode = landinfo.get("towncode")
-        obj.townname = landinfo.get("townname")
 
         super().save_model(request, obj, form, change)
 
