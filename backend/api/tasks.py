@@ -47,17 +47,21 @@ def update_landcode(factory_id):
 
 def update_landcode_with_custom_factory_model(factory_id, factory_model):
     factory = factory_model.objects.get(pk=factory_id)
-    landinfo = easymap.get_land_number(factory.lng, factory.lat)
-    landcode = landinfo.get("landno")
+    try:
+        landinfo = easymap.get_land_number(factory.lng, factory.lat)
+        landcode = landinfo.get("landno")
 
-    LOGGER.info(f"Factory {factory_id} retrieved land number {landcode}")
-    factory_model.objects.filter(pk=factory_id).update(
-        landcode=landcode,
-        sectcode=landinfo.get("sectno"),
-        sectname=landinfo.get("sectName"),
-        towncode=landinfo.get("towncode"),
-        townname=landinfo.get("townname"),
-    )
+        LOGGER.info(f"Factory {factory_id} retrieved land number {landcode}")
+        factory_model.objects.filter(pk=factory_id).update(
+            landcode=landcode,
+            sectcode=landinfo.get("sectno"),
+            sectname=landinfo.get("sectName"),
+            towncode=landinfo.get("towncode"),
+            townname=landinfo.get("townname"),
+        )
+    except Exception as e:
+        LOGGER.error(f"update_landcode task failed.")
+        LOGGER.error(e)
 
 
 def upload_image(image_path, client_id, image_id):
