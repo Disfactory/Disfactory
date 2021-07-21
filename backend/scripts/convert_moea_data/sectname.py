@@ -23,10 +23,13 @@ class SectInfo:
         self.landcode = landcode
 
     def __str__(self):
-        return json.dumps({
+        return json.dumps(self.to_dict())
+
+    def to_dict(self):
+        return {
             "sectcode": self.sectcode,
             "landcode": self.landcode
-        })
+        }
 
 class CityTownItem:
     def __init__(self, city_code, city_name, town_code, town_name):
@@ -175,7 +178,8 @@ def format_landcode_to_full(simple_code):
     if len(tokens) == 1:
         tokens.append("0")
 
-    return f"{format_number(tokens[0])}{format_number(tokens[1])}"
+    result = f"{format_number(tokens[0])}{format_number(tokens[1])}"
+    return result
 
 
 def format_landcode_to_simple(full_code):
