@@ -62,6 +62,7 @@ class Factory(SoftDeleteMixin):
     highlight_category_list = [
         ("A", "新廠商寄居"),
         ("B", "倉儲"),
+        ("C", "擴建"),
     ]
 
     # All Features
