@@ -1,7 +1,7 @@
 ref:
   backend_docker_default: &backend_docker_default
     docker:
-      - image: circleci/python:3.7.5
+      - image: circleci/python:3.7
       - image: circleci/postgres:11-alpine-postgis-ram
         name: db
         environment:
@@ -18,11 +18,7 @@ jobs:
     steps:
       - checkout:
          path: ~/Disfactory
-      - restore_cache:
-          keys:
-            - disfactory-backend-cache-191118-{{ .Branch }}-{{ checksum "poetry.lock" }}
-            - disfactory-backend-cache-191118-{{ .Branch }}
-      - run: 
+      - run:
           name: Install poetry
           command: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
       - run:
@@ -42,11 +38,7 @@ jobs:
       # TODO: fuck you black. Use flake8 or pylint instead
       - run:
           name: Unittest
-          command: poetry run python manage.py test -v 2
-      - save_cache:
-          paths:
-            - ".venv"
-          key: disfactory-backend-cache-191118-{{ .Branch }}-{{ checksum "poetry.lock" }}
+          command: python -m poetry run pytest -vv
 
 workflows:
   version: 2
