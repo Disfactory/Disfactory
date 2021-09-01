@@ -18,10 +18,6 @@ jobs:
     steps:
       - checkout:
          path: ~/Disfactory
-      - restore_cache:
-          keys:
-            - disfactory-backend-cache-191118-{{ .Branch }}-{{ checksum "poetry.lock" }}
-            - disfactory-backend-cache-191118-{{ .Branch }}
       - run: 
           name: Install poetry
           command: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
@@ -43,10 +39,6 @@ jobs:
       - run:
           name: Unittest
           command: poetry run python manage.py test -v 2
-      - save_cache:
-          paths:
-            - ".venv"
-          key: disfactory-backend-cache-191118-{{ .Branch }}-{{ checksum "poetry.lock" }}
 
 workflows:
   version: 2
