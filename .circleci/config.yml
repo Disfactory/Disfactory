@@ -2,7 +2,7 @@ ref:
   backend_docker_default: &backend_docker_default
     docker:
       - image: circleci/python:3.7.5
-      - image: circleci/postgres:11-alpine-postgis-ram
+      - image: circleci/postgres:12-alpine-ram
         name: db
         environment:
           POSTGRES_USER: postgres
@@ -20,19 +20,14 @@ jobs:
          path: ~/Disfactory
       - restore_cache:
           keys:
-            - disfactory-backend-cache-191118-{{ .Branch }}-{{ checksum "poetry.lock" }}
-            - disfactory-backend-cache-191118-{{ .Branch }}
+            - disfactory-backend-cache-210901-{{ .Branch }}-{{ checksum "poetry.lock" }}
+            - disfactory-backend-cache-210901-{{ .Branch }}
       - run: 
           name: Install poetry
           command: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
       - run:
           name: Install
           command: poetry install
-      - run:
-          name: Install GDAL
-          command: |
-            sudo apt-get update
-            sudo apt-get install -y gdal-bin python3-gdal
       - run:
           name: Setup .env
           command: cp .env.sample .env
@@ -46,7 +41,7 @@ jobs:
       - save_cache:
           paths:
             - ".venv"
-          key: disfactory-backend-cache-191118-{{ .Branch }}-{{ checksum "poetry.lock" }}
+          key: disfactory-backend-cache-210901-{{ .Branch }}-{{ checksum "poetry.lock" }}
 
 workflows:
   version: 2
