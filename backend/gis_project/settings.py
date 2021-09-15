@@ -64,7 +64,6 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_q",
     "rangefilter",
-    "mapwidgets",
     "drf_yasg",
     "import_export",
     # Local
