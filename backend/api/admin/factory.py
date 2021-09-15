@@ -202,6 +202,9 @@ class FactoryAdmin(
         "cet_review_status",
         "source",
         "factory_type",
+        "building_status",
+        "usage_status",
+        "highlight_category",
         FactoryFilteredByCounty,
     )
     ordering = ["-created_at"]
