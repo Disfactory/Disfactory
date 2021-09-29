@@ -18,7 +18,7 @@ class DocumentDisplayStatusEnum:
                 "已發函斷電",
                 "已排程拆除",
                 "已拆除",
-                "不再追蹤",
+                "等待新事證",
             ]
         )
     )
