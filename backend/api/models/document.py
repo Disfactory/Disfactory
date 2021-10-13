@@ -88,7 +88,6 @@ class Document(SoftDeleteMixin):
     cet_next_tags = models.ManyToManyField(CETNext, blank=True)
     gov_response_status_tags = models.ManyToManyField(GovResponseStatus, blank=True)
 
-
 class FollowUp(SoftDeleteMixin):
     document = models.ForeignKey(
         Document,
@@ -106,6 +105,7 @@ class FollowUp(SoftDeleteMixin):
     )
     note = models.TextField(help_text="此次進度追蹤備註")
     created_at = models.DateTimeField(auto_now_add=True)
+    for_user = models.BooleanField(default=False)
 
     def __unicode__(self):
         return f"#{self.id}"
@@ -113,7 +113,6 @@ class FollowUp(SoftDeleteMixin):
     def __str__(self):
         staff_name = self.staff.username if self.staff else "UNKNOWN"
         return f"#{self.id} - {staff_name} (created_at:{self.created_at})"
-
 
 class RecycledDocument(Document):
     class Meta:

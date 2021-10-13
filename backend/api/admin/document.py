@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.urls import reverse
+from django.forms import BaseInlineFormSet
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
@@ -19,9 +20,35 @@ from api.utils import set_function_attributes
 class FollowUpInline(admin.StackedInline):
     model = FollowUp
     extra = 0
+    verbose_name = "Follow Up"
+    verbose_name_plural = "Follow Up"
     ordering = ["-created_at"]
     exclude = ["deleted_at"]
     fields = ["note"]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(for_user=False)
+
+
+class FollowUpsForUserInlineFormSet(BaseInlineFormSet):
+    def __init__(self, *args, **kwargs):
+        super(FollowUpsForUserInlineFormSet, self).__init__(*args, **kwargs)
+
+
+class FollowUpForUsersInline(admin.StackedInline):
+    model = FollowUp
+    extra = 0
+    verbose_name = "Follow Ups For User"
+    verbose_name_plural = "Follow Ups For User"
+    ordering = ["-created_at"]
+    exclude = ["deleted_at"]
+    fields = ["note"]
+    formset = FollowUpsForUserInlineFormSet
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.filter(for_user=True)
 
 
 class DocumentResource(resources.ModelResource):
@@ -44,7 +71,7 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin, ExportDocumentCsvMix
 
     list_filter = ["cet_next_tags", "display_status"]
 
-    inlines = (FollowUpInline,)
+    inlines = (FollowUpForUsersInline, FollowUpInline,)
 
     list_display = (
         "code",
@@ -189,13 +216,22 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin, ExportDocumentCsvMix
 
     def save_formset(self, request, form, formset, change):
         if formset.model == FollowUp:
+            # Save new follow ups
             instances = formset.save(commit=False)
+
             for instance in instances:
                 if not instance.staff:
                     instance.staff = request.user
+                if isinstance(formset, FollowUpsForUserInlineFormSet):
+                    instance.for_user = True
                 instance.save()
 
             formset.save_m2m()
+
+            # Delete follow ups if the delete field of follow up is checked.
+            for deleted_object in formset.deleted_objects:
+                formset.delete_existing(deleted_object, commit=True)
+
             return instances
         else:
             return formset.save()
@@ -207,7 +243,7 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin, ExportDocumentCsvMix
             FollowUp.objects.create(
                 document=obj,
                 note=f"{DocumentDisplayStatusEnum.CHOICES[ods][1]} -> "
-                f"{DocumentDisplayStatusEnum.CHOICES[ds][1]}",
+                     f"{DocumentDisplayStatusEnum.CHOICES[ds][1]}",
             )
 
         super().save_model(request, obj, form, change)
