@@ -9,7 +9,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from .models import Factory, Image, ReportRecord
+from .models import Factory, Image, ReportRecord, FollowUp
 
 
 VALID_FACTORY_TYPES = [t[0] for t in Factory.factory_type_list]
@@ -39,6 +39,7 @@ class FactorySerializer(ModelSerializer):
     data_complete = SerializerMethodField()
     status = SerializerMethodField()  # should be DEPRECATED
     document_display_status = SerializerMethodField()
+    follow_ups_for_user = SerializerMethodField()
 
     class Meta:
         model = Factory
@@ -62,6 +63,7 @@ class FactorySerializer(ModelSerializer):
             "data_complete",
             "status",  # should be DEPRECATED
             "document_display_status",
+            "follow_ups_for_user"
         ]
         extra_kwargs = {
             "display_number": {"required": False},
@@ -93,6 +95,16 @@ class FactorySerializer(ModelSerializer):
             latest_document = max(documents, key=lambda d: d.created_at)
             return latest_document.get_display_status_display()
         return None
+
+    def get_follow_ups_for_user(self, obj):
+        document_id_list = obj.documents.only("id")
+        follow_up_query_set = FollowUp.objects.filter(document__in=document_id_list, for_user=True)
+        note_list = list(map(lambda item: {
+            "note": item.note,
+            "created_at": item.created_at.isoformat(),
+        }, follow_up_query_set))
+
+        return note_list
 
     def validate_lat(self, value):
         if not (settings.TAIWAN_MIN_LATITUDE <= value <= settings.TAIWAN_MAX_LATITUDE):
