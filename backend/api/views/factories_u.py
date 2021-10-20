@@ -61,7 +61,6 @@ def _handle_update_factory_attributes(request, factory_id):
 
     new_report_record_fields = {
         "factory_id": factory_id,
-        "user_ip": _get_client_ip(request),
         "action_type": "UPDATE",
         "action_body": put_body,
         "contact": put_body.get("contact"),

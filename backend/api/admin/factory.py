@@ -92,8 +92,8 @@ class DescriptionInline(admin.TabularInline):
     can_delete = False
     show_change_link = False
     max_num = 0
-    fields = ("created_at", "others", "user_ip")
-    readonly_fields = ("created_at", "others", "user_ip")
+    fields = ("created_at", "others")
+    readonly_fields = ("created_at", "others")
     extra = 0
 
 
@@ -106,7 +106,6 @@ class ReportRecordInline(admin.TabularInline):
         "others",
         "action_type",
         "action_body",
-        "user_ip",
         "id",
     )
     readonly_fields = (
@@ -116,7 +115,6 @@ class ReportRecordInline(admin.TabularInline):
         "others",
         "action_type",
         "action_body",
-        "user_ip",
         "id",
     )
     extra = 0
