@@ -98,7 +98,7 @@ def _handle_create_factory(request):
             status=400,
         )
 
-    num = Factory.objects.aggregate(Max("display_number"))
+    num = Factory.raw_objects.aggregate(Max("display_number"))
 
     new_factory_field = {
         "name": post_body["name"],

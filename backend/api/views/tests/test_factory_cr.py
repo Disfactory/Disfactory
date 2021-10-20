@@ -1,6 +1,8 @@
+from api.views.tests.test_factories_u import factory
 import datetime
 from unittest.mock import patch
 from uuid import uuid4
+from django.db.models import Max
 
 import pytest
 from freezegun import freeze_time
@@ -230,3 +232,41 @@ def test_query_factory_by_sectcode(client):
 
     data = resp.json()
     assert data["sectname"] == "新生段"
+
+def test_create_factory_after_delete_the_latest_factory_with_maximum_display_number(client):
+    factory_with_max_num = Factory.objects.order_by('-display_number')[0]
+    factory_with_max_num.delete()
+
+    assert Factory.objects.order_by('-display_number')[0].display_number < factory_with_max_num.display_number
+
+    # Create a new factory
+    lat = 23.234
+    lng = 120.1
+    others = "這個工廠實在太臭啦，趕緊檢舉吧"
+    nickname = "路過的家庭主婦"
+    contact = "07-7533967"
+    factory_type = "2-3"
+    im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
+    im2 = Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
+    im_not_related = Image.objects.create(image_path="https://i.imgur.com/T3pdEyR.jpg")
+    request_body = {
+        "name": "a new factory",
+        "type": factory_type,
+        "images": [str(im1.id), str(im2.id)],
+        "others": others,
+        "lat": lat,
+        "lng": lng,
+        "nickname": nickname,
+        "contact": contact,
+    }
+
+    test_time = datetime.datetime(2019, 11, 11, 11, 11, 11, tzinfo=datetime.timezone.utc)
+    with freeze_time(test_time):
+        resp = client.post(
+            "/api/factories", data=request_body, content_type="application/json"
+        )
+
+    assert resp.status_code == 200
+
+    new_factory_with_max_num = Factory.raw_objects.order_by('-display_number')[0]
+    assert new_factory_with_max_num.display_number == factory_with_max_num.display_number + 1
