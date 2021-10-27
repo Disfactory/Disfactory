@@ -85,7 +85,6 @@ def post_factory_image_url(request, factory_id):
         factory = Factory.objects.only("id").get(pk=factory_id)
         report_record = ReportRecord.objects.create(
             factory=factory,
-            user_ip=user_ip,
             action_type="POST_IMAGE",
             action_body={},
             nickname=post_body.get("nickname"),

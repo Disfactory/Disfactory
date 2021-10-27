@@ -110,7 +110,6 @@ def _handle_create_factory(request):
     }
 
     new_report_record_field = {
-        "user_ip": user_ip,
         "action_type": "POST",
         "action_body": post_body,
         "nickname": post_body.get("nickname"),

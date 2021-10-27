@@ -8,7 +8,6 @@ class ReportRecordAdmin(admin.ModelAdmin, ExportCsvMixin):
         "factory",
         "action_type",
         "created_at",
-        "user_ip",
         "nickname",
         "contact",
         "others",
