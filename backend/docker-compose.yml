@@ -28,6 +28,7 @@ services:
       - /bin/bash
       - -c
       - "/Disfactory/scripts/start_prod.sh"
+    restart: always
 
   db:
     image: postgres:12
@@ -38,6 +39,7 @@ services:
       POSTGRES_DB: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
       POSTGRES_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
       POSTGRES_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
+    restart: always
 
   worker:
     build:
@@ -59,3 +61,4 @@ services:
       - /bin/bash
       - -c
       - "/Disfactory/scripts/start_worker.sh"
+    restart: always
