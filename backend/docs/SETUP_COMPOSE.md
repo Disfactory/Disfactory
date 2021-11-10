@@ -39,7 +39,7 @@ docker-compose -f docker-compose.dev.yml up -d --build --force-recreate
 - Run tests
 
 ```bash
-docker-compose exec web python manage.py test
+docker-compose exec web pytest
 ```
 
 - Create admin user
