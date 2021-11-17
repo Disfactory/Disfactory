@@ -7,6 +7,8 @@ import towninfo
 
 DEFAULT_TIMEOUT = 5 # 5 seconds
 
+EASYMAP_BASE_URL = "https://easymap.land.moi.gov.tw/P02"
+
 class WebRequestError(RuntimeError):
     def __init__(self, message, status_code, response_body):
         super().__init__(message)
@@ -15,10 +17,10 @@ class WebRequestError(RuntimeError):
 
 
 def get_session(timeout=DEFAULT_TIMEOUT):
-    easymap_url = "https://easymap.land.moi.gov.tw/Index"
+    easymap_url = EASYMAP_BASE_URL + "/Index"
     sess = requests.Session()
     # XXX don't need this?
-    # sess.headers.update({"User-Agent": "Mozilla/5.0"})
+    sess.headers.update({"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36"})
     resp = sess.get(easymap_url, timeout=timeout)
     if "JSESSIONID" not in sess.cookies:
         raise WebRequestError("Failed getting session from easymap", resp.status_code, resp.text)
@@ -26,7 +28,7 @@ def get_session(timeout=DEFAULT_TIMEOUT):
 
 
 def get_point_city(sess, x, y, timeout=DEFAULT_TIMEOUT):
-    point_city_url = "https://easymap.land.moi.gov.tw/Query_json_getPointCity"
+    point_city_url = EASYMAP_BASE_URL + "/Query_json_getPointCity"
     data = {"wgs84x": x, "wgs84y": y}
     resp = sess.post(point_city_url, data=data, timeout=timeout)
     if resp.status_code != requests.codes.ok:
@@ -38,7 +40,7 @@ def get_point_city(sess, x, y, timeout=DEFAULT_TIMEOUT):
 
 
 def get_token(sess, timeout=DEFAULT_TIMEOUT):
-    set_token_url = "https://easymap.land.moi.gov.tw/pages/setToken.jsp"
+    set_token_url = EASYMAP_BASE_URL + "/pages/setToken.jsp"
     token_re = re.compile('<input type="hidden" name="(.*?)" value="(.*?)" />')
     resp = sess.post(set_token_url, timeout=timeout)
     if resp.status_code != requests.codes.ok:
@@ -50,8 +52,9 @@ def get_token(sess, timeout=DEFAULT_TIMEOUT):
 
 
 def get_door_info(sess, x, y, cityCode, token, timeout=DEFAULT_TIMEOUT):
-    get_door_info_url = "https://easymap.land.moi.gov.tw/Door_json_getDoorInfoByXY"
+    get_door_info_url = EASYMAP_BASE_URL + "/Door_json_getDoorInfoByXY"
     data = {"city": cityCode, "coordX": x, "coordY": y, **token}
+
     resp = sess.post(get_door_info_url, data=data, timeout=timeout)
     if resp.status_code != requests.codes.ok:
         raise WebRequestError("Failed getting door info", resp.status_code, resp.text)
