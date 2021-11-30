@@ -4,6 +4,7 @@ import pytest
 from freezegun import freeze_time
 
 from ...models import Image, Factory, Document
+from ...models.const import DocumentDisplayStatusConst
 from ...models.document import DocumentDisplayStatusEnum
 
 
@@ -78,7 +79,7 @@ def test_get_factory_statistics(client):
     resp = client.get("/api/statistics/factories?townname=台南市")
     assert resp.json()["cities"]["臺南市"]["factories"] == 101
 
-    resp = client.get("/api/statistics/factories?display_status=已檢舉")
+    resp = client.get(f"/api/statistics/factories?display_status={DocumentDisplayStatusConst.REPORTED}")
     assert resp.json()["factories"] == 0
 
     # Add a document to factory in 臺北市中山區
@@ -92,18 +93,18 @@ def test_get_factory_statistics(client):
     assert resp.json()["cities"]["臺北市"]["factories"] == 10
     assert resp.json()["cities"]["臺北市"]["documents"] == 1
 
-    resp = client.get("/api/statistics/factories?display_status=已檢舉")
+    resp = client.get(f"/api/statistics/factories?display_status={DocumentDisplayStatusConst.REPORTED}")
     assert resp.json()["factories"] == 1
     assert resp.json()["documents"] == 1
 
-    resp = client.get("/api/statistics/factories?display_status=已檢舉&level=city")
+    resp = client.get(f"/api/statistics/factories?display_status={DocumentDisplayStatusConst.REPORTED}&level=city")
     assert resp.json()["cities"]["臺北市"]["factories"] == 1
     assert resp.json()["cities"]["臺北市"]["documents"] == 1
 
-    resp = client.get("/api/statistics/factories?townname=台南市&display_status=已檢舉")
+    resp = client.get(f"/api/statistics/factories?townname=台南市&display_status={DocumentDisplayStatusConst.REPORTED}")
     assert resp.json()["cities"]["臺南市"]["factories"] == 0
 
-    resp = client.get("/api/statistics/factories?townname=台北市&display_status=已檢舉")
+    resp = client.get(f"/api/statistics/factories?townname=台北市&display_status={DocumentDisplayStatusConst.REPORTED}")
     assert resp.json()["cities"]["臺北市"]["factories"] == 1
     assert resp.json()["cities"]["臺北市"]["documents"] == 1
 
@@ -113,19 +114,19 @@ def test_get_factory_statistics(client):
         factory=Factory.objects.get(id=id_list[0]),
         display_status=1
     )
-    resp = client.get("/api/statistics/factories?townname=台北市&display_status=已檢舉")
+    resp = client.get(f"/api/statistics/factories?townname=台北市&display_status={DocumentDisplayStatusConst.REPORTED}")
     assert resp.json()["factories"] == 1
     assert resp.json()["cities"]["臺北市"]["factories"] == 1
 
-    resp = client.get("/api/statistics/factories?townname=台北市&display_status=已排程稽查")
+    resp = client.get(f"/api/statistics/factories?townname=台北市&display_status={DocumentDisplayStatusConst.AUDIT_SCHEDULED}")
     assert resp.json()["factories"] == 1
     assert resp.json()["cities"]["臺北市"]["factories"] == 1
 
-    resp = client.get("/api/statistics/factories?townname=台北市&display_status=已排程稽查&source=U")
+    resp = client.get(f"/api/statistics/factories?townname=台北市&display_status={DocumentDisplayStatusConst.AUDIT_SCHEDULED}&source=U")
     assert resp.json()["factories"] == 1
     assert resp.json()["cities"]["臺北市"]["factories"] == 1
 
-    resp = client.get("/api/statistics/factories?townname=台北市&display_status=已排程稽查&source=G")
+    resp = client.get(f"/api/statistics/factories?townname=台北市&display_status={DocumentDisplayStatusConst.AUDIT_SCHEDULED}&source=G")
     assert resp.json()["factories"] == 0
     assert resp.json()["cities"]["臺北市"]["factories"] == 0
 
@@ -134,26 +135,26 @@ def test_get_factory_statistics(client):
         cet_staff="AAA",
         code="123457",
         factory=Factory.objects.get(id=id_list[0]),
-        display_status=DocumentDisplayStatusEnum.INDICES["已排程稽查"]
+        display_status=DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.AUDIT_SCHEDULED]
     )
     Document.objects.create(
         cet_staff="AAA",
         code="123457",
         factory=Factory.objects.get(id=id_list[1]),
-        display_status=DocumentDisplayStatusEnum.INDICES["陳述意見期"]
+        display_status=DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.COMMUNICATION_PERIOD]
     )
     Document.objects.create(
         cet_staff="AAA",
         code="123457",
         factory=Factory.objects.get(id=id_list[2]),
-        display_status=DocumentDisplayStatusEnum.INDICES["已勒令停工"]
+        display_status=DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.WORK_STOPPED]
     )
 
     resp = client.get("/api/statistics/factories?townname=台北市")
     assert resp.json()["documents"] == 5
     assert resp.json()["cities"]["臺北市"]["documents"] == 5
 
-    resp = client.get("/api/statistics/factories?townname=台北市&display_status=處理中")
+    resp = client.get(f"/api/statistics/factories?townname=台北市&display_status={DocumentDisplayStatusConst.IN_PROGRESS}")
     assert resp.json()["documents"] == 3
     assert resp.json()["cities"]["臺北市"]["documents"] == 3
 
@@ -161,16 +162,16 @@ def test_get_factory_statistics(client):
         cet_staff="AAA",
         code="123457",
         factory=Factory.objects.get(id=id_list[3]),
-        display_status=DocumentDisplayStatusEnum.INDICES["已檢舉"]
+        display_status=DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.REPORTED]
     )
     Document.objects.create(
         cet_staff="AAA",
         code="123457",
         factory=Factory.objects.get(id=id_list[3]),
-        display_status=DocumentDisplayStatusEnum.INDICES["已排程拆除"]
+        display_status=DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.DEMOLITION_SCHEDULED]
     )
 
-    resp = client.get("/api/statistics/factories?townname=台北市&display_status=處理中")
+    resp = client.get(f"/api/statistics/factories?townname=台北市&display_status={DocumentDisplayStatusConst.IN_PROGRESS}")
     assert resp.json()["documents"] == 4
 
 
@@ -224,7 +225,7 @@ def test_get_total(client):
 
     resp = client.get("/api/statistics/total")
     assert resp.json()["臺北市"]["documents"] == 10
-    count = resp.json()["臺北市"]["未處理"]
+    count = resp.json()["臺北市"][DocumentDisplayStatusConst.OPEN]
     assert count == 10, f"expect 10 but {count}"
 
     for factory in Factory.objects.order_by("-created_at").all()[:5]:
@@ -237,7 +238,7 @@ def test_get_total(client):
 
     resp = client.get("/api/statistics/total")
     assert resp.json()["臺南市"]["documents"] == 5
-    count = resp.json()["臺南市"]["處理中"]
+    count = resp.json()["臺南市"][DocumentDisplayStatusConst.IN_PROGRESS]
     assert count == 5, f"expect 5 but {count}"
 
     for factory in Factory.objects.order_by("-created_at").all()[5:10]:
@@ -250,7 +251,7 @@ def test_get_total(client):
 
     resp = client.get("/api/statistics/total")
     assert resp.json()["臺南市"]["documents"] == 10
-    count = resp.json()["臺南市"]["處理中"]
+    count = resp.json()["臺南市"][DocumentDisplayStatusConst.IN_PROGRESS]
     assert count == 10, f"expect 10 but {count}"
 
     for factory in Factory.objects.order_by("-created_at"):
@@ -263,8 +264,8 @@ def test_get_total(client):
 
     resp = client.get("/api/statistics/total")
     assert resp.json()["臺南市"]["documents"] == 101
-    count = resp.json()["臺南市"]["處理中"]
+    count = resp.json()["臺南市"][DocumentDisplayStatusConst.IN_PROGRESS]
     assert count == 101, f"expect 101 but {count}"
 
-    count = resp.json()["臺北市"]["處理中"]
+    count = resp.json()["臺北市"][DocumentDisplayStatusConst.IN_PROGRESS]
     assert count == 10, f"expect 10 but {count}"

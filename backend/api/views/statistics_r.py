@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 from django.db.models import Q
 
 from ..models import Factory, Document, Image, ReportRecord
+from ..models.const import DocumentDisplayStatusConst
 from ..models.document import DocumentDisplayStatusEnum
 from ..utils import normalize_townname
 from .zipcode import ZIP_CODE
@@ -21,12 +22,12 @@ def _generate_factories_query_set(townname, source, display_status):
         )
 
         display_status_options = map((lambda item: item[1]), DocumentDisplayStatusEnum.CHOICES)
-        if display_status == "處理中":
+        if display_status == DocumentDisplayStatusConst.IN_PROGRESS:
             display_status = [
-                DocumentDisplayStatusEnum.INDICES["已排程稽查"],
-                DocumentDisplayStatusEnum.INDICES["陳述意見期"],
-                DocumentDisplayStatusEnum.INDICES["已勒令停工"],
-                DocumentDisplayStatusEnum.INDICES["已排程拆除"],
+                DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.AUDIT_SCHEDULED],
+                DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.COMMUNICATION_PERIOD],
+                DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.WORK_STOPPED],
+                DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.DEMOLITION_SCHEDULED],
             ]
             docs = docs.filter(display_status__in=display_status)
         else:
@@ -123,21 +124,11 @@ def _generate_factories_query_set(townname, source, display_status):
         openapi.Parameter(
             name="display_status",
             in_=openapi.IN_QUERY,
-            description="""
-            除了 document 預設的 display_status 之外，還有一個 "處理中" 的選項可以用，這個代表
-            "已排程稽查", "陳述意見期", "已勒令停工", "已排程拆除" 這四種 display_status
+            description=f"""
+            除了 document 預設的 display_status 之外，還有一個 {DocumentDisplayStatusConst.IN_PROGRESS} 的選項可以用，這個代表
+            {DocumentDisplayStatusConst.AUDIT_SCHEDULED}, {DocumentDisplayStatusConst.COMMUNICATION_PERIOD}, {DocumentDisplayStatusConst.WORK_STOPPED}, {DocumentDisplayStatusConst.DEMOLITION_SCHEDULED} 這四種 display_status
             """,
-            enum=[
-                "已檢舉",
-                "已排程稽查",
-                "陳述意見期",
-                "已勒令停工",
-                "已發函斷電",
-                "已排程拆除",
-                "已拆除",
-                "等待新事證",
-                "處理中",
-            ],
+            enum=DocumentDisplayStatusConst.STATUS_LIST_ENRICHMENT,
             type=openapi.TYPE_STRING,
             required=False,
             example="u",
@@ -279,21 +270,11 @@ def _get_factories_information(townname, source, display_status):
         openapi.Parameter(
             name="display_status",
             in_=openapi.IN_QUERY,
-            description="""
-            除了 document 預設的 display_status 之外，還有一個 "處理中" 的選項可以用，這個代表
-            "已排程稽查", "陳述意見期", "已勒令停工" 這三種 display_status
+            description=f"""
+            除了 document 預設的 display_status 之外，還有一個 {DocumentDisplayStatusConst.IN_PROGRESS} 的選項可以用，這個代表
+            {DocumentDisplayStatusConst.AUDIT_SCHEDULED}, {DocumentDisplayStatusConst.COMMUNICATION_PERIOD}, {DocumentDisplayStatusConst.WORK_STOPPED} 這三種 display_status
             """,
-            enum=[
-                "已檢舉",
-                "已排程稽查",
-                "陳述意見期",
-                "已勒令停工",
-                "已發函斷電",
-                "已排程拆除",
-                "已拆除",
-                "等待新事證",
-                "處理中",
-            ],
+            enum=DocumentDisplayStatusConst.STATUS_LIST_ENRICHMENT,
             type=openapi.TYPE_STRING,
             required=False,
             example="u",
@@ -351,21 +332,11 @@ def get_images_count_by_townname(request):
         openapi.Parameter(
             name="display_status",
             in_=openapi.IN_QUERY,
-            description="""
-            除了 document 預設的 display_status 之外，還有一個 "處理中" 的選項可以用，這個代表
-            "已排程稽查", "陳述意見期", "已勒令停工" 這三種 display_status
+            description=f"""
+            除了 document 預設的 display_status 之外，還有一個 {DocumentDisplayStatusConst.IN_PROGRESS} 的選項可以用，這個代表
+            {DocumentDisplayStatusConst.AUDIT_SCHEDULED}, {DocumentDisplayStatusConst.COMMUNICATION_PERIOD}, {DocumentDisplayStatusConst.WORK_STOPPED} 這三種 display_status
             """,
-            enum=[
-                "已檢舉",
-                "已排程稽查",
-                "陳述意見期",
-                "已勒令停工",
-                "已發函斷電",
-                "已排程拆除",
-                "已拆除",
-                "等待新事證",
-                "處理中",
-            ],
+            enum=DocumentDisplayStatusConst.STATUS_LIST_ENRICHMENT,
             type=openapi.TYPE_STRING,
             required=False,
             example="u",
@@ -409,28 +380,28 @@ def get_report_records_count_by_townname(request):
                                 type=openapi.TYPE_INTEGER,
                                 description="已經被回報的工廠的數量 (如果一個工廠有被回報多次，只會以一次計算)",
                             ),
-                            "處理中": openapi.Schema(
+                            DocumentDisplayStatusConst.IN_PROGRESS: openapi.Schema(
                                 type=openapi.TYPE_INTEGER,
-                                description="""
-                                    狀態為 "已排程稽查", "陳述意見期", "已勒令停工", "已排程拆除" 的工廠數量
+                                description=f"""
+                                    狀態為 {DocumentDisplayStatusConst.AUDIT_SCHEDULED}, {DocumentDisplayStatusConst.COMMUNICATION_PERIOD}, {DocumentDisplayStatusConst.WORK_STOPPED}, {DocumentDisplayStatusConst.DEMOLITION_SCHEDULED} 的工廠數量
                                 """,
                             ),
-                            "未處理": openapi.Schema(
+                            DocumentDisplayStatusConst.OPEN: openapi.Schema(
                                 type=openapi.TYPE_INTEGER,
-                                description="""
-                                    狀態為 "未處理" 的工廠數量
+                                description=f"""
+                                    狀態為 {DocumentDisplayStatusConst.OPEN} 的工廠數量
                                 """,
                             ),
-                            "已斷電": openapi.Schema(
+                            DocumentDisplayStatusConst.POWER_OUTED: openapi.Schema(
                                 type=openapi.TYPE_INTEGER,
-                                description="""
-                                    狀態為 "已斷電" 的工廠數量
+                                description=f"""
+                                    狀態為 {DocumentDisplayStatusConst.POWER_OUTED} 的工廠數量
                                 """,
                             ),
-                            "已拆除": openapi.Schema(
+                            DocumentDisplayStatusConst.DEMOLISHED: openapi.Schema(
                                 type=openapi.TYPE_INTEGER,
-                                description="""
-                                    狀態為 "已拆除" 的工廠數量
+                                description=f"""
+                                    狀態為 {DocumentDisplayStatusConst.DEMOLISHED} 的工廠數量
                                 """,
                             ),
                         },
@@ -475,24 +446,24 @@ def get_statistics_total(request):
         result[city]["documents"] = docs.count()
 
         # 處理中
-        result[city]["未處理"] = 0
-        result[city]["處理中"] = 0
-        result[city]["已斷電"] = 0
-        result[city]["已拆除"] = 0
+        result[city][DocumentDisplayStatusConst.OPEN] = 0
+        result[city][DocumentDisplayStatusConst.IN_PROGRESS] = 0
+        result[city][DocumentDisplayStatusConst.POWER_OUTED] = 0
+        result[city][DocumentDisplayStatusConst.DEMOLISHED] = 0
 
         for doc in docs:
-            if doc.display_status == DocumentDisplayStatusEnum.INDICES["已檢舉"]:
-                result[city]["未處理"] += 1
+            if doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.REPORTED]:
+                result[city][DocumentDisplayStatusConst.OPEN] += 1
             elif (
-                doc.display_status == DocumentDisplayStatusEnum.INDICES["已排程稽查"]
-                or doc.display_status == DocumentDisplayStatusEnum.INDICES["陳述意見期"]
-                or doc.display_status == DocumentDisplayStatusEnum.INDICES["已勒令停工"]
-                or doc.display_status == DocumentDisplayStatusEnum.INDICES["已排程拆除"]
+                doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.AUDIT_SCHEDULED]
+                or doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.COMMUNICATION_PERIOD]
+                or doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.WORK_STOPPED]
+                or doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.DEMOLITION_SCHEDULED]
             ):
-                result[city]["處理中"] += 1
-            elif doc.display_status == DocumentDisplayStatusEnum.INDICES["已發函斷電"]:
-                result[city]["已斷電"] += 1
-            elif doc.display_status == DocumentDisplayStatusEnum.INDICES["已拆除"]:
-                result[city]["已拆除"] += 1
+                result[city][DocumentDisplayStatusConst.IN_PROGRESS] += 1
+            elif doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.POWER_OUTING]:
+                result[city][DocumentDisplayStatusConst.POWER_OUTING] += 1
+            elif doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.DEMOLISHED]:
+                result[city][DocumentDisplayStatusConst.DEMOLISHED] += 1
 
     return JsonResponse(result)
