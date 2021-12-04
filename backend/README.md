@@ -79,7 +79,7 @@ DISFACTORY_BACKEND_MEDIA_ROOT="./images/"
 DISFACTORY_BACKEND_DOMAIN="https://api.disfactory.tw/"
 ```
 
-也可以直接複製 `.env.example` 到 `.env`。
+也可以直接複製 `.env.sample` 到 `.env`。
 
 最後我們要使用 `.env` 來設定目前的環境變數
 
