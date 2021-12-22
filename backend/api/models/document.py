@@ -4,24 +4,12 @@ from .mixins import SoftDeleteMixin
 from .factory import Factory
 
 from users.models import CustomUser
+from .const import DocumentDisplayStatusConst
 
 
 class DocumentDisplayStatusEnum:
 
-    CHOICES = list(
-        enumerate(
-            [
-                "已檢舉",
-                "已排程稽查",
-                "陳述意見期",
-                "已勒令停工",
-                "已發函斷電",
-                "已排程拆除",
-                "已拆除",
-                "等待新事證",
-            ]
-        )
-    )
+    CHOICES = list(enumerate(DocumentDisplayStatusConst.STATUS_LIST))
     INDICES = {val: idx for idx, val in CHOICES}
 
 
@@ -79,7 +67,7 @@ class Document(SoftDeleteMixin):
 
     created_at = models.DateTimeField(auto_now_add=True)
     display_status = models.IntegerField(
-        default=DocumentDisplayStatusEnum.INDICES["已檢舉"],
+        default=DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.REPORTED],
         choices=DocumentDisplayStatusEnum.CHOICES,
         db_index=True,
     )
