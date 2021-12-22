@@ -30,7 +30,7 @@ def _get_nearby_factories(latitude, longitude, radius):
         .order_by("id")
     )
 
-    if len(ids) > settings.MAX_FACTORY_PER_GET:
+    if radius_km > settings.MAX_FACTORY_RADIUS_PER_GET:
         ids = _sample(ids, settings.MAX_FACTORY_PER_GET)
 
     return (
