@@ -269,3 +269,22 @@ def test_get_total(client):
 
     count = resp.json()["臺北市"][DocumentDisplayStatusConst.IN_PROGRESS]
     assert count == 10, f"expect 10 but {count}"
+
+
+    # Test POWER_OUTING
+    for factory in Factory.objects.order_by("-created_at"):
+        Document.objects.create(
+            cet_staff="AAA",
+            code="123456",
+            factory=factory,
+            display_status=DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.POWER_OUTING]
+        )
+
+    resp = client.get("/api/statistics/total")
+    assert resp.json()["臺南市"]["documents"] == 101
+    count = resp.json()["臺南市"][DocumentDisplayStatusConst.POWER_OUTED]
+    assert count == 101, f"expect 101 but {count}"
+
+    count = resp.json()["臺北市"][DocumentDisplayStatusConst.POWER_OUTED]
+    assert count == 10, f"expect 10 but {count}"
+
