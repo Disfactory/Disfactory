@@ -462,7 +462,7 @@ def get_statistics_total(request):
             ):
                 result[city][DocumentDisplayStatusConst.IN_PROGRESS] += 1
             elif doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.POWER_OUTING]:
-                result[city][DocumentDisplayStatusConst.POWER_OUTING] += 1
+                result[city][DocumentDisplayStatusConst.POWER_OUTED] += 1
             elif doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.DEMOLISHED]:
                 result[city][DocumentDisplayStatusConst.DEMOLISHED] += 1
 
