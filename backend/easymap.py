@@ -7,7 +7,7 @@ import towninfo
 
 DEFAULT_TIMEOUT = 5 # 5 seconds
 
-EASYMAP_BASE_URL = "https://easymap.land.moi.gov.tw/P02"
+EASYMAP_BASE_URL = "https://easymap.land.moi.gov.tw"
 
 class WebRequestError(RuntimeError):
     def __init__(self, message, status_code, response_body):
