@@ -5,9 +5,10 @@ import re
 
 import towninfo
 
-DEFAULT_TIMEOUT = 5 # 5 seconds
+DEFAULT_TIMEOUT = 30 # 5 seconds
 
 EASYMAP_BASE_URL = "https://easymap.land.moi.gov.tw"
+PROXIES = {"https": "proxy:5566"}
 
 class WebRequestError(RuntimeError):
     def __init__(self, message, status_code, response_body):
@@ -16,9 +17,11 @@ class WebRequestError(RuntimeError):
         self.response_body = response_body
 
 
-def get_session(timeout=DEFAULT_TIMEOUT):
+def get_session(timeout=DEFAULT_TIMEOUT, proxies=PROXIES):
     easymap_url = EASYMAP_BASE_URL + "/Index"
     sess = requests.Session()
+    if proxies:
+        sess.proxies.update(PROXIES)
     # XXX don't need this?
     sess.headers.update({"User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.71 Safari/537.36"})
     resp = sess.get(easymap_url, timeout=timeout)
@@ -64,13 +67,13 @@ def get_door_info(sess, x, y, cityCode, token, timeout=DEFAULT_TIMEOUT):
         raise WebRequestError("Failed parsing door info", resp.status_code, resp.text)
 
 
-def get_land_number(x, y, timeout=DEFAULT_TIMEOUT):
+def get_land_number(x, y, timeout=DEFAULT_TIMEOUT, proxies=PROXIES):
     """
     Get land number by WGS84 coordinates.
 
     since the easymap API doesn't provide townname, we then insert a townname field by looking up in xml files in ./towncode downloaded from https://api.nlsc.gov.tw/other/ListTown1/{A-Z}
     """
-    sess = get_session(timeout=timeout)
+    sess = get_session(timeout=timeout, proxies=proxies)
     cityCode = get_point_city(sess, x=x, y=y, timeout=timeout)
     token = get_token(sess,timeout=timeout)
     land_number = get_door_info(sess, x=x, y=y, cityCode=cityCode, token=token, timeout=timeout)
@@ -86,4 +89,4 @@ if __name__ == "__main__":
         print("Usage: easymap.py <wgs84x> <wgs84y>")
         sys.exit(-1)
     x, y = sys.argv[1:3]
-    print(get_land_number(x=x, y=y))
+    print(get_land_number(x=x, y=y, proxies=None))
