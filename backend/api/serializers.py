@@ -99,7 +99,8 @@ class FactorySerializer(ModelSerializer):
     def get_follow_ups_for_user(self, obj):
         follow_up_query_set = []
         for document in obj.documents.all():
-            follow_up_query_set.extend(document.follow_ups.filter(for_user=True))
+            follow_up_query_set.extend(
+                document.follow_ups.filter(for_user=True))
 
         note_list = list(map(lambda item: {
             "note": item.note,
