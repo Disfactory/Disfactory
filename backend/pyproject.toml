@@ -20,7 +20,7 @@ authors = []
 
 [tool.poetry.dependencies]
 python = "^3.7"
-django = "2.2.13"
+django = "2.2.27"
 psycopg2-binary = "2.8.6"
 djangorestframework = "3.9.2"
 python-dotenv = "^0.14.0"
