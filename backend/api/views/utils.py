@@ -41,7 +41,7 @@ def _get_nearby_factories(latitude, longitude, radius):
         .prefetch_related(Prefetch("images", queryset=Image.objects.only("id").all()))
         .prefetch_related(
             Prefetch(
-                "documents", queryset=Document.objects.only("created_at", "display_status").all()
+                "documents", queryset=Document.objects.only("created_at", "display_status").prefetch_related("follow_ups").all()
             )
         )
         .all()
