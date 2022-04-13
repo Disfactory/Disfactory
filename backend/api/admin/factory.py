@@ -194,7 +194,7 @@ class FactoryAdmin(
         "source",
         "name",
     )
-    search_fields = ["townname", "sectname", "display_number"]
+    search_fields = ["townname", "sectname", "display_number", "id"]
     list_filter = (
         # XXX: actually not using `factory.created_at` but `repordRecord.created_at`
         ("created_at", FactoryWithReportRecords),
