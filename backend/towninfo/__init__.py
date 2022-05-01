@@ -34,7 +34,7 @@ for xml_path in HERE.glob("*.xml"):
     with xml_path.open("r") as f:
         tree = ET.fromstring(f.read())
         if tree is not None:
-            for child in tree.getchildren():
+            for child in list(tree):
                 code = child.find("towncode").text
                 code01 = child.find("towncode01").text
                 name = city_name[code01[:1]] + child.find("townname").text
