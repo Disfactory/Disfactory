@@ -92,7 +92,8 @@ def test_create_new_factory_db_status_correct(client):
     factory_type = "2-3"
     im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
     im2 = Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
-    im_not_related = Image.objects.create(image_path="https://i.imgur.com/T3pdEyR.jpg")
+    im_not_related = Image.objects.create(
+        image_path="https://i.imgur.com/T3pdEyR.jpg")
     request_body = {
         "name": "a new factory",
         "type": factory_type,
@@ -104,7 +105,8 @@ def test_create_new_factory_db_status_correct(client):
         "contact": contact,
     }
 
-    test_time = datetime.datetime(2019, 11, 11, 11, 11, 11, tzinfo=datetime.timezone.utc)
+    test_time = datetime.datetime(
+        2019, 11, 11, 11, 11, 11, tzinfo=datetime.timezone.utc)
     with freeze_time(test_time):
         resp = client.post(
             "/api/factories", data=request_body, content_type="application/json"
@@ -130,10 +132,12 @@ def test_create_new_factory_db_status_correct(client):
     assert report_record.others == others
     assert report_record.created_at == test_time
 
-    related_images = Image.objects.only("factory_id").filter(id__in=[im1.id, im2.id])
+    related_images = Image.objects.only(
+        "factory_id").filter(id__in=[im1.id, im2.id])
     assert {str(img.factory_id) for img in related_images} == {new_factory_id}
 
-    not_related_images = Image.objects.only("factory_id").filter(id__in=[im_not_related.id])
+    not_related_images = Image.objects.only(
+        "factory_id").filter(id__in=[im_not_related.id])
     assert {str(img.factory_id) for img in not_related_images} == {"None"}
 
 
@@ -150,7 +154,8 @@ def test_create_new_factory_raise_if_image_id_not_exist(client):
         "nickname": "路過的家庭主婦",
         "contact": "07-7533967",
     }
-    resp = client.post("/api/factories", data=request_body, content_type="application/json")
+    resp = client.post("/api/factories", data=request_body,
+                       content_type="application/json")
 
     assert resp.status_code == 400
     assert resp.content == b"please check if every image id exist"
@@ -166,7 +171,8 @@ def test_create_new_factory_allow_no_contact(client):
         "lng": 120.1,
         "nickname": "",
     }
-    resp = client.post("/api/factories", data=request_body, content_type="application/json")
+    resp = client.post("/api/factories", data=request_body,
+                       content_type="application/json")
 
     assert resp.status_code == 200
 
@@ -180,7 +186,8 @@ def test_create_new_factory_allow_empty_type(client):
         "lng": 120.1,
         "nickname": "",
     }
-    resp = client.post("/api/factories", data=request_body, content_type="application/json")
+    resp = client.post("/api/factories", data=request_body,
+                       content_type="application/json")
 
     assert resp.status_code == 200
 
@@ -196,7 +203,8 @@ def test_create_new_factory_raise_if_not_in_Taiwan(client):
         "nickname": "",
         "contact": "07-7533967",
     }
-    resp = client.post("/api/factories", data=request_body, content_type="application/json")
+    resp = client.post("/api/factories", data=request_body,
+                       content_type="application/json")
 
     assert resp.status_code == 400
     assert "lat" in resp.json()
@@ -221,10 +229,12 @@ def test_create_new_factory_raise_if_type_is_not_invalid(client):
         "contact": contact,
     }
 
-    resp = client.post("/api/factories", data=request_body, content_type="application/json")
+    resp = client.post("/api/factories", data=request_body,
+                       content_type="application/json")
 
     assert resp.status_code == 400
     assert "type" in resp.json()
+
 
 def test_query_factory_by_sectcode(client):
     resp = client.get("/api/sectcode?sectcode=5212&landcode=00190009")
@@ -233,11 +243,13 @@ def test_query_factory_by_sectcode(client):
     data = resp.json()
     assert data["sectname"] == "新生段"
 
+
 def test_create_factory_after_delete_the_latest_factory_with_maximum_display_number(client):
     factory_with_max_num = Factory.objects.order_by('-display_number')[0]
     factory_with_max_num.delete()
 
-    assert Factory.objects.order_by('-display_number')[0].display_number < factory_with_max_num.display_number
+    assert Factory.objects.order_by(
+        '-display_number')[0].display_number < factory_with_max_num.display_number
 
     # Create a new factory
     lat = 23.234
@@ -248,7 +260,8 @@ def test_create_factory_after_delete_the_latest_factory_with_maximum_display_num
     factory_type = "2-3"
     im1 = Image.objects.create(image_path="https://i.imgur.com/RxArJUc.png")
     im2 = Image.objects.create(image_path="https://imgur.dcard.tw/BB2L2LT.jpg")
-    im_not_related = Image.objects.create(image_path="https://i.imgur.com/T3pdEyR.jpg")
+    im_not_related = Image.objects.create(
+        image_path="https://i.imgur.com/T3pdEyR.jpg")
     request_body = {
         "name": "a new factory",
         "type": factory_type,
@@ -260,7 +273,8 @@ def test_create_factory_after_delete_the_latest_factory_with_maximum_display_num
         "contact": contact,
     }
 
-    test_time = datetime.datetime(2019, 11, 11, 11, 11, 11, tzinfo=datetime.timezone.utc)
+    test_time = datetime.datetime(
+        2019, 11, 11, 11, 11, 11, tzinfo=datetime.timezone.utc)
     with freeze_time(test_time):
         resp = client.post(
             "/api/factories", data=request_body, content_type="application/json"
@@ -268,5 +282,6 @@ def test_create_factory_after_delete_the_latest_factory_with_maximum_display_num
 
     assert resp.status_code == 200
 
-    new_factory_with_max_num = Factory.raw_objects.order_by('-display_number')[0]
+    new_factory_with_max_num = Factory.raw_objects.order_by(
+        '-display_number')[0]
     assert new_factory_with_max_num.display_number == factory_with_max_num.display_number + 1
