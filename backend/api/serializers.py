@@ -31,6 +31,20 @@ class ImageSerializer(ModelSerializer):
         fields = ["id", "image_path", "url"]
 
 
+class FactoryLocationSerializer(ModelSerializer):
+    class Meta:
+        model = Factory
+        fields = [
+            "id",
+            "lat",
+            "lng",
+            "landcode",
+            "townname",
+            "sectname",
+            "sectcode",
+        ]
+
+
 class FactorySerializer(ModelSerializer):
 
     images = ImageSerializer(many=True, read_only=True)
