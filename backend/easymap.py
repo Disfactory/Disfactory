@@ -8,7 +8,7 @@ import towninfo
 DEFAULT_TIMEOUT = 30 # 5 seconds
 
 EASYMAP_BASE_URL = "https://easymap.land.moi.gov.tw"
-PROXIES = {"https": "proxy:5566"}
+PROXIES = {"https": "http://proxy:5566"}
 
 class WebRequestError(RuntimeError):
     def __init__(self, message, status_code, response_body):
