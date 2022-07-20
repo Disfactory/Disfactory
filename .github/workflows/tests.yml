@@ -70,4 +70,4 @@ jobs:
 
       - name: Run unittest
         run: |
-          python -m poetry run pytest -vv
+          python -m poetry run pytest -vv -k "not easymap"
