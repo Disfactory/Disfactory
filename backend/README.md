@@ -129,9 +129,21 @@ docker-compose -f docker-compose.dev.yml up -d
 
 Ubuntu20.04
 
+1. 下指令安裝poetry
 ```bash
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
+curl -sSL https://install.python-poetry.org | python3 -
 ```
+
+2. 把poetry路徑加入環境
+```bash
+nano ~/.bashrc  #用打開~/.bashrc
+```
+
+下面這行放到~/.bashrc最下面
+```bash
+export PATH="~/.local/bin:$PATH"
+```
+
 
 osx / linux / bashonwindows install instructions
 
