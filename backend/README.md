@@ -127,6 +127,12 @@ docker-compose -f docker-compose.dev.yml up -d
 
 #### 安裝 poetry
 
+Ubuntu20.04
+
+```bash
+curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python3 -
+```
+
 osx / linux / bashonwindows install instructions
 
 ```bash
