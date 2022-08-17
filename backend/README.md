@@ -66,6 +66,7 @@ DISFACTORY_BACKEND_DEFAULT_DB_DEV_PORT=5433
 DISFACTORY_ALLOWED_HOST=localhost,127.0.0.1
 DISFACTORY_BACKEND_CORS_ORIGIN_WHITELIST=
 DISFACTORY_BACKEND_MAX_FACTORY_PER_GET=50
+DISFACTORY_BACKEND_MAX_FACTORY_RADIUS_PER_GET=10
 
 DISFACTORY_BACKEND_LOG_LEVEL=INFO
 DISFACTORY_BACKEND_LOG_FILE=/tmp/disfactory.log
@@ -73,10 +74,20 @@ DISFACTORY_BACKEND_LOG_FILE=/tmp/disfactory.log
 DISFACTORY_BACKEND_DEBUG=true
 DISFACTORY_BACKEND_PORT=8888
 
+GOOGLE_MAP_API_KEY=
+
 # will be deprecated
 DISFACTORY_IMGUR_CLIENT_ID=your_imgur_id
 DISFACTORY_BACKEND_MEDIA_ROOT="./images/"
 DISFACTORY_BACKEND_DOMAIN="https://api.disfactory.tw/"
+DISFACTORY_FRONTEND_DOMAIN="https://disfactory.tw/"
+
+DISFACTORY_PGDATA_PATH=/tmp/disfactory_data/
+DISFACTORY_PGDATA_BACKUP_PATH=/tmp/disfactory_db_dump/
+
+DISFACTORY_CADDY_STATIC_DIR=/tmp/disfactory/static
+
+COMPOSE_PROJECT_NAME=staging
 ```
 
 也可以直接複製 `.env.sample` 到 `.env`。
@@ -126,6 +137,45 @@ docker-compose -f docker-compose.dev.yml up -d
 如果是 Linux, Mac 或 Windows WSL 環境的話可以使用 [pyenv](https://github.com/pyenv/pyenv) 來安裝特定版本的 Python。
 
 #### 安裝 poetry
+
+Ubuntu20.04
+
+1. 下指令安裝poetry
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+2. 把poetry路徑加入環境
+```bash
+nano ~/.bashrc  #用打開~/.bashrc
+```
+
+下面這行放到~/.bashrc最下面
+```bash
+export PATH="~/.local/bin:$PATH"
+```
+
+3. 建立poetry環境並且安裝套件
+
+* 注意
+如果電腦的Python預設版本是3.10，可以先安裝Python3.7，然後指定poetry要使用的Python版本，也可以先建立一個venv，然後指定用venv裡面的python路徑
+```bash
+which python3.7 #取得Python3.7路徑
+poetry env use /上面指令輸出的Python3.7路徑
+```
+
+安裝套件
+```bash
+cd backend
+poetry config virtualenvs.in-project true # 讓vscode可以讀到虛擬環境(https://stackoverflow.com/a/64434542)
+poetry install
+```
+
+4. 啟動虛擬環境
+```bash
+poetry shell
+```
+
 
 osx / linux / bashonwindows install instructions
 
@@ -182,14 +232,10 @@ python manage.py runserver
 ```
 
 ## 測試
-
-如果有安裝 `make` 的話，可以使用
-
+使用pytest進行測試
 ```bash
-make test
+pytest -vv
 ```
-
-來使用 docker 執行所有的 unittest
 
 ### API
 
