@@ -150,6 +150,11 @@ cd backend
 poetry install
 ```
 
+4. 啟動虛擬環境
+```bash
+poetry shell
+```
+
 osx / linux / bashonwindows install instructions
 
 ```bash
