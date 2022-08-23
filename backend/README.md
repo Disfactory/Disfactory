@@ -155,6 +155,13 @@ poetry install
 poetry shell
 ```
 
+* 注意
+如果電腦的Python預設版本是3.10，可以先安裝Python3.7，然後指定poetry要使用的Python版本
+```bash
+which python3.7 #取得Python3.7路徑
+poetry env use /上面指令輸出的Python3.7路徑
+```
+
 osx / linux / bashonwindows install instructions
 
 ```bash
