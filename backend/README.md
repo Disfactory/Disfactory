@@ -144,6 +144,11 @@ nano ~/.bashrc  #用打開~/.bashrc
 export PATH="~/.local/bin:$PATH"
 ```
 
+3. 建立poetry環境
+```bash
+cd backend
+poetry install
+```
 
 osx / linux / bashonwindows install instructions
 
