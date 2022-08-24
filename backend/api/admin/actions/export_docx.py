@@ -39,7 +39,7 @@ LOWER_CASE_NUMBERS = {
 
 CET_STAFF_EMAIL = {
     "蔡佳昇": "pisces@cet-taiwan.org",
-    "吳沅諭": "eva@cet-taiwan.org",
+    "賴沛蓮": "peii@cet-taiwan.org",
 }
 
 
