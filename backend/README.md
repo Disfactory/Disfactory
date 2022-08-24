@@ -221,14 +221,10 @@ python manage.py runserver
 ```
 
 ## 測試
-
-如果有安裝 `make` 的話，可以使用
-
+使用pytest進行測試
 ```bash
-make test
+pytest -vv
 ```
-
-來使用 docker 執行所有的 unittest
 
 ### API
 
