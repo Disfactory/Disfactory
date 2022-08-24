@@ -144,9 +144,19 @@ nano ~/.bashrc  #用打開~/.bashrc
 export PATH="~/.local/bin:$PATH"
 ```
 
-3. 建立poetry環境
+3. 建立poetry環境並且安裝套件
+
+* 注意
+如果電腦的Python預設版本是3.10，可以先安裝Python3.7，然後指定poetry要使用的Python版本，也可以先建立一個venv，然後指定用venv裡面的python路徑
+```bash
+which python3.7 #取得Python3.7路徑
+poetry env use /上面指令輸出的Python3.7路徑
+```
+
+安裝套件
 ```bash
 cd backend
+poetry config virtualenvs.in-project true # 讓vscode可以讀到虛擬環境(https://stackoverflow.com/a/64434542)
 poetry install
 ```
 
@@ -155,12 +165,6 @@ poetry install
 poetry shell
 ```
 
-* 注意
-如果電腦的Python預設版本是3.10，可以先安裝Python3.7，然後指定poetry要使用的Python版本
-```bash
-which python3.7 #取得Python3.7路徑
-poetry env use /上面指令輸出的Python3.7路徑
-```
 
 osx / linux / bashonwindows install instructions
 
