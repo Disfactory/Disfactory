@@ -249,7 +249,7 @@ class FactoryReportDocumentWriter:
     def _subject(self):
         # yapf: disable
         context = [
-            f'主旨：舉報 {self.factory_location} 地號土地疑有違法新增建築情事。',
+            f'主旨：舉報 {self.factory_location} 地號土地疑有違法新增鐵皮廠房情事。',
             '',
             '說明：'
         ]
@@ -267,7 +267,7 @@ class FactoryReportDocumentWriter:
         # yapf: disable
         context = [
             '一、　依工廠管理輔導法第28-1、28-12條辦理。',
-            f"二、　{self.factory_location} 地號土地新發現新增建情形，經地球公民基金會志工拍攝存證，如附件一。因懷疑係屬非法建築行為，函請貴府調查處理。若有不法情事，並應依法裁處，請貴府將查處情形，惠知本會。"
+            f"二、　{self.factory_location} 地號土地新發現新增建鐵皮廠房情形，經地球公民基金會志工拍攝存證，如附件一。因懷疑係屬非法建築行為，函請貴府調查處理。若有不法情事，並應依法裁處，請貴府將查處情形，惠知本會。"
         ]
         # yapf: enable
 
