@@ -11,7 +11,8 @@ WORKDIR /Disfactory
 RUN apt-get update
 RUN apt-get install -y libproj-dev binutils curl
 # RUN wget --quiet --output-document=- http://ftp.debian.org/debian/pool/main/c/curl/libcurl4_7.72.0-1_amd64.deb | dpkg --install -
-RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+ENV POETRY_HOME=/root/.poetry
+RUN curl -sSL https://install.python-poetry.org | python3 -
 ENV PATH "${PATH}:/root/.poetry/bin"
 RUN poetry config virtualenvs.create false
 COPY pyproject.toml poetry.lock ./
