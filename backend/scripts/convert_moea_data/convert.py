@@ -1,8 +1,8 @@
 import os
+import re
 import string
 
 from os import listdir
-from collections import namedtuple
 
 from openpyxl import load_workbook
 from sectname import convert_address_to_sectcode
@@ -66,19 +66,36 @@ class MoeaSheet:
                 else:
                     name = row[1].value
 
-                data.append(
-                    FactoryData(
-                        row[0].value,
-                        name,
-                        row[2].value,
-                        row[3].value,
-                        row[4].value,
-                        row[5].value,
-                        row[6].value,
-                        None,
-                    ))
+                if len(row) == 6:
+                    data.append(
+                        FactoryData(
+                            row[0].value,
+                            None,
+                            row[1].value,
+                            row[2].value,
+                            None,
+                            row[5].value,
+                            None,
+                            None
+                        )
+                    )
+
+                if len(row) == 7:
+                    data.append(
+                        FactoryData(
+                            row[0].value,
+                            name,
+                            row[2].value,
+                            row[3].value,
+                            row[4].value,
+                            row[5].value,
+                            row[6].value,
+                            None,
+                        )
+                    )
             except Exception as e:
-                #print(f"Can't parse data {row}")
+                print(f"Can't parse data {row}")
+                print(e)
                 continue
 
         return data
@@ -91,31 +108,30 @@ class Moea:
         self.sheet_names = self.wb.sheetnames
         self.unknown_sectstr = []
 
-    def get_target_sheets(self):
+    def get_target_sheets(self, sheet_key_words):
         sheets = []
 
         for sheet_name in self.wb.sheetnames:
-            if "名單" in sheet_name:
-                sheets.append(MoeaSheet(sheet_name, self.wb[sheet_name]))
+            for kw in sheet_key_words:
+                if kw in sheet_name:
+                    sheets.append(MoeaSheet(sheet_name, self.wb[sheet_name]))
 
         return sheets
 
-    def convert_data(self):
-        moea_sheets = self.get_target_sheets()
-
+    def convert_data(self, moea_sheets):
         for sheet in moea_sheets:
             data = sheet.get_data()
-            for item in data:
-                if item.sectstr is None:
+            for factory in data:
+                if factory.sectstr is None:
                     continue
 
                 full_list, simple_list = convert_address_to_sectcode(
-                    item.sectstr)
+                    factory.sectstr)
                 result = list(map(lambda item: str(item), full_list))
                 if not result:
-                    self.unknown_sectstr.append(item)
+                    self.unknown_sectstr.append(factory)
                 else:
-                    item.sect_list = result
+                    factory.sect_list = result
 
         return data
 
@@ -132,9 +148,13 @@ def list_moea_files():
 if __name__ == "__main__":
     #open_xlsx(os.path.join(ROOT_DIR, "11001.xlsx"))
     moea_files = list_moea_files()
-    print("Convert data")
+    print("Start converting data")
     for item in moea_files:
-        data = item.convert_data()
-        print(data)
-        for item in data:
-            print(item.sect_list)
+        if re.search(r"1[0-1][0|9]\d\d查處名單\.xlsx", item.file_path):
+            moea_sheets = item.get_target_sheets(["名單"])
+            data = item.convert_data(moea_sheets)
+        elif re.search(r"\d\d[1-9]\d\d內政部違反土地使用查處名單\.xlsx", item.file_path):
+            moea_sheets = item.get_target_sheets(["公開資料", "工作表"])
+            data = item.convert_data(moea_sheets)
+        for factory in data:
+            print(factory.sect_list)
