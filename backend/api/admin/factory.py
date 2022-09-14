@@ -16,6 +16,7 @@ from api.admin.actions import (
     RestoreMixin,
     ExportLabelMixin,
     GenerateDocsMixin,
+    MergeFactoriesMixin
 )
 from api.utils import set_function_attributes
 from rangefilter.filter import DateRangeFilter
@@ -180,6 +181,7 @@ class FactoryAdmin(
     ExportCsvMixin,
     ExportLabelMixin,
     GenerateDocsMixin,
+    MergeFactoriesMixin,
 ):
     list_display = (
         "id",
@@ -212,6 +214,7 @@ class FactoryAdmin(
         "export_as_csv",
         "export_labels_as_docx",
         "generate_docs",
+        "merge_factories",
     ]
 
     readonly_fields = (
