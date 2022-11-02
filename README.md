@@ -6,7 +6,7 @@
 
 ### 前端的程式碼已經移到 [Disfactory/frontend](https://github.com/Disfactory/frontend)，這裡主要是放後端的程式碼，開發時請 cd 進 [backend/](backend/) 資料夾。
 
-- [跳坑首頁 (HackMD)](https://g0v.hackmd.io/@yukaii/Disfactory)
+- [跳坑首頁 (HackMD)](https://g0v.hackmd.io/@disfactory/home)
 - [Disfactory 跳坑指南](https://g0v.hackmd.io/VqCrCpoQT4KQGVhbqR9r6A)
 - [開發文件](https://g0v.hackmd.io/FZFghtuoQ0aaGIl9xXzuKw)
 - [g0v slack](https://) channel `#disfactory`
