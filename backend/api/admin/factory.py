@@ -19,6 +19,7 @@ from api.admin.actions import (
     MergeFactoriesMixin
 )
 from api.utils import set_function_attributes
+from api.admin.filters.duplicate_sect_land_filter import DuplicateSectLandFilter
 from rangefilter.filter import DateRangeFilter
 from import_export.admin import ImportExportModelAdmin
 from django.urls import reverse
@@ -207,6 +208,7 @@ class FactoryAdmin(
         "usage_status",
         "highlight_category",
         FactoryFilteredByCounty,
+        DuplicateSectLandFilter,
     )
     ordering = ["-created_at"]
 
