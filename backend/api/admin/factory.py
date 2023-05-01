@@ -335,7 +335,7 @@ class FactoryAdmin(
             landcode = landinfo.get("landno")
 
             obj.landcode = landcode
-            obj.sectno = landinfo.get("sectno")
+            obj.sectcode = landinfo.get("sectno")
             obj.sectname = landinfo.get("sectname")
             obj.towncode = landinfo.get("towncode")
             obj.townname = landinfo.get("townname")
