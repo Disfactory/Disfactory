@@ -224,6 +224,7 @@ class FactoryAdmin(
         "updated_at",
         "google_map_link",
         "disfactory_map_link",
+        "easymap_link",
         "follow_ups_for_user",
     )
     fieldsets = (
@@ -250,6 +251,7 @@ class FactoryAdmin(
                     ("lng", "lat"),
                     "google_map_link",
                     "disfactory_map_link",
+                    "easymap_link",
                     "factory_type",
                     "name",
                     ("created_at", "updated_at"),
@@ -292,6 +294,14 @@ class FactoryAdmin(
         html_template = f"<a href='{url}' target='_blank'>Link</a>"
 
         return format_html(html_template)
+
+    @set_function_attributes(short_description="EasyMap 連結")
+    def easymap_link(self, obj):
+        html_template = (
+                "<a href='http://oracle.code-life.info:3000/?lat={lat}&&lng={lng}' target='_blank'>Link</a>"
+        )
+
+        return format_html(html_template.format(lat=obj.lat, lng=obj.lng))
 
     @set_function_attributes(short_description="Follow ups for user")
     def follow_ups_for_user(self, obj):
