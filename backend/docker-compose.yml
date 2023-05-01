@@ -42,12 +42,6 @@ services:
       POSTGRES_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}
     restart: always
 
-  proxy:
-    image: mattes/rotating-proxy:latest
-    restart: always
-    volumes:
-      - ./torrc:/etc/tor/torrc
-
   worker:
     build:
       context: .

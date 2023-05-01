@@ -319,12 +319,12 @@ class FactoryAdmin(
 
     def save_model(self, request, obj, form, change):
         try:
-            landinfo = easymap.get_land_number(obj.lng, obj.lat)
+            landinfo = easymap.get_land_number(lng=obj.lng, lat=obj.lat)
             landcode = landinfo.get("landno")
 
             obj.landcode = landcode
             obj.sectno = landinfo.get("sectno")
-            obj.sectname = landinfo.get("sectName")
+            obj.sectname = landinfo.get("sectname")
             obj.towncode = landinfo.get("towncode")
             obj.townname = landinfo.get("townname")
         except Exception as e:
