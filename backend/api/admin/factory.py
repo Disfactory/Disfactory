@@ -226,6 +226,7 @@ class FactoryAdmin(
         "updated_at",
         "google_map_link",
         "disfactory_map_link",
+        "easymap_link",
         "follow_ups_for_user",
     )
     fieldsets = (
@@ -252,6 +253,7 @@ class FactoryAdmin(
                     ("lng", "lat"),
                     "google_map_link",
                     "disfactory_map_link",
+                    "easymap_link",
                     "factory_type",
                     "name",
                     ("created_at", "updated_at"),
@@ -295,6 +297,14 @@ class FactoryAdmin(
 
         return format_html(html_template)
 
+    @set_function_attributes(short_description="EasyMap 連結")
+    def easymap_link(self, obj):
+        html_template = (
+                "<a href='http://oracle.code-life.info:3000/?lat={lat}&&lng={lng}' target='_blank'>Link</a>"
+        )
+
+        return format_html(html_template.format(lat=obj.lat, lng=obj.lng))
+
     @set_function_attributes(short_description="Follow ups for user")
     def follow_ups_for_user(self, obj):
         document_id_list = Document.objects.only("id").filter(factory=obj)
@@ -321,12 +331,12 @@ class FactoryAdmin(
 
     def save_model(self, request, obj, form, change):
         try:
-            landinfo = easymap.get_land_number(obj.lng, obj.lat)
+            landinfo = easymap.get_land_number(lng=obj.lng, lat=obj.lat)
             landcode = landinfo.get("landno")
 
             obj.landcode = landcode
             obj.sectno = landinfo.get("sectno")
-            obj.sectname = landinfo.get("sectName")
+            obj.sectname = landinfo.get("sectname")
             obj.towncode = landinfo.get("towncode")
             obj.townname = landinfo.get("townname")
         except Exception as e:

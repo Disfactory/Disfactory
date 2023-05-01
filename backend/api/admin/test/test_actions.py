@@ -25,8 +25,7 @@ TEST_FACTORY_DATA = [
         "name": "Test Factory 1",
         "factory_type": "2-3",
         "images": [
-            "https://i.imgur.com/CSdR281.png",
-            "https://i.imgur.com/aT5082y.png",
+            "https://raw.githubusercontent.com/test-images/png/main/202105/pg-coral.png",
         ],
         "lat": 23.234,
         "lng": 120.1,
@@ -39,13 +38,12 @@ TEST_FACTORY_DATA = [
         "name": "Test Factory 2",
         "factory_type": "2-1",
         "images": [
-            "https://i.imgur.com/3XPyVuF.png",
+            "https://raw.githubusercontent.com/test-images/png/main/202105/pg-coral.png",
             # python-docx can't parse this image correctly
             # https://github.com/python-openxml/python-docx/issues/187
-            "https://i.imgur.com/Q3fplPG.jpg",
-            "https://i.imgur.com/eHQ8uWo.jpg",
-            "https://i.imgur.com/4AiXzf8.jpg",
-            "https://i.imgur.com/Jvh1OQm.jpg",
+            "https://raw.githubusercontent.com/test-images/png/main/202105/pg-coral.png",
+            "https://raw.githubusercontent.com/test-images/png/main/202105/pg-coral.png",
+            "https://raw.githubusercontent.com/test-images/png/main/202105/pg-coral.png",
         ],
         "lat": 23.123,
         "lng": 120.2,

@@ -5,8 +5,8 @@ from uuid import uuid4
 
 from django.conf import settings
 import requests
-
 import easymap
+
 from .models import Factory, Image
 
 LOGGER = logging.getLogger("django")
@@ -48,14 +48,14 @@ def update_landcode(factory_id):
 def update_landcode_with_custom_factory_model(factory_id, factory_model):
     factory = factory_model.objects.get(pk=factory_id)
     try:
-        landinfo = easymap.get_land_number(factory.lng, factory.lat)
+        landinfo = easymap.get_land_number(lng=factory.lng, lat=factory.lat)
         landcode = landinfo.get("landno")
 
         LOGGER.info(f"Factory {factory_id} retrieved land number {landcode}")
         factory_model.objects.filter(pk=factory_id).update(
             landcode=landcode,
             sectcode=landinfo.get("sectno"),
-            sectname=landinfo.get("sectName"),
+            sectname=landinfo.get("sectname"),
             towncode=landinfo.get("towncode"),
             townname=landinfo.get("townname"),
         )
