@@ -3,6 +3,7 @@ import random
 from django.conf import settings
 from django.db.models import Prefetch
 from django.db.models.functions.math import Radians, Cos, ACos, Sin
+from django.db.models.functions import Greatest, Least
 
 from ..models import Factory, ReportRecord, Image, Document
 
@@ -18,8 +19,12 @@ def _get_nearby_factories(latitude, longitude, radius):
 
     # ref: https://stackoverflow.com/questions/574691/mysql-great-circle-distance-haversine-formula
     distance = 6371 * ACos(
-        Cos(Radians(latitude)) * Cos(Radians("lat")) * Cos(Radians("lng") - Radians(longitude))
-        + Sin(Radians(latitude)) * Sin(Radians("lat"))
+        Greatest(
+            Least(
+                Cos(Radians(latitude)) * Cos(Radians("lat")) * Cos(Radians("lng") - Radians(longitude))
+                + Sin(Radians(latitude)) * Sin(Radians("lat"))
+            , 1.0)
+        ,-1.0)
     )
 
     radius_km = radius
