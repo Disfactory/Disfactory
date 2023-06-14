@@ -21,7 +21,8 @@ def _generate_factories_query_set(townname, source, display_status):
             .distinct("factory_id")
         )
 
-        display_status_options = map((lambda item: item[1]), DocumentDisplayStatusEnum.CHOICES)
+        display_status_options = map(
+            (lambda item: item[1]), DocumentDisplayStatusEnum.CHOICES)
         if display_status == DocumentDisplayStatusConst.IN_PROGRESS:
             display_status = [
                 DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.AUDIT_SCHEDULED],
@@ -45,7 +46,8 @@ def _generate_factories_query_set(townname, source, display_status):
     # townname
     if townname:
         queryset = queryset.filter(
-            Q(townname__startswith=townname) | Q(townname__startswith=f"臺灣省{townname}")
+            Q(townname__startswith=townname) | Q(
+                townname__startswith=f"臺灣省{townname}")
         )
 
     # source
@@ -186,7 +188,8 @@ def get_factories_count_by_townname(request):
     # cities
     result["cities"] = {}
     for city in cities:
-        result["cities"][city] = _get_factories_information(city, source, display_status)
+        result["cities"][city] = _get_factories_information(
+            city, source, display_status)
 
     if level == "city":
         return JsonResponse(result)
@@ -204,14 +207,16 @@ def get_factories_count_by_townname(request):
         result["cities"][city]["towns"] = {}
         for item in towns:
             full_town_name = f"{city}{item}"
-            data = _get_factories_information(full_town_name, source, display_status)
+            data = _get_factories_information(
+                full_town_name, source, display_status)
             result["cities"][city]["towns"][item] = data
 
     return JsonResponse(result)
 
 
 def _get_factories_information(townname, source, display_status):
-    factories_queryset = _generate_factories_query_set(townname, source, display_status)
+    factories_queryset = _generate_factories_query_set(
+        townname, source, display_status)
     n_factories = factories_queryset.count()
 
     id_list = factories_queryset.values_list("id", flat=True)
@@ -289,9 +294,11 @@ def get_images_count_by_townname(request):
     source = request.GET.get("source", None)
     display_status = request.GET.get("display_status", None)
 
-    factories_queryset = _generate_factories_query_set(townname, source, display_status)
+    factories_queryset = _generate_factories_query_set(
+        townname, source, display_status)
     id_list = factories_queryset.values_list("id", flat=True)
-    queryset = Image.objects.prefetch_related("factory").filter(factory__id__in=id_list)
+    queryset = Image.objects.prefetch_related(
+        "factory").filter(factory__id__in=id_list)
 
     return JsonResponse({"count": queryset.count()})
 
@@ -351,9 +358,11 @@ def get_report_records_count_by_townname(request):
     source = request.GET.get("source", None)
     display_status = request.GET.get("display_status", None)
 
-    factories_queryset = _generate_factories_query_set(townname, source, display_status)
+    factories_queryset = _generate_factories_query_set(
+        townname, source, display_status)
     id_list = factories_queryset.values_list("id", flat=True)
-    queryset = ReportRecord.objects.prefetch_related("factory").filter(factory__in=id_list)
+    queryset = ReportRecord.objects.prefetch_related(
+        "factory").filter(factory__in=id_list)
 
     return JsonResponse({"count": queryset.count()})
 
@@ -455,7 +464,8 @@ def get_statistics_total(request):
             if doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.REPORTED]:
                 result[city][DocumentDisplayStatusConst.OPEN] += 1
             elif (
-                doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.AUDIT_SCHEDULED]
+                doc.display_status == DocumentDisplayStatusEnum.INDICES[
+                    DocumentDisplayStatusConst.AUDIT_SCHEDULED]
                 or doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.COMMUNICATION_PERIOD]
                 or doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.WORK_STOPPED]
                 or doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.DEMOLITION_SCHEDULED]
@@ -466,4 +476,51 @@ def get_statistics_total(request):
             elif doc.display_status == DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.DEMOLISHED]:
                 result[city][DocumentDisplayStatusConst.DEMOLISHED] += 1
 
+    return JsonResponse(result)
+
+
+@swagger_auto_schema(
+    method="get",
+    operation_summary="小小行動大大改變",
+    responses={
+        200: openapi.Response(
+            "提供小小行動大大頁面改變需要的資料",
+            openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    "report_records": openapi.Schema(
+                        type=openapi.TYPE_INTEGER, description="累積回報人次"
+                    ),
+                    "documents": openapi.Schema(
+                        type=openapi.TYPE_INTEGER, description="累積申訴公文"
+                    ),
+                    "factories": openapi.Schema(
+                        type=openapi.TYPE_INTEGER,
+                        description="裁罰工廠數量(狀態為 已排程稽查, 陳述意見期, 已勒令停工, 已發函斷電, 已斷電, 已排程拆除, 已拆除, 等待新事證)",
+                    ),
+                },
+            ),
+        ),
+        400: "request failed",
+    },
+)
+@api_view(["GET"])
+def get_action_change(request):
+    result = {}
+
+    result["report_records"] = ReportRecord.objects.count()
+    result["documents"] = Document.objects.count()
+    result["factories"] = (Document.objects.prefetch_related("factory")
+                           .order_by("factory__id", "-created_at")
+                           .distinct("factory__id").filter(
+        display_status__in=[
+            DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.AUDIT_SCHEDULED],
+            DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.COMMUNICATION_PERIOD],
+            DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.WORK_STOPPED],
+            DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.POWER_OUTING],
+            DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.DEMOLITION_SCHEDULED],
+            DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.DEMOLISHED],
+            DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.WAITING_FOR_NEW_EVIDENCE],
+        ]
+    ).count())
     return JsonResponse(result)

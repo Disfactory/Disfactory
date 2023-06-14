@@ -27,6 +27,7 @@ from .views import (
     get_report_records_count_by_townname,
     get_statistics_total,
     get_factory_location,
+    get_action_change,
 )
 
 urlpatterns = [
@@ -40,5 +41,6 @@ urlpatterns = [
     path("statistics/images", get_images_count_by_townname),
     path("statistics/report_records", get_report_records_count_by_townname),
     path("statistics/total", get_statistics_total),
+    path("statistics/action_change", get_action_change),
     path("images", post_image_url),
 ]
