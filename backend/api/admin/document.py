@@ -69,7 +69,7 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin, ExportDocumentCsvMix
 
     actions = ["export_as_csv", "export_as_docx"]
 
-    list_filter = ["cet_next_tags", "display_status"]
+    list_filter = ["cet_next_tags", "display_status", "gov_response_status_tags"]
 
     inlines = (FollowUpForUsersInline, FollowUpInline,)
 
