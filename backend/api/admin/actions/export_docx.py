@@ -316,17 +316,20 @@ class FactoryReportDocumentWriter:
         images = Image.objects.only("id").filter(factory=self.factory)
         for index, image in enumerate(images, start=1):
             generator.new(self.document, f"附件 {to_lower_chinese_numbers(index)}", 12)
-            data = urlopen(image.image_path).read()
+            try:
+                data = urlopen(image.image_path).read()
 
-            image_data = PIL.Image.open(BytesIO(data))
-            if image_data.format == "JPEG":
-                # Use PIL to save all jpeg files again to workaround python-docx bug
-                # https://github.com/python-openxml/python-docx/issues/187
-                tmp_image_data = BytesIO()
-                image_data.save(tmp_image_data, format="jpeg")
-                self.document.add_picture(tmp_image_data, width=Mm(150))
-            else:
-                self.document.add_picture(BytesIO(data), width=Mm(150))
+                image_data = PIL.Image.open(BytesIO(data))
+                if image_data.format == "JPEG":
+                    # Use PIL to save all jpeg files again to workaround python-docx bug
+                    # https://github.com/python-openxml/python-docx/issues/187
+                    tmp_image_data = BytesIO()
+                    image_data.save(tmp_image_data, format="jpeg")
+                    self.document.add_picture(tmp_image_data, width=Mm(150))
+                else:
+                    self.document.add_picture(BytesIO(data), width=Mm(150))
+            except Exception as e:
+                LOGGER.error(e)
 
     def _page_break(self):
         self.document.add_page_break()
