@@ -4,3 +4,5 @@ from api.admin.actions.restore import RestoreMixin
 from api.admin.actions.export_docx import ExportDocMixin
 from api.admin.actions.generate_docs import GenerateDocsMixin
 from api.admin.actions.merge_factories import MergeFactoriesMixin
+from api.admin.actions.export_docx_using_js import ExportDocUsingJSMixin
+
