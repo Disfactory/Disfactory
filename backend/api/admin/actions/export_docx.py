@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from api.models import Image
 from api.utils import set_function_attributes
 
+
 from docx import Document
 from docx.shared import Inches, Pt, Mm
 from docx.enum.text import WD_ALIGN_PARAGRAPH

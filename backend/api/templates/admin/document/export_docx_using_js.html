@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block content_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<script src="{% static 'docx/export-word-docx.js' %}"></script>
+<script type="text/javascript">
+var documents = JSON.parse('{{ data|safe }}');
+console.log(documents)
+
+async function export_to_docx(data) {
+    await window.exportWordDocx(data);
+}
+
+export_to_docx(documents);
+</script>
+{% endblock %}

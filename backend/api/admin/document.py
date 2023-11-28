@@ -6,7 +6,7 @@ from django.forms import BaseInlineFormSet
 from import_export import resources
 from import_export.admin import ImportExportModelAdmin
 
-from api.admin.actions import ExportDocMixin, ExportDocumentCsvMixin
+from api.admin.actions import ExportDocMixin, ExportDocumentCsvMixin, ExportDocUsingJSMixin
 from api.models import (
     Document,
     DocumentDisplayStatusEnum,
@@ -56,7 +56,7 @@ class DocumentResource(resources.ModelResource):
         model = Document
 
 
-class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin, ExportDocumentCsvMixin):
+class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin, ExportDocumentCsvMixin, ExportDocUsingJSMixin):
     resource_class = DocumentResource
 
     class Media:
@@ -67,7 +67,7 @@ class DocumentAdmin(ImportExportModelAdmin, ExportDocMixin, ExportDocumentCsvMix
 
     raw_id_fields = ("factory",)
 
-    actions = ["export_as_csv", "export_as_docx"]
+    actions = ["export_as_csv", "export_as_docx", "export_docx_using_js"]
 
     list_filter = ["cet_next_tags", "display_status", "gov_response_status_tags"]
 
