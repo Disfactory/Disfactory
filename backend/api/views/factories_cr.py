@@ -42,6 +42,7 @@ def _handle_get_factories(request):
         latitude = request.GET["lat"]  # 緯度: y
         longitude = request.GET["lng"]  # 經度: x
         radius = request.GET["range"]  # km
+        source = request.GET.get("source", "U")
     except MultiValueDictKeyError:
         missing_params = [p for p in ("lat", "lng", "range") if p not in request.GET]
         missing_params = ", ".join(missing_params)
@@ -71,6 +72,7 @@ def _handle_get_factories(request):
         latitude=latitude,
         longitude=longitude,
         radius=radius,
+        source=source,
     )
 
     serializer = FactorySerializer(nearby_factories, many=True)
@@ -161,6 +163,13 @@ def _handle_create_factory(request):
             description="km",
             type=openapi.TYPE_NUMBER,
             required=True,
+        ),
+        openapi.Parameter(
+            name="source",
+            in_=openapi.IN_QUERY,
+            description="U: 使用者新增的工廠, G: 政府公開資料",
+            type=openapi.TYPE_STRING,
+            required=False,
         ),
     ],
 )
