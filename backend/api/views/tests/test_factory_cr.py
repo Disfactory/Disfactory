@@ -52,6 +52,7 @@ def test_get_nearby_factory_called_util_func_correctly(client):
             latitude=lat,
             longitude=lng,
             radius=r,
+            source="U",
         )
 
 
@@ -61,7 +62,7 @@ def test_get_nearby_factory_called_on_test_data(client):
     lat = 23.234
     lng = 120.1
     r = 1
-    resp = client.get(f"/api/factories?lat={lat}&lng={lng}&range={r}")
+    resp = client.get(f"/api/factories?lat={lat}&lng={lng}&range={r}&source=G")
     assert resp.status_code == 200
 
     factories = resp.json()
