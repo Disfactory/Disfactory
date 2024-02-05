@@ -3,7 +3,7 @@
 import requests
 import re
 
-DEFAULT_TIMEOUT = 30  # 5 seconds
+DEFAULT_TIMEOUT = 5  # 5 seconds
 
 EASYMAP_BASE_URL = "http://oracle.code-life.info:3000"
 
@@ -64,7 +64,7 @@ def get_sectland_info(lat, lng):
         return SectLandInfo(sectname, sectcode, landcode)
     except Exception as e:
         print("Error: {}".format(e))
-        return TownInfo("", "", "")
+        return SectLandInfo("", "", "")
 
 
 def get_land_number(lat, lng, timeout=DEFAULT_TIMEOUT):
