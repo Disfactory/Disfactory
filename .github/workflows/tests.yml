@@ -13,12 +13,12 @@ on:
       - "**"
 
 jobs:
-  tests:
+  backend-tests:
     services:
       # Label used to access the service container
       postgres:
         # Docker Hub image
-        image: postgis/postgis:11-3.1-alpine
+        image: postgis/postgis:12-3.1-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -45,7 +45,7 @@ jobs:
         working-directory: ./backend
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install poetry ${{ matrix.poetry-version }}
         run: |
@@ -53,6 +53,12 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install poetry==${{ matrix.poetry-version }}
           poetry --version
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pypoetry
+          key: poetry-cache-${{ runner.os }}-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}
 
       - name: Install dependencies
         run: |
@@ -68,6 +74,10 @@ jobs:
           cp .env.sample .env
           sed -i -e s/DISFACTORY_BACKEND_DEFAULT_DB_HOST=db/DISFACTORY_BACKEND_DEFAULT_DB_HOST=postgres/g .env
 
-      - name: Run unittest
+      - name: Run pytest tests
         run: |
           python -m poetry run pytest -vv -k "not test_easymap"
+
+      - name: Run Django tests
+        run: |
+          python -m poetry run python manage.py test -v 2

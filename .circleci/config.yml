@@ -24,10 +24,10 @@ jobs:
             - disfactory-backend-cache-210915-{{ .Branch }}
       - run: 
           name: Install poetry
-          command: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+          command: curl -sSL https://install.python-poetry.org | python3 -
       - run:
           name: Install
-          command: poetry install
+          command: /root/.local/bin/poetry install
       - run:
           name: Setup .env
           command: cp .env.sample .env
@@ -37,7 +37,7 @@ jobs:
       # TODO: fuck you black. Use flake8 or pylint instead
       - run:
           name: Unittest
-          command: poetry run python manage.py test -v 2
+          command: /root/.local/bin/poetry run python manage.py test -v 2
       - save_cache:
           paths:
             - ".venv"
