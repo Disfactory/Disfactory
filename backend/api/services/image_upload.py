@@ -1,5 +1,6 @@
 import os
 import logging
+import base64
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional
 from urllib.parse import urljoin
@@ -128,7 +129,6 @@ class ImageBBBackend(ImageUploadBackend):
             }
             
         try:
-            import base64
             image_b64 = base64.b64encode(image_buffer).decode('utf-8')
             
             resp = requests.post(
