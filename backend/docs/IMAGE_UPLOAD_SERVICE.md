@@ -26,9 +26,23 @@ The Disfactory backend now supports multiple image upload backends with automati
 
 ### 4. Local Storage Backend
 - **Service**: Local file storage
-- **Configuration**: Uses existing `MEDIA_ROOT` and `DOMAIN` settings
-- **Features**: Always available, no external dependencies
-- **Limitations**: Requires server storage space, no delete hash
+- **Configuration**: Requires `MEDIA_ROOT`, `MEDIA_URL`, and `DOMAIN` settings + explicit inclusion in backend order
+- **Features**: No external dependencies, good for development
+- **Limitations**: Requires server storage space, no delete hash support
+
+## Backend Selection
+
+The service uses a **configuration-driven approach**:
+
+- **Only configured backends are used**: Backends without proper credentials are automatically skipped
+- **No automatic fallbacks**: Local storage is only used if explicitly included in the backend order
+- **Predictable behavior**: You control exactly which backends are attempted via configuration  
+- **Default order**: `imgur → imagebb → cloudflare_r2` (no local storage by default)
+
+To include local storage as a fallback, add it to your backend order:
+```bash
+DISFACTORY_IMAGE_BACKEND_ORDER="imgur,imagebb,cloudflare_r2,local"
+```
 
 ## Configuration
 
@@ -47,6 +61,10 @@ DISFACTORY_CLOUDFLARE_R2_ACCESS_KEY_ID=your_r2_access_key_id
 DISFACTORY_CLOUDFLARE_R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
 DISFACTORY_CLOUDFLARE_R2_BUCKET_NAME=your_r2_bucket_name
 DISFACTORY_CLOUDFLARE_R2_CUSTOM_DOMAIN=your_custom_domain.com  # Optional
+
+# Backend order configuration (optional)
+DISFACTORY_IMAGE_BACKEND_ORDER="imgur,imagebb,cloudflare_r2"  # Default order
+# To include local storage: "imgur,imagebb,cloudflare_r2,local"
 ```
 
 ## API Endpoints
@@ -91,12 +109,11 @@ This endpoint remains unchanged for backward compatibility.
 1. **Service Initialization**: The `ImageUploadService` automatically detects configured backends based on environment variables.
 
 2. **Backend Priority**: 
-   - Imgur (if configured)
-   - ImageBB (if configured) 
-   - Cloudflare R2 (if configured)
-   - Local Storage (always available)
+   - Only backends with proper configuration are used
+   - Default order: Imgur → ImageBB → Cloudflare R2 
+   - Local Storage: Only if explicitly included in backend order and configured
 
-3. **Automatic Fallback**: If the first backend fails, the service automatically tries the next one until success or all backends are exhausted.
+3. **Simplified Fallback**: Service tries configured backends in order until one succeeds or all configured backends are exhausted.
 
 4. **Error Handling**: Comprehensive error logging and user-friendly error messages.
 
@@ -231,18 +248,31 @@ fetch(`/api/factories/${factoryId}/images`, {
    pip install boto3
    ```
 
-4. **Monitor Logs**: The service logs which backend was used for each upload and any failures.
+4. **Configure Backend Order** (optional): Control which backends are used:
+   ```bash
+   # Use only external services (default)
+   export DISFACTORY_IMAGE_BACKEND_ORDER="imgur,imagebb,cloudflare_r2"
+   
+   # Include local storage as fallback
+   export DISFACTORY_IMAGE_BACKEND_ORDER="imgur,imagebb,cloudflare_r2,local"
+   
+   # Use only specific backends
+   export DISFACTORY_IMAGE_BACKEND_ORDER="cloudflare_r2"
+   ```
 
-5. **Storage Considerations**: If relying on local storage, ensure adequate disk space and backup procedures.
+5. **Monitor Logs**: The service logs which backend was used for each upload and any failures.
+
+6. **Storage Considerations**: If including local storage, ensure adequate disk space and backup procedures.
 
 ## Troubleshooting
 
 ### Common Issues
 
-**All backends failing:**
-- Check network connectivity
+**All configured backends failing:**
+- Check network connectivity  
 - Verify API keys are valid
-- Ensure `MEDIA_ROOT` is writable for local fallback
+- Ensure proper configuration for each backend
+- Add local storage backend to configuration if needed as fallback
 
 **High error rates:**
 - Monitor API quotas/rate limits
