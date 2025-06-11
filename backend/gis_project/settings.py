@@ -182,7 +182,9 @@ STATICFILES_DIRS = [
 
 AUTH_USER_MODEL = "users.CustomUser"
 
+# Image upload backend settings
 IMGUR_CLIENT_ID = os.environ.get("DISFACTORY_IMGUR_CLIENT_ID")
+IMAGEBB_API_KEY = os.environ.get("DISFACTORY_IMAGEBB_API_KEY")
 
 DEFAULT_CORS_ORIGIN_WHITELIST = [
     "https://dev.disfactory.tw",
