@@ -18,6 +18,15 @@ try:
 except ImportError:
     PIL_AVAILABLE = False
 
+# Optional boto3 import for Cloudflare R2
+try:
+    import boto3
+    from botocore.exceptions import ClientError, NoCredentialsError
+    from botocore.config import Config
+    BOTO3_AVAILABLE = True
+except ImportError:
+    BOTO3_AVAILABLE = False
+
 LOGGER = logging.getLogger("django")
 
 
@@ -236,6 +245,124 @@ class LocalBackend(ImageUploadBackend):
         return "local"
 
 
+class CloudflareR2Backend(ImageUploadBackend):
+    """Cloudflare R2 storage backend using S3-compatible API."""
+    
+    def __init__(self, account_id: str, access_key_id: str, secret_access_key: str, 
+                 bucket_name: str, config: Dict[str, Any] = None):
+        self.account_id = account_id
+        self.access_key_id = access_key_id
+        self.secret_access_key = secret_access_key
+        self.bucket_name = bucket_name
+        self.config = config or {}
+        self._client = None
+        
+    def _get_client(self):
+        """Lazy initialization of S3 client."""
+        if self._client is None:
+            if not BOTO3_AVAILABLE:
+                raise ImportError("boto3 is required for Cloudflare R2 backend. Install with: pip install boto3")
+            
+            # Configure S3 client for Cloudflare R2
+            endpoint_url = f"https://{self.account_id}.r2.cloudflarestorage.com"
+            
+            config = Config(
+                region_name='auto',  # R2 uses 'auto' region
+                retries={
+                    'max_attempts': self.config.get('RETRY_ATTEMPTS', 1) + 1,
+                    'mode': 'standard'
+                }
+            )
+            
+            self._client = boto3.client(
+                's3',
+                endpoint_url=endpoint_url,
+                aws_access_key_id=self.access_key_id,
+                aws_secret_access_key=self.secret_access_key,
+                config=config
+            )
+        return self._client
+    
+    def upload(self, image_buffer: bytes) -> Dict[str, Any]:
+        """Upload image to Cloudflare R2."""
+        if not self.account_id or not self.access_key_id or not self.secret_access_key or not self.bucket_name:
+            return {
+                "success": False,
+                "error": "Cloudflare R2 credentials not fully configured",
+                "url": None,
+                "delete_hash": None
+            }
+        
+        if not BOTO3_AVAILABLE:
+            return {
+                "success": False,
+                "error": "boto3 is required for Cloudflare R2 backend",
+                "url": None,
+                "delete_hash": None
+            }
+        
+        try:
+            # Generate unique filename
+            filename = f"{uuid4()}.jpg"
+            
+            # Get S3 client
+            s3_client = self._get_client()
+            
+            # Upload image
+            s3_client.put_object(
+                Bucket=self.bucket_name,
+                Key=filename,
+                Body=image_buffer,
+                ContentType='image/jpeg',
+                # Make object publicly readable
+                ACL='public-read'
+            )
+            
+            # Generate public URL
+            # Check if custom domain is configured
+            custom_domain = self.config.get('CUSTOM_DOMAIN')
+            if custom_domain:
+                # Use custom domain (e.g., images.example.com)
+                url = f"https://{custom_domain}/{filename}"
+            else:
+                # Use default R2 public URL format
+                url = f"https://pub-{self.account_id}.r2.dev/{filename}"
+            
+            return {
+                "success": True,
+                "url": url,
+                "delete_hash": filename,  # Use filename as delete identifier for R2
+                "error": None
+            }
+            
+        except NoCredentialsError:
+            return {
+                "success": False,
+                "error": "Invalid Cloudflare R2 credentials",
+                "url": None,
+                "delete_hash": None
+            }
+        except ClientError as e:
+            error_code = e.response.get('Error', {}).get('Code', 'Unknown')
+            error_message = e.response.get('Error', {}).get('Message', str(e))
+            return {
+                "success": False,
+                "error": f"Cloudflare R2 error ({error_code}): {error_message}",
+                "url": None,
+                "delete_hash": None
+            }
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"Unexpected error uploading to Cloudflare R2: {str(e)}",
+                "url": None,
+                "delete_hash": None
+            }
+    
+    def get_name(self) -> str:
+        return "cloudflare_r2"
+
+
 class ImageUploadService:
     """Service for uploading images with multiple backend support and fallback."""
     
@@ -246,12 +373,13 @@ class ImageUploadService:
     def _initialize_backends(self):
         """Initialize available backends based on configuration."""
         backends = []
-        backend_order = self.config.get('BACKEND_ORDER', ['imgur', 'imagebb', 'local'])
+        backend_order = self.config.get('BACKEND_ORDER', ['imgur', 'imagebb', 'cloudflare_r2', 'local'])
         
         # Create backend instances based on order preference
         backend_map = {
             'imgur': self._create_imgur_backend,
             'imagebb': self._create_imagebb_backend,
+            'cloudflare_r2': self._create_cloudflare_r2_backend,
             'local': self._create_local_backend,
         }
         
@@ -276,6 +404,23 @@ class ImageUploadService:
         imagebb_api_key = getattr(settings, 'IMAGEBB_API_KEY', None)
         if imagebb_api_key:
             return ImageBBBackend(imagebb_api_key, self.config)
+        return None
+    
+    def _create_cloudflare_r2_backend(self) -> Optional['CloudflareR2Backend']:
+        """Create Cloudflare R2 backend if configured."""
+        account_id = getattr(settings, 'CLOUDFLARE_R2_ACCOUNT_ID', None)
+        access_key_id = getattr(settings, 'CLOUDFLARE_R2_ACCESS_KEY_ID', None)
+        secret_access_key = getattr(settings, 'CLOUDFLARE_R2_SECRET_ACCESS_KEY', None)
+        bucket_name = getattr(settings, 'CLOUDFLARE_R2_BUCKET_NAME', None)
+        
+        if account_id and access_key_id and secret_access_key and bucket_name:
+            # Add custom domain to config if available
+            r2_config = self.config.copy()
+            custom_domain = getattr(settings, 'CLOUDFLARE_R2_CUSTOM_DOMAIN', None)
+            if custom_domain:
+                r2_config['CUSTOM_DOMAIN'] = custom_domain
+                
+            return CloudflareR2Backend(account_id, access_key_id, secret_access_key, bucket_name, r2_config)
         return None
     
     def _create_local_backend(self) -> 'LocalBackend':

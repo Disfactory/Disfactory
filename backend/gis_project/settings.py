@@ -186,10 +186,17 @@ AUTH_USER_MODEL = "users.CustomUser"
 IMGUR_CLIENT_ID = os.environ.get("DISFACTORY_IMGUR_CLIENT_ID")
 IMAGEBB_API_KEY = os.environ.get("DISFACTORY_IMAGEBB_API_KEY")
 
+# Cloudflare R2 settings
+CLOUDFLARE_R2_ACCOUNT_ID = os.environ.get("DISFACTORY_CLOUDFLARE_R2_ACCOUNT_ID")
+CLOUDFLARE_R2_ACCESS_KEY_ID = os.environ.get("DISFACTORY_CLOUDFLARE_R2_ACCESS_KEY_ID")
+CLOUDFLARE_R2_SECRET_ACCESS_KEY = os.environ.get("DISFACTORY_CLOUDFLARE_R2_SECRET_ACCESS_KEY")
+CLOUDFLARE_R2_BUCKET_NAME = os.environ.get("DISFACTORY_CLOUDFLARE_R2_BUCKET_NAME")
+CLOUDFLARE_R2_CUSTOM_DOMAIN = os.environ.get("DISFACTORY_CLOUDFLARE_R2_CUSTOM_DOMAIN")
+
 # Image upload service configuration
 IMAGE_UPLOAD_CONFIG = {
     # Backend preferences (order matters - first available backend is tried first)
-    'BACKEND_ORDER': os.environ.get('DISFACTORY_IMAGE_BACKEND_ORDER', 'imgur,imagebb,local').split(','),
+    'BACKEND_ORDER': os.environ.get('DISFACTORY_IMAGE_BACKEND_ORDER', 'imgur,imagebb,cloudflare_r2,local').split(','),
     
     # Request timeout for external services (seconds)
     'REQUEST_TIMEOUT': int(os.environ.get('DISFACTORY_IMAGE_UPLOAD_TIMEOUT', '30')),

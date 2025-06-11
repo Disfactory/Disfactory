@@ -18,7 +18,13 @@ The Disfactory backend now supports multiple image upload backends with automati
 - **Features**: Alternative to Imgur, good international availability
 - **Limitations**: Requires API key registration
 
-### 3. Local Storage Backend
+### 3. Cloudflare R2 Backend
+- **Service**: Cloudflare R2 Object Storage (S3-compatible)
+- **Configuration**: Multiple environment variables (see Configuration section)
+- **Features**: High performance, global CDN, cost-effective, custom domain support
+- **Limitations**: Requires Cloudflare account and R2 service setup
+
+### 4. Local Storage Backend
 - **Service**: Local file storage
 - **Configuration**: Uses existing `MEDIA_ROOT` and `DOMAIN` settings
 - **Features**: Always available, no external dependencies
@@ -34,6 +40,13 @@ DISFACTORY_IMGUR_CLIENT_ID=your_imgur_client_id
 
 # New ImageBB configuration
 DISFACTORY_IMAGEBB_API_KEY=your_imagebb_api_key
+
+# New Cloudflare R2 configuration
+DISFACTORY_CLOUDFLARE_R2_ACCOUNT_ID=your_cloudflare_account_id
+DISFACTORY_CLOUDFLARE_R2_ACCESS_KEY_ID=your_r2_access_key_id
+DISFACTORY_CLOUDFLARE_R2_SECRET_ACCESS_KEY=your_r2_secret_access_key
+DISFACTORY_CLOUDFLARE_R2_BUCKET_NAME=your_r2_bucket_name
+DISFACTORY_CLOUDFLARE_R2_CUSTOM_DOMAIN=your_custom_domain.com  # Optional
 ```
 
 ## API Endpoints
@@ -80,6 +93,7 @@ This endpoint remains unchanged for backward compatibility.
 2. **Backend Priority**: 
    - Imgur (if configured)
    - ImageBB (if configured) 
+   - Cloudflare R2 (if configured)
    - Local Storage (always available)
 
 3. **Automatic Fallback**: If the first backend fails, the service automatically tries the next one until success or all backends are exhausted.
@@ -97,9 +111,10 @@ This endpoint remains unchanged for backward compatibility.
 Alternative flow:
 1. Client uploads image to /factories/123/images/upload  
 2. Service tries Imgur → Fails (network error)
-3. Service tries ImageBB → Success ✓
-4. Image saved to database with ImageBB URL
-5. Response returned to client
+3. Service tries ImageBB → Fails (API rate limit)
+4. Service tries Cloudflare R2 → Success ✓
+5. Image saved to database with R2 URL
+6. Response returned to client
 ```
 
 ## Implementation Details
@@ -110,6 +125,7 @@ Alternative flow:
 ImageUploadService
 ├── ImgurBackend
 ├── ImageBBBackend  
+├── CloudflareR2Backend
 └── LocalBackend
 ```
 
@@ -187,9 +203,37 @@ fetch(`/api/factories/${factoryId}/images`, {
    export DISFACTORY_IMAGEBB_API_KEY="your_key_here"
    ```
 
-2. **Monitor Logs**: The service logs which backend was used for each upload and any failures.
+2. **Configure Cloudflare R2** (optional but recommended):
+   
+   First, set up Cloudflare R2:
+   - Log into Cloudflare Dashboard
+   - Go to R2 Object Storage
+   - Create a new bucket
+   - Generate R2 API tokens with Object Read & Write permissions
+   
+   Then add to your environment:
+   ```bash
+   export DISFACTORY_CLOUDFLARE_R2_ACCOUNT_ID="your_account_id_here"
+   export DISFACTORY_CLOUDFLARE_R2_ACCESS_KEY_ID="your_access_key_here"
+   export DISFACTORY_CLOUDFLARE_R2_SECRET_ACCESS_KEY="your_secret_key_here"
+   export DISFACTORY_CLOUDFLARE_R2_BUCKET_NAME="your_bucket_name"
+   # Optional: Configure custom domain for better URLs
+   export DISFACTORY_CLOUDFLARE_R2_CUSTOM_DOMAIN="images.yourdomain.com"
+   ```
+   
+   **Important Notes:**
+   - Ensure your R2 bucket has public read access enabled
+   - If using a custom domain, configure it in your Cloudflare Dashboard
+   - R2 provides 10GB free storage per month
 
-3. **Storage Considerations**: If relying on local storage, ensure adequate disk space and backup procedures.
+3. **Install Dependencies**: Cloudflare R2 requires boto3:
+   ```bash
+   pip install boto3
+   ```
+
+4. **Monitor Logs**: The service logs which backend was used for each upload and any failures.
+
+5. **Storage Considerations**: If relying on local storage, ensure adequate disk space and backup procedures.
 
 ## Troubleshooting
 
@@ -216,7 +260,7 @@ Key metrics to monitor:
 ## Future Enhancements
 
 Potential improvements:
-- Additional backends (Cloudinary, AWS S3, etc.)
+- Additional backends (Cloudinary, AWS S3, Google Cloud Storage, etc.)
 - Image compression and optimization
 - CDN integration
 - Background processing for large images

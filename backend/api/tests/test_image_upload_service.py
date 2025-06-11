@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from api.services.image_upload import (
-    ImgurBackend, ImageBBBackend, LocalBackend, ImageUploadService
+    ImgurBackend, ImageBBBackend, LocalBackend, CloudflareR2Backend, ImageUploadService
 )
 from django.conf import settings
 from django.test import override_settings
@@ -163,12 +163,206 @@ class TestLocalBackend:
         assert backend.get_name() == "local"
 
 
+class TestCloudflareR2Backend:
+    def test_upload_success(self):
+        """Test successful Cloudflare R2 upload."""
+        backend = CloudflareR2Backend(
+            account_id="test_account",
+            access_key_id="test_access_key",
+            secret_access_key="test_secret",
+            bucket_name="test_bucket",
+            config={}
+        )
+        
+        # Mock boto3 client
+        mock_client = MagicMock()
+        mock_client.put_object.return_value = {}
+        
+        with patch('api.services.image_upload.BOTO3_AVAILABLE', True), \
+             patch.object(backend, '_get_client', return_value=mock_client):
+            result = backend.upload(b"fake_image_data")
+            
+        assert result["success"] is True
+        assert result["url"].startswith("https://pub-test_account.r2.dev/")
+        assert result["url"].endswith(".jpg")
+        assert result["delete_hash"] is not None  # Should be the filename
+        assert result["error"] is None
+        
+        # Verify S3 client was called correctly
+        mock_client.put_object.assert_called_once()
+        call_args = mock_client.put_object.call_args[1]
+        assert call_args['Bucket'] == 'test_bucket'
+        assert call_args['Body'] == b"fake_image_data"
+        assert call_args['ContentType'] == 'image/jpeg'
+        assert call_args['ACL'] == 'public-read'
+
+    def test_upload_with_custom_domain(self):
+        """Test Cloudflare R2 upload with custom domain."""
+        backend = CloudflareR2Backend(
+            account_id="test_account",
+            access_key_id="test_access_key",
+            secret_access_key="test_secret",
+            bucket_name="test_bucket",
+            config={'CUSTOM_DOMAIN': 'images.example.com'}
+        )
+        
+        # Mock boto3 client
+        mock_client = MagicMock()
+        mock_client.put_object.return_value = {}
+        
+        with patch('api.services.image_upload.BOTO3_AVAILABLE', True), \
+             patch.object(backend, '_get_client', return_value=mock_client):
+            result = backend.upload(b"fake_image_data")
+            
+        assert result["success"] is True
+        assert result["url"].startswith("https://images.example.com/")
+        assert result["url"].endswith(".jpg")
+
+    def test_upload_missing_credentials(self):
+        """Test R2 backend with missing credentials."""
+        backend = CloudflareR2Backend("", "", "", "", {})
+        
+        result = backend.upload(b"fake_image_data")
+        
+        assert result["success"] is False
+        assert "not fully configured" in result["error"]
+        assert result["url"] is None
+
+    def test_upload_boto3_not_available(self):
+        """Test R2 backend when boto3 is not available."""
+        backend = CloudflareR2Backend(
+            account_id="test_account",
+            access_key_id="test_access_key",
+            secret_access_key="test_secret",
+            bucket_name="test_bucket",
+            config={}
+        )
+        
+        with patch('api.services.image_upload.BOTO3_AVAILABLE', False):
+            result = backend.upload(b"fake_image_data")
+            
+        assert result["success"] is False
+        assert "boto3 is required" in result["error"]
+        assert result["url"] is None
+
+    def test_upload_client_error(self):
+        """Test R2 backend handling AWS ClientError."""
+        from botocore.exceptions import ClientError
+        
+        backend = CloudflareR2Backend(
+            account_id="test_account",
+            access_key_id="test_access_key",
+            secret_access_key="test_secret",
+            bucket_name="test_bucket",
+            config={}
+        )
+        
+        # Mock boto3 client to raise ClientError
+        mock_client = MagicMock()
+        mock_client.put_object.side_effect = ClientError(
+            error_response={
+                'Error': {
+                    'Code': 'NoSuchBucket',
+                    'Message': 'The specified bucket does not exist'
+                }
+            },
+            operation_name='PutObject'
+        )
+        
+        with patch('api.services.image_upload.BOTO3_AVAILABLE', True), \
+             patch.object(backend, '_get_client', return_value=mock_client):
+            result = backend.upload(b"fake_image_data")
+            
+        assert result["success"] is False
+        assert "NoSuchBucket" in result["error"]
+        assert "The specified bucket does not exist" in result["error"]
+        assert result["url"] is None
+
+    def test_upload_no_credentials_error(self):
+        """Test R2 backend handling NoCredentialsError."""
+        from botocore.exceptions import NoCredentialsError
+        
+        backend = CloudflareR2Backend(
+            account_id="test_account",
+            access_key_id="test_access_key",
+            secret_access_key="test_secret",
+            bucket_name="test_bucket",
+            config={}
+        )
+        
+        # Mock boto3 client to raise NoCredentialsError
+        mock_client = MagicMock()
+        mock_client.put_object.side_effect = NoCredentialsError()
+        
+        with patch('api.services.image_upload.BOTO3_AVAILABLE', True), \
+             patch.object(backend, '_get_client', return_value=mock_client):
+            result = backend.upload(b"fake_image_data")
+            
+        assert result["success"] is False
+        assert "Invalid Cloudflare R2 credentials" in result["error"]
+        assert result["url"] is None
+
+    def test_upload_generic_error(self):
+        """Test R2 backend handling generic exceptions."""
+        backend = CloudflareR2Backend(
+            account_id="test_account",
+            access_key_id="test_access_key",
+            secret_access_key="test_secret",
+            bucket_name="test_bucket",
+            config={}
+        )
+        
+        # Mock boto3 client to raise generic exception
+        mock_client = MagicMock()
+        mock_client.put_object.side_effect = Exception("Network error")
+        
+        with patch('api.services.image_upload.BOTO3_AVAILABLE', True), \
+             patch.object(backend, '_get_client', return_value=mock_client):
+            result = backend.upload(b"fake_image_data")
+            
+        assert result["success"] is False
+        assert "Unexpected error uploading to Cloudflare R2" in result["error"]
+        assert "Network error" in result["error"]
+        assert result["url"] is None
+
+    def test_get_name(self):
+        """Test backend name."""
+        backend = CloudflareR2Backend("", "", "", "", {})
+        assert backend.get_name() == "cloudflare_r2"
+
+    def test_get_client_initialization(self):
+        """Test S3 client initialization with correct configuration."""
+        backend = CloudflareR2Backend(
+            account_id="test_account",
+            access_key_id="test_access_key",
+            secret_access_key="test_secret",
+            bucket_name="test_bucket",
+            config={'RETRY_ATTEMPTS': 2}
+        )
+        
+        with patch('api.services.image_upload.BOTO3_AVAILABLE', True), \
+             patch('api.services.image_upload.boto3.client') as mock_boto3_client:
+            
+            backend._get_client()
+            
+            # Verify boto3.client was called with correct parameters
+            mock_boto3_client.assert_called_once()
+            call_args = mock_boto3_client.call_args
+            assert call_args[1]['endpoint_url'] == 'https://test_account.r2.cloudflarestorage.com'
+            assert call_args[1]['aws_access_key_id'] == 'test_access_key'
+            assert call_args[1]['aws_secret_access_key'] == 'test_secret'
+
+
 class TestImageUploadService:
     @override_settings(
         IMGUR_CLIENT_ID="test_imgur", 
         IMAGEBB_API_KEY="test_imagebb",
+        CLOUDFLARE_R2_ACCOUNT_ID="test_account",
+        CLOUDFLARE_R2_ACCESS_KEY_ID="test_access_key",
+        CLOUDFLARE_R2_SECRET_ACCESS_KEY="test_secret",
+        CLOUDFLARE_R2_BUCKET_NAME="test_bucket",
         IMAGE_UPLOAD_CONFIG={
-            'BACKEND_ORDER': ['imgur', 'imagebb', 'local'],
+            'BACKEND_ORDER': ['imgur', 'imagebb', 'cloudflare_r2', 'local'],
             'REQUEST_TIMEOUT': 30,
             'MAX_FILE_SIZE': 10 * 1024 * 1024,
         }
@@ -177,11 +371,12 @@ class TestImageUploadService:
         """Test service initializes with configured backends."""
         service = ImageUploadService()
         
-        # Should have Imgur, ImageBB, and Local backends
-        assert len(service.backends) == 3
+        # Should have Imgur, ImageBB, CloudflareR2, and Local backends
+        assert len(service.backends) == 4
         backend_names = [b.get_name() for b in service.backends]
         assert "imgur" in backend_names
         assert "imagebb" in backend_names
+        assert "cloudflare_r2" in backend_names
         assert "local" in backend_names
 
     @override_settings(
