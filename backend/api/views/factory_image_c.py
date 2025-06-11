@@ -4,12 +4,13 @@ from datetime import datetime
 
 from django.http import HttpResponse, JsonResponse
 from django.db import transaction
-from rest_framework.decorators import api_view, parser_classes
+from rest_framework.decorators import api_view, parser_classes, throttle_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 
 from api.models import Image, Factory, ReportRecord
 from api.serializers import ImageSerializer
 from api.services.image_upload import ImageUploadService
+from api.throttles import ImageUploadAnonThrottle, ImageUploadBurstAnonThrottle
 from .utils import _get_client_ip
 
 from drf_yasg.utils import swagger_auto_schema
@@ -41,10 +42,12 @@ LOGGER = logging.getLogger("django")
     responses={
         200: openapi.Response("圖片資料", ImageSerializer),
         400: "request failed",
+        429: "rate limit exceeded",
     },
     auto_schema=None,
 )
 @api_view(["POST"])
+@throttle_classes([ImageUploadAnonThrottle, ImageUploadBurstAnonThrottle])
 def post_factory_image_url(request, factory_id):
     user_ip = _get_client_ip(request)
 
@@ -143,11 +146,16 @@ def post_factory_image_url(request, factory_id):
     responses={
         200: openapi.Response("圖片資料", ImageSerializer),
         400: "request failed",
+        413: "file too large",
+        415: "unsupported media type",
+        429: "rate limit exceeded",
+        500: "upload service error",
     },
     auto_schema=None,
 )
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])
+@throttle_classes([ImageUploadAnonThrottle, ImageUploadBurstAnonThrottle])
 def post_factory_image_file(request, factory_id):
     """Upload image file directly to backend with multiple provider support."""
     user_ip = _get_client_ip(request)

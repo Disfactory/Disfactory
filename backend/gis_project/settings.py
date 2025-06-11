@@ -186,6 +186,32 @@ AUTH_USER_MODEL = "users.CustomUser"
 IMGUR_CLIENT_ID = os.environ.get("DISFACTORY_IMGUR_CLIENT_ID")
 IMAGEBB_API_KEY = os.environ.get("DISFACTORY_IMAGEBB_API_KEY")
 
+# Image upload service configuration
+IMAGE_UPLOAD_CONFIG = {
+    # Backend preferences (order matters - first available backend is tried first)
+    'BACKEND_ORDER': os.environ.get('DISFACTORY_IMAGE_BACKEND_ORDER', 'imgur,imagebb,local').split(','),
+    
+    # Request timeout for external services (seconds)
+    'REQUEST_TIMEOUT': int(os.environ.get('DISFACTORY_IMAGE_UPLOAD_TIMEOUT', '30')),
+    
+    # Maximum file size (bytes) - 10MB default
+    'MAX_FILE_SIZE': int(os.environ.get('DISFACTORY_IMAGE_MAX_FILE_SIZE', str(10 * 1024 * 1024))),
+    
+    # Allowed image formats
+    'ALLOWED_FORMATS': os.environ.get('DISFACTORY_IMAGE_ALLOWED_FORMATS', 'jpg,jpeg,png,gif,webp').split(','),
+    
+    # Whether to validate image dimensions
+    'VALIDATE_DIMENSIONS': os.environ.get('DISFACTORY_IMAGE_VALIDATE_DIMENSIONS', 'false').lower() == 'true',
+    
+    # Maximum image dimensions (pixels)
+    'MAX_WIDTH': int(os.environ.get('DISFACTORY_IMAGE_MAX_WIDTH', '4096')),
+    'MAX_HEIGHT': int(os.environ.get('DISFACTORY_IMAGE_MAX_HEIGHT', '4096')),
+    
+    # Retry configuration
+    'RETRY_ATTEMPTS': int(os.environ.get('DISFACTORY_IMAGE_RETRY_ATTEMPTS', '1')),
+    'RETRY_DELAY': int(os.environ.get('DISFACTORY_IMAGE_RETRY_DELAY', '2')),
+}
+
 DEFAULT_CORS_ORIGIN_WHITELIST = [
     "https://dev.disfactory.tw",
     "https://disfactory.tw",
@@ -215,6 +241,20 @@ Q_CLUSTER = {
     "label": "Django Q",
     "orm": "default",
     "bulk": 4,
+}
+
+# Django REST Framework Configuration
+REST_FRAMEWORK = {
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/hour',
+        'user': '1000/hour',
+        'image_upload': '10/hour',  # Rate limit for image uploads
+        'image_upload_burst': '3/min',  # Burst protection
+    }
 }
 
 # Map Widgets

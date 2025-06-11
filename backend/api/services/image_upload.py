@@ -1,13 +1,22 @@
 import os
 import logging
 import base64
+import time
 from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 from urllib.parse import urljoin
 from uuid import uuid4
+from io import BytesIO
 
 from django.conf import settings
 import requests
+
+# Optional PIL import for image validation
+try:
+    from PIL import Image as PILImage
+    PIL_AVAILABLE = True
+except ImportError:
+    PIL_AVAILABLE = False
 
 LOGGER = logging.getLogger("django")
 
@@ -41,8 +50,9 @@ class ImageUploadBackend(ABC):
 class ImgurBackend(ImageUploadBackend):
     """Imgur image upload backend."""
     
-    def __init__(self, client_id: str):
+    def __init__(self, client_id: str, config: Dict[str, Any] = None):
         self.client_id = client_id
+        self.config = config or {}
         
     def upload(self, image_buffer: bytes) -> Dict[str, Any]:
         """Upload image to Imgur."""
@@ -55,13 +65,14 @@ class ImgurBackend(ImageUploadBackend):
             }
             
         headers = {"Authorization": f"Client-ID {self.client_id}"}
+        timeout = self.config.get('REQUEST_TIMEOUT', 30)
         
         try:
             resp = requests.post(
                 "https://api.imgur.com/3/image",
                 data={"image": image_buffer},
                 headers=headers,
-                timeout=30
+                timeout=timeout
             )
             resp_data = resp.json()
             
@@ -115,8 +126,9 @@ class ImgurBackend(ImageUploadBackend):
 class ImageBBBackend(ImageUploadBackend):
     """ImageBB image upload backend."""
     
-    def __init__(self, api_key: str):
+    def __init__(self, api_key: str, config: Dict[str, Any] = None):
         self.api_key = api_key
+        self.config = config or {}
         
     def upload(self, image_buffer: bytes) -> Dict[str, Any]:
         """Upload image to ImageBB."""
@@ -128,6 +140,8 @@ class ImageBBBackend(ImageUploadBackend):
                 "delete_hash": None
             }
             
+        timeout = self.config.get('REQUEST_TIMEOUT', 30)
+        
         try:
             image_b64 = base64.b64encode(image_buffer).decode('utf-8')
             
@@ -137,7 +151,7 @@ class ImageBBBackend(ImageUploadBackend):
                     "key": self.api_key,
                     "image": image_b64,
                 },
-                timeout=30
+                timeout=timeout
             )
             resp_data = resp.json()
             
@@ -179,6 +193,9 @@ class ImageBBBackend(ImageUploadBackend):
 
 class LocalBackend(ImageUploadBackend):
     """Local file storage backend as fallback."""
+    
+    def __init__(self, config: Dict[str, Any] = None):
+        self.config = config or {}
     
     def upload(self, image_buffer: bytes) -> Dict[str, Any]:
         """Save image locally and return URL."""
@@ -223,26 +240,130 @@ class ImageUploadService:
     """Service for uploading images with multiple backend support and fallback."""
     
     def __init__(self):
+        self.config = getattr(settings, 'IMAGE_UPLOAD_CONFIG', {})
         self.backends = self._initialize_backends()
         
     def _initialize_backends(self):
         """Initialize available backends based on configuration."""
         backends = []
+        backend_order = self.config.get('BACKEND_ORDER', ['imgur', 'imagebb', 'local'])
         
-        # Add Imgur if configured
-        imgur_client_id = getattr(settings, 'IMGUR_CLIENT_ID', None)
-        if imgur_client_id:
-            backends.append(ImgurBackend(imgur_client_id))
-            
-        # Add ImageBB if configured
-        imagebb_api_key = getattr(settings, 'IMAGEBB_API_KEY', None)
-        if imagebb_api_key:
-            backends.append(ImageBBBackend(imagebb_api_key))
-            
-        # Always add local as fallback
-        backends.append(LocalBackend())
+        # Create backend instances based on order preference
+        backend_map = {
+            'imgur': self._create_imgur_backend,
+            'imagebb': self._create_imagebb_backend,
+            'local': self._create_local_backend,
+        }
+        
+        for backend_name in backend_order:
+            backend_name = backend_name.strip().lower()
+            if backend_name in backend_map:
+                backend = backend_map[backend_name]()
+                if backend:
+                    backends.append(backend)
         
         return backends
+    
+    def _create_imgur_backend(self) -> Optional['ImgurBackend']:
+        """Create Imgur backend if configured."""
+        imgur_client_id = getattr(settings, 'IMGUR_CLIENT_ID', None)
+        if imgur_client_id:
+            return ImgurBackend(imgur_client_id, self.config)
+        return None
+    
+    def _create_imagebb_backend(self) -> Optional['ImageBBBackend']:
+        """Create ImageBB backend if configured."""
+        imagebb_api_key = getattr(settings, 'IMAGEBB_API_KEY', None)
+        if imagebb_api_key:
+            return ImageBBBackend(imagebb_api_key, self.config)
+        return None
+    
+    def _create_local_backend(self) -> 'LocalBackend':
+        """Create local backend (always available)."""
+        return LocalBackend(self.config)
+    
+    def validate_image(self, image_buffer: bytes) -> Dict[str, Any]:
+        """
+        Validate image file before upload.
+        
+        Args:
+            image_buffer: Raw image data as bytes
+            
+        Returns:
+            Dict with validation result: {'valid': bool, 'error': str}
+        """
+        try:
+            # Check file size
+            max_size = self.config.get('MAX_FILE_SIZE', 10 * 1024 * 1024)  # 10MB default
+            if len(image_buffer) > max_size:
+                return {
+                    'valid': False,
+                    'error': f'File size too large. Maximum allowed: {max_size / 1024 / 1024:.1f}MB'
+                }
+            
+            # Basic validation - check for common image file headers
+            if not self._has_image_header(image_buffer):
+                return {
+                    'valid': False,
+                    'error': 'Invalid image file format'
+                }
+            
+            # Enhanced validation with PIL if available
+            if PIL_AVAILABLE and self.config.get('VALIDATE_DIMENSIONS', False):
+                try:
+                    with PILImage.open(BytesIO(image_buffer)) as img:
+                        # Check format
+                        allowed_formats = self.config.get('ALLOWED_FORMATS', ['jpg', 'jpeg', 'png', 'gif', 'webp'])
+                        if img.format.lower() not in [fmt.lower() for fmt in allowed_formats]:
+                            return {
+                                'valid': False,
+                                'error': f'Invalid image format. Allowed: {", ".join(allowed_formats)}'
+                            }
+                        
+                        # Check dimensions
+                        max_width = self.config.get('MAX_WIDTH', 4096)
+                        max_height = self.config.get('MAX_HEIGHT', 4096)
+                        
+                        if img.width > max_width or img.height > max_height:
+                            return {
+                                'valid': False,
+                                'error': f'Image dimensions too large. Maximum: {max_width}x{max_height}px'
+                            }
+                
+                except Exception as e:
+                    return {
+                        'valid': False,
+                        'error': f'Invalid image file: {str(e)}'
+                    }
+            
+            return {'valid': True, 'error': None}
+            
+        except Exception as e:
+            return {
+                'valid': False,
+                'error': f'Validation error: {str(e)}'
+            }
+    
+    def _has_image_header(self, image_buffer: bytes) -> bool:
+        """Check if the buffer starts with common image file headers."""
+        if len(image_buffer) < 8:
+            return False
+        
+        # Common image file signatures
+        image_signatures = [
+            b'\xff\xd8\xff',        # JPEG
+            b'\x89PNG\r\n\x1a\n',   # PNG
+            b'GIF87a',              # GIF87a
+            b'GIF89a',              # GIF89a
+            b'RIFF',                # WebP (RIFF container)
+            b'BM',                  # BMP
+        ]
+        
+        for signature in image_signatures:
+            if image_buffer.startswith(signature):
+                return True
+        
+        return False
     
     def upload_image(self, image_buffer: bytes) -> Dict[str, Any]:
         """
@@ -259,6 +380,17 @@ class ImageUploadService:
                 - success: Boolean indicating success
                 - error: Error message if success is False
         """
+        # Validate image first
+        validation_result = self.validate_image(image_buffer)
+        if not validation_result['valid']:
+            return {
+                "success": False,
+                "error": f"Image validation failed: {validation_result['error']}",
+                "url": None,
+                "delete_hash": None,
+                "backend_used": None
+            }
+        
         if not self.backends:
             return {
                 "success": False,
@@ -269,28 +401,40 @@ class ImageUploadService:
             }
         
         errors = []
+        retry_attempts = self.config.get('RETRY_ATTEMPTS', 1)
+        retry_delay = self.config.get('RETRY_DELAY', 2)
         
         for backend in self.backends:
             LOGGER.info(f"Attempting image upload with {backend.get_name()} backend")
             
-            try:
-                result = backend.upload(image_buffer)
-                
-                if result["success"]:
-                    LOGGER.info(f"Image uploaded successfully using {backend.get_name()}")
-                    return {
-                        **result,
-                        "backend_used": backend.get_name()
-                    }
-                else:
-                    error_msg = f"{backend.get_name()}: {result['error']}"
-                    errors.append(error_msg)
-                    LOGGER.warning(f"Upload failed with {backend.get_name()}: {result['error']}")
+            # Try with retry logic
+            for attempt in range(retry_attempts + 1):
+                try:
+                    result = backend.upload(image_buffer)
                     
-            except Exception as e:
-                error_msg = f"{backend.get_name()}: Unexpected error: {str(e)}"
-                errors.append(error_msg)
-                LOGGER.error(f"Unexpected error with {backend.get_name()}: {str(e)}")
+                    if result["success"]:
+                        LOGGER.info(f"Image uploaded successfully using {backend.get_name()}")
+                        return {
+                            **result,
+                            "backend_used": backend.get_name()
+                        }
+                    else:
+                        error_msg = f"{backend.get_name()}: {result['error']}"
+                        if attempt == retry_attempts:  # Last attempt
+                            errors.append(error_msg)
+                            LOGGER.warning(f"Upload failed with {backend.get_name()} after {retry_attempts + 1} attempts: {result['error']}")
+                        else:
+                            LOGGER.info(f"Upload attempt {attempt + 1} failed with {backend.get_name()}, retrying in {retry_delay}s")
+                            time.sleep(retry_delay)
+                        
+                except Exception as e:
+                    error_msg = f"{backend.get_name()}: Unexpected error: {str(e)}"
+                    if attempt == retry_attempts:  # Last attempt
+                        errors.append(error_msg)
+                        LOGGER.error(f"Unexpected error with {backend.get_name()} after {retry_attempts + 1} attempts: {str(e)}")
+                    else:
+                        LOGGER.info(f"Upload attempt {attempt + 1} had error with {backend.get_name()}, retrying in {retry_delay}s")
+                        time.sleep(retry_delay)
         
         # All backends failed
         return {
