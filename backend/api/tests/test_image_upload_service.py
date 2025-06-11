@@ -361,6 +361,9 @@ class TestImageUploadService:
         CLOUDFLARE_R2_ACCESS_KEY_ID="test_access_key",
         CLOUDFLARE_R2_SECRET_ACCESS_KEY="test_secret",
         CLOUDFLARE_R2_BUCKET_NAME="test_bucket",
+        MEDIA_ROOT="/tmp/test_media",
+        MEDIA_URL="/media/",
+        DOMAIN="https://test.example.com",
         IMAGE_UPLOAD_CONFIG={
             'BACKEND_ORDER': ['imgur', 'imagebb', 'cloudflare_r2', 'local'],
             'REQUEST_TIMEOUT': 30,
@@ -382,10 +385,13 @@ class TestImageUploadService:
     @override_settings(
         IMGUR_CLIENT_ID=None, 
         IMAGEBB_API_KEY=None,
+        MEDIA_ROOT="/tmp/test_media",
+        MEDIA_URL="/media/",
+        DOMAIN="https://test.example.com",
         IMAGE_UPLOAD_CONFIG={'BACKEND_ORDER': ['local']}
     )
     def test_service_only_local(self):
-        """Test service with only local backend when no keys configured."""
+        """Test service with only local backend when explicitly configured."""
         service = ImageUploadService()
         
         # Should only have Local backend
@@ -395,6 +401,9 @@ class TestImageUploadService:
     @override_settings(
         IMGUR_CLIENT_ID="test_imgur", 
         IMAGEBB_API_KEY="test_imagebb",
+        MEDIA_ROOT="/tmp/test_media",
+        MEDIA_URL="/media/",
+        DOMAIN="https://test.example.com",
         IMAGE_UPLOAD_CONFIG={
             'BACKEND_ORDER': ['imagebb', 'imgur', 'local'],  # Custom order
             'MAX_FILE_SIZE': 5 * 1024 * 1024,  # 5MB limit
@@ -407,6 +416,19 @@ class TestImageUploadService:
         # Should respect custom order
         backend_names = [b.get_name() for b in service.backends]
         assert backend_names == ['imagebb', 'imgur', 'local']
+
+    @override_settings(
+        IMGUR_CLIENT_ID=None, 
+        IMAGEBB_API_KEY=None,
+        CLOUDFLARE_R2_ACCOUNT_ID=None,
+        IMAGE_UPLOAD_CONFIG={'BACKEND_ORDER': ['imgur', 'imagebb', 'cloudflare_r2']}
+    )
+    def test_service_no_backends_configured(self):
+        """Test service when no backends have proper configuration."""
+        service = ImageUploadService()
+        
+        # Should have no backends since none are configured
+        assert len(service.backends) == 0
 
     @override_settings(
         IMAGE_UPLOAD_CONFIG={
@@ -532,7 +554,14 @@ class TestImageUploadService:
         assert result["url"] == "https://ibb.co/test.jpg"
         assert result["backend_used"] == "imagebb"
 
-    @override_settings(IMGUR_CLIENT_ID="test_imgur", IMAGEBB_API_KEY="test_imagebb")
+    @override_settings(
+        IMGUR_CLIENT_ID="test_imgur", 
+        IMAGEBB_API_KEY="test_imagebb",
+        MEDIA_ROOT="/tmp/test_media",
+        MEDIA_URL="/media/",
+        DOMAIN="https://api.disfactory.tw",
+        IMAGE_UPLOAD_CONFIG={'BACKEND_ORDER': ['imgur', 'imagebb', 'local']}
+    )
     def test_upload_fallback_to_local(self):
         """Test upload falls back to local storage when external backends fail."""
         service = ImageUploadService()
@@ -568,6 +597,7 @@ class TestImageUploadService:
         assert result["success"] is True
         assert result["backend_used"] == "local"
 
+    @override_settings(IMGUR_CLIENT_ID="test_imgur")
     def test_upload_validation_failure(self):
         """Test upload fails validation."""
         service = ImageUploadService()
@@ -580,6 +610,7 @@ class TestImageUploadService:
         assert "Image validation failed" in result["error"]
         assert result["backend_used"] is None
 
+    @override_settings(IMGUR_CLIENT_ID="test_imgur")
     def test_upload_all_backends_fail(self):
         """Test upload fails when all backends fail."""
         service = ImageUploadService()
@@ -597,5 +628,5 @@ class TestImageUploadService:
         result = service.upload_image(b'\xff\xd8\xff' + b'fake_jpeg_data')
         
         assert result["success"] is False
-        assert "All backends failed" in result["error"]
+        assert "All configured backends failed" in result["error"]
         assert result["backend_used"] is None

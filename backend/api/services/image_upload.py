@@ -373,7 +373,7 @@ class ImageUploadService:
     def _initialize_backends(self):
         """Initialize available backends based on configuration."""
         backends = []
-        backend_order = self.config.get('BACKEND_ORDER', ['imgur', 'imagebb', 'cloudflare_r2', 'local'])
+        backend_order = self.config.get('BACKEND_ORDER', ['imgur', 'imagebb', 'cloudflare_r2'])
         
         # Create backend instances based on order preference
         backend_map = {
@@ -423,9 +423,17 @@ class ImageUploadService:
             return CloudflareR2Backend(account_id, access_key_id, secret_access_key, bucket_name, r2_config)
         return None
     
-    def _create_local_backend(self) -> 'LocalBackend':
-        """Create local backend (always available)."""
-        return LocalBackend(self.config)
+    def _create_local_backend(self) -> Optional['LocalBackend']:
+        """Create local backend only if explicitly configured."""
+        # Only create local backend if media settings are properly configured
+        # and if local backend is explicitly requested in backend order
+        media_root = getattr(settings, 'MEDIA_ROOT', None)
+        media_url = getattr(settings, 'MEDIA_URL', None)
+        domain = getattr(settings, 'DOMAIN', None)
+        
+        if media_root and media_url and domain:
+            return LocalBackend(self.config)
+        return None
     
     def validate_image(self, image_buffer: bytes) -> Dict[str, Any]:
         """
@@ -512,7 +520,7 @@ class ImageUploadService:
     
     def upload_image(self, image_buffer: bytes) -> Dict[str, Any]:
         """
-        Upload image using available backends with fallback.
+        Upload image using available backends with simplified fallback.
         
         Args:
             image_buffer: Raw image data as bytes
@@ -552,7 +560,7 @@ class ImageUploadService:
         for backend in self.backends:
             LOGGER.info(f"Attempting image upload with {backend.get_name()} backend")
             
-            # Try with retry logic
+            # Try with retry logic for current backend
             for attempt in range(retry_attempts + 1):
                 try:
                     result = backend.upload(image_buffer)
@@ -565,18 +573,20 @@ class ImageUploadService:
                         }
                     else:
                         error_msg = f"{backend.get_name()}: {result['error']}"
-                        if attempt == retry_attempts:  # Last attempt
+                        if attempt == retry_attempts:  # Last attempt for this backend
                             errors.append(error_msg)
                             LOGGER.warning(f"Upload failed with {backend.get_name()} after {retry_attempts + 1} attempts: {result['error']}")
+                            break  # Move to next backend
                         else:
                             LOGGER.info(f"Upload attempt {attempt + 1} failed with {backend.get_name()}, retrying in {retry_delay}s")
                             time.sleep(retry_delay)
                         
                 except Exception as e:
                     error_msg = f"{backend.get_name()}: Unexpected error: {str(e)}"
-                    if attempt == retry_attempts:  # Last attempt
+                    if attempt == retry_attempts:  # Last attempt for this backend
                         errors.append(error_msg)
                         LOGGER.error(f"Unexpected error with {backend.get_name()} after {retry_attempts + 1} attempts: {str(e)}")
+                        break  # Move to next backend
                     else:
                         LOGGER.info(f"Upload attempt {attempt + 1} had error with {backend.get_name()}, retrying in {retry_delay}s")
                         time.sleep(retry_delay)
@@ -584,7 +594,7 @@ class ImageUploadService:
         # All backends failed
         return {
             "success": False,
-            "error": f"All backends failed: {'; '.join(errors)}",
+            "error": f"All configured backends failed: {'; '.join(errors)}",
             "url": None,
             "delete_hash": None,
             "backend_used": None

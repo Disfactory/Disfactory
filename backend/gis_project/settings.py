@@ -196,7 +196,7 @@ CLOUDFLARE_R2_CUSTOM_DOMAIN = os.environ.get("DISFACTORY_CLOUDFLARE_R2_CUSTOM_DO
 # Image upload service configuration
 IMAGE_UPLOAD_CONFIG = {
     # Backend preferences (order matters - first available backend is tried first)
-    'BACKEND_ORDER': os.environ.get('DISFACTORY_IMAGE_BACKEND_ORDER', 'imgur,imagebb,cloudflare_r2,local').split(','),
+    'BACKEND_ORDER': os.environ.get('DISFACTORY_IMAGE_BACKEND_ORDER', 'imgur,imagebb,cloudflare_r2').split(','),
     
     # Request timeout for external services (seconds)
     'REQUEST_TIMEOUT': int(os.environ.get('DISFACTORY_IMAGE_UPLOAD_TIMEOUT', '30')),
