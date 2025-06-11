@@ -18,7 +18,7 @@ jobs:
       # Label used to access the service container
       postgres:
         # Docker Hub image
-        image: postgis/postgis:12-3.1-alpine
+        image: postgres:12-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -63,11 +63,6 @@ jobs:
       - name: Install dependencies
         run: |
           python -m poetry install
-
-      - name: Install GDAL
-        run: |
-          apt-get update
-          apt-get install -y gdal-bin python3-gdal
 
       - name: Setup .env
         run: |
