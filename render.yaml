@@ -6,11 +6,9 @@ services:
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     plan: starter
-    buildCommand: |
+    dockerCommand: |
       cd /Disfactory
       python manage.py collectstatic --noinput
-    startCommand: |
-      cd /Disfactory
       python manage.py migrate
       gunicorn -c gunicorn.conf.py gis_project.wsgi
     healthCheckPath: /api/statistics/total
@@ -67,7 +65,7 @@ services:
     dockerfilePath: ./backend/Dockerfile
     dockerContext: ./backend
     plan: starter
-    startCommand: cd /Disfactory && python manage.py qcluster
+    dockerCommand: cd /Disfactory && python manage.py qcluster
     envVars:
       - key: DISFACTORY_BACKEND_DEFAULT_DB_HOST
         fromDatabase:
@@ -101,6 +99,5 @@ services:
 databases:
   - name: disfactory-db
     databaseName: disfactory_data
-    user: postgres
     postgresMajorVersion: 14
     plan: starter
