@@ -24,5 +24,5 @@ COPY . /Disfactory/
 
 # Prod image
 FROM base AS prod
-RUN poetry install --no-dev
+RUN poetry install --only=main --no-root
 COPY . /Disfactory/
