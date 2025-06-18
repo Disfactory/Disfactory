@@ -100,4 +100,4 @@ databases:
   - name: disfactory-db
     databaseName: disfactory_data
     postgresMajorVersion: 14
-    plan: starter
+    plan: free
