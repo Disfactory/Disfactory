@@ -34,3 +34,34 @@ We maintain a [copy](backend/fixtures/full-info.csv) crawed at 2019/7/20 as old 
 系統上的既有違章工廠資料，為 2019/7/20 取自[內政部國土測繪雲](https://maps.nlsc.gov.tw/)/農業與農地資源盤查/農地資源盤查_工廠之圖層資料。資料取得之程式碼來自 [Ronny Wang](https://github.com/ronnywang) 使用 [disfactory-crawler](https://github.com/ronnywang/disfactory-crawler)。
 
 全站由使用者回報之資料及設計圖以CC BY姓名標示4.0釋出，標註「農地違章工廠回報系統貢獻者」。使用者回報資料未涉及個人資訊部分已整理成開放資料與[API](https://api.disfactory.tw/redoc/)。
+
+## Deployment / 部署
+
+### One-Click Deployment / 一鍵部署
+
+This repository includes configuration files for easy deployment to cloud platforms:
+
+#### Render.com
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Disfactory/Disfactory)
+
+The `render.yaml` file configures:
+- **disfactory-backend** - Django API server with PostgreSQL
+- **disfactory-worker** - Background task queue processing  
+- **disfactory-db** - PostgreSQL 14 database with PostGIS
+
+#### Zeabur
+
+[![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates)
+
+The `zeabur.yaml` file provides a template for deploying the complete Disfactory backend infrastructure including PostgreSQL database, Django API server, and background worker.
+
+### Manual Configuration / 手動設定
+
+After deployment, configure these environment variables:
+- `GOOGLE_MAP_API_KEY` - Required for map functionality
+- `DISFACTORY_IMGUR_CLIENT_ID` - Required for image upload
+
+部署後需要設定以下環境變數：
+- `GOOGLE_MAP_API_KEY` - 地圖功能所需
+- `DISFACTORY_IMGUR_CLIENT_ID` - 圖片上傳功能所需
