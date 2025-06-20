@@ -96,6 +96,7 @@ dump.rdb
 
 images/
 static/
+!static/.gitkeep
 
 # Pycharm
 .idea
