@@ -1,5 +1,8 @@
 version: "3.9"
 
+# Override any inherited configurations to prevent conflicts
+name: disfactory-test
+
 services:
   postgres:
     image: postgis/postgis:14-3.2
@@ -11,7 +14,7 @@ services:
     ports:
       - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,6 +28,9 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    # Create a temporary volume for static files during testing
+    volumes:
+      - test_static:/Disfactory/static
     command: >
       sh -c "
         cd /Disfactory &&
@@ -41,7 +47,7 @@ services:
       DISFACTORY_BACKEND_DEFAULT_DB_NAME: disfactory_test
       DISFACTORY_BACKEND_DEFAULT_DB_USER: disfactory_user
       DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD: disfactory_pass
-      
+
       # General settings
       DISFACTORY_BACKEND_DEBUG: "false"
       DISFACTORY_ALLOWED_HOST: "*"
@@ -54,7 +60,11 @@ services:
       DISFACTORY_BACKEND_DOMAIN: "http://localhost:8000"
       DISFACTORY_FRONTEND_DOMAIN: "https://disfactory.tw/"
       PORT: "8000"
-      
+
+      # Static files configuration for testing
+      DJANGO_SETTINGS_MODULE: "gis_project.settings"
+      STATIC_ROOT: "/Disfactory/static"
+
       # Mock secrets for testing
       GOOGLE_MAP_API_KEY: "test_api_key"
       DISFACTORY_IMGUR_CLIENT_ID: "test_imgur_id"
@@ -84,11 +94,19 @@ services:
       DISFACTORY_BACKEND_DEFAULT_DB_NAME: disfactory_test
       DISFACTORY_BACKEND_DEFAULT_DB_USER: disfactory_user
       DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD: disfactory_pass
-      
+
       # General settings
       DISFACTORY_BACKEND_DEBUG: "false"
       DISFACTORY_ALLOWED_HOST: "*"
       DISFACTORY_BACKEND_LOG_LEVEL: "INFO"
-      
+
+      # Django settings configuration for worker
+      DJANGO_SETTINGS_MODULE: "gis_project.settings"
+      STATIC_ROOT: "/Disfactory/static"
+
       # Mock secrets for testing
       GOOGLE_MAP_API_KEY: "test_api_key"
+
+# Define volumes for testing
+volumes:
+  test_static:
