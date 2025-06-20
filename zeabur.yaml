@@ -1,0 +1,200 @@
+apiVersion: zeabur.com/v1
+kind: Template
+metadata:
+  name: Disfactory
+spec:
+  description: A platform for reporting illegal factories in Taiwan to protect farmland and the environment
+  icon: https://raw.githubusercontent.com/Disfactory/Disfactory/master/docs/static/img/favicon.ico
+  tags:
+    - Environment
+    - Taiwan
+    - Django
+    - PostgreSQL
+  readme: |-
+    # Disfactory
+
+    Disfactory is a platform for reporting and tracking illegal factories in Taiwan to protect farmland and the environment.
+
+    ## Services
+
+    This template deploys the complete Disfactory backend infrastructure:
+
+    - **PostgreSQL Database** - Main database with PostGIS support for geospatial data
+    - **Django Backend** - Main API server with Django REST framework
+    - **Django Q Worker** - Background task processor for async operations
+
+    ## Configuration
+
+    After deployment, you'll need to configure the following environment variables:
+    - `GOOGLE_MAP_API_KEY` - Required for map functionality
+    - `DISFACTORY_IMGUR_CLIENT_ID` - Required for image upload functionality
+
+    ## Usage
+
+    The backend API will be available at your assigned domain. The system provides REST APIs for:
+    - Factory reporting and management
+    - User authentication and management
+    - Geospatial queries and mapping
+    - Image upload and management
+
+  variables:
+    - key: BACKEND_DOMAIN
+      type: DOMAIN
+      name: Backend Domain
+      description: Domain for the Disfactory backend API
+
+  services:
+    - name: PostgreSQL
+      icon: https://raw.githubusercontent.com/zeabur/service-icons/main/marketplace/postgresql.svg
+      template: PREBUILT
+      spec:
+        source:
+          image: postgis/postgis:14-3.2
+        ports:
+          - id: database
+            port: 5432
+            type: TCP
+        volumes:
+          - id: data
+            dir: /var/lib/postgresql/data
+        env:
+          POSTGRES_DB:
+            default: disfactory_data
+            expose: true
+            readonly: true
+          POSTGRES_USER:
+            default: postgres
+            expose: true
+            readonly: true
+          POSTGRES_PASSWORD:
+            default: ${PASSWORD}
+            expose: true
+          POSTGRES_HOST:
+            default: ${CONTAINER_HOSTNAME}
+            expose: true
+            readonly: true
+          POSTGRES_PORT:
+            default: ${DATABASE_PORT}
+            expose: true
+            readonly: true
+          DATABASE_URL:
+            default: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+            expose: true
+            readonly: true
+        instructions:
+          - type: TEXT
+            title: Database Connection String
+            content: ${DATABASE_URL}
+            category: Connection
+          - type: TEXT
+            title: Database Host
+            content: ${POSTGRES_HOST}
+            category: Connection
+          - type: TEXT
+            title: Database Port
+            content: ${POSTGRES_PORT}
+            category: Connection
+          - type: TEXT
+            title: Database Name
+            content: ${POSTGRES_DB}
+            category: Connection
+          - type: TEXT
+            title: Database User
+            content: ${POSTGRES_USER}
+            category: Credentials
+          - type: PASSWORD
+            title: Database Password
+            content: ${POSTGRES_PASSWORD}
+            category: Credentials
+
+    - name: Disfactory Backend
+      icon: https://raw.githubusercontent.com/Disfactory/Disfactory/master/docs/static/img/favicon.ico
+      template: PREBUILT
+      domainKey: BACKEND_DOMAIN
+      dependencies:
+        - PostgreSQL
+      spec:
+        source:
+          image: ghcr.io/disfactory/disfactory/backend:latest
+        command:
+          - sh
+          - -c
+          - |
+            cd /Disfactory
+            python manage.py collectstatic --noinput
+            python manage.py migrate
+            gunicorn -c gunicorn.conf.py gis_project.wsgi
+        ports:
+          - id: web
+            port: 8000
+            type: HTTP
+        env:
+          DISFACTORY_BACKEND_DEFAULT_DB_HOST:
+            default: ${POSTGRES_HOST}
+          DISFACTORY_BACKEND_DEFAULT_DB_PORT:
+            default: ${POSTGRES_PORT}
+          DISFACTORY_BACKEND_DEFAULT_DB_NAME:
+            default: ${POSTGRES_DB}
+          DISFACTORY_BACKEND_DEFAULT_DB_USER:
+            default: ${POSTGRES_USER}
+          DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD:
+            default: ${POSTGRES_PASSWORD}
+          DISFACTORY_BACKEND_DEBUG:
+            default: "false"
+          DISFACTORY_ALLOWED_HOST:
+            default: "*"
+          DISFACTORY_BACKEND_CORS_ORIGIN_WHITELIST:
+            default: ""
+          DISFACTORY_BACKEND_MAX_FACTORY_PER_GET:
+            default: "50"
+          DISFACTORY_BACKEND_MAX_FACTORY_RADIUS_PER_GET:
+            default: "10"
+          DISFACTORY_BACKEND_LOG_LEVEL:
+            default: "INFO"
+          DISFACTORY_BACKEND_LOG_FILE:
+            default: "/tmp/disfactory.log"
+          DISFACTORY_BACKEND_MEDIA_ROOT:
+            default: "./images/"
+          DISFACTORY_BACKEND_DOMAIN:
+            default: https://${BACKEND_DOMAIN}
+          DISFACTORY_FRONTEND_DOMAIN:
+            default: "https://disfactory.tw/"
+          PORT:
+            default: "8000"
+          GOOGLE_MAP_API_KEY:
+            default: ""
+          DISFACTORY_IMGUR_CLIENT_ID:
+            default: ""
+
+    - name: Disfactory Worker
+      icon: https://raw.githubusercontent.com/Disfactory/Disfactory/master/docs/static/img/favicon.ico
+      template: PREBUILT
+      dependencies:
+        - PostgreSQL
+        - Disfactory Backend
+      spec:
+        source:
+          image: ghcr.io/disfactory/disfactory/backend:latest
+        command:
+          - sh
+          - -c
+          - cd /Disfactory && python manage.py qcluster
+        env:
+          DISFACTORY_BACKEND_DEFAULT_DB_HOST:
+            default: ${POSTGRES_HOST}
+          DISFACTORY_BACKEND_DEFAULT_DB_PORT:
+            default: ${POSTGRES_PORT}
+          DISFACTORY_BACKEND_DEFAULT_DB_NAME:
+            default: ${POSTGRES_DB}
+          DISFACTORY_BACKEND_DEFAULT_DB_USER:
+            default: ${POSTGRES_USER}
+          DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD:
+            default: ${POSTGRES_PASSWORD}
+          DISFACTORY_BACKEND_DEBUG:
+            default: "false"
+          DISFACTORY_ALLOWED_HOST:
+            default: "*"
+          DISFACTORY_BACKEND_LOG_LEVEL:
+            default: "INFO"
+          GOOGLE_MAP_API_KEY:
+            default: ""
