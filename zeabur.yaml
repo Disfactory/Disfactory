@@ -109,17 +109,13 @@ spec:
 
     - name: Disfactory Backend
       icon: https://raw.githubusercontent.com/Disfactory/Disfactory/master/docs/static/img/favicon.ico
-      template: GIT
+      template: PREBUILT
       domainKey: BACKEND_DOMAIN
       dependencies:
         - PostgreSQL
       spec:
         source:
-          type: GITHUB
-          repoID: 209294385
-          branch: master
-        dockerfilePath: backend/Dockerfile
-        dockerContext: backend
+          image: ghcr.io/disfactory/disfactory/backend:latest
         command:
           - sh
           - -c
@@ -172,17 +168,13 @@ spec:
 
     - name: Disfactory Worker
       icon: https://raw.githubusercontent.com/Disfactory/Disfactory/master/docs/static/img/favicon.ico
-      template: GIT
+      template: PREBUILT
       dependencies:
         - PostgreSQL
         - Disfactory Backend
       spec:
         source:
-          type: GITHUB
-          repoID: 209294385
-          branch: master
-        dockerfilePath: backend/Dockerfile
-        dockerContext: backend
+          image: ghcr.io/disfactory/disfactory/backend:latest
         command:
           - sh
           - -c

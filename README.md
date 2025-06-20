@@ -54,7 +54,7 @@ The `render.yaml` file configures:
 
 [![Deploy on Zeabur](https://zeabur.com/button.svg)](https://zeabur.com/templates)
 
-The `zeabur.yaml` file provides a template for deploying the complete Disfactory backend infrastructure including PostgreSQL database, Django API server, and background worker.
+The `zeabur.yaml` file provides a template for deploying the complete Disfactory backend infrastructure including PostgreSQL database, Django API server, and background worker. The template uses pre-built Docker images from GitHub Container Registry that are automatically built on master branch pushes.
 
 ### Manual Configuration / 手動設定
 
