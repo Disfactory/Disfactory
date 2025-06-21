@@ -4,7 +4,7 @@ metadata:
   name: Disfactory
 spec:
   description: A platform for reporting illegal factories in Taiwan to protect farmland and the environment
-  icon: https://raw.githubusercontent.com/Disfactory/Disfactory/master/docs/static/img/favicon.ico
+  icon: https://raw.githubusercontent.com/Disfactory/frontend/master/public/favicon.ico
   tags:
     - Environment
     - Taiwan
@@ -108,7 +108,7 @@ spec:
             category: Credentials
 
     - name: Disfactory Backend
-      icon: https://raw.githubusercontent.com/Disfactory/Disfactory/master/docs/static/img/favicon.ico
+      icon: https://raw.githubusercontent.com/Disfactory/frontend/master/public/favicon.ico
       template: PREBUILT
       domainKey: BACKEND_DOMAIN
       dependencies:
@@ -172,7 +172,7 @@ spec:
             default: ""
 
     - name: Disfactory Worker
-      icon: https://raw.githubusercontent.com/Disfactory/Disfactory/master/docs/static/img/favicon.ico
+      icon: https://raw.githubusercontent.com/Disfactory/frontend/master/public/favicon.ico
       template: PREBUILT
       dependencies:
         - PostgreSQL
