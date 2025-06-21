@@ -4,7 +4,7 @@ metadata:
   name: Disfactory
 spec:
   description: A platform for reporting illegal factories in Taiwan to protect farmland and the environment
-  icon: https://raw.githubusercontent.com/Disfactory/Disfactory/master/docs/static/img/favicon.ico
+  icon: https://raw.githubusercontent.com/Disfactory/frontend/master/public/favicon.ico
   tags:
     - Environment
     - Taiwan
@@ -108,7 +108,7 @@ spec:
             category: Credentials
 
     - name: Disfactory Backend
-      icon: https://raw.githubusercontent.com/Disfactory/Disfactory/master/docs/static/img/favicon.ico
+      icon: https://raw.githubusercontent.com/Disfactory/frontend/master/public/favicon.ico
       template: PREBUILT
       domainKey: BACKEND_DOMAIN
       dependencies:
@@ -117,13 +117,16 @@ spec:
         source:
           image: ghcr.io/disfactory/disfactory/backend:latest
         command:
-          - sh
+          - /bin/sh
+        args:
           - -c
           - |
             cd /Disfactory
-            python manage.py collectstatic --noinput
-            python manage.py migrate
-            gunicorn -c gunicorn.conf.py gis_project.wsgi
+            ./scripts/wait-for-it.sh ${DISFACTORY_BACKEND_DEFAULT_DB_HOST}:${DISFACTORY_BACKEND_DEFAULT_DB_PORT} --timeout=60 --strict -- bash -c "
+            python manage.py collectstatic --noinput &&
+            python manage.py migrate --fake-initial &&
+            gunicorn -c gunicorn.conf.py gis_project.wsgi -b 0.0.0.0:8000
+            "
         ports:
           - id: web
             port: 8000
@@ -172,7 +175,7 @@ spec:
             default: ""
 
     - name: Disfactory Worker
-      icon: https://raw.githubusercontent.com/Disfactory/Disfactory/master/docs/static/img/favicon.ico
+      icon: https://raw.githubusercontent.com/Disfactory/frontend/master/public/favicon.ico
       template: PREBUILT
       dependencies:
         - PostgreSQL
@@ -181,9 +184,15 @@ spec:
         source:
           image: ghcr.io/disfactory/disfactory/backend:latest
         command:
-          - sh
+          - /bin/sh
+        args:
           - -c
-          - cd /Disfactory && python manage.py qcluster
+          - |
+            cd /Disfactory
+            ./scripts/wait-for-it.sh ${DISFACTORY_BACKEND_DEFAULT_DB_HOST}:${DISFACTORY_BACKEND_DEFAULT_DB_PORT} --timeout=60 --strict -- bash -c "
+            python manage.py migrate --fake-initial &&
+            python manage.py qcluster
+            "
         env:
           DISFACTORY_BACKEND_DEFAULT_DB_HOST:
             default: ${POSTGRES_HOST}

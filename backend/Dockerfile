@@ -19,7 +19,7 @@ COPY pyproject.toml poetry.lock ./
 
 # Dev image
 FROM base AS dev
-RUN poetry install
+RUN poetry install --no-root
 COPY . /Disfactory/
 
 # Prod image
