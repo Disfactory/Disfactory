@@ -209,6 +209,12 @@ spec:
           SKIP_MIGRATION_EXTERNAL_API:
             default: "true"
             expose: false
+          DISFACTORY_BACKEND_HOST:
+            default: ${CONTAINER_HOSTNAME}
+            expose: true
+          DISFACTORY_BACKEND_PORT:
+            default: ${BACKEND_PORT}
+            expose: true
         configs: []
         portForwarding:
           enabled: false
@@ -288,6 +294,7 @@ spec:
       template: PREBUILT_V2
       dependencies:
         - PostgreSQL
+        - Disfactory Backend
       spec:
         source:
           image: ghcr.io/disfactory/disfactory/backend:latest
