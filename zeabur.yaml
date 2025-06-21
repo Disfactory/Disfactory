@@ -183,7 +183,10 @@ spec:
         command:
           - sh
           - -c
-          - cd /Disfactory && python manage.py qcluster
+          - |
+            cd /Disfactory
+            python manage.py migrate
+            python manage.py qcluster
         env:
           DISFACTORY_BACKEND_DEFAULT_DB_HOST:
             default: ${POSTGRES_HOST}
