@@ -161,6 +161,11 @@ spec:
             default: "https://disfactory.tw/"
           PORT:
             default: "8000"
+          # Django settings configuration
+          DJANGO_SETTINGS_MODULE:
+            default: "gis_project.settings"
+          STATIC_ROOT:
+            default: "/Disfactory/static"
           GOOGLE_MAP_API_KEY:
             default: ""
           DISFACTORY_IMGUR_CLIENT_ID:
@@ -196,5 +201,10 @@ spec:
             default: "*"
           DISFACTORY_BACKEND_LOG_LEVEL:
             default: "INFO"
+          # Django settings configuration
+          DJANGO_SETTINGS_MODULE:
+            default: "gis_project.settings"
+          STATIC_ROOT:
+            default: "/Disfactory/static"
           GOOGLE_MAP_API_KEY:
             default: ""
