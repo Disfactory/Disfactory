@@ -21,16 +21,16 @@ spec:
     This template deploys the complete Disfactory backend infrastructure:
 
     - **PostgreSQL Database** - Main database with PostGIS support for geospatial data
-    - **Django Backend** - Main API server with Django REST framework and built-in static file serving
+    - **Django Backend with Caddy** - Combined service with Django API and Caddy reverse proxy for optimal static file serving
     - **Django Q Worker** - Background task processor for async operations
 
     ## Architecture
 
-    The deployment uses a simplified microservices architecture:
-    - **Django** handles both API requests and static file serving with DEBUG=true for Zeabur compatibility
+    The deployment uses an optimized architecture:
+    - **Django + Caddy** in a single container handles both API requests and static file serving
     - **PostgreSQL** provides geospatial database capabilities with PostGIS
     - **Worker** processes background tasks asynchronously
-    - **Persistent volumes** ensure uploaded media files are preserved
+    - **Static files** are served directly by Caddy with compression and caching
 
     ## Configuration
 
@@ -46,7 +46,7 @@ spec:
     - Geospatial queries and mapping
     - Image upload and management
 
-    Static files are served directly by Django for simplicity and compatibility with Zeabur's architecture.
+    Static files are served efficiently by Caddy with compression and caching.
 
   variables:
     - key: BACKEND_DOMAIN
@@ -119,11 +119,12 @@ spec:
     - name: Disfactory Backend
       icon: https://raw.githubusercontent.com/Disfactory/frontend/master/public/favicon.ico
       template: PREBUILT_V2
+      domainKey: BACKEND_DOMAIN
       dependencies:
         - PostgreSQL
       spec:
         source:
-          image: ghcr.io/disfactory/disfactory/backend:latest
+          image: ghcr.io/disfactory/disfactory/backend-caddy:latest
           command:
             - /bin/sh
           args:
@@ -134,12 +135,13 @@ spec:
               ./scripts/wait-for-it.sh ${DISFACTORY_BACKEND_DEFAULT_DB_HOST}:${DISFACTORY_BACKEND_DEFAULT_DB_PORT} --timeout=60 --strict -- bash -c "
               python manage.py collectstatic --noinput &&
               python manage.py migrate --fake-initial &&
-              gunicorn -c gunicorn.conf.py gis_project.wsgi -b 0.0.0.0:8000
+              gunicorn -c gunicorn.conf.py gis_project.wsgi -b 127.0.0.1:8000 --daemon &&
+              caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
               "
         ports:
-          - id: backend
-            port: 8000
-            type: TCP
+          - id: web
+            port: 80
+            type: HTTP
         volumes:
           - id: static
             dir: /Disfactory/static
@@ -209,46 +211,13 @@ spec:
           SKIP_MIGRATION_EXTERNAL_API:
             default: "true"
             expose: false
-          DISFACTORY_BACKEND_HOST:
-            default: ${CONTAINER_HOSTNAME}
-            expose: true
-          DISFACTORY_BACKEND_PORT:
-            default: ${BACKEND_PORT}
-            expose: true
-        configs: []
-        portForwarding:
-          enabled: false
-        healthCheck:
-          type: HTTP
-          port: backend
-          http:
-            path: /
-
-    - name: Caddy Proxy
-      icon: https://raw.githubusercontent.com/vscode-icons/vscode-icons/master/icons/file_type_caddy.svg
-      template: PREBUILT_V2
-      domainKey: BACKEND_DOMAIN
-      dependencies:
-        - Disfactory Backend
-      spec:
-        source:
-          image: caddy:2.7-alpine
-        ports:
-          - id: web
-            port: 80
-            type: HTTP
-        volumes:
-          - id: static
-            dir: /static
-          - id: media
-            dir: /media
         configs:
           - path: /etc/caddy/Caddyfile
             template: |
               :80 {
                   # Serve static files directly
                   handle_path /static/* {
-                      root * /static
+                      root * /Disfactory/static
                       file_server {
                           precompressed gzip br
                       }
@@ -257,14 +226,14 @@ spec:
                   
                   # Serve media files directly
                   handle_path /media/* {
-                      root * /media
+                      root * /Disfactory/images
                       file_server
                       header Cache-Control "public, max-age=31536000"
                   }
                   
                   # Proxy all other requests to Django backend
                   handle {
-                      reverse_proxy ${BACKEND_HOST}:${BACKEND_PORT} {
+                      reverse_proxy localhost:8000 {
                           header_up Host {host}
                           header_up X-Real-IP {remote_host}
                           header_up X-Forwarded-For {remote_host}
@@ -273,14 +242,7 @@ spec:
                   }
               }
             permission: null
-            envsubst: true
-        env:
-          BACKEND_HOST:
-            default: ${DISFACTORY_BACKEND_HOST}
-            expose: false
-          BACKEND_PORT:
-            default: ${DISFACTORY_BACKEND_PORT}
-            expose: false
+            envsubst: false
         portForwarding:
           enabled: false
         healthCheck:
