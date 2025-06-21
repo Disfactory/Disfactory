@@ -273,7 +273,7 @@ spec:
                   }
               }
             permission: null
-            envsubst: null
+            envsubst: true
         env:
           BACKEND_HOST:
             default: ${DISFACTORY_BACKEND_HOST}
