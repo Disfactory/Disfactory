@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://schema.zeabur.app/template.json
 apiVersion: zeabur.com/v1
 kind: Template
 metadata:
@@ -20,8 +21,16 @@ spec:
     This template deploys the complete Disfactory backend infrastructure:
 
     - **PostgreSQL Database** - Main database with PostGIS support for geospatial data
-    - **Django Backend** - Main API server with Django REST framework
+    - **Django Backend with Caddy** - Combined service with Django API and Caddy reverse proxy for optimal static file serving
     - **Django Q Worker** - Background task processor for async operations
+
+    ## Architecture
+
+    The deployment uses an optimized architecture:
+    - **Django + Caddy** in a single container handles both API requests and static file serving
+    - **PostgreSQL** provides geospatial database capabilities with PostGIS
+    - **Worker** processes background tasks asynchronously
+    - **Static files** are served directly by Caddy with compression and caching
 
     ## Configuration
 
@@ -31,11 +40,13 @@ spec:
 
     ## Usage
 
-    The backend API will be available at your assigned domain. The system provides REST APIs for:
+    The web interface will be available at your assigned domain. The system provides REST APIs for:
     - Factory reporting and management
     - User authentication and management
     - Geospatial queries and mapping
     - Image upload and management
+
+    Static files are served efficiently by Caddy with compression and caching.
 
   variables:
     - key: BACKEND_DOMAIN
@@ -46,7 +57,7 @@ spec:
   services:
     - name: PostgreSQL
       icon: https://raw.githubusercontent.com/zeabur/service-icons/main/marketplace/postgresql.svg
-      template: PREBUILT
+      template: PREBUILT_V2
       spec:
         source:
           image: postgis/postgis:14-3.2
@@ -57,30 +68,6 @@ spec:
         volumes:
           - id: data
             dir: /var/lib/postgresql/data
-        env:
-          POSTGRES_DB:
-            default: disfactory_data
-            expose: true
-            readonly: true
-          POSTGRES_USER:
-            default: postgres
-            expose: true
-            readonly: true
-          POSTGRES_PASSWORD:
-            default: ${PASSWORD}
-            expose: true
-          POSTGRES_HOST:
-            default: ${CONTAINER_HOSTNAME}
-            expose: true
-            readonly: true
-          POSTGRES_PORT:
-            default: ${DATABASE_PORT}
-            expose: true
-            readonly: true
-          DATABASE_URL:
-            default: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
-            expose: true
-            readonly: true
         instructions:
           - type: TEXT
             title: Database Connection String
@@ -106,114 +93,222 @@ spec:
             title: Database Password
             content: ${POSTGRES_PASSWORD}
             category: Credentials
+        env:
+          DATABASE_URL:
+            default: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+            expose: true
+          POSTGRES_DB:
+            default: disfactory_data
+            expose: true
+          POSTGRES_HOST:
+            default: ${CONTAINER_HOSTNAME}
+            expose: true
+          POSTGRES_PASSWORD:
+            default: ${PASSWORD}
+            expose: true
+          POSTGRES_PORT:
+            default: ${DATABASE_PORT}
+            expose: true
+          POSTGRES_USER:
+            default: postgres
+            expose: true
+        configs: []
+        portForwarding:
+          enabled: true
 
     - name: Disfactory Backend
       icon: https://raw.githubusercontent.com/Disfactory/frontend/master/public/favicon.ico
-      template: PREBUILT
+      template: PREBUILT_V2
       domainKey: BACKEND_DOMAIN
       dependencies:
         - PostgreSQL
       spec:
         source:
-          image: ghcr.io/disfactory/disfactory/backend:latest
-        command:
-          - /bin/sh
-        args:
-          - -c
-          - |
-            cd /Disfactory
-            ./scripts/wait-for-it.sh ${DISFACTORY_BACKEND_DEFAULT_DB_HOST}:${DISFACTORY_BACKEND_DEFAULT_DB_PORT} --timeout=60 --strict -- bash -c "
-            python manage.py collectstatic --noinput &&
-            python manage.py migrate --fake-initial &&
-            gunicorn -c gunicorn.conf.py gis_project.wsgi -b 0.0.0.0:8000
-            "
+          image: ghcr.io/disfactory/disfactory/backend-caddy:latest
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              cd /Disfactory
+              mkdir -p /Disfactory/static
+              ./scripts/wait-for-it.sh ${DISFACTORY_BACKEND_DEFAULT_DB_HOST}:${DISFACTORY_BACKEND_DEFAULT_DB_PORT} --timeout=60 --strict -- bash -c "
+              python manage.py collectstatic --noinput &&
+              python manage.py migrate --fake-initial &&
+              gunicorn -c gunicorn.conf.py gis_project.wsgi -b 127.0.0.1:8000 --daemon &&
+              caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+              "
         ports:
           - id: web
-            port: 8000
+            port: 80
             type: HTTP
+        volumes:
+          - id: static
+            dir: /Disfactory/static
+          - id: media
+            dir: /Disfactory/images
         env:
           DISFACTORY_BACKEND_DEFAULT_DB_HOST:
             default: ${POSTGRES_HOST}
+            expose: false
           DISFACTORY_BACKEND_DEFAULT_DB_PORT:
             default: ${POSTGRES_PORT}
+            expose: false
           DISFACTORY_BACKEND_DEFAULT_DB_NAME:
             default: ${POSTGRES_DB}
+            expose: false
           DISFACTORY_BACKEND_DEFAULT_DB_USER:
             default: ${POSTGRES_USER}
+            expose: false
           DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD:
             default: ${POSTGRES_PASSWORD}
+            expose: false
           DISFACTORY_BACKEND_DEBUG:
             default: "false"
+            expose: false
           DISFACTORY_ALLOWED_HOST:
             default: "*"
+            expose: false
           DISFACTORY_BACKEND_CORS_ORIGIN_WHITELIST:
             default: ""
+            expose: false
           DISFACTORY_BACKEND_MAX_FACTORY_PER_GET:
             default: "50"
+            expose: false
           DISFACTORY_BACKEND_MAX_FACTORY_RADIUS_PER_GET:
             default: "10"
+            expose: false
           DISFACTORY_BACKEND_LOG_LEVEL:
             default: "INFO"
+            expose: false
           DISFACTORY_BACKEND_LOG_FILE:
             default: "/tmp/disfactory.log"
+            expose: false
           DISFACTORY_BACKEND_MEDIA_ROOT:
             default: "./images/"
+            expose: false
           DISFACTORY_BACKEND_DOMAIN:
             default: https://${BACKEND_DOMAIN}
+            expose: false
           DISFACTORY_FRONTEND_DOMAIN:
             default: "https://disfactory.tw/"
+            expose: false
           PORT:
             default: "8000"
-          # Django settings configuration
+            expose: false
           DJANGO_SETTINGS_MODULE:
             default: "gis_project.settings"
+            expose: false
           STATIC_ROOT:
             default: "/Disfactory/static"
+            expose: false
           GOOGLE_MAP_API_KEY:
             default: ""
+            expose: false
           DISFACTORY_IMGUR_CLIENT_ID:
             default: ""
+            expose: false
+          SKIP_MIGRATION_EXTERNAL_API:
+            default: "true"
+            expose: false
+        configs:
+          - path: /etc/caddy/Caddyfile
+            template: |
+              :80 {
+                  # Serve static files directly
+                  handle_path /static/* {
+                      root * /Disfactory/static
+                      file_server {
+                          precompressed gzip br
+                      }
+                      header Cache-Control "public, max-age=31536000, immutable"
+                  }
+                  
+                  # Serve media files directly
+                  handle_path /media/* {
+                      root * /Disfactory/images
+                      file_server
+                      header Cache-Control "public, max-age=31536000"
+                  }
+                  
+                  # Proxy all other requests to Django backend
+                  handle {
+                      reverse_proxy localhost:8000 {
+                          header_up Host {host}
+                          header_up X-Real-IP {remote_host}
+                          header_up X-Forwarded-For {remote_host}
+                          header_up X-Forwarded-Proto {scheme}
+                      }
+                  }
+              }
+            permission: null
+            envsubst: false
+        portForwarding:
+          enabled: false
+        healthCheck:
+          type: HTTP
+          port: web
+          http:
+            path: /
 
     - name: Disfactory Worker
       icon: https://raw.githubusercontent.com/Disfactory/frontend/master/public/favicon.ico
-      template: PREBUILT
+      template: PREBUILT_V2
       dependencies:
         - PostgreSQL
         - Disfactory Backend
       spec:
         source:
           image: ghcr.io/disfactory/disfactory/backend:latest
-        command:
-          - /bin/sh
-        args:
-          - -c
-          - |
-            cd /Disfactory
-            ./scripts/wait-for-it.sh ${DISFACTORY_BACKEND_DEFAULT_DB_HOST}:${DISFACTORY_BACKEND_DEFAULT_DB_PORT} --timeout=60 --strict -- bash -c "
-            python manage.py migrate --fake-initial &&
-            python manage.py qcluster
-            "
+          command:
+            - /bin/sh
+          args:
+            - -c
+            - |
+              cd /Disfactory
+              ./scripts/wait-for-it.sh ${DISFACTORY_BACKEND_DEFAULT_DB_HOST}:${DISFACTORY_BACKEND_DEFAULT_DB_PORT} --timeout=60 --strict -- bash -c "
+              python manage.py qcluster
+              "
         env:
           DISFACTORY_BACKEND_DEFAULT_DB_HOST:
             default: ${POSTGRES_HOST}
+            expose: false
           DISFACTORY_BACKEND_DEFAULT_DB_PORT:
             default: ${POSTGRES_PORT}
+            expose: false
           DISFACTORY_BACKEND_DEFAULT_DB_NAME:
             default: ${POSTGRES_DB}
+            expose: false
           DISFACTORY_BACKEND_DEFAULT_DB_USER:
             default: ${POSTGRES_USER}
+            expose: false
           DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD:
             default: ${POSTGRES_PASSWORD}
+            expose: false
           DISFACTORY_BACKEND_DEBUG:
             default: "false"
+            expose: false
           DISFACTORY_ALLOWED_HOST:
             default: "*"
+            expose: false
           DISFACTORY_BACKEND_LOG_LEVEL:
             default: "INFO"
-          # Django settings configuration
+            expose: false
           DJANGO_SETTINGS_MODULE:
             default: "gis_project.settings"
+            expose: false
           STATIC_ROOT:
             default: "/Disfactory/static"
+            expose: false
           GOOGLE_MAP_API_KEY:
             default: ""
+            expose: false
+          DISFACTORY_IMGUR_CLIENT_ID:
+            default: ""
+            expose: false
+          SKIP_MIGRATION_EXTERNAL_API:
+            default: "true"
+            expose: false
+        configs: []
+        portForwarding:
+          enabled: false

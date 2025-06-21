@@ -1,0 +1,41 @@
+# Pull base image
+FROM python:3.9 AS base
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
+
+# Set work directory
+WORKDIR /Disfactory
+
+RUN apt-get update
+RUN apt-get install -y libproj-dev binutils curl
+# RUN wget --quiet --output-document=- http://ftp.debian.org/debian/pool/main/c/curl/libcurl4_7.72.0-1_amd64.deb | dpkg --install -
+ENV POETRY_HOME=/root/.poetry
+RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH "${PATH}:/root/.poetry/bin"
+RUN poetry config virtualenvs.create false
+COPY pyproject.toml poetry.lock ./
+
+# Install Caddy
+RUN apt-get install -y debian-keyring debian-archive-keyring apt-transport-https
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+RUN curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | tee /etc/apt/sources.list.d/caddy-stable.list
+RUN apt-get update
+RUN apt-get install -y caddy
+
+# Dev image
+FROM base AS dev
+RUN poetry install --no-root
+COPY . /Disfactory/
+
+# Prod image with Caddy
+FROM base AS prod
+RUN poetry install --only=main --no-root
+COPY . /Disfactory/
+
+# Create directories for static and media files
+RUN mkdir -p /Disfactory/static /Disfactory/images
+
+# Create Caddy configuration directory
+RUN mkdir -p /etc/caddy
