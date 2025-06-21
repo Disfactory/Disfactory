@@ -164,7 +164,7 @@ spec:
             default: ${POSTGRES_PASSWORD}
             expose: false
           DISFACTORY_BACKEND_DEBUG:
-            default: "true"
+            default: "false"
             expose: false
           DISFACTORY_ALLOWED_HOST:
             default: "*"
