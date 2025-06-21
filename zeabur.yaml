@@ -117,7 +117,8 @@ spec:
         source:
           image: ghcr.io/disfactory/disfactory/backend:latest
         command:
-          - sh
+          - /bin/sh
+        args:
           - -c
           - |
             cd /Disfactory
@@ -181,7 +182,8 @@ spec:
         source:
           image: ghcr.io/disfactory/disfactory/backend:latest
         command:
-          - sh
+          - /bin/sh
+        args:
           - -c
           - |
             cd /Disfactory
