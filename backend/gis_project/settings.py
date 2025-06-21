@@ -177,7 +177,7 @@ USE_TZ = True
 STATIC_URL = "/static/"
 
 # Static root for collected static files (required for collectstatic)
-STATIC_ROOT = os.path.join(BASE_DIR, "static")
+STATIC_ROOT = os.environ.get("STATIC_ROOT", os.path.join(BASE_DIR, "static"))
 
 STATICFILES_DIRS = []
 
