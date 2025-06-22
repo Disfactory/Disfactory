@@ -38,7 +38,7 @@ jobs:
 
     strategy:
       matrix:
-        poetry-version: [1.8.3]
+        poetry-version: [1.5.1]
 
     defaults:
       run:
