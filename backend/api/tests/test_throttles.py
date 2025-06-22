@@ -78,6 +78,9 @@ class TestImageUploadThrottles(TestCase):
         """Test throttle allows initial requests."""
         request = self.factory.post('/test')
         request.META['REMOTE_ADDR'] = '127.0.0.1'
+        # Add user attribute to request for throttle compatibility
+        from django.contrib.auth.models import AnonymousUser
+        request.user = AnonymousUser()
         
         throttle = ImageUploadAnonThrottle()
         
@@ -91,11 +94,14 @@ class TestImageUploadThrottles(TestCase):
         """Test throttle generates cache keys correctly."""
         request = self.factory.post('/test')
         request.META['REMOTE_ADDR'] = '127.0.0.1'
+        # Add user attribute to request for throttle compatibility
+        from django.contrib.auth.models import AnonymousUser
+        request.user = AnonymousUser()
         
         throttle = ImageUploadAnonThrottle()
         cache_key = throttle.get_cache_key(request, None)
         
         # Should generate a cache key for anonymous requests
         assert cache_key is not None
-        assert 'throttle_anon' in cache_key
+        assert 'throttle_image_upload' in cache_key
         assert '127.0.0.1' in cache_key

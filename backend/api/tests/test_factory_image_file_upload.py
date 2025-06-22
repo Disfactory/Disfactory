@@ -1,8 +1,10 @@
 import io
+import uuid
 from unittest.mock import patch, MagicMock
 import pytest
-from django.test import Client
+from django.test import Client, override_settings
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.core.cache import cache
 
 from api.models import Factory, Image
 
@@ -11,11 +13,15 @@ from api.models import Factory, Image
 class TestFactoryImageFileUpload:
     def setup_method(self):
         """Set up test data."""
+        # Clear throttle cache before each test
+        cache.clear()
+        
         self.client = Client()
         self.factory = Factory.objects.create(
             name="Test Factory",
             lat=23.5,
-            lng=120.5
+            lng=120.5,
+            display_number=1001
         )
         
         # Create a simple test image
@@ -26,6 +32,14 @@ class TestFactoryImageFileUpload:
             content_type="image/jpeg"
         )
 
+    @override_settings(
+        REST_FRAMEWORK={
+            'DEFAULT_THROTTLE_RATES': {
+                'image_upload': '1000/min',
+                'image_upload_burst': '1000/min',
+            }
+        }
+    )
     def test_upload_image_file_success(self):
         """Test successful image file upload."""
         mock_upload_result = {
@@ -65,6 +79,14 @@ class TestFactoryImageFileUpload:
         assert image.report_record.nickname == "test_user"
         assert image.report_record.contact == "test@example.com"
 
+    @override_settings(
+        REST_FRAMEWORK={
+            'DEFAULT_THROTTLE_RATES': {
+                'image_upload': '1000/min',
+                'image_upload_burst': '1000/min',
+            }
+        }
+    )
     def test_upload_image_file_no_image(self):
         """Test upload without image file."""
         response = self.client.post(
@@ -78,10 +100,20 @@ class TestFactoryImageFileUpload:
         assert response.status_code == 400
         assert b"Image file is required" in response.content
 
+    @override_settings(
+        REST_FRAMEWORK={
+            'DEFAULT_THROTTLE_RATES': {
+                'image_upload': '1000/min',
+                'image_upload_burst': '1000/min',
+            }
+        }
+    )
     def test_upload_image_file_nonexistent_factory(self):
         """Test upload to nonexistent factory."""
+        # Use a valid UUID format for non-existent factory
+        fake_factory_id = str(uuid.uuid4())
         response = self.client.post(
-            "/api/factories/999999/images/upload",
+            f"/api/factories/{fake_factory_id}/images/upload",
             {
                 "image": self.image_file,
                 "nickname": "test_user"
@@ -89,8 +121,16 @@ class TestFactoryImageFileUpload:
         )
         
         assert response.status_code == 400
-        assert b"Factory ID 999999 does not exist" in response.content
+        assert f"Factory ID {fake_factory_id} does not exist".encode() in response.content
 
+    @override_settings(
+        REST_FRAMEWORK={
+            'DEFAULT_THROTTLE_RATES': {
+                'image_upload': '1000/min',
+                'image_upload_burst': '1000/min',
+            }
+        }
+    )
     def test_upload_image_file_empty_file(self):
         """Test upload with empty image file."""
         empty_image = SimpleUploadedFile("empty.jpg", b"", content_type="image/jpeg")
@@ -106,6 +146,14 @@ class TestFactoryImageFileUpload:
         assert response.status_code == 400
         assert b"Empty image file" in response.content
 
+    @override_settings(
+        REST_FRAMEWORK={
+            'DEFAULT_THROTTLE_RATES': {
+                'image_upload': '1000/min',
+                'image_upload_burst': '1000/min',
+            }
+        }
+    )
     def test_upload_image_file_service_failure(self):
         """Test upload when image service fails."""
         mock_upload_result = {
@@ -131,6 +179,14 @@ class TestFactoryImageFileUpload:
         assert response.status_code == 500
         assert b"Image upload failed" in response.content
 
+    @override_settings(
+        REST_FRAMEWORK={
+            'DEFAULT_THROTTLE_RATES': {
+                'image_upload': '1000/min',
+                'image_upload_burst': '1000/min',
+            }
+        }
+    )
     def test_upload_image_file_invalid_datetime(self):
         """Test upload with invalid datetime format."""
         mock_upload_result = {
@@ -161,6 +217,14 @@ class TestFactoryImageFileUpload:
         image = Image.objects.get(id=response_data["id"])
         assert image.orig_time is None
 
+    @override_settings(
+        REST_FRAMEWORK={
+            'DEFAULT_THROTTLE_RATES': {
+                'image_upload': '1000/min',
+                'image_upload_burst': '1000/min',
+            }
+        }
+    )
     def test_upload_image_file_minimal_data(self):
         """Test upload with only required data."""
         mock_upload_result = {
