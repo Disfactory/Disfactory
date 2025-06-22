@@ -251,20 +251,6 @@ Q_CLUSTER = {
     "bulk": 4,
 }
 
-# Django REST Framework Configuration
-REST_FRAMEWORK = {
-    'DEFAULT_THROTTLE_CLASSES': [
-        'rest_framework.throttling.AnonRateThrottle',
-        'rest_framework.throttling.UserRateThrottle'
-    ],
-    'DEFAULT_THROTTLE_RATES': {
-        'anon': '100/hour',
-        'user': '1000/hour',
-        'image_upload': '10/hour',  # Rate limit for image uploads
-        'image_upload_burst': '3/min',  # Burst protection
-    }
-}
-
 # Map Widgets
 MAP_WIDGETS = {
     "GooglePointFieldWidget": (
