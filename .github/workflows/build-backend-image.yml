@@ -76,7 +76,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           target: prod
-          push: true
+          push: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'review-app')) }}
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
 
@@ -86,7 +86,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile.caddy
           target: prod
-          push: true
+          push: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'review-app')) }}
           tags: ${{ steps.meta-backend-caddy.outputs.tags }}
           labels: ${{ steps.meta-backend-caddy.outputs.labels }}
 
