@@ -335,23 +335,26 @@ class CloudflareR2Backend(ImageUploadBackend):
                 "error": None
             }
             
-        except NoCredentialsError:
-            return {
-                "success": False,
-                "error": "Invalid Cloudflare R2 credentials",
-                "url": None,
-                "delete_hash": None
-            }
-        except ClientError as e:
-            error_code = e.response.get('Error', {}).get('Code', 'Unknown')
-            error_message = e.response.get('Error', {}).get('Message', str(e))
-            return {
-                "success": False,
-                "error": f"Cloudflare R2 error ({error_code}): {error_message}",
-                "url": None,
-                "delete_hash": None
-            }
         except Exception as e:
+            # Handle boto3 specific errors if available
+            if BOTO3_AVAILABLE:
+                if hasattr(e, '__class__') and e.__class__.__name__ == 'NoCredentialsError':
+                    return {
+                        "success": False,
+                        "error": "Invalid Cloudflare R2 credentials",
+                        "url": None,
+                        "delete_hash": None
+                    }
+                if hasattr(e, '__class__') and e.__class__.__name__ == 'ClientError':
+                    error_code = e.response.get('Error', {}).get('Code', 'Unknown')
+                    error_message = e.response.get('Error', {}).get('Message', str(e))
+                    return {
+                        "success": False,
+                        "error": f"Cloudflare R2 error ({error_code}): {error_message}",
+                        "url": None,
+                        "delete_hash": None
+                    }
+            
             return {
                 "success": False,
                 "error": f"Unexpected error uploading to Cloudflare R2: {str(e)}",

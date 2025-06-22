@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from api.services.image_upload import (
-    ImgurBackend, ImageBBBackend, LocalBackend, CloudflareR2Backend, ImageUploadService
+    ImgurBackend, ImageBBBackend, LocalBackend, CloudflareR2Backend, ImageUploadService, BOTO3_AVAILABLE
 )
 from django.conf import settings
 from django.test import override_settings
@@ -341,7 +341,7 @@ class TestCloudflareR2Backend:
         )
         
         with patch('api.services.image_upload.BOTO3_AVAILABLE', True), \
-             patch('api.services.image_upload.boto3.client') as mock_boto3_client:
+             patch('boto3.client') as mock_boto3_client:
             
             backend._get_client()
             
