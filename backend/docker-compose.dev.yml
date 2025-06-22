@@ -8,11 +8,13 @@ services:
       target: dev
     volumes:
       - .:/Disfactory
+      - ./static:/Disfactory/static
     ports:
       - ${DISFACTORY_BACKEND_PORT}:8000
     depends_on:
       - db
     environment:
+      DISFACTORY_BACKEND_PORT: ${DISFACTORY_BACKEND_PORT}
       DISFACTORY_BACKEND_DEFAULT_DB_NAME: ${DISFACTORY_BACKEND_DEFAULT_DB_NAME}
       DISFACTORY_BACKEND_DEFAULT_DB_USER: ${DISFACTORY_BACKEND_DEFAULT_DB_USER}
       DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD: ${DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD}

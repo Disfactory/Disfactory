@@ -1,0 +1,221 @@
+name: Build and Push Backend Docker Images
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'backend/**'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR Number (for review app deployment)'
+        required: false
+        type: string
+      commit_sha:
+        description: 'Commit SHA (optional, defaults to HEAD)'
+        required: false
+        type: string
+      deploy_review_app:
+        description: 'Deploy review app after build'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  REGISTRY: ghcr.io
+  BACKEND_IMAGE_NAME: ${{ github.repository }}/backend
+  BACKEND_CADDY_IMAGE_NAME: ${{ github.repository }}/backend-caddy
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for backend
+        id: meta-backend
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Extract metadata for backend-caddy
+        id: meta-backend-caddy
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.BACKEND_CADDY_IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Backend Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          target: prod
+          push: true
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+
+      - name: Build and push Backend-Caddy Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile.caddy
+          target: prod
+          push: true
+          tags: ${{ steps.meta-backend-caddy.outputs.tags }}
+          labels: ${{ steps.meta-backend-caddy.outputs.labels }}
+
+  # Deploy review app directly after build for PRs with review-app label
+  deploy-review-app:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: |
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'review-app')) ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_review_app == 'true')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Set deployment variables
+        id: vars
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+            echo "COMMIT_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+            echo "TRIGGER_TYPE=automatic" >> $GITHUB_ENV
+          else
+            echo "PR_NUMBER=${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
+            echo "COMMIT_SHA=${{ github.event.inputs.commit_sha || github.sha }}" >> $GITHUB_ENV
+            echo "TRIGGER_TYPE=manual" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy review app
+        env:
+          ZEABUR_API_KEY: ${{ secrets.ZEABUR_API_KEY }}
+          ZEABUR_PROJECT_ID: ${{ secrets.ZEABUR_PROJECT_ID || vars.ZEABUR_PROJECT_ID }}
+        run: |
+          echo "🚀 Deploying review app for PR #${PR_NUMBER}"
+          echo "📝 Commit: ${COMMIT_SHA}"
+          echo "🔧 Trigger: ${TRIGGER_TYPE}"
+          
+          # Run the deployment script
+          ./scripts/zeabur-review-app.sh deploy
+
+      - name: Comment on PR
+        if: env.PR_NUMBER != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = process.env.PR_NUMBER;
+            const commitSha = process.env.COMMIT_SHA;
+            const triggerType = process.env.TRIGGER_TYPE;
+            
+            if (!prNumber) {
+              console.log('⚠️ No PR number provided, skipping comment');
+              return;
+            }
+            
+            try {
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: parseInt(prNumber),
+              });
+              
+              // Check if we already have a review app comment
+              const botComment = comments.find(comment => 
+                comment.user.login === 'github-actions[bot]' && 
+                comment.body.includes('🚀 Review App Deployed')
+              );
+              
+              const reviewAppUrl = process.env.REVIEW_APP_URL || 'Unknown';
+              const projectName = process.env.REVIEW_APP_PROJECT_NAME || 'Unknown';
+              const shortCommit = commitSha ? commitSha.substring(0, 8) : 'unknown';
+              
+              const triggerText = triggerType === 'automatic' 
+                ? 'Backend image build completion' 
+                : 'Manual workflow dispatch';
+              
+              const commentBody = `## 🚀 Review App Deployed
+              
+              Your review app has been deployed to Zeabur with commit-level isolation!
+              
+              **🔗 Review App URL:** ${reviewAppUrl}
+              **📋 Project:** ${projectName}
+              **💻 Commit:** \`${shortCommit}\` ([${shortCommit}](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${commitSha}))
+              **🌍 Region:** Zeabur Cloud
+              **🔨 Triggered by:** ${triggerText}
+              
+              ### 📝 Notes:
+              - Each commit gets its own isolated deployment with PR-specific Docker images
+              - The app may take a few minutes to fully start up
+              - Database migrations will run automatically
+              - Static files are served by Caddy for optimal performance
+              
+              ### 🧹 Cleanup:
+              - Previous commit deployments for this PR will remain until the PR is closed
+              - All review app services will be automatically cleaned up when this PR is closed
+              
+              *This deployment was triggered ${triggerType === 'automatic' ? 'automatically after the backend image build completed' : 'manually via workflow dispatch'}.*`;
+
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: commentBody
+                });
+                console.log('✅ Updated existing PR comment');
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: parseInt(prNumber),
+                  body: commentBody
+                });
+                console.log('✅ Created new PR comment');
+              }
+            } catch (error) {
+              console.log('⚠️ Failed to comment on PR:', error.message);
+            }
+
+      - name: Output results
+        run: |
+          echo "🎉 Review app deployment completed!"
+          if [ -n "$REVIEW_APP_URL" ]; then
+            echo "🔗 Review App URL: $REVIEW_APP_URL"
+          fi
+          if [ -n "$REVIEW_APP_PROJECT_NAME" ]; then
+            echo "📋 Project Name: $REVIEW_APP_PROJECT_NAME"
+          fi

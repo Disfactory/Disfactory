@@ -1,0 +1,259 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: disfactory-config
+data:
+  DISFACTORY_BACKEND_DEBUG: "false"
+  DISFACTORY_ALLOWED_HOST: "*"
+  DISFACTORY_BACKEND_CORS_ORIGIN_WHITELIST: ""
+  DISFACTORY_BACKEND_MAX_FACTORY_PER_GET: "50"
+  DISFACTORY_BACKEND_MAX_FACTORY_RADIUS_PER_GET: "10"
+  DISFACTORY_BACKEND_LOG_LEVEL: "INFO"
+  DISFACTORY_BACKEND_LOG_FILE: "/tmp/disfactory.log"
+  DISFACTORY_BACKEND_MEDIA_ROOT: "./images/"
+  DISFACTORY_BACKEND_DOMAIN: "http://localhost:8000"
+  DISFACTORY_FRONTEND_DOMAIN: "https://disfactory.tw/"
+  PORT: "8000"
+  DJANGO_SETTINGS_MODULE: "gis_project.settings"
+  STATIC_ROOT: "/Disfactory/static"
+  GOOGLE_MAP_API_KEY: ""
+  DISFACTORY_IMGUR_CLIENT_ID: ""
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: caddy-config
+data:
+  Caddyfile: |
+    :80 {
+        # Serve static files directly
+        handle_path /static/* {
+            root * /static
+            file_server {
+                precompressed gzip br
+            }
+            header Cache-Control "public, max-age=31536000, immutable"
+        }
+        
+        # Serve media files directly
+        handle_path /media/* {
+            root * /media
+            file_server
+            header Cache-Control "public, max-age=31536000"
+        }
+        
+        # Proxy all other requests to Django backend
+        handle {
+            reverse_proxy localhost:8000 {
+                header_up Host {host}
+                header_up X-Real-IP {remote_host}
+                header_up X-Forwarded-For {remote_host}
+                header_up X-Forwarded-Proto {scheme}
+            }
+        }
+    }
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: disfactory-secrets
+type: Opaque
+data:
+  postgres-password: cG9zdGdyZXM= # base64 encoded "postgres"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql
+spec:
+  selector:
+    app: postgresql
+  ports:
+    - port: 5432
+      targetPort: 5432
+  type: ClusterIP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgresql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgresql
+  template:
+    metadata:
+      labels:
+        app: postgresql
+    spec:
+      containers:
+      - name: postgresql
+        image: postgis/postgis:14-3.2
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_DB
+          value: "disfactory_data"
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: disfactory-secrets
+              key: postgres-password
+        volumeMounts:
+        - name: postgres-data
+          mountPath: /var/lib/postgresql/data
+      volumes:
+      - name: postgres-data
+        emptyDir: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: disfactory-backend
+spec:
+  selector:
+    app: disfactory-backend
+  ports:
+    - port: 8000
+      targetPort: 8000
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: disfactory-caddy
+spec:
+  selector:
+    app: disfactory-backend
+  ports:
+    - port: 80
+      targetPort: 80
+      nodePort: 30080
+  type: NodePort
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disfactory-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: disfactory-backend
+  template:
+    metadata:
+      labels:
+        app: disfactory-backend
+    spec:
+      containers:
+      - name: disfactory-backend
+        image: ghcr.io/disfactory/disfactory/backend:latest
+        ports:
+        - containerPort: 8000
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          cd /Disfactory
+          ./scripts/wait-for-it.sh postgresql:5432 --timeout=60 --strict -- bash -c "
+          python manage.py collectstatic --noinput &&
+          python manage.py migrate --fake-initial &&
+          gunicorn -c gunicorn.conf.py gis_project.wsgi -b 0.0.0.0:8000
+          "
+        env:
+        - name: DISFACTORY_BACKEND_DEFAULT_DB_HOST
+          value: "postgresql"
+        - name: DISFACTORY_BACKEND_DEFAULT_DB_PORT
+          value: "5432"
+        - name: DISFACTORY_BACKEND_DEFAULT_DB_NAME
+          value: "disfactory_data"
+        - name: DISFACTORY_BACKEND_DEFAULT_DB_USER
+          value: "postgres"
+        - name: DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: disfactory-secrets
+              key: postgres-password
+        envFrom:
+        - configMapRef:
+            name: disfactory-config
+        volumeMounts:
+        - name: shared-static-files
+          mountPath: /Disfactory/static
+        - name: shared-media-files
+          mountPath: /Disfactory/images
+      - name: caddy
+        image: caddy:2.7-alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: caddy-config
+          mountPath: /etc/caddy/Caddyfile
+          subPath: Caddyfile
+        - name: shared-static-files
+          mountPath: /static
+        - name: shared-media-files
+          mountPath: /media
+      volumes:
+      - name: caddy-config
+        configMap:
+          name: caddy-config
+      - name: shared-static-files
+        emptyDir: {}
+      - name: shared-media-files
+        emptyDir: {}
+
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: disfactory-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: disfactory-worker
+  template:
+    metadata:
+      labels:
+        app: disfactory-worker
+    spec:
+      containers:
+      - name: disfactory-worker
+        image: ghcr.io/disfactory/disfactory/backend:latest
+        command: ["/bin/sh"]
+        args:
+        - -c
+        - |
+          cd /Disfactory
+          ./scripts/wait-for-it.sh postgresql:5432 --timeout=60 --strict -- bash -c "
+          python manage.py qcluster
+          "
+        env:
+        - name: DISFACTORY_BACKEND_DEFAULT_DB_HOST
+          value: "postgresql"
+        - name: DISFACTORY_BACKEND_DEFAULT_DB_PORT
+          value: "5432"
+        - name: DISFACTORY_BACKEND_DEFAULT_DB_NAME
+          value: "disfactory_data"
+        - name: DISFACTORY_BACKEND_DEFAULT_DB_USER
+          value: "postgres"
+        - name: DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: disfactory-secrets
+              key: postgres-password
+        envFrom:
+        - configMapRef:
+            name: disfactory-config

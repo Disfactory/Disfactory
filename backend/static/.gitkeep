@@ -1,0 +1,2 @@
+# This directory is required for Django's collectstatic command to work properly
+# Static files will be collected here during deployment

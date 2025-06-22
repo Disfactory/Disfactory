@@ -12,6 +12,9 @@ SEED_DATA_PATH = os.path.join(settings.BASE_DIR, "fixtures/full-info.csv")
 
 
 def forward_func(apps, schema_editor):
+    # Skip slow external API calls if environment variable is set
+    skip_external_api = os.environ.get('SKIP_MIGRATION_EXTERNAL_API', 'false').lower() == 'true'
+    
     Factory = apps.get_model("api", "Factory")
 
     updated_factories = []
@@ -38,6 +41,10 @@ def forward_func(apps, schema_editor):
             factory.sectcode = datum['段號']
             factory.save()
             updated_factories.append(factory)
+
+    if skip_external_api:
+        print("Skipping external API calls for landcode updates (SKIP_MIGRATION_EXTERNAL_API=true)")
+        return
 
     after_release_count = Factory.objects.filter(before_release=False).count()
     print(f'{after_release_count} factories will be updated')

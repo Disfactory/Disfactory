@@ -1,0 +1,190 @@
+name: Zeabur Review App Management
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR Number'
+        required: true
+        type: string
+      commit_sha:
+        description: 'Commit SHA (optional, defaults to HEAD)'
+        required: false
+        type: string
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - deploy
+          - cleanup
+          - status
+        default: deploy
+
+env:
+  ZEABUR_PROJECT_ID: ${{ secrets.ZEABUR_PROJECT_ID || vars.ZEABUR_PROJECT_ID }}
+
+jobs:
+
+  # Cleanup review app when PR is closed
+  cleanup-review-app:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Cleanup review app services
+        env:
+          ZEABUR_API_KEY: ${{ secrets.ZEABUR_API_KEY }}
+          ZEABUR_PROJECT_ID: ${{ env.ZEABUR_PROJECT_ID }}
+          PR_NUMBER: ${{ github.event.number }}
+        run: |
+          echo "🧹 Cleaning up review app services for PR #${PR_NUMBER}"
+          
+          # Run the cleanup script (will clean up all commits for this PR)
+          ./scripts/zeabur-review-app.sh cleanup
+
+      - name: Update PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            
+            // Find the review app comment
+            const botComment = comments.find(comment => 
+              comment.user.login === 'github-actions[bot]' && 
+              comment.body.includes('🚀 Review App Deployed')
+            );
+            
+            if (botComment) {
+              const updatedBody = botComment.body + '\n\n---\n\n**🧹 CLEANUP COMPLETED**\n\nAll review app services for this PR have been automatically cleaned up.';
+              
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: updatedBody
+              });
+            }
+
+  # Manual workflow dispatch
+  manual-action:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install yq
+        run: |
+          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Execute manual action
+        env:
+          ZEABUR_API_KEY: ${{ secrets.ZEABUR_API_KEY }}
+          ZEABUR_PROJECT_ID: ${{ env.ZEABUR_PROJECT_ID }}
+          PR_NUMBER: ${{ github.event.inputs.pr_number }}
+          COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
+        run: |
+          ACTION="${{ github.event.inputs.action }}"
+          echo "🔧 Executing manual action: $ACTION"
+          echo "📝 PR Number: ${PR_NUMBER}"
+          echo "📝 Commit SHA: ${COMMIT_SHA:-"auto-detect"}"
+          
+          # Run the script with the specified action
+          ./scripts/zeabur-review-app.sh "$ACTION"
+
+      - name: Output results
+        run: |
+          if [ -n "$REVIEW_APP_URL" ]; then
+            echo "🔗 Review App URL: $REVIEW_APP_URL"
+          fi
+          if [ -n "$REVIEW_APP_PROJECT_NAME" ]; then
+            echo "📋 Project Name: $REVIEW_APP_PROJECT_NAME"
+          fi
+
+      - name: Comment on PR (for deploy action)
+        if: github.event.inputs.action == 'deploy'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = '${{ github.event.inputs.pr_number }}';
+            const commitSha = '${{ github.event.inputs.commit_sha }}';
+            
+            // Get environment variables from previous step
+            const reviewAppUrl = process.env.REVIEW_APP_URL || 'Unknown';
+            const projectName = process.env.REVIEW_APP_PROJECT_NAME || 'Unknown';
+            const shortCommit = commitSha ? commitSha.substring(0, 8) : 'unknown';
+            
+            try {
+              const { data: comments } = await github.rest.issues.listComments({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: parseInt(prNumber),
+              });
+              
+              // Check if we already have a review app comment
+              const botComment = comments.find(comment => 
+                comment.user.login === 'github-actions[bot]' && 
+                comment.body.includes('🚀 Review App Deployed')
+              );
+              
+              const commentBody = `## 🚀 Review App Deployed
+              
+              Your review app has been deployed to Zeabur with commit-level isolation!
+              
+              **🔗 Review App URL:** ${reviewAppUrl}
+              **📋 Project:** ${projectName}
+              **💻 Commit:** \`${shortCommit}\` ([${shortCommit}](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${commitSha}))
+              **🌍 Region:** Zeabur Cloud
+              **🔨 Triggered by:** Backend image build completion
+              
+              ### 📝 Notes:
+              - Each commit gets its own isolated deployment with PR-specific Docker images
+              - The app may take a few minutes to fully start up
+              - Database migrations will run automatically
+              - Static files are served by Caddy for optimal performance
+              
+              ### 🧹 Cleanup:
+              - Previous commit deployments for this PR will remain until the PR is closed
+              - All review app services will be automatically cleaned up when this PR is closed
+              
+              *This deployment was triggered automatically after the backend image build completed.*`;
+
+              if (botComment) {
+                await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: botComment.id,
+                  body: commentBody
+                });
+                console.log('✅ Updated existing PR comment');
+              } else {
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: parseInt(prNumber),
+                  body: commentBody
+                });
+                console.log('✅ Created new PR comment');
+              }
+            } catch (error) {
+              console.log('⚠️ Failed to comment on PR:', error.message);
+              console.log('This might happen if the PR number is invalid or the workflow lacks permissions');
+            }

@@ -76,3 +76,7 @@ jobs:
       - name: Run Django tests
         run: |
           python -m poetry run python manage.py test -v 2
+
+      - name: Test startup scripts
+        run: |
+          ./scripts/test-startup-scripts.sh

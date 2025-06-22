@@ -1,0 +1,103 @@
+services:
+  # Django Web Service
+  - type: web
+    name: disfactory-backend
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    dockerCommand: |
+      cd /Disfactory
+      python manage.py collectstatic --noinput
+      python manage.py migrate
+      gunicorn -c gunicorn.conf.py gis_project.wsgi
+    healthCheckPath: /api/statistics/total
+    envVars:
+      - key: DISFACTORY_BACKEND_DEFAULT_DB_HOST
+        fromDatabase:
+          name: disfactory-db
+          property: host
+      - key: DISFACTORY_BACKEND_DEFAULT_DB_PORT
+        fromDatabase:
+          name: disfactory-db
+          property: port
+      - key: DISFACTORY_BACKEND_DEFAULT_DB_NAME
+        fromDatabase:
+          name: disfactory-db
+          property: database
+      - key: DISFACTORY_BACKEND_DEFAULT_DB_USER
+        fromDatabase:
+          name: disfactory-db
+          property: user
+      - key: DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD
+        fromDatabase:
+          name: disfactory-db
+          property: password
+      - key: DISFACTORY_BACKEND_DEBUG
+        value: "false"
+      - key: DISFACTORY_ALLOWED_HOST
+        value: "*"
+      - key: DISFACTORY_BACKEND_CORS_ORIGIN_WHITELIST
+        value: ""
+      - key: DISFACTORY_BACKEND_MAX_FACTORY_PER_GET
+        value: "50"
+      - key: DISFACTORY_BACKEND_MAX_FACTORY_RADIUS_PER_GET
+        value: "10"
+      - key: DISFACTORY_BACKEND_LOG_LEVEL
+        value: "INFO"
+      - key: DISFACTORY_BACKEND_LOG_FILE
+        value: "/tmp/disfactory.log"
+      - key: DISFACTORY_BACKEND_MEDIA_ROOT
+        value: "./images/"
+      - key: DISFACTORY_BACKEND_DOMAIN
+        value: "https://disfactory-backend.onrender.com/"
+      - key: DISFACTORY_FRONTEND_DOMAIN
+        value: "https://disfactory.tw/"
+      - key: GOOGLE_MAP_API_KEY
+        sync: false
+      - key: DISFACTORY_IMGUR_CLIENT_ID
+        sync: false
+
+  # Django Q Worker Service  
+  - type: worker
+    name: disfactory-worker
+    env: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: starter
+    dockerCommand: cd /Disfactory && python manage.py qcluster
+    envVars:
+      - key: DISFACTORY_BACKEND_DEFAULT_DB_HOST
+        fromDatabase:
+          name: disfactory-db
+          property: host
+      - key: DISFACTORY_BACKEND_DEFAULT_DB_PORT
+        fromDatabase:
+          name: disfactory-db
+          property: port
+      - key: DISFACTORY_BACKEND_DEFAULT_DB_NAME
+        fromDatabase:
+          name: disfactory-db
+          property: database
+      - key: DISFACTORY_BACKEND_DEFAULT_DB_USER
+        fromDatabase:
+          name: disfactory-db
+          property: user
+      - key: DISFACTORY_BACKEND_DEFAULT_DB_PASSWORD
+        fromDatabase:
+          name: disfactory-db
+          property: password
+      - key: DISFACTORY_BACKEND_DEBUG
+        value: "false"
+      - key: DISFACTORY_ALLOWED_HOST
+        value: "*"
+      - key: DISFACTORY_BACKEND_LOG_LEVEL
+        value: "INFO"
+      - key: GOOGLE_MAP_API_KEY
+        sync: false
+
+databases:
+  - name: disfactory-db
+    databaseName: disfactory_data
+    postgresMajorVersion: 14
+    plan: free
