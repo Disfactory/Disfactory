@@ -38,10 +38,16 @@ jobs:
     permissions:
       contents: read
       packages: write
+    outputs:
+      commit-sha: ${{ steps.commit-info.outputs.sha }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Get commit SHA
+        id: commit-info
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
 
       - name: Log in to Container Registry
         uses: docker/login-action@v3
@@ -57,7 +63,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
           tags: |
             type=ref,event=branch
-            type=sha,prefix=sha-
+            type=raw,value=sha-${{ steps.commit-info.outputs.sha }}
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Extract metadata for backend-caddy
@@ -67,7 +73,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.BACKEND_CADDY_IMAGE_NAME }}
           tags: |
             type=ref,event=branch
-            type=sha,prefix=sha-
+            type=raw,value=sha-${{ steps.commit-info.outputs.sha }}
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Backend Docker image
@@ -112,11 +118,11 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-            echo "COMMIT_SHA=${{ github.event.pull_request.head.sha }}" >> $GITHUB_ENV
+            echo "COMMIT_SHA=${{ needs.build-and-push.outputs.commit-sha }}" >> $GITHUB_ENV
             echo "TRIGGER_TYPE=automatic" >> $GITHUB_ENV
           else
             echo "PR_NUMBER=${{ github.event.inputs.pr_number }}" >> $GITHUB_ENV
-            echo "COMMIT_SHA=${{ github.event.inputs.commit_sha || github.sha }}" >> $GITHUB_ENV
+            echo "COMMIT_SHA=${{ github.event.inputs.commit_sha || needs.build-and-push.outputs.commit-sha }}" >> $GITHUB_ENV
             echo "TRIGGER_TYPE=manual" >> $GITHUB_ENV
           fi
 
