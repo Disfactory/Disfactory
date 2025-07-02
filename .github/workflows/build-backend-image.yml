@@ -44,10 +44,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.commit_sha || github.sha }}
 
       - name: Get commit SHA
         id: commit-info
-        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+        run: echo "sha=${{ github.event.inputs.commit_sha || github.sha }}" >> $GITHUB_OUTPUT
 
       - name: Log in to Container Registry
         uses: docker/login-action@v3
@@ -107,6 +109,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.commit_sha || github.sha }}
 
       - name: Set deployment variables
         id: vars
