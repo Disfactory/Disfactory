@@ -1,14 +1,12 @@
 import logging
 import uuid
 from abc import ABC, abstractmethod
-from io import BytesIO
 from typing import Dict, Optional, Any
 from dataclasses import dataclass
 
-import boto3
-from botocore.exceptions import ClientError
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.files.storage import default_storage, get_storage_class
 
 LOGGER = logging.getLogger("django")
 
@@ -53,157 +51,85 @@ class ImageUploadService(ABC):
         pass
 
 
-class S3ImageUploadService(ImageUploadService):
-    """Image upload service using AWS S3 or S3-compatible storage (like Cloudflare R2)."""
+class DjangoStorageImageUploadService(ImageUploadService):
+    """Image upload service using Django storage backends."""
 
-    def __init__(self):
-        self.bucket_name = getattr(settings, 'IMAGE_UPLOAD_BUCKET', None)
-        self.region = getattr(settings, 'IMAGE_UPLOAD_REGION', 'auto')
-        self.endpoint_url = getattr(settings, 'IMAGE_UPLOAD_ENDPOINT_URL', None)
-        self.access_key = getattr(settings, 'IMAGE_UPLOAD_ACCESS_KEY', None)
-        self.secret_key = getattr(settings, 'IMAGE_UPLOAD_SECRET_KEY', None)
-        self.public_url_base = getattr(settings, 'IMAGE_UPLOAD_PUBLIC_URL_BASE', None)
-
-        if not all([self.bucket_name, self.access_key, self.secret_key]):
-            raise ValueError("Missing required S3 configuration: bucket_name, access_key, secret_key")
-
-        self.s3_client = boto3.client(
-            's3',
-            endpoint_url=self.endpoint_url,
-            aws_access_key_id=self.access_key,
-            aws_secret_access_key=self.secret_key,
-            region_name=self.region
-        )
+    def __init__(self, storage_class=None):
+        """
+        Initialize with a specific storage class or use default.
+        
+        Args:
+            storage_class: Django storage class to use. If None, uses default_storage.
+        """
+        if storage_class:
+            self.storage = storage_class()
+        else:
+            self.storage = default_storage
 
     def upload_image(self, image_file: InMemoryUploadedFile, filename: Optional[str] = None) -> ImageUploadResult:
-        """Upload image to S3-compatible storage."""
+        """Upload image using Django storage backend."""
         try:
             # Generate filename if not provided
             if not filename:
                 file_extension = self._get_file_extension(image_file.name)
-                filename = f"{uuid.uuid4()}{file_extension}"
+                filename = f"images/{uuid.uuid4()}{file_extension}"
+            elif not filename.startswith('images/'):
+                # Ensure images are stored in images/ directory
+                filename = f"images/{filename}"
 
-            # Upload to S3
-            self.s3_client.upload_fileobj(
-                image_file,
-                self.bucket_name,
-                filename,
-                ExtraArgs={
-                    'ContentType': image_file.content_type or 'image/jpeg',
-                    'ACL': 'public-read'  # Make image publicly accessible
+            # Save file using Django storage
+            saved_name = self.storage.save(filename, image_file)
+            
+            # Get public URL
+            url = self.storage.url(saved_name)
+            
+            # Handle relative URLs by making them absolute
+            if url.startswith('/') and hasattr(settings, 'DOMAIN'):
+                url = f"{settings.DOMAIN.rstrip('/')}{url}"
+
+            LOGGER.info(f"Successfully uploaded image: {saved_name}")
+            return ImageUploadResult(
+                success=True,
+                url=url,
+                metadata={
+                    'filename': saved_name,
+                    'storage_backend': self.storage.__class__.__name__
                 }
             )
 
-            # Generate public URL
-            if self.public_url_base:
-                url = f"{self.public_url_base.rstrip('/')}/{filename}"
+        except Exception as e:
+            error_msg = f"Image upload failed: {str(e)}"
+            LOGGER.error(error_msg)
+            return ImageUploadResult(success=False, error=error_msg)
+
+    def delete_image(self, url: str) -> bool:
+        """Delete image from storage backend."""
+        try:
+            # Extract filename from URL
+            # Handle both absolute and relative URLs
+            if url.startswith('http'):
+                # Extract path from full URL
+                from urllib.parse import urlparse
+                parsed = urlparse(url)
+                filename = parsed.path.lstrip('/')
             else:
-                url = f"https://{self.bucket_name}.s3.{self.region}.amazonaws.com/{filename}"
-
-            LOGGER.info(f"Successfully uploaded image to S3: {filename}")
-            return ImageUploadResult(
-                success=True,
-                url=url,
-                metadata={'filename': filename, 'bucket': self.bucket_name}
-            )
-
-        except ClientError as e:
-            error_msg = f"S3 upload failed: {str(e)}"
-            LOGGER.error(error_msg)
-            return ImageUploadResult(success=False, error=error_msg)
-        except Exception as e:
-            error_msg = f"Unexpected error during S3 upload: {str(e)}"
-            LOGGER.error(error_msg)
-            return ImageUploadResult(success=False, error=error_msg)
-
-    def delete_image(self, url: str) -> bool:
-        """Delete image from S3-compatible storage."""
-        try:
-            # Extract filename from URL
-            filename = url.split('/')[-1]
+                # Relative URL, strip leading slash
+                filename = url.lstrip('/')
             
-            self.s3_client.delete_object(
-                Bucket=self.bucket_name,
-                Key=filename
-            )
+            # Remove media URL prefix if present
+            if hasattr(settings, 'MEDIA_URL') and filename.startswith(settings.MEDIA_URL.lstrip('/')):
+                filename = filename[len(settings.MEDIA_URL.lstrip('/')):]
             
-            LOGGER.info(f"Successfully deleted image from S3: {filename}")
-            return True
-            
-        except ClientError as e:
-            LOGGER.error(f"S3 delete failed: {str(e)}")
-            return False
-        except Exception as e:
-            LOGGER.error(f"Unexpected error during S3 delete: {str(e)}")
-            return False
-
-    def _get_file_extension(self, filename: str) -> str:
-        """Extract file extension from filename."""
-        if '.' in filename:
-            return '.' + filename.split('.')[-1].lower()
-        return '.jpg'  # Default extension
-
-
-class LocalImageUploadService(ImageUploadService):
-    """Image upload service for local file storage (fallback/development)."""
-
-    def __init__(self):
-        self.upload_dir = getattr(settings, 'MEDIA_ROOT', '/tmp')
-        self.public_url_base = getattr(settings, 'MEDIA_URL', '/media/')
-
-    def upload_image(self, image_file: InMemoryUploadedFile, filename: Optional[str] = None) -> ImageUploadResult:
-        """Upload image to local storage."""
-        try:
-            import os
-            
-            # Generate filename if not provided
-            if not filename:
-                file_extension = self._get_file_extension(image_file.name)
-                filename = f"{uuid.uuid4()}{file_extension}"
-
-            # Create upload directory if it doesn't exist
-            os.makedirs(self.upload_dir, exist_ok=True)
-            
-            # Write file to local storage
-            file_path = os.path.join(self.upload_dir, filename)
-            with open(file_path, 'wb') as f:
-                for chunk in image_file.chunks():
-                    f.write(chunk)
-
-            # Generate public URL
-            url = f"{settings.DOMAIN.rstrip('/')}{self.public_url_base.rstrip('/')}/{filename}"
-
-            LOGGER.info(f"Successfully uploaded image locally: {filename}")
-            return ImageUploadResult(
-                success=True,
-                url=url,
-                metadata={'filename': filename, 'path': file_path}
-            )
-
-        except Exception as e:
-            error_msg = f"Local upload failed: {str(e)}"
-            LOGGER.error(error_msg)
-            return ImageUploadResult(success=False, error=error_msg)
-
-    def delete_image(self, url: str) -> bool:
-        """Delete image from local storage."""
-        try:
-            import os
-            
-            # Extract filename from URL
-            filename = url.split('/')[-1]
-            file_path = os.path.join(self.upload_dir, filename)
-            
-            if os.path.exists(file_path):
-                os.remove(file_path)
-                LOGGER.info(f"Successfully deleted local image: {filename}")
+            if self.storage.exists(filename):
+                self.storage.delete(filename)
+                LOGGER.info(f"Successfully deleted image: {filename}")
                 return True
             else:
                 LOGGER.warning(f"Image file not found for deletion: {filename}")
                 return False
                 
         except Exception as e:
-            LOGGER.error(f"Local delete failed: {str(e)}")
+            LOGGER.error(f"Image delete failed: {str(e)}")
             return False
 
     def _get_file_extension(self, filename: str) -> str:
@@ -211,6 +137,45 @@ class LocalImageUploadService(ImageUploadService):
         if '.' in filename:
             return '.' + filename.split('.')[-1].lower()
         return '.jpg'  # Default extension
+
+
+class LocalImageUploadService(DjangoStorageImageUploadService):
+    """Image upload service for local file storage."""
+    
+    def __init__(self):
+        from django.core.files.storage import FileSystemStorage
+        # Use local filesystem storage
+        storage = FileSystemStorage(
+            location=getattr(settings, 'MEDIA_ROOT', '/tmp'),
+            base_url=getattr(settings, 'MEDIA_URL', '/media/')
+        )
+        super().__init__(storage)
+
+
+class S3ImageUploadService(DjangoStorageImageUploadService):
+    """Image upload service using S3-compatible storage via django-storages."""
+    
+    def __init__(self):
+        try:
+            from storages.backends.s3boto3 import S3Boto3Storage
+        except ImportError:
+            raise ImportError(
+                "S3 storage requires 'django-storages[boto3]' to be installed. "
+                "Install with: pip install 'django-storages[boto3]'"
+            )
+        
+        # Create S3 storage with settings
+        storage = S3Boto3Storage(
+            bucket_name=getattr(settings, 'IMAGE_UPLOAD_BUCKET', None),
+            region_name=getattr(settings, 'IMAGE_UPLOAD_REGION', 'auto'),
+            endpoint_url=getattr(settings, 'IMAGE_UPLOAD_ENDPOINT_URL', None),
+            access_key=getattr(settings, 'IMAGE_UPLOAD_ACCESS_KEY', None),
+            secret_key=getattr(settings, 'IMAGE_UPLOAD_SECRET_KEY', None),
+            custom_domain=getattr(settings, 'IMAGE_UPLOAD_PUBLIC_URL_BASE', None),
+            file_overwrite=False,
+            default_acl='public-read'
+        )
+        super().__init__(storage)
 
 
 def get_image_upload_service() -> ImageUploadService:

@@ -3,11 +3,11 @@ from unittest.mock import patch, MagicMock, mock_open
 from io import BytesIO
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import override_settings
-from botocore.exceptions import ClientError
 
 from api.services.image_upload import (
-    S3ImageUploadService,
+    DjangoStorageImageUploadService,
     LocalImageUploadService,
+    S3ImageUploadService,
     get_image_upload_service,
     ImageUploadResult
 )
@@ -24,139 +24,128 @@ def valid_image_file():
     )
 
 
-class TestS3ImageUploadService:
-    """Test cases for S3ImageUploadService."""
+class TestDjangoStorageImageUploadService:
+    """Test cases for DjangoStorageImageUploadService."""
 
-    @override_settings(
-        IMAGE_UPLOAD_BUCKET='test-bucket',
-        IMAGE_UPLOAD_ACCESS_KEY='test-key',
-        IMAGE_UPLOAD_SECRET_KEY='test-secret',
-        IMAGE_UPLOAD_ENDPOINT_URL='https://s3.example.com',
-        IMAGE_UPLOAD_PUBLIC_URL_BASE='https://cdn.example.com'
-    )
-    def test_s3_service_init_success(self):
-        """Test successful initialization of S3 service."""
-        with patch('api.services.image_upload.boto3.client') as mock_boto3:
-            service = S3ImageUploadService()
-            assert service.bucket_name == 'test-bucket'
-            assert service.access_key == 'test-key'
-            assert service.secret_key == 'test-secret'
-            assert service.endpoint_url == 'https://s3.example.com'
-            assert service.public_url_base == 'https://cdn.example.com'
-            mock_boto3.assert_called_once()
-
-    def test_s3_service_init_missing_config(self):
-        """Test S3 service initialization with missing configuration."""
-        with override_settings():
-            # Remove all settings
-            del_attrs = ['IMAGE_UPLOAD_BUCKET', 'IMAGE_UPLOAD_ACCESS_KEY', 'IMAGE_UPLOAD_SECRET_KEY']
-            for attr in del_attrs:
-                if hasattr(pytest.settings, attr):
-                    delattr(pytest.settings, attr)
-            
-            with pytest.raises(ValueError, match="Missing required S3 configuration"):
-                S3ImageUploadService()
-
-    @override_settings(
-        IMAGE_UPLOAD_BUCKET='test-bucket',
-        IMAGE_UPLOAD_ACCESS_KEY='test-key',
-        IMAGE_UPLOAD_SECRET_KEY='test-secret',
-        IMAGE_UPLOAD_PUBLIC_URL_BASE='https://cdn.example.com'
-    )
-    def test_s3_upload_success(self, valid_image_file):
-        """Test successful S3 upload."""
-        with patch('api.services.image_upload.boto3.client') as mock_boto3:
-            mock_s3_client = MagicMock()
-            mock_boto3.return_value = mock_s3_client
-            
-            service = S3ImageUploadService()
+    def test_upload_success(self, valid_image_file):
+        """Test successful image upload."""
+        mock_storage = MagicMock()
+        mock_storage.save.return_value = 'images/test-image.png'
+        mock_storage.url.return_value = '/media/images/test-image.png'
+        mock_storage.__class__.__name__ = 'TestStorage'
+        
+        service = DjangoStorageImageUploadService()
+        service.storage = mock_storage
+        
+        with override_settings(DOMAIN='https://example.com'):
             result = service.upload_image(valid_image_file, 'test-image.png')
-            
-            assert result.success is True
-            assert result.url == 'https://cdn.example.com/test-image.png'
-            assert result.metadata['filename'] == 'test-image.png'
-            assert result.metadata['bucket'] == 'test-bucket'
-            
-            mock_s3_client.upload_fileobj.assert_called_once()
+        
+        assert result.success is True
+        assert result.url == 'https://example.com/media/images/test-image.png'
+        assert result.metadata['filename'] == 'images/test-image.png'
+        assert result.metadata['storage_backend'] == 'TestStorage'
+        
+        mock_storage.save.assert_called_once_with('images/test-image.png', valid_image_file)
 
-    @override_settings(
-        IMAGE_UPLOAD_BUCKET='test-bucket',
-        IMAGE_UPLOAD_ACCESS_KEY='test-key',
-        IMAGE_UPLOAD_SECRET_KEY='test-secret'
-    )
-    def test_s3_upload_auto_filename(self, valid_image_file):
-        """Test S3 upload with auto-generated filename."""
-        with patch('api.services.image_upload.boto3.client') as mock_boto3:
-            mock_s3_client = MagicMock()
-            mock_boto3.return_value = mock_s3_client
-            
-            service = S3ImageUploadService()
-            result = service.upload_image(valid_image_file)
-            
-            assert result.success is True
-            assert result.url.endswith('.png')  # Should preserve extension
-            assert result.metadata['filename'].endswith('.png')
+    def test_upload_auto_filename(self, valid_image_file):
+        """Test upload with auto-generated filename."""
+        mock_storage = MagicMock()
+        mock_storage.save.return_value = 'images/auto-generated.png'
+        mock_storage.url.return_value = '/media/images/auto-generated.png'
+        
+        service = DjangoStorageImageUploadService()
+        service.storage = mock_storage
+        
+        result = service.upload_image(valid_image_file)
+        
+        assert result.success is True
+        assert result.metadata['filename'] == 'images/auto-generated.png'
+        
+        # Check that save was called with a filename starting with 'images/'
+        call_args = mock_storage.save.call_args[0]
+        assert call_args[0].startswith('images/')
+        assert call_args[0].endswith('.png')
 
-    @override_settings(
-        IMAGE_UPLOAD_BUCKET='test-bucket',
-        IMAGE_UPLOAD_ACCESS_KEY='test-key',
-        IMAGE_UPLOAD_SECRET_KEY='test-secret'
-    )
-    def test_s3_upload_failure(self, valid_image_file):
-        """Test S3 upload failure."""
-        with patch('api.services.image_upload.boto3.client') as mock_boto3:
-            mock_s3_client = MagicMock()
-            mock_s3_client.upload_fileobj.side_effect = ClientError(
-                {'Error': {'Code': 'NoSuchBucket', 'Message': 'Bucket does not exist'}},
-                'upload_fileobj'
-            )
-            mock_boto3.return_value = mock_s3_client
-            
-            service = S3ImageUploadService()
-            result = service.upload_image(valid_image_file)
-            
-            assert result.success is False
-            assert 'S3 upload failed' in result.error
+    def test_upload_absolute_url(self, valid_image_file):
+        """Test upload with absolute URL from storage."""
+        mock_storage = MagicMock()
+        mock_storage.save.return_value = 'images/test-image.png'
+        mock_storage.url.return_value = 'https://cdn.example.com/images/test-image.png'
+        
+        service = DjangoStorageImageUploadService()
+        service.storage = mock_storage
+        
+        result = service.upload_image(valid_image_file, 'test-image.png')
+        
+        assert result.success is True
+        assert result.url == 'https://cdn.example.com/images/test-image.png'
 
-    @override_settings(
-        IMAGE_UPLOAD_BUCKET='test-bucket',
-        IMAGE_UPLOAD_ACCESS_KEY='test-key',
-        IMAGE_UPLOAD_SECRET_KEY='test-secret'
-    )
-    def test_s3_delete_success(self):
-        """Test successful S3 delete."""
-        with patch('api.services.image_upload.boto3.client') as mock_boto3:
-            mock_s3_client = MagicMock()
-            mock_boto3.return_value = mock_s3_client
-            
-            service = S3ImageUploadService()
-            result = service.delete_image('https://cdn.example.com/test-image.png')
-            
-            assert result is True
-            mock_s3_client.delete_object.assert_called_once_with(
-                Bucket='test-bucket',
-                Key='test-image.png'
-            )
+    def test_upload_failure(self, valid_image_file):
+        """Test upload failure."""
+        mock_storage = MagicMock()
+        mock_storage.save.side_effect = Exception("Storage error")
+        
+        service = DjangoStorageImageUploadService()
+        service.storage = mock_storage
+        
+        result = service.upload_image(valid_image_file)
+        
+        assert result.success is False
+        assert 'Storage error' in result.error
 
-    @override_settings(
-        IMAGE_UPLOAD_BUCKET='test-bucket',
-        IMAGE_UPLOAD_ACCESS_KEY='test-key',
-        IMAGE_UPLOAD_SECRET_KEY='test-secret'
-    )
-    def test_s3_delete_failure(self):
-        """Test S3 delete failure."""
-        with patch('api.services.image_upload.boto3.client') as mock_boto3:
-            mock_s3_client = MagicMock()
-            mock_s3_client.delete_object.side_effect = ClientError(
-                {'Error': {'Code': 'NoSuchKey', 'Message': 'Key does not exist'}},
-                'delete_object'
-            )
-            mock_boto3.return_value = mock_s3_client
-            
-            service = S3ImageUploadService()
-            result = service.delete_image('https://cdn.example.com/nonexistent.png')
-            
-            assert result is False
+    def test_delete_success(self):
+        """Test successful image delete."""
+        mock_storage = MagicMock()
+        mock_storage.exists.return_value = True
+        
+        service = DjangoStorageImageUploadService()
+        service.storage = mock_storage
+        
+        result = service.delete_image('/media/images/test-image.png')
+        
+        assert result is True
+        mock_storage.exists.assert_called_once_with('images/test-image.png')
+        mock_storage.delete.assert_called_once_with('images/test-image.png')
+
+    def test_delete_absolute_url(self):
+        """Test delete with absolute URL."""
+        mock_storage = MagicMock()
+        mock_storage.exists.return_value = True
+        
+        service = DjangoStorageImageUploadService()
+        service.storage = mock_storage
+        
+        result = service.delete_image('https://example.com/media/images/test-image.png')
+        
+        assert result is True
+        mock_storage.exists.assert_called_once_with('media/images/test-image.png')
+        mock_storage.delete.assert_called_once_with('media/images/test-image.png')
+
+    def test_delete_file_not_found(self):
+        """Test delete when file doesn't exist."""
+        mock_storage = MagicMock()
+        mock_storage.exists.return_value = False
+        
+        service = DjangoStorageImageUploadService()
+        service.storage = mock_storage
+        
+        result = service.delete_image('/media/images/nonexistent.png')
+        
+        assert result is False
+        mock_storage.delete.assert_not_called()
+
+    def test_delete_failure(self):
+        """Test delete failure."""
+        mock_storage = MagicMock()
+        mock_storage.exists.return_value = True
+        mock_storage.delete.side_effect = Exception("Delete error")
+        
+        service = DjangoStorageImageUploadService()
+        service.storage = mock_storage
+        
+        result = service.delete_image('/media/images/test-image.png')
+        
+        assert result is False
 
 
 class TestLocalImageUploadService:
@@ -167,101 +156,105 @@ class TestLocalImageUploadService:
         MEDIA_URL='/media/',
         DOMAIN='https://localhost:8000'
     )
+    def test_local_service_init(self):
+        """Test LocalImageUploadService initialization."""
+        with patch('api.services.image_upload.FileSystemStorage') as mock_fs:
+            service = LocalImageUploadService()
+            
+            mock_fs.assert_called_once_with(
+                location='/tmp/test_media',
+                base_url='/media/'
+            )
+
+    @override_settings(MEDIA_ROOT='/tmp/test_media')
     def test_local_upload_success(self, valid_image_file):
         """Test successful local upload."""
-        with patch('builtins.open', mock_open()) as mock_file, \
-             patch('os.makedirs') as mock_makedirs:
+        service = LocalImageUploadService()
+        
+        # Mock the storage
+        service.storage = MagicMock()
+        service.storage.save.return_value = 'images/test-image.png'
+        service.storage.url.return_value = '/media/images/test-image.png'
+        service.storage.__class__.__name__ = 'FileSystemStorage'
+        
+        with override_settings(DOMAIN='https://localhost:8000'):
+            result = service.upload_image(valid_image_file, 'test-image.png')
+        
+        assert result.success is True
+        assert result.url == 'https://localhost:8000/media/images/test-image.png'
+        assert result.metadata['storage_backend'] == 'FileSystemStorage'
+
+
+class TestS3ImageUploadService:
+    """Test cases for S3ImageUploadService."""
+
+    @override_settings(
+        IMAGE_UPLOAD_BUCKET='test-bucket',
+        IMAGE_UPLOAD_ACCESS_KEY='test-key',
+        IMAGE_UPLOAD_SECRET_KEY='test-secret',
+        IMAGE_UPLOAD_ENDPOINT_URL='https://s3.example.com',
+        IMAGE_UPLOAD_PUBLIC_URL_BASE='https://cdn.example.com'
+    )
+    def test_s3_service_init(self):
+        """Test S3ImageUploadService initialization."""
+        with patch('api.services.image_upload.S3Boto3Storage') as mock_s3:
+            service = S3ImageUploadService()
             
-            service = LocalImageUploadService()
+            mock_s3.assert_called_once_with(
+                bucket_name='test-bucket',
+                region_name='auto',
+                endpoint_url='https://s3.example.com',
+                access_key='test-key',
+                secret_key='test-secret',
+                custom_domain='https://cdn.example.com',
+                file_overwrite=False,
+                default_acl='public-read'
+            )
+
+    def test_s3_service_import_error(self):
+        """Test S3 service initialization with missing storages."""
+        with patch('api.services.image_upload.S3Boto3Storage', side_effect=ImportError):
+            with pytest.raises(ImportError, match="S3 storage requires 'django-storages"):
+                S3ImageUploadService()
+
+    @override_settings(
+        IMAGE_UPLOAD_BUCKET='test-bucket',
+        IMAGE_UPLOAD_ACCESS_KEY='test-key',
+        IMAGE_UPLOAD_SECRET_KEY='test-secret'
+    )
+    def test_s3_upload_success(self, valid_image_file):
+        """Test successful S3 upload."""
+        with patch('api.services.image_upload.S3Boto3Storage') as mock_s3_class:
+            mock_storage = MagicMock()
+            mock_storage.save.return_value = 'images/test-image.png'
+            mock_storage.url.return_value = 'https://cdn.example.com/images/test-image.png'
+            mock_storage.__class__.__name__ = 'S3Boto3Storage'
+            mock_s3_class.return_value = mock_storage
+            
+            service = S3ImageUploadService()
             result = service.upload_image(valid_image_file, 'test-image.png')
             
             assert result.success is True
-            assert result.url == 'https://localhost:8000/media/test-image.png'
-            assert result.metadata['filename'] == 'test-image.png'
-            assert '/tmp/test_media/test-image.png' in result.metadata['path']
-            
-            mock_makedirs.assert_called_once_with('/tmp/test_media', exist_ok=True)
-            mock_file.assert_called_once()
-
-    @override_settings(MEDIA_ROOT='/tmp/test_media')
-    def test_local_upload_auto_filename(self, valid_image_file):
-        """Test local upload with auto-generated filename."""
-        with patch('builtins.open', mock_open()) as mock_file, \
-             patch('os.makedirs'):
-            
-            service = LocalImageUploadService()
-            result = service.upload_image(valid_image_file)
-            
-            assert result.success is True
-            assert result.metadata['filename'].endswith('.png')
-
-    @override_settings(MEDIA_ROOT='/tmp/test_media')
-    def test_local_upload_failure(self, valid_image_file):
-        """Test local upload failure."""
-        with patch('builtins.open', side_effect=IOError("Permission denied")), \
-             patch('os.makedirs'):
-            
-            service = LocalImageUploadService()
-            result = service.upload_image(valid_image_file)
-            
-            assert result.success is False
-            assert 'Local upload failed' in result.error
-
-    @override_settings(MEDIA_ROOT='/tmp/test_media')
-    def test_local_delete_success(self):
-        """Test successful local delete."""
-        with patch('os.path.exists', return_value=True) as mock_exists, \
-             patch('os.remove') as mock_remove:
-            
-            service = LocalImageUploadService()
-            result = service.delete_image('https://localhost:8000/media/test-image.png')
-            
-            assert result is True
-            mock_exists.assert_called_once_with('/tmp/test_media/test-image.png')
-            mock_remove.assert_called_once_with('/tmp/test_media/test-image.png')
-
-    @override_settings(MEDIA_ROOT='/tmp/test_media')
-    def test_local_delete_file_not_found(self):
-        """Test local delete when file doesn't exist."""
-        with patch('os.path.exists', return_value=False):
-            
-            service = LocalImageUploadService()
-            result = service.delete_image('https://localhost:8000/media/nonexistent.png')
-            
-            assert result is False
-
-    @override_settings(MEDIA_ROOT='/tmp/test_media')
-    def test_local_delete_failure(self):
-        """Test local delete failure."""
-        with patch('os.path.exists', return_value=True), \
-             patch('os.remove', side_effect=OSError("Permission denied")):
-            
-            service = LocalImageUploadService()
-            result = service.delete_image('https://localhost:8000/media/test-image.png')
-            
-            assert result is False
+            assert result.url == 'https://cdn.example.com/images/test-image.png'
+            assert result.metadata['storage_backend'] == 'S3Boto3Storage'
 
 
 class TestGetImageUploadService:
     """Test cases for get_image_upload_service factory function."""
 
-    @override_settings(
-        IMAGE_UPLOAD_SERVICE='s3',
-        IMAGE_UPLOAD_BUCKET='test-bucket',
-        IMAGE_UPLOAD_ACCESS_KEY='test-key',
-        IMAGE_UPLOAD_SECRET_KEY='test-secret'
-    )
+    @override_settings(IMAGE_UPLOAD_SERVICE='s3')
     def test_get_s3_service(self):
         """Test getting S3 service."""
-        with patch('api.services.image_upload.boto3.client'):
+        with patch('api.services.image_upload.S3ImageUploadService') as mock_s3:
             service = get_image_upload_service()
-            assert isinstance(service, S3ImageUploadService)
+            mock_s3.assert_called_once()
 
     @override_settings(IMAGE_UPLOAD_SERVICE='local')
     def test_get_local_service(self):
         """Test getting local service."""
-        service = get_image_upload_service()
-        assert isinstance(service, LocalImageUploadService)
+        with patch('api.services.image_upload.LocalImageUploadService') as mock_local:
+            service = get_image_upload_service()
+            mock_local.assert_called_once()
 
     @override_settings(IMAGE_UPLOAD_SERVICE='invalid')
     def test_get_invalid_service(self):
@@ -276,5 +269,6 @@ class TestGetImageUploadService:
             if hasattr(pytest.settings, 'IMAGE_UPLOAD_SERVICE'):
                 delattr(pytest.settings, 'IMAGE_UPLOAD_SERVICE')
             
-            service = get_image_upload_service()
-            assert isinstance(service, LocalImageUploadService)
+            with patch('api.services.image_upload.LocalImageUploadService') as mock_local:
+                service = get_image_upload_service()
+                mock_local.assert_called_once()
