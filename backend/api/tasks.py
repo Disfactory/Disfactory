@@ -8,11 +8,13 @@ import requests
 import easymap
 
 from .models import Factory, Image
+from .services.image_upload import ImageUploadService
 
 LOGGER = logging.getLogger("django")
 
 
 def _upload_image_to_imgur(image_buffer, client_id):
+    """Legacy function for backward compatibility. Use ImageUploadService instead."""
     tmp_path = os.path.join(settings.MEDIA_ROOT, f"{uuid4()}.jpg")
     with open(tmp_path, "wb") as fw:
         fw.write(image_buffer)
@@ -41,6 +43,31 @@ def _upload_image_to_imgur(image_buffer, client_id):
     return path
 
 
+def _upload_image_with_service(image_buffer):
+    """Upload image using the new multi-backend service."""
+    service = ImageUploadService()
+    result = service.upload_image(image_buffer)
+    
+    if result["success"]:
+        return result["url"], result.get("delete_hash")
+    else:
+        LOGGER.error(f"Image upload failed: {result['error']}")
+        # Create local fallback manually as last resort
+        try:
+            tmp_path = os.path.join(settings.MEDIA_ROOT, f"{uuid4()}.jpg")
+            os.makedirs(settings.MEDIA_ROOT, exist_ok=True)
+            with open(tmp_path, "wb") as fw:
+                fw.write(image_buffer)
+            fallback_url = urljoin(
+                urljoin(settings.DOMAIN, settings.MEDIA_URL), 
+                os.path.basename(tmp_path)
+            )
+            return fallback_url, None
+        except Exception as e:
+            LOGGER.error(f"Failed to create local fallback: {e}")
+            raise Exception(f"All image upload methods failed: {result['error']}")
+
+
 def update_landcode(factory_id):
     update_landcode_with_custom_factory_model(factory_id, Factory)
 
@@ -65,24 +92,31 @@ def update_landcode_with_custom_factory_model(factory_id, factory_model):
 
 
 def upload_image(image_path, client_id, image_id):
-    LOGGER.info(f"Upload {image_id}: {image_path} with {client_id}")
+    """Upload image using the new multi-backend service."""
+    LOGGER.info(f"Upload {image_id}: {image_path}")
     try:
         with open(image_path, "rb") as f:
             image_buffer = f.read()
 
-        path = _upload_image_to_imgur(image_buffer, client_id)
+        # Use new multi-backend service instead of Imgur-only
+        path, delete_hash = _upload_image_with_service(image_buffer)
+        
         try:
-            Image.objects.filter(pk=image_id).update(image_path=path)
+            # Update both image_path and deletehash
+            update_data = {"image_path": path}
+            if delete_hash:
+                update_data["deletehash"] = delete_hash
+            Image.objects.filter(pk=image_id).update(**update_data)
         except Exception:
             LOGGER.error(
                 f"""
-                Upload success and get imgur url {path},
+                Upload success and get image url {path},
                 but other error happened when update image {image_id}
             """
             )
             return False
     except Exception as e:
-        LOGGER.error(f"Upload {image_path} to Imgur with client ID {client_id} failed {e}")
+        LOGGER.error(f"Upload {image_path} failed: {e}")
         return False
 
     try:

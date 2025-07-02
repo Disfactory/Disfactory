@@ -3,7 +3,7 @@ from .factories_u import update_factory_attribute
 from .factory_report_record_r import get_factory_report
 from .factory_location_r import get_factory_location
 from .image_c import post_image_url
-from .factory_image_c import post_factory_image_url
+from .factory_image_c import post_factory_image_url, post_factory_image_file
 from .statistics_r import get_factories_count_by_townname
 from .statistics_r import get_images_count_by_townname
 from .statistics_r import get_report_records_count_by_townname
