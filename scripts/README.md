@@ -17,7 +17,7 @@ This directory contains scripts for managing Zeabur review app deployments.
 - API connection verification
 - Safe deployment testing
 
-**`test-service-cleanup.sh`** - Test cleanup functionality  
+**`test-service-cleanup.sh`** - Test cleanup functionality
 - Multi-select service deletion with `fzf`
 - Confirmation prompts for safety
 - Detailed cleanup reporting
@@ -66,6 +66,102 @@ export COMMIT_SHA="abc12345"
 ./scripts/zeabur-review-app.sh cleanup
 ```
 
+## Project-Independent Usage
+
+The `zeabur-review-app.sh` script is designed to be project-independent and can be used with any Zeabur project. It supports flexible configuration through environment variables or a configuration file.
+
+### Quick Setup for Any Project
+
+1. **Copy the script to your project:**
+   ```bash
+   cp scripts/zeabur-review-app.sh /path/to/your/project/scripts/
+   ```
+
+2. **Create a configuration file (optional):**
+   ```bash
+   # Create zeabur-config.env in your project root
+   cat > zeabur-config.env << 'EOF'
+   PROJECT_NAME="My Project"
+   IGNORED_SERVICES="Worker,Background Service"
+   CLEANUP_SERVICES="Database,Redis"
+   UPDATE_IMAGE_SERVICES="Backend,API,Frontend"
+   DOMAIN_PREFIX="myapp"
+   IMAGE_TAG_PREFIX="sha"
+   EOF
+   ```
+
+3. **Use with any project:**
+   ```bash
+   export ZEABUR_API_KEY="your-api-key"
+   export ZEABUR_PROJECT_ID="your-project-id"
+   export PR_NUMBER=123
+   ./scripts/zeabur-review-app.sh deploy
+   ```
+
+### Configuration Examples
+
+#### Web Application with Background Workers
+```bash
+PROJECT_NAME="My Web App"
+IGNORED_SERVICES="Worker,Scheduler,Queue Processor"  # Exclude background services
+UPDATE_IMAGE_SERVICES="Backend,Frontend"             # Update main app images
+CLEANUP_SERVICES="PostgreSQL"                        # Remove duplicate database
+DOMAIN_PREFIX="myapp"
+```
+
+#### Microservices Architecture
+```bash
+PROJECT_NAME="Microservices Stack"
+IGNORED_SERVICES="Message Queue,Log Aggregator"      # Exclude infrastructure services
+UPDATE_IMAGE_SERVICES="User Service,Order Service,Payment Service"  # Update business services
+CLEANUP_SERVICES="Redis,MongoDB"                     # Clean up shared services
+DOMAIN_PREFIX="microservices"
+```
+
+#### Simple API
+```bash
+PROJECT_NAME="Simple API"
+IGNORED_SERVICES=""                                   # Include all services
+UPDATE_IMAGE_SERVICES="API"                          # Update main service
+CLEANUP_SERVICES=""                                   # No cleanup needed
+DOMAIN_PREFIX="api"
+```
+
+### How It Works
+
+1. **Template Processing**: Reads your `zeabur.yaml` template and creates a modified version for the review app
+2. **Service Naming**: All services get suffixed with `-pr-{PR_NUMBER}-{COMMIT_SHA}`
+3. **Service Filtering**: Services listed in `IGNORED_SERVICES` are excluded from review apps
+4. **Image Updates**: Services matching patterns in `UPDATE_IMAGE_SERVICES` are updated with commit-specific tags
+5. **Post-deployment Cleanup**: Services listed in `CLEANUP_SERVICES` are removed after deployment (useful for duplicate database services)
+6. **Domain Generation**: Review app domains follow the pattern `{DOMAIN_PREFIX}-pr-{PR_NUMBER}-{COMMIT_SHA}.zeabur.app`
+
+### Integration with CI/CD
+
+#### GitHub Actions Example
+```yaml
+- name: Deploy Review App
+  env:
+    ZEABUR_API_KEY: ${{ secrets.ZEABUR_API_KEY }}
+    ZEABUR_PROJECT_ID: ${{ secrets.ZEABUR_PROJECT_ID }}
+    PR_NUMBER: ${{ github.event.pull_request.number }}
+    COMMIT_SHA: ${{ github.sha }}
+  run: |
+    ./scripts/zeabur-review-app.sh deploy
+```
+
+#### GitLab CI Example
+```yaml
+deploy_review:
+  script:
+    - export PR_NUMBER=$CI_MERGE_REQUEST_IID
+    - export COMMIT_SHA=$CI_COMMIT_SHORT_SHA
+    - ./scripts/zeabur-review-app.sh deploy
+  environment:
+    name: review/$CI_MERGE_REQUEST_IID
+    url: https://$DOMAIN_PREFIX-pr-$CI_MERGE_REQUEST_IID-$CI_COMMIT_SHORT_SHA.zeabur.app
+```
+
 ## Script Details
 
 ### zeabur-review-app.sh
@@ -88,7 +184,7 @@ export COMMIT_SHA="abc12345"
 - ✅ Colored output and detailed logging
 
 **Service Naming**: `{ServiceName}-pr-{PR_NUMBER}-{COMMIT_SHA}`
-**Domain Pattern**: `disfactory-pr-{PR_NUMBER}-{COMMIT_SHA}.zeabur.app`
+**Domain Pattern**: `{DOMAIN_PREFIX}-pr-{PR_NUMBER}-{COMMIT_SHA}.zeabur.app` (configurable)
 
 ### test-zeabur-api.sh
 
@@ -136,6 +232,14 @@ export COMMIT_SHA="abc12345"
 - `PR_NUMBER` - Pull request number (or "main" for main branch)
 - `COMMIT_SHA` - Git commit hash (optional, auto-detected if not provided)
 
+### Project Configuration (Optional)
+- `PROJECT_NAME` - Project name for review apps (default: "Review App")
+- `IGNORED_SERVICES` - Comma-separated service names to exclude from review apps (default: "")
+- `CLEANUP_SERVICES` - Comma-separated service names to cleanup after deployment (default: "")
+- `UPDATE_IMAGE_SERVICES` - Comma-separated service name patterns to update with commit tags (default: "")
+- `DOMAIN_PREFIX` - Domain prefix for review apps (default: "app")
+- `IMAGE_TAG_PREFIX` - Image tag prefix (default: "sha")
+
 ### GitHub Actions Integration
 - `GITHUB_ENV` - Set by GitHub Actions for exporting results
 
@@ -165,7 +269,7 @@ All scripts include comprehensive error handling:
    ```bash
    # Re-authenticate with Zeabur
    zeabur auth login
-   
+
    # Verify token
    yq '.token' ~/.config/zeabur/cli.yaml
    ```
@@ -180,6 +284,21 @@ All scripts include comprehensive error handling:
    ```bash
    # Verify zeabur.yaml is valid
    yq eval . zeabur.yaml
+   ```
+
+5. **Configuration Issues**
+   ```bash
+   # Check if configuration file is loaded
+   ls -la zeabur-config.env
+
+   # Test configuration variables
+   source zeabur-config.env && echo "PROJECT_NAME: $PROJECT_NAME"
+   ```
+
+6. **Service Filtering Problems**
+   ```bash
+   # Test service filtering with dry run
+   IGNORED_SERVICES="Service1,Service2" ./scripts/zeabur-review-app.sh deploy --dry-run
    ```
 
 ### Debug Mode
@@ -225,12 +344,32 @@ Results are automatically exported to `$GITHUB_ENV` for use in subsequent steps.
 - Cleanup operations include confirmation prompts
 - All API calls are logged for audit purposes
 
+## Migration from Project-Specific Version
+
+If you're migrating from a project-specific version of the tool:
+
+1. **Create a configuration file** with your current hardcoded values:
+   ```bash
+   # Replace hardcoded values with configuration
+   cat > zeabur-config.env << 'EOF'
+   PROJECT_NAME="Your Current Project Name"
+   IGNORED_SERVICES="Your Worker Service Name"
+   UPDATE_IMAGE_SERVICES="Your Backend Service Pattern"
+   DOMAIN_PREFIX="your-current-domain-prefix"
+   EOF
+   ```
+
+2. **Update CI/CD scripts** to use the new configuration approach
+3. **Test with a sample PR** to ensure everything works correctly
+
+The tool is backward compatible - existing functionality will work with default values if no configuration is provided.
+
 ## Contributing
 
 When modifying scripts:
 
 1. **Test Thoroughly**: Use the test scripts to verify changes
-2. **Maintain Compatibility**: Keep environment variable interfaces stable  
+2. **Maintain Compatibility**: Keep environment variable interfaces stable
 3. **Add Error Handling**: Include proper error checking and user feedback
 4. **Update Documentation**: Keep this README and the main docs updated
 5. **Follow Conventions**: Use established naming patterns and logging format

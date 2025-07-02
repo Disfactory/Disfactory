@@ -33,26 +33,23 @@ jobs:
   cleanup-review-app:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install yq
-        run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
-
       - name: Cleanup review app services
-        env:
-          ZEABUR_API_KEY: ${{ secrets.ZEABUR_API_KEY }}
-          ZEABUR_PROJECT_ID: ${{ env.ZEABUR_PROJECT_ID }}
-          PR_NUMBER: ${{ github.event.number }}
-        run: |
-          echo "🧹 Cleaning up review app services for PR #${PR_NUMBER}"
-          
-          # Run the cleanup script (will clean up all commits for this PR)
-          ./scripts/zeabur-review-app.sh cleanup
+        uses: Yukaii/zeabur-review-app-action@main
+        with:
+          action: cleanup
+          zeabur-api-key: ${{ secrets.ZEABUR_API_KEY }}
+          zeabur-project-id: ${{ env.ZEABUR_PROJECT_ID }}
+          pr-number: ${{ github.event.number }}
+          project-name: "Disfactory"
+          ignored-services: "Disfactory Worker"
+          cleanup-services: "PostgreSQL"
+          update-image-services: "Disfactory Backend"
+          domain-prefix: "disfactory"
 
       - name: Update PR comment
         uses: actions/github-script@v7
@@ -63,16 +60,16 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.issue.number,
             });
-            
+
             // Find the review app comment
-            const botComment = comments.find(comment => 
-              comment.user.login === 'github-actions[bot]' && 
+            const botComment = comments.find(comment =>
+              comment.user.login === 'github-actions[bot]' &&
               comment.body.includes('🚀 Review App Deployed')
             );
-            
+
             if (botComment) {
               const updatedBody = botComment.body + '\n\n---\n\n**🧹 CLEANUP COMPLETED**\n\nAll review app services for this PR have been automatically cleaned up.';
-              
+
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -85,38 +82,33 @@ jobs:
   manual-action:
     runs-on: ubuntu-latest
     if: github.event_name == 'workflow_dispatch'
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install yq
-        run: |
-          sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-          sudo chmod +x /usr/local/bin/yq
-
       - name: Execute manual action
-        env:
-          ZEABUR_API_KEY: ${{ secrets.ZEABUR_API_KEY }}
-          ZEABUR_PROJECT_ID: ${{ env.ZEABUR_PROJECT_ID }}
-          PR_NUMBER: ${{ github.event.inputs.pr_number }}
-          COMMIT_SHA: ${{ github.event.inputs.commit_sha }}
-        run: |
-          ACTION="${{ github.event.inputs.action }}"
-          echo "🔧 Executing manual action: $ACTION"
-          echo "📝 PR Number: ${PR_NUMBER}"
-          echo "📝 Commit SHA: ${COMMIT_SHA:-"auto-detect"}"
-          
-          # Run the script with the specified action
-          ./scripts/zeabur-review-app.sh "$ACTION"
+        id: manual-action
+        uses: Yukaii/zeabur-review-app-action@main
+        with:
+          action: ${{ github.event.inputs.action }}
+          zeabur-api-key: ${{ secrets.ZEABUR_API_KEY }}
+          zeabur-project-id: ${{ env.ZEABUR_PROJECT_ID }}
+          pr-number: ${{ github.event.inputs.pr_number }}
+          commit-sha: ${{ github.event.inputs.commit_sha }}
+          project-name: "Disfactory"
+          ignored-services: "Disfactory Worker"
+          cleanup-services: "PostgreSQL"
+          update-image-services: "Disfactory Backend"
+          domain-prefix: "disfactory"
 
       - name: Output results
         run: |
-          if [ -n "$REVIEW_APP_URL" ]; then
-            echo "🔗 Review App URL: $REVIEW_APP_URL"
+          if [ -n "${{ steps.manual-action.outputs.review-app-url }}" ]; then
+            echo "🔗 Review App URL: ${{ steps.manual-action.outputs.review-app-url }}"
           fi
-          if [ -n "$REVIEW_APP_PROJECT_NAME" ]; then
-            echo "📋 Project Name: $REVIEW_APP_PROJECT_NAME"
+          if [ -n "${{ steps.manual-action.outputs.review-app-project-name }}" ]; then
+            echo "📋 Project Name: ${{ steps.manual-action.outputs.review-app-project-name }}"
           fi
 
       - name: Comment on PR (for deploy action)
@@ -126,45 +118,53 @@ jobs:
           script: |
             const prNumber = '${{ github.event.inputs.pr_number }}';
             const commitSha = '${{ github.event.inputs.commit_sha }}';
-            
-            // Get environment variables from previous step
-            const reviewAppUrl = process.env.REVIEW_APP_URL || 'Unknown';
-            const projectName = process.env.REVIEW_APP_PROJECT_NAME || 'Unknown';
+
+            // Get outputs from previous step
+            const reviewAppUrl = '${{ steps.manual-action.outputs.review-app-url }}';
+            const projectName = '${{ steps.manual-action.outputs.review-app-project-name }}';
+
+            // Debug logging
+            console.log('Debug - Raw reviewAppUrl:', JSON.stringify(reviewAppUrl));
+            console.log('Debug - Raw projectName:', JSON.stringify(projectName));
+
+            // Use fallback if empty
+            const finalUrl = reviewAppUrl || 'Unknown';
+            const finalProject = projectName || 'Unknown';
             const shortCommit = commitSha ? commitSha.substring(0, 8) : 'unknown';
-            
+
             try {
               const { data: comments } = await github.rest.issues.listComments({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: parseInt(prNumber),
               });
-              
+
               // Check if we already have a review app comment
-              const botComment = comments.find(comment => 
-                comment.user.login === 'github-actions[bot]' && 
+              const botComment = comments.find(comment =>
+                comment.user.login === 'github-actions[bot]' &&
                 comment.body.includes('🚀 Review App Deployed')
               );
-              
+
               const commentBody = `## 🚀 Review App Deployed
-              
+
               Your review app has been deployed to Zeabur with commit-level isolation!
-              
-              **🔗 Review App URL:** ${reviewAppUrl}
-              **📋 Project:** ${projectName}
+
+              **🔗 Review App URL:** ${finalUrl}
+              **📋 Project:** ${finalProject}
               **💻 Commit:** \`${shortCommit}\` ([${shortCommit}](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${commitSha}))
               **🌍 Region:** Zeabur Cloud
               **🔨 Triggered by:** Backend image build completion
-              
+
               ### 📝 Notes:
               - Each commit gets its own isolated deployment with PR-specific Docker images
               - The app may take a few minutes to fully start up
               - Database migrations will run automatically
               - Static files are served by Caddy for optimal performance
-              
+
               ### 🧹 Cleanup:
               - Previous commit deployments for this PR will remain until the PR is closed
               - All review app services will be automatically cleaned up when this PR is closed
-              
+
               *This deployment was triggered automatically after the backend image build completed.*`;
 
               if (botComment) {
