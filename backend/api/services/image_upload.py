@@ -54,15 +54,15 @@ class ImageUploadService(ABC):
 class DjangoStorageImageUploadService(ImageUploadService):
     """Image upload service using Django storage backends."""
 
-    def __init__(self, storage_class=None):
+    def __init__(self, storage=None):
         """
-        Initialize with a specific storage class or use default.
+        Initialize with a specific storage instance or use default.
         
         Args:
-            storage_class: Django storage class to use. If None, uses default_storage.
+            storage: Django storage instance to use. If None, uses default_storage.
         """
-        if storage_class:
-            self.storage = storage_class()
+        if storage:
+            self.storage = storage
         else:
             self.storage = default_storage
 
@@ -117,8 +117,9 @@ class DjangoStorageImageUploadService(ImageUploadService):
                 filename = url.lstrip('/')
             
             # Remove media URL prefix if present
-            if hasattr(settings, 'MEDIA_URL') and filename.startswith(settings.MEDIA_URL.lstrip('/')):
-                filename = filename[len(settings.MEDIA_URL.lstrip('/')):]
+            media_url = getattr(settings, 'MEDIA_URL', '/media/').lstrip('/')
+            if filename.startswith(media_url):
+                filename = filename[len(media_url):]
             
             if self.storage.exists(filename):
                 self.storage.delete(filename)
@@ -185,7 +186,10 @@ def get_image_upload_service() -> ImageUploadService:
     Returns:
         Configured ImageUploadService instance
     """
-    service_type = getattr(settings, 'IMAGE_UPLOAD_SERVICE', 'local').lower()
+    service_type = getattr(settings, 'IMAGE_UPLOAD_SERVICE', 'local')
+    if service_type is None:
+        service_type = 'local'
+    service_type = service_type.lower()
     
     if service_type == 's3':
         return S3ImageUploadService()
