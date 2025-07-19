@@ -10,19 +10,19 @@ WORKDIR /Disfactory
 
 RUN apt-get update
 RUN apt-get install -y libproj-dev binutils curl
-# RUN wget --quiet --output-document=- http://ftp.debian.org/debian/pool/main/c/curl/libcurl4_7.72.0-1_amd64.deb | dpkg --install -
-ENV POETRY_HOME=/root/.poetry
-RUN curl -sSL https://install.python-poetry.org | python3 -
-ENV PATH "${PATH}:/root/.poetry/bin"
-RUN poetry config virtualenvs.create false
-COPY pyproject.toml poetry.lock ./
+
+# Install uv
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /usr/local/bin/
+COPY pyproject.toml uv.lock ./
 
 # Dev image
 FROM base AS dev
-RUN poetry install --no-root
+RUN uv sync --dev
 COPY . /Disfactory/
+ENV PATH="/Disfactory/.venv/bin:$PATH"
 
 # Prod image
 FROM base AS prod
-RUN poetry install --only=main --no-root
+RUN uv sync --no-dev
 COPY . /Disfactory/
+ENV PATH="/Disfactory/.venv/bin:$PATH"
