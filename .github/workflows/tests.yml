@@ -36,10 +36,6 @@ jobs:
     # Docker Hub image that job executes in
     container: python:3.7
 
-    strategy:
-      matrix:
-        poetry-version: [1.2.0]
-
     defaults:
       run:
         working-directory: ./backend
@@ -47,22 +43,20 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Install poetry ${{ matrix.poetry-version }}
-        run: |
-          python -m ensurepip
-          python -m pip install --upgrade pip
-          python -m pip install poetry==${{ matrix.poetry-version }}
-          poetry --version
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
 
-      - name: Cache Poetry dependencies
+      - name: Cache uv dependencies
         uses: actions/cache@v3
         with:
-          path: ~/.cache/pypoetry
-          key: poetry-cache-${{ runner.os }}-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}
+          path: ~/.cache/uv
+          key: uv-cache-${{ runner.os }}-${{ hashFiles('**/uv.lock') }}
 
       - name: Install dependencies
         run: |
-          python -m poetry install
+          uv sync --dev
 
       - name: Setup .env
         run: |
@@ -71,11 +65,11 @@ jobs:
 
       - name: Run pytest tests
         run: |
-          python -m poetry run pytest -vv -k "not test_easymap"
+          uv run pytest -vv -k "not test_easymap"
 
       - name: Run Django tests
         run: |
-          python -m poetry run python manage.py test -v 2
+          uv run python manage.py test -v 2
 
       - name: Test startup scripts
         run: |

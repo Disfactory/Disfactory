@@ -20,7 +20,7 @@ from api.admin.actions import (
 )
 from api.utils import set_function_attributes
 from api.admin.filters.duplicate_sect_land_filter import DuplicateSectLandFilter
-from rangefilter.filter import DateRangeFilter
+from rangefilter.filters import DateRangeFilter
 from import_export.admin import ImportExportModelAdmin
 from django.urls import reverse
 from django.utils.safestring import mark_safe
