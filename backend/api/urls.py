@@ -29,6 +29,7 @@ from .views import (
     get_factory_location,
     get_action_change,
 )
+from .views.upload_image import upload_image
 
 urlpatterns = [
     path("factories", get_nearby_or_create_factories),
@@ -43,4 +44,5 @@ urlpatterns = [
     path("statistics/total", get_statistics_total),
     path("statistics/action_change", get_action_change),
     path("images", post_image_url),
+    path("upload-image", upload_image),
 ]
