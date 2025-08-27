@@ -61,7 +61,7 @@ class ImageUploadService:
             self._process_and_save_image(uploaded_file, file_path)
             
             # Construct response
-            image_url = urljoin(self.domain, self.media_url.lstrip('/') + '/' + filename)
+            image_url = urljoin(self.domain, self.media_url.lstrip('/') + filename)
             deletehash = f"delete_{str(uuid.uuid4()).replace('-', '')}"
             
             response_data = {
