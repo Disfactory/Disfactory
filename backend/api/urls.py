@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from api.views.factories_cr import get_factory_by_sectcode
 from django.urls import path
 
@@ -22,6 +23,7 @@ from .views import (
     get_factory_report,
     post_image_url,
     post_factory_image_url,
+    upload_image,
     get_factories_count_by_townname,
     get_images_count_by_townname,
     get_report_records_count_by_townname,
@@ -43,4 +45,5 @@ urlpatterns = [
     path("statistics/total", get_statistics_total),
     path("statistics/action_change", get_action_change),
     path("images", post_image_url),
+    path("upload", upload_image),  # Imgur API-compatible image upload
 ]
