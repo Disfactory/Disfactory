@@ -12,6 +12,8 @@ import os
 import uuid
 from datetime import datetime
 
+from PIL import Image as PILImage
+
 from django.conf import settings
 from django.http import JsonResponse
 from rest_framework.decorators import api_view, parser_classes
@@ -50,6 +52,18 @@ def _is_allowed_file(filename: str) -> bool:
     return ext in ALLOWED_EXTENSIONS
 
 
+def _validate_image_content(uploaded_file) -> bool:
+    """Validate that the uploaded file is actually a valid image."""
+    try:
+        img = PILImage.open(uploaded_file)
+        img.verify()  # Verify it's a valid image
+        uploaded_file.seek(0)  # Reset file pointer after verify
+        return True
+    except Exception:
+        uploaded_file.seek(0)  # Reset file pointer even on failure
+        return False
+
+
 def _save_uploaded_image(uploaded_file):
     """
     Save the uploaded image to the filesystem.
@@ -74,7 +88,8 @@ def _save_uploaded_image(uploaded_file):
         for chunk in uploaded_file.chunks():
             destination.write(chunk)
 
-    # Generate deletehash
+    # Generate deletehash (for Imgur API compatibility)
+    # Note: Currently not used for actual deletion functionality
     deletehash = _generate_deletehash(unique_filename)
 
     return unique_filename, deletehash
@@ -173,6 +188,20 @@ def upload_image(request):
             status=400,
         )
 
+    # Validate actual image content
+    if not _validate_image_content(uploaded_file):
+        LOGGER.warning(
+            f"upload_image: Invalid image content {uploaded_file.name} from {user_ip}"
+        )
+        return JsonResponse(
+            {
+                "data": {"error": "File is not a valid image"},
+                "success": False,
+                "status": 400,
+            },
+            status=400,
+        )
+
     # Validate file size
     if uploaded_file.size > MAX_FILE_SIZE:
         LOGGER.warning(
@@ -220,11 +249,21 @@ def upload_image(request):
             }
         )
 
-    except Exception as e:
-        LOGGER.error(f"upload_image: Failed to save image from {user_ip}: {str(e)}")
+    except OSError as e:
+        LOGGER.error(f"upload_image: File system error from {user_ip}: {str(e)}")
         return JsonResponse(
             {
-                "data": {"error": "Failed to save image"},
+                "data": {"error": "Failed to save image due to storage error"},
+                "success": False,
+                "status": 500,
+            },
+            status=500,
+        )
+    except Exception as e:
+        LOGGER.error(f"upload_image: Unexpected error from {user_ip}: {str(e)}")
+        return JsonResponse(
+            {
+                "data": {"error": "An unexpected error occurred"},
                 "success": False,
                 "status": 500,
             },

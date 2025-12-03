@@ -3,7 +3,6 @@ import os
 import tempfile
 
 import pytest
-from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image as PILImage
 
@@ -123,6 +122,31 @@ def test_upload_image_invalid_extension(client, settings):
         resp_data = resp.json()
         assert resp_data["success"] is False
         assert "Invalid file type" in resp_data["data"]["error"]
+
+
+@pytest.mark.django_db
+def test_upload_image_invalid_content(client, settings):
+    """Test upload with valid extension but invalid image content."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        settings.MEDIA_ROOT = temp_dir
+
+        # Create a fake file with valid image extension but invalid content
+        fake_file = SimpleUploadedFile(
+            name="fake_image.png",
+            content=b"this is not a valid image content",
+            content_type="image/png",
+        )
+
+        resp = client.post(
+            "/api/upload",
+            data={"image": fake_file},
+            format="multipart",
+        )
+
+        assert resp.status_code == 400
+        resp_data = resp.json()
+        assert resp_data["success"] is False
+        assert "not a valid image" in resp_data["data"]["error"]
 
 
 @pytest.mark.django_db
