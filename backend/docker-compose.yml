@@ -35,7 +35,7 @@ services:
     restart: always
 
   db:
-    image: postgres:12
+    image: postgis/postgis:12-3.0
     volumes:
       - ${DISFACTORY_PGDATA_PATH}:/var/lib/postgresql/data/
       - ${DISFACTORY_PGDATA_BACKUP_PATH}:/tmp/db_dump/
