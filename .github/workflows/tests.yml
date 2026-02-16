@@ -69,9 +69,17 @@ jobs:
           cp .env.sample .env
           sed -i -e s/DISFACTORY_BACKEND_DEFAULT_DB_HOST=db/DISFACTORY_BACKEND_DEFAULT_DB_HOST=postgres/g .env
 
-      - name: Run pytest tests
+      - name: Run pytest tests with coverage
         run: |
-          python -m poetry run pytest -vv -k "not test_easymap"
+          python -m poetry run pytest --cov=api --cov-report=xml --cov-report=term -vv -k "not test_easymap"
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./backend/coverage.xml
+          flags: backend
+          name: backend-coverage
+          fail_ci_if_error: false
 
       - name: Run Django tests
         run: |

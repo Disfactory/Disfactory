@@ -5,8 +5,15 @@
 unittest:
 	docker-compose -f docker-compose.dev.yml exec web pytest -vv
 
+.PHONY: unittest-cov
+unittest-cov:
+	docker-compose -f docker-compose.dev.yml exec web pytest --cov=api --cov-report=xml --cov-report=term -vv
+
 .PHONY: test
 test: unittest
+
+.PHONY: test-cov
+test-cov: unittest-cov
 
 .PHONY: run
 run:
