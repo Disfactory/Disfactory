@@ -54,6 +54,7 @@ class FactorySerializer(ModelSerializer):
     status = SerializerMethodField()  # should be DEPRECATED
     document_display_status = SerializerMethodField()
     follow_ups_for_user = SerializerMethodField()
+    wont_fix = SerializerMethodField()
 
     class Meta:
         model = Factory
@@ -71,6 +72,7 @@ class FactorySerializer(ModelSerializer):
             "factory_type",
             "type",
             "cet_report_status",
+            "wont_fix",
             "before_release",
             "images",
             "reported_at",
@@ -82,6 +84,9 @@ class FactorySerializer(ModelSerializer):
         extra_kwargs = {
             "display_number": {"required": False},
         }
+
+    def get_wont_fix(self, obj):
+        return obj.cet_review_status == 'O'
 
     def get_status(self, obj):
         return obj.cet_report_status
