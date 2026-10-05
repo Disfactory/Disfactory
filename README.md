@@ -1,5 +1,7 @@
 # Disfactory 違章工廠舉報系統
 
+[![Deploy to Railyard](https://app.railyard.run/deploy/badge)](https://app.railyard.run/deploy?repo=https://github.com/Disfactory/Disfactory)
+
 [![g0v-disfactory-badge][g0v-disfactory-badge]](https://github.com/Disfactory/Disfactory) [![Tests](https://github.com/Disfactory/Disfactory/actions/workflows/tests.yml/badge.svg)](https://github.com/Disfactory/Disfactory/actions/workflows/tests.yml)
 
 ![logo](https://github.com/yoyo930021/Disfactory/raw/master/docs/images/Logo_Banner.png)
