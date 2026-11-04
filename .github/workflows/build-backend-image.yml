@@ -6,26 +6,7 @@ on:
       - master
     paths:
       - 'backend/**'
-  pull_request:
-    branches:
-      - master
-    paths:
-      - 'backend/**'
   workflow_dispatch:
-    inputs:
-      pr_number:
-        description: 'PR Number (for review app deployment)'
-        required: false
-        type: string
-      commit_sha:
-        description: 'Commit SHA (optional, defaults to HEAD)'
-        required: false
-        type: string
-      deploy_review_app:
-        description: 'Deploy review app after build'
-        required: false
-        type: boolean
-        default: false
 
 env:
   REGISTRY: ghcr.io
@@ -38,18 +19,10 @@ jobs:
     permissions:
       contents: read
       packages: write
-    outputs:
-      commit-sha: ${{ steps.commit-info.outputs.sha }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.commit_sha || github.sha }}
-
-      - name: Get commit SHA
-        id: commit-info
-        run: echo "sha=${{ github.event.inputs.commit_sha || github.sha }}" >> $GITHUB_OUTPUT
 
       - name: Log in to Container Registry
         uses: docker/login-action@v3
@@ -65,7 +38,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}
           tags: |
             type=ref,event=branch
-            type=raw,value=sha-${{ steps.commit-info.outputs.sha }}
+            type=sha,prefix=sha-
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Extract metadata for backend-caddy
@@ -75,7 +48,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.BACKEND_CADDY_IMAGE_NAME }}
           tags: |
             type=ref,event=branch
-            type=raw,value=sha-${{ steps.commit-info.outputs.sha }}
+            type=sha,prefix=sha-
             type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Backend Docker image
@@ -84,7 +57,7 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile
           target: prod
-          push: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'review-app')) }}
+          push: true
           tags: ${{ steps.meta-backend.outputs.tags }}
           labels: ${{ steps.meta-backend.outputs.labels }}
 
@@ -94,140 +67,6 @@ jobs:
           context: ./backend
           file: ./backend/Dockerfile.caddy
           target: prod
-          push: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'review-app')) }}
+          push: true
           tags: ${{ steps.meta-backend-caddy.outputs.tags }}
           labels: ${{ steps.meta-backend-caddy.outputs.labels }}
-
-  # Deploy review app directly after build for PRs with review-app label
-  deploy-review-app:
-    runs-on: ubuntu-latest
-    needs: build-and-push
-    if: |
-      (github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'review-app')) ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.deploy_review_app == 'true')
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.commit_sha || github.sha }}
-
-      - name: Set deployment variables
-        id: vars
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "PR_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
-            echo "COMMIT_SHA=${{ needs.build-and-push.outputs.commit-sha }}" >> $GITHUB_OUTPUT
-            echo "TRIGGER_TYPE=automatic" >> $GITHUB_OUTPUT
-          else
-            echo "PR_NUMBER=${{ github.event.inputs.pr_number }}" >> $GITHUB_OUTPUT
-            echo "COMMIT_SHA=${{ github.event.inputs.commit_sha || needs.build-and-push.outputs.commit-sha }}" >> $GITHUB_OUTPUT
-            echo "TRIGGER_TYPE=manual" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Deploy review app
-        id: deploy
-        uses: Yukaii/zeabur-review-app-action@main
-        with:
-          action: deploy
-          zeabur-api-key: ${{ secrets.ZEABUR_API_KEY }}
-          zeabur-project-id: ${{ secrets.ZEABUR_PROJECT_ID || vars.ZEABUR_PROJECT_ID }}
-          pr-number: ${{ steps.vars.outputs.PR_NUMBER }}
-          commit-sha: ${{ steps.vars.outputs.COMMIT_SHA }}
-          project-name: "Disfactory"
-          ignored-services: "Disfactory Worker"
-          cleanup-services: "PostgreSQL"
-          update-image-services: "Disfactory Backend"
-          domain-prefix: "disfactory"
-
-      - name: Comment on PR
-        if: steps.vars.outputs.PR_NUMBER != ''
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const prNumber = '${{ steps.vars.outputs.PR_NUMBER }}';
-            const commitSha = '${{ steps.vars.outputs.COMMIT_SHA }}';
-            const triggerType = '${{ steps.vars.outputs.TRIGGER_TYPE }}';
-
-            if (!prNumber) {
-              console.log('⚠️ No PR number provided, skipping comment');
-              return;
-            }
-
-            try {
-              const { data: comments } = await github.rest.issues.listComments({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: parseInt(prNumber),
-              });
-
-              // Check if we already have a review app comment
-              const botComment = comments.find(comment =>
-                comment.user.login === 'github-actions[bot]' &&
-                comment.body.includes('🚀 Review App Deployed')
-              );
-
-              const reviewAppUrl = '${{ steps.deploy.outputs.review-app-url }}';
-              const projectName = '${{ steps.deploy.outputs.review-app-project-name }}';
-
-              // Use fallback if empty
-              const finalUrl = reviewAppUrl || 'Unknown';
-              const finalProject = projectName || 'Unknown';
-              const shortCommit = commitSha ? commitSha.substring(0, 8) : 'unknown';
-
-              const triggerText = triggerType === 'automatic'
-                ? 'Backend image build completion'
-                : 'Manual workflow dispatch';
-
-              const commentBody = `## 🚀 Review App Deployed
-
-              Your review app has been deployed to Zeabur with commit-level isolation!
-
-              **🔗 Review App URL:** ${finalUrl}
-              **📋 Project:** ${finalProject}
-              **💻 Commit:** \`${shortCommit}\` ([${shortCommit}](https://github.com/${context.repo.owner}/${context.repo.repo}/commit/${commitSha}))
-              **🌍 Region:** Zeabur Cloud
-              **🔨 Triggered by:** ${triggerText}
-
-              ### 📝 Notes:
-              - Each commit gets its own isolated deployment with PR-specific Docker images
-              - The app may take a few minutes to fully start up
-              - Database migrations will run automatically
-              - Static files are served by Caddy for optimal performance
-
-              ### 🧹 Cleanup:
-              - Previous commit deployments for this PR will remain until the PR is closed
-              - All review app services will be automatically cleaned up when this PR is closed
-
-              *This deployment was triggered ${triggerType === 'automatic' ? 'automatically after the backend image build completed' : 'manually via workflow dispatch'}.*`;
-
-              if (botComment) {
-                await github.rest.issues.updateComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  comment_id: botComment.id,
-                  body: commentBody
-                });
-                console.log('✅ Updated existing PR comment');
-              } else {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: parseInt(prNumber),
-                  body: commentBody
-                });
-                console.log('✅ Created new PR comment');
-              }
-            } catch (error) {
-              console.log('⚠️ Failed to comment on PR:', error.message);
-            }
-
-      - name: Output results
-        run: |
-          echo "🎉 Review app deployment completed!"
-          if [ -n "${{ steps.deploy.outputs.review-app-url }}" ]; then
-            echo "🔗 Review App URL: ${{ steps.deploy.outputs.review-app-url }}"
-          fi
-          if [ -n "${{ steps.deploy.outputs.review-app-project-name }}" ]; then
-            echo "📋 Project Name: ${{ steps.deploy.outputs.review-app-project-name }}"
-          fi
