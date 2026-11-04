@@ -34,7 +34,7 @@ jobs:
 
     runs-on: ubuntu-latest
     # Docker Hub image that job executes in
-    container: python:3.7
+    container: python:3.9
 
     defaults:
       run:
