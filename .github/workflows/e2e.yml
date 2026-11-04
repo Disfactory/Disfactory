@@ -1,0 +1,32 @@
+name: E2E Deploy Confidence
+
+# Boots the real prod image with the prod entrypoint against a
+# throwaway PostGIS DB and asserts the HTTP API round-trips.
+# See backend/scripts/e2e-api-test.sh.
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "backend/**"
+  pull_request:
+    branches:
+      - "**"
+    paths:
+      - "backend/**"
+
+jobs:
+  e2e-api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Run API end-to-end test
+        run: |
+          chmod +x scripts/e2e-api-test.sh
+          ./scripts/e2e-api-test.sh

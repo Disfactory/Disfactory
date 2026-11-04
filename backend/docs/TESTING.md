@@ -159,3 +159,25 @@ docker compose -f docker-compose.dev.yml run --rm web pytest
 # This may fail outside Docker
 pytest  # Don't run directly without proper Django setup
 ```
+
+## End-to-End Deploy-Confidence Test
+
+`scripts/e2e-api-test.sh` boots the **real prod image** (`Dockerfile`,
+`target: prod`) with the **real prod entrypoint**
+(`scripts/start_prod.sh`: wait-for-it → collectstatic → migrate →
+gunicorn) against a throwaway PostGIS database, then asserts over HTTP:
+
+- `GET /api/statistics/total`, `/api/statistics/factories` → 200
+- `GET /swagger/` → 200 (URL wiring)
+- `POST /api/factories` → 200 and echoed back
+- `GET /api/factories?lat=..&lng=..&range=..` returns the created factory
+
+```bash
+cd backend
+./scripts/e2e-api-test.sh
+```
+
+It runs automatically in CI (`.github/workflows/e2e.yml`) on backend
+changes. The older `scripts/integration-test.sh` only smoke-tests the
+image build and startup scripts without touching the API; the e2e
+script supersedes it for deploy confidence.

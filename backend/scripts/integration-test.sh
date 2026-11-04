@@ -8,7 +8,7 @@ echo
 
 # Test 1: Verify Docker image builds
 echo "1. Testing Docker image build..."
-cd /home/runner/work/Disfactory/Disfactory/backend
+cd "$(dirname "$0")/.."
 docker build --target prod -t disfactory-integration-test . >/dev/null 2>&1
 echo "✓ Docker image builds successfully"
 
