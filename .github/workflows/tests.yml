@@ -36,10 +36,6 @@ jobs:
     # Docker Hub image that job executes in
     container: python:3.7
 
-    strategy:
-      matrix:
-        poetry-version: [1.2.0]
-
     defaults:
       run:
         working-directory: ./backend
@@ -47,31 +43,20 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v3
 
-      - name: Install poetry ${{ matrix.poetry-version }}
-        run: |
-          python -m ensurepip
-          python -m pip install --upgrade pip
-          python -m pip install poetry==${{ matrix.poetry-version }}
-          poetry --version
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
 
-      - name: Cache Poetry dependencies
+      - name: Cache uv dependencies
         uses: actions/cache@v3
         with:
-          path: ~/.cache/pypoetry
-          key: poetry-cache-${{ runner.os }}-${{ matrix.poetry-version }}-${{ hashFiles('**/poetry.lock') }}
+          path: ~/.cache/uv
+          key: uv-cache-${{ runner.os }}-${{ hashFiles('**/uv.lock') }}
 
       - name: Install dependencies
         run: |
-          python -m poetry install
-
-      - name: Install coverage tooling
-        # NOTE: intentionally via pip, not pyproject/poetry.lock.
-        # CI runs Python 3.7 and poetry 1.2.0 cannot resolve any
-        # pytest-cov release there; pip backtracks to the newest
-        # py3.7-compatible tree (verified: pytest-cov 4.1.0).
-        # Revisit after the Python/UV stack upgrade.
-        run: |
-          python -m poetry run pip install pytest-cov
+          uv sync --dev
 
       - name: Setup .env
         run: |
@@ -80,7 +65,7 @@ jobs:
 
       - name: Run pytest tests with coverage
         run: |
-          python -m poetry run pytest --cov=api --cov-report=xml --cov-report=term -vv -k "not test_easymap"
+          uv run pytest --cov=api --cov-report=xml --cov-report=term -vv -k "not test_easymap"
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -92,7 +77,7 @@ jobs:
 
       - name: Run Django tests
         run: |
-          python -m poetry run python manage.py test -v 2
+          uv run python manage.py test -v 2
 
       - name: Test startup scripts
         run: |
