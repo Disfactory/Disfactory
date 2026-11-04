@@ -37,3 +37,9 @@ def test_get_factory_location(client, factory):
     assert resp_data["townname"] == factory.townname
     assert resp_data["sectname"] == factory.sectname
     assert resp_data["sectcode"] == factory.sectcode
+
+
+def test_get_factory_location_not_found(client):
+    resp = client.get("/api/factories/00000000-0000-0000-0000-000000000000/location")
+    assert resp.status_code == 400
+    assert b"not existed" in resp.content

@@ -245,6 +245,23 @@ def test_query_factory_by_sectcode(client):
     assert data["sectname"] == "新生段"
 
 
+def test_query_factory_by_sectcode_missing_params(client):
+    resp = client.get("/api/sectcode?sectcode=5212")
+    assert resp.status_code == 400
+    assert b"Missing query parameter: landcode." in resp.content
+
+
+def test_query_factory_by_sectcode_invalid_landcode(client):
+    resp = client.get("/api/sectcode?sectcode=5212&landcode=abc")
+    assert resp.status_code == 400
+    assert b"landcode should be number and length is 8" in resp.content
+
+
+def test_query_factory_by_sectcode_not_found(client):
+    resp = client.get("/api/sectcode?sectcode=5212&landcode=00999999")
+    assert resp.status_code == 404
+
+
 def test_create_factory_after_delete_the_latest_factory_with_maximum_display_number(client):
     factory_with_max_num = Factory.objects.order_by('-display_number')[0]
     factory_with_max_num.delete()
