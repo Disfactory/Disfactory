@@ -21,7 +21,7 @@ requires-python = ">=3.9"
 dependencies = [
     "django==4.2.30",
     "psycopg2-binary==2.9.12",
-    "djangorestframework==3.15.2",
+    "djangorestframework==3.16.1",
     "python-dotenv==1.1.1",
     "requests==2.32.5",
     "pillow==9.5.0",
