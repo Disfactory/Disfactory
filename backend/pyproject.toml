@@ -26,7 +26,7 @@ dependencies = [
     "requests==2.25.1",
     "pillow==9.0.1",
     "django-cors-headers==4.9.0",
-    "gunicorn==20.1.0",
+    "gunicorn==23.0.0",
     "django-admin-rangefilter==0.10.0",
     "drf-yasg==1.21.15",
     "python-docx==0.8.11",
@@ -34,10 +34,6 @@ dependencies = [
     "django-q2==1.9.0",
     "django-import-export==3.3.9",
     "pytest-dotenv==0.5.2",
-    # Runtime requirement via gunicorn 20.1.0 (imports pkg_resources,
-    # removed from setuptools >= 81). Revisit on the gunicorn upgrade
-    # (newer releases dropped it).
-    "setuptools<81",
 ]
 
 [dependency-groups]
