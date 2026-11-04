@@ -172,8 +172,13 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Keep Django <= 3.1 implicit primary key behavior (AutoField).
+# Without this Django 3.2+ warns (W042) and Django 4.x would switch
+# new implicit PKs to BigAutoField, generating unwanted migrations.
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/2.2/howto/static-files/
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
 STATIC_URL = "/static/"
 
 # Static root for collected static files (required for collectstatic)
