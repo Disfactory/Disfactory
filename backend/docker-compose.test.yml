@@ -69,6 +69,11 @@ services:
       GOOGLE_MAP_API_KEY: "test_api_key"
       DISFACTORY_IMGUR_CLIENT_ID: "test_imgur_id"
 
+      # Migration 0015 backfills landcodes via the Easymap API per factory.
+      # On an empty test DB the loop is a no-op anyway; pin the skip flag
+      # so test migrates stay fast and hermetic by intent, not by luck.
+      SKIP_MIGRATION_EXTERNAL_API: "true"
+
   worker:
     build:
       context: .
