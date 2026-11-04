@@ -15,7 +15,7 @@
 ### 開發環境
 
 - [Python 3.7](https://www.python.org/)
-- [pipenv](https://github.com/pypa/pipenv)
+- [uv](https://github.com/astral-sh/uv)
 管理 python packages 環境的工具
 - [Get Docker](https://docs.docker.com/get-docker/)
 - [Install Docker Compose](https://docs.docker.com/compose/install/)
@@ -94,7 +94,7 @@ COMPOSE_PROJECT_NAME=staging
 
 最後我們要使用 `.env` 來設定目前的環境變數
 
-( 如果使用 pipenv 或 docker 的話可以跳過這一個步驟，因為 pipenv 會自動讀取 .env 的內容來設定環境變數，而 docker container 啟動時會呼叫 pipenv )
+( 如果使用 uv 或 docker 的話可以跳過這一個步驟，因為 uv 會自動讀取 .env 的內容來設定環境變數，而 docker container 啟動時會呼叫 uv )
 
 ```bash
 source .env
@@ -106,7 +106,7 @@ disfactory_data
 
 ### 開發環境懶人包 - Docker + docker-compose
 
-如果覺的安裝 Python, pipenv 與 PostgreSQL 等東西很麻煩話，那麼可以選擇完全使用 Docker + docker-compose 作為開發環境。只需要安裝 `Docker` 與 `docker-compose` 就可以快速運行整個後端服務。
+如果覺的安裝 Python, uv 與 PostgreSQL 等東西很麻煩話，那麼可以選擇完全使用 Docker + docker-compose 作為開發環境。只需要安裝 `Docker` 與 `docker-compose` 就可以快速運行整個後端服務。
 
 安裝方式請參考
 
@@ -136,60 +136,38 @@ docker-compose -f docker-compose.dev.yml up -d
 請確認系統是否有安裝 `Python 3.7`，
 如果是 Linux, Mac 或 Windows WSL 環境的話可以使用 [pyenv](https://github.com/pyenv/pyenv) 來安裝特定版本的 Python。
 
-#### 安裝 poetry
+#### 安裝 uv
 
-Ubuntu20.04
+使用 uv 安裝與管理 python packages
 
-1. 下指令安裝poetry
+1. 下指令安裝 uv
+
+Linux / macOS:
 ```bash
-curl -sSL https://install.python-poetry.org | python3 -
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-2. 把poetry路徑加入環境
-```bash
-nano ~/.bashrc  #用打開~/.bashrc
+Windows PowerShell:
+```powershell
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-下面這行放到~/.bashrc最下面
-```bash
-export PATH="~/.local/bin:$PATH"
-```
+2. 安裝套件
 
-3. 建立poetry環境並且安裝套件
-
-* 注意
-如果電腦的Python預設版本是3.10，可以先安裝Python3.7，然後指定poetry要使用的Python版本，也可以先建立一個venv，然後指定用venv裡面的python路徑
-```bash
-which python3.7 #取得Python3.7路徑
-poetry env use /上面指令輸出的Python3.7路徑
-```
-
-安裝套件
 ```bash
 cd backend
-poetry config virtualenvs.in-project true # 讓vscode可以讀到虛擬環境(https://stackoverflow.com/a/64434542)
-poetry install
+uv sync --dev
 ```
 
-4. 啟動虛擬環境
-```bash
-poetry shell
-```
+3. 運行指令
 
-
-osx / linux / bashonwindows install instructions
+使用 `uv run` 來執行 Python 指令：
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+uv run python manage.py runserver
 ```
 
-windows powershell install instructions
-
-```
-(Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py -UseBasicParsing).Content | python -
-```
-
-詳細可以參考 poetry [poetry](https://python-poetry.org/docs/)
+詳細可以參考 [uv](https://docs.astral.sh/uv/)
 
 ### 設定 PostgreSQL + PostGIS
 
@@ -214,7 +192,7 @@ P.S
 
 最好先使用 `make run-dev` 或者 `docker-compose -f docker-compose.dev.yml up -d`
 啟動一次所有服務，讓 django 初始化 db 資料，db 才能正常運作。
-若 pipenv 有新的套件，為了更新 docker image（不然會用 cache），則需要
+若 uv 有新的套件，為了更新 docker image（不然會用 cache），則需要
 `docker-compose -f docker-compose.dev.yml up -d --build --force-recreate`
 
 不然就必須在 db 啟動之後，使用 `python manage.py migrate` 來初始化 db
