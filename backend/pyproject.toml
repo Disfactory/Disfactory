@@ -20,7 +20,7 @@ authors = []
 requires-python = ">=3.9"
 dependencies = [
     "django==4.2.30",
-    "psycopg2-binary==2.8.6",
+    "psycopg2-binary==2.9.12",
     "djangorestframework==3.15.2",
     "python-dotenv==0.14.0",
     "requests==2.25.1",
