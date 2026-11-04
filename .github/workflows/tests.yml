@@ -74,7 +74,7 @@ jobs:
           python -m poetry run pytest --cov=api --cov-report=xml --cov-report=term -vv -k "not test_easymap"
 
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           file: ./backend/coverage.xml
           flags: backend
