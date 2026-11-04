@@ -34,6 +34,10 @@ dependencies = [
     "django-q==1.0.2",
     "django-import-export==2.5.0",
     "pytest-dotenv==0.5.2",
+    # Runtime requirement via gunicorn 20.1.0 (imports pkg_resources,
+    # removed from setuptools >= 81). Revisit on the gunicorn upgrade
+    # (newer releases dropped it).
+    "setuptools<81",
 ]
 
 [dependency-groups]
