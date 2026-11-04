@@ -36,7 +36,7 @@ def _upload_image_to_imgur(image_buffer, client_id):
         else:
             path = resp_data["data"]["link"]
     except Exception:
-        LOGGER.error(f"Error parsing imgur response data: {resp_data}")
+        LOGGER.error("Error parsing imgur response data")
         path = urljoin(urljoin(settings.DOMAIN, settings.MEDIA_URL), os.path.basename(tmp_path))
     return path
 
