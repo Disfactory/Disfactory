@@ -64,3 +64,35 @@ def test_post_image_url_400_if_no_url(client):
         )
 
     assert resp.status_code == 400
+
+
+@pytest.mark.django_db
+def test_post_image_url_unparseable_datetime(client):
+    """Bad DateTimeOriginal is tolerated: image saved with orig_time None."""
+    request_body = {
+        "url": "https://i.imgur.com/123456.png",
+        "DateTimeOriginal": "not-a-datetime",
+    }
+    resp = client.post(
+        "/api/images",
+        data=request_body,
+        content_type="application/json",
+    )
+    assert resp.status_code == 200
+
+    img = Image.objects.get(pk=resp.json()["token"])
+    assert img.orig_time is None
+
+
+@pytest.mark.django_db
+def test_post_image_url_without_datetime(client):
+    """Missing DateTimeOriginal is tolerated: image saved with orig_time None."""
+    resp = client.post(
+        "/api/images",
+        data={"url": "https://i.imgur.com/123456.png"},
+        content_type="application/json",
+    )
+    assert resp.status_code == 200
+
+    img = Image.objects.get(pk=resp.json()["token"])
+    assert img.orig_time is None

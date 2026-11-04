@@ -258,3 +258,75 @@ def test_upload_image_without_domain_setting(client, settings):
         assert resp_data["success"] is True
         # URL should still be generated from request
         assert "/media/uploads/" in resp_data["data"]["link"]
+
+
+@pytest.mark.django_db
+def test_get_file_extension_without_dot():
+    """Filenames without an extension return an empty extension."""
+    from api.views.image_upload import _get_file_extension
+
+    assert _get_file_extension("nodotfilename") == ""
+
+
+@pytest.mark.django_db
+def test_upload_image_storage_error(client, settings, monkeypatch):
+    """OSError while saving returns 500 with a storage error message."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        settings.MEDIA_ROOT = temp_dir
+
+        from api.views import image_upload
+
+        def boom(uploaded_file):
+            raise OSError("disk full")
+
+        monkeypatch.setattr(image_upload, "_save_uploaded_image", boom)
+
+        image_buffer = create_test_image()
+        image_file = SimpleUploadedFile(
+            name="test_image.png",
+            content=image_buffer.read(),
+            content_type="image/png",
+        )
+
+        resp = client.post(
+            "/api/upload",
+            data={"image": image_file},
+            format="multipart",
+        )
+
+        assert resp.status_code == 500
+        resp_data = resp.json()
+        assert resp_data["success"] is False
+        assert "storage error" in resp_data["data"]["error"]
+
+
+@pytest.mark.django_db
+def test_upload_image_unexpected_error(client, settings, monkeypatch):
+    """Non-OSError failure while saving returns a generic 500."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        settings.MEDIA_ROOT = temp_dir
+
+        from api.views import image_upload
+
+        def boom(uploaded_file):
+            raise RuntimeError("something odd")
+
+        monkeypatch.setattr(image_upload, "_save_uploaded_image", boom)
+
+        image_buffer = create_test_image()
+        image_file = SimpleUploadedFile(
+            name="test_image.png",
+            content=image_buffer.read(),
+            content_type="image/png",
+        )
+
+        resp = client.post(
+            "/api/upload",
+            data={"image": image_file},
+            format="multipart",
+        )
+
+        assert resp.status_code == 500
+        resp_data = resp.json()
+        assert resp_data["success"] is False
+        assert "unexpected error" in resp_data["data"]["error"]
