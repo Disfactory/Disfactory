@@ -78,3 +78,46 @@ def test_get_empty_if_strange_factory_id(client):
     resp = client.get(f"/api/factories/{uuid4()}/report_records")
     assert resp.status_code == 200
     assert not resp.json()
+
+
+def test_report_record_includes_action_type_and_sanitized_action_body(
+    client, factory_factory, report_factory
+):
+    factory = factory_factory.create()
+    report_factory.create(
+        factory=factory,
+        action_type="UPDATE",
+        action_body={
+            "name": "新工廠名稱",
+            "factory_type": "2-1",
+            "contact": "0912-345-678",
+            "nickname": "匿名吹哨者",
+            "deletehash": "secret-delete-hash",
+            "others": "already exposed via the others field",
+            "email": "someone@example.com",
+        },
+    )
+
+    resp = client.get(f"/api/factories/{factory.id}/report_records")
+    assert resp.status_code == 200
+
+    rrs = resp.json()
+    assert len(rrs) == 1
+    assert rrs[0]["action_type"] == "UPDATE"
+    assert rrs[0]["action_body"] == {
+        "name": "新工廠名稱",
+        "factory_type": "2-1",
+    }
+    assert "contact" not in rrs[0]["action_body"]
+    assert "nickname" not in rrs[0]["action_body"]
+    assert "deletehash" not in rrs[0]["action_body"]
+    assert "email" not in rrs[0]["action_body"]
+
+
+def test_report_record_action_body_non_dict_becomes_empty(client, factory_factory, report_factory):
+    factory = factory_factory.create()
+    report_factory.create(factory=factory, action_type="UPDATE", action_body=["unexpected"])
+
+    resp = client.get(f"/api/factories/{factory.id}/report_records")
+    assert resp.status_code == 200
+    assert resp.json()[0]["action_body"] == {}

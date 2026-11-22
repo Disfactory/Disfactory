@@ -1,18 +1,35 @@
 from datetime import timedelta
 
 from rest_framework.serializers import (
-    ModelSerializer,
     CharField,
+    IntegerField,
+    ModelSerializer,
+    Serializer,
     SerializerMethodField,
+    UUIDField,
 )
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 
-from .models import Factory, Image, ReportRecord, FollowUp
+from .models import Document, Factory, Image, ReportRecord, FollowUp
 
 
 VALID_FACTORY_TYPES = [t[0] for t in Factory.factory_type_list]
+# action_body stores the raw request body, so only keys that are already public
+# (factory name/type, image URL) are passed through. Anything else a client sent,
+# such as contact, nickname or an Imgur deletehash, is dropped.
+PUBLIC_ACTION_BODY_KEYS = frozenset({"name", "type", "factory_type", "url"})
+
+
+def _sanitize_action_body(action_body):
+    if not isinstance(action_body, dict):
+        return {}
+    return {
+        key: value
+        for key, value in action_body.items()
+        if key in PUBLIC_ACTION_BODY_KEYS
+    }
 
 
 def _get_latest_time_or_none(objs):
@@ -146,10 +163,86 @@ class FactorySerializer(ModelSerializer):
 
 
 class ReportRecordSerializer(ModelSerializer):
+    action_body = SerializerMethodField()
+
     class Meta:
         model = ReportRecord
         fields = [
             "id",
+            "action_type",
+            "action_body",
             "created_at",
             "others",
         ]
+
+    def get_action_body(self, obj):
+        return _sanitize_action_body(obj.action_body)
+
+
+class TimelineImageSerializer(ModelSerializer):
+    url = CharField(source="image_path")
+
+    class Meta:
+        model = Image
+        fields = ["id", "image_path", "url", "created_at"]
+
+
+class ImageBatchSerializer(Serializer):
+    date = CharField()
+    count = IntegerField()
+    images = TimelineImageSerializer(many=True)
+
+
+class StatusTransitionSerializer(ModelSerializer):
+    from_status = SerializerMethodField()
+    to_status = SerializerMethodField()
+    document_id = IntegerField()
+
+    class Meta:
+        model = FollowUp
+        fields = [
+            "id",
+            "from_status",
+            "to_status",
+            "created_at",
+            "document_id",
+        ]
+
+    def get_from_status(self, obj):
+        return obj.note.split(" -> ", 1)[0].strip()
+
+    def get_to_status(self, obj):
+        parts = obj.note.split(" -> ", 1)
+        return parts[1].strip() if len(parts) > 1 else ""
+
+
+class TimelineDocumentSerializer(ModelSerializer):
+    display_status = CharField(source="get_display_status_display")
+
+    class Meta:
+        model = Document
+        fields = [
+            "id",
+            "created_at",
+            "display_status",
+        ]
+
+
+class FollowUpForUserSerializer(ModelSerializer):
+    class Meta:
+        model = FollowUp
+        fields = [
+            "id",
+            "note",
+            "created_at",
+        ]
+
+
+class FactoryTimelineSerializer(Serializer):
+    factory_id = UUIDField()
+    display_number = IntegerField()
+    documents = TimelineDocumentSerializer(many=True)
+    status_transitions = StatusTransitionSerializer(many=True)
+    user_reports = ReportRecordSerializer(many=True)
+    follow_ups_for_user = FollowUpForUserSerializer(many=True)
+    image_batches = ImageBatchSerializer(many=True)

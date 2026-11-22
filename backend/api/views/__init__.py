@@ -2,6 +2,7 @@ from .factories_cr import get_nearby_or_create_factories, get_factory_by_sectcod
 from .factories_u import update_factory_attribute
 from .factory_report_record_r import get_factory_report
 from .factory_location_r import get_factory_location
+from .factory_timeline_r import get_factory_timeline
 from .image_c import post_image_url
 from .factory_image_c import post_factory_image_url
 from .image_upload import upload_image
