@@ -5,7 +5,7 @@ name: disfactory-test
 
 services:
   postgres:
-    image: postgis/postgis:14-3.2
+    image: postgis/postgis:17-3.5
     container_name: disfactory-postgres-test
     environment:
       POSTGRES_DB: disfactory_test

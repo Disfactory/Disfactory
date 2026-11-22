@@ -224,7 +224,7 @@ class FactoryReportDocumentWriter:
             generator.new(self.document, line, 10)
 
     def _receiver(self, serial):
-        utcnow = datetime.datetime.utcnow().replace(tzinfo=datetime.timezone.utc)
+        utcnow = datetime.datetime.now(datetime.timezone.utc)
         twnow = utcnow.astimezone(datetime.timezone(datetime.timedelta(hours=8)))
 
         # yapf: disable
