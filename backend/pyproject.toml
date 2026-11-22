@@ -19,20 +19,20 @@ description = ""
 authors = []
 requires-python = ">=3.9"
 dependencies = [
-    "django==3.2.25",
+    "django==4.2.30",
     "psycopg2-binary==2.8.6",
-    "djangorestframework==3.11.2",
+    "djangorestframework==3.15.2",
     "python-dotenv==0.14.0",
     "requests==2.25.1",
     "pillow==9.0.1",
-    "django-cors-headers==3.7.0",
+    "django-cors-headers==4.9.0",
     "gunicorn==20.1.0",
-    "django-admin-rangefilter==0.6.4",
-    "drf-yasg==1.17.1",
+    "django-admin-rangefilter==0.10.0",
+    "drf-yasg==1.21.15",
     "python-docx==0.8.11",
     "docxcompose==1.3.2",
-    "django-q==1.0.2",
-    "django-import-export==2.5.0",
+    "django-q2==1.9.0",
+    "django-import-export==3.3.9",
     "pytest-dotenv==0.5.2",
     # Runtime requirement via gunicorn 20.1.0 (imports pkg_resources,
     # removed from setuptools >= 81). Revisit on the gunicorn upgrade
@@ -47,7 +47,7 @@ dev = [
     "pylint==2.15.2",
     "pylint-django==2.5.3",
     "flake8==5.0.4",
-    "pytest-django==4.5.2",
+    "pytest-django==4.11.1",
     "pytest-cov",
 ]
 
