@@ -38,10 +38,13 @@ class FactoryWithReportRecords(DateRangeFilter):
             validated_data = dict(self.form.cleaned_data.items())
             query_params = super()._make_query_filter(request, validated_data)
 
-            queryset = queryset.filter(
-                reportrecord_latest_created_at__gte=query_params["created_at__gte"],
-                reportrecord_latest_created_at__lte=query_params["created_at__lte"],
-            )
+            # Either bound may be left empty in the admin form; only filter on the ones given.
+            bounds = {
+                f"reportrecord_latest_created_at__{op}": query_params[f"created_at__{op}"]
+                for op in ("gte", "lte")
+                if f"created_at__{op}" in query_params
+            }
+            queryset = queryset.filter(**bounds)
 
         return queryset
 
