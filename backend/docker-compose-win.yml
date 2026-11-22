@@ -18,7 +18,7 @@ services:
       DISFACTORY_BACKEND_DEFAULT_DB_PORT: 5432
 
   db:
-    image: postgres:12
+    image: postgres:17
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     environment:

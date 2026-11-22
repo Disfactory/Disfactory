@@ -234,3 +234,6 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.environ.get("DISFACTORY_BACKEND_MEDIA_ROOT", "/tmp")
 pathlib.Path(MEDIA_ROOT).mkdir(parents=True, exist_ok=True)
 DOMAIN = os.environ.get("DISFACTORY_BACKEND_DOMAIN", "https://api.disfactory.tw/")
+
+# drf-yasg: use the non-legacy renderer format names (only the swagger/redoc UI routes are exposed)
+SWAGGER_USE_COMPAT_RENDERERS = False

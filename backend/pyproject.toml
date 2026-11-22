@@ -1,6 +1,6 @@
 [tool.black]
 line-length = 99
-target-version = ['py39']
+target-version = ['py312']
 include = '\.pyi?$'
 exclude = '''
 (
@@ -17,31 +17,31 @@ name = "disfactory"
 version = "0.0.0"
 description = ""
 authors = []
-requires-python = ">=3.9"
+requires-python = ">=3.12"
 dependencies = [
-    "django==4.2.30",
+    "django==5.2.19",
     "psycopg2-binary==2.9.12",
     "djangorestframework==3.16.1",
     "python-dotenv==1.1.1",
     "requests==2.32.5",
-    "pillow==9.5.0",
+    "pillow==12.0.0",
     "django-cors-headers==4.9.0",
     "gunicorn==23.0.0",
-    "django-admin-rangefilter==0.10.0",
-    "drf-yasg==1.21.15",
+    "django-admin-rangefilter==0.15.0",
+    "drf-yasg==1.21.18",
     "python-docx==0.8.11",
     "docxcompose==1.3.2",
     "django-q2==1.9.0",
-    "django-import-export==3.3.9",
+    "django-import-export[xls,xlsx,ods,yaml]==4.4.6",
     "pytest-dotenv==0.5.2",
 ]
 
 [dependency-groups]
 dev = [
-    "black==22.8.0",
+    "black==24.10.0",
     "freezegun==1.2.2",
-    "pylint==2.15.2",
-    "pylint-django==2.5.3",
+    "pylint==3.3.9",
+    "pylint-django==2.6.1",
     "flake8==5.0.4",
     "pytest-django==4.11.1",
     "pytest-cov",

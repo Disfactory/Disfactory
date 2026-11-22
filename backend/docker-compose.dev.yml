@@ -33,7 +33,7 @@ services:
       - "/Disfactory/scripts/start.sh"
 
   db:
-    image: postgres:12
+    image: postgres:17
     volumes:
       - ${DISFACTORY_PGDATA_PATH}:/var/lib/postgresql/data/
       - ${DISFACTORY_PGDATA_BACKUP_PATH}:/tmp/db_dump/

@@ -18,7 +18,7 @@ jobs:
       # Label used to access the service container
       postgres:
         # Docker Hub image
-        image: postgres:12-alpine
+        image: postgres:17-alpine
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -34,7 +34,7 @@ jobs:
 
     runs-on: ubuntu-latest
     # Docker Hub image that job executes in
-    container: python:3.9
+    container: python:3.12
 
     defaults:
       run:
