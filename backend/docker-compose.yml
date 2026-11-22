@@ -10,7 +10,9 @@ services:
       - ${DISFACTORY_CADDY_STATIC_DIR}:/Disfactory/static
       - ${DISFACTORY_MEDIA_DIR}:/Disfactory/media
     ports:
-      - ${DISFACTORY_BACKEND_PORT}:8000
+      # Loopback only: Caddy on the host proxies to it. Docker-published ports bypass UFW,
+      # so binding 0.0.0.0 would expose gunicorn directly to the internet.
+      - "127.0.0.1:${DISFACTORY_BACKEND_PORT}:8000"
     depends_on:
       - db
     environment:
