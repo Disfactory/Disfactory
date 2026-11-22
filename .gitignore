@@ -1,0 +1,5 @@
+# Server-side artifacts that live inside the deploy checkout (/home/deployer/Disfactory)
+# Vector map tiles: symlink to ../tiles_map, served by Caddy at /tiles/*
+/map
+# Local image-upload dir from upload-provider testing
+/backend/image_uploads/
