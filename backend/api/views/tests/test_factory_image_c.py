@@ -102,3 +102,27 @@ class TestPostFactoryImageView:
         assert resp.status_code == 400
         expected_msg = f"Factory ID {not_exist_factory_id} does not exist."
         assert resp.content == expected_msg.encode("utf8")
+
+    def test_unparseable_datetime_saved_as_none(self):
+        body = dict(self.post_body, DateTimeOriginal="not-a-datetime")
+        resp = self.cli.post(
+            f"/api/factories/{self.factory.id}/images",
+            body,
+            content_type="application/json",
+        )
+        assert resp.status_code == 200
+
+        img = Image.objects.get(pk=resp.json()["id"])
+        assert img.orig_time is None
+
+    def test_missing_datetime_saved_as_none(self):
+        body = {k: v for k, v in self.post_body.items() if k != "DateTimeOriginal"}
+        resp = self.cli.post(
+            f"/api/factories/{self.factory.id}/images",
+            body,
+            content_type="application/json",
+        )
+        assert resp.status_code == 200
+
+        img = Image.objects.get(pk=resp.json()["id"])
+        assert img.orig_time is None

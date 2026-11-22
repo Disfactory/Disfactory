@@ -11,6 +11,18 @@ from ..utils import normalize_townname
 from .zipcode import ZIP_CODE
 
 
+def _get_display_status_choices():
+    return list(map(lambda item: item[1], DocumentDisplayStatusEnum.CHOICES))
+
+
+def _is_valid_display_status(display_status):
+    return (
+        display_status is None
+        or display_status == DocumentDisplayStatusConst.IN_PROGRESS
+        or display_status in _get_display_status_choices()
+    )
+
+
 def _generate_factories_query_set(townname, source, display_status):
     # display_status
     if display_status is not None:
@@ -21,8 +33,6 @@ def _generate_factories_query_set(townname, source, display_status):
             .distinct("factory_id")
         )
 
-        display_status_options = map(
-            (lambda item: item[1]), DocumentDisplayStatusEnum.CHOICES)
         if display_status == DocumentDisplayStatusConst.IN_PROGRESS:
             display_status = [
                 DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.AUDIT_SCHEDULED],
@@ -32,9 +42,6 @@ def _generate_factories_query_set(townname, source, display_status):
             ]
             docs = docs.filter(display_status__in=display_status)
         else:
-            if display_status not in display_status_options:
-                display_status_choices = ",".join(display_status_options)
-                return HttpResponse(f"display_status: [{display_status_choices}]", status=400)
             display_status = DocumentDisplayStatusEnum.INDICES[display_status]
             docs = docs.filter(display_status=display_status)
 
@@ -156,9 +163,12 @@ def get_factories_count_by_townname(request):
         return HttpResponse("source: ['G' or 'U']", status=400)
 
     display_status = request.GET.get("display_status", None)
+    if not _is_valid_display_status(display_status):
+        display_status_choices = ",".join(_get_display_status_choices())
+        return HttpResponse(f"display_status: [{display_status_choices}]", status=400)
     level = request.GET.get("level", None)
     if level and (level != "city" and level != "town"):
-        return HttpResponse(400, "level should be city or town")
+        return HttpResponse("level should be city or town", status=400)
 
     if townname is None:
         cities = ZIP_CODE.keys()
@@ -293,6 +303,9 @@ def get_images_count_by_townname(request):
         townname = normalize_townname(townname)
     source = request.GET.get("source", None)
     display_status = request.GET.get("display_status", None)
+    if not _is_valid_display_status(display_status):
+        display_status_choices = ",".join(_get_display_status_choices())
+        return HttpResponse(f"display_status: [{display_status_choices}]", status=400)
 
     factories_queryset = _generate_factories_query_set(
         townname, source, display_status)
@@ -357,6 +370,9 @@ def get_report_records_count_by_townname(request):
         townname = normalize_townname(townname)
     source = request.GET.get("source", None)
     display_status = request.GET.get("display_status", None)
+    if not _is_valid_display_status(display_status):
+        display_status_choices = ",".join(_get_display_status_choices())
+        return HttpResponse(f"display_status: [{display_status_choices}]", status=400)
 
     factories_queryset = _generate_factories_query_set(
         townname, source, display_status)

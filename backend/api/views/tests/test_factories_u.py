@@ -124,3 +124,35 @@ def test_get_single_factory_not_exist(client):
     resp = client.get(f"/api/factories/{not_existed_code}")
 
     assert resp.status_code == 400
+
+
+def test_get_single_factory_document_display_status(client, factory):
+    from api.models import Document
+
+    # no documents -> None
+    resp = client.get(f"/api/factories/{factory.id}")
+    assert resp.status_code == 200
+    assert resp.json()["document_display_status"] is None
+
+    # latest document determines the displayed status
+    Document.objects.create(
+        cet_staff="AAA",
+        code="123456",
+        factory=factory,
+        display_status=0,
+    )
+    resp = client.get(f"/api/factories/{factory.id}")
+    assert resp.status_code == 200
+    assert resp.json()["document_display_status"] is not None
+
+
+def test_update_factory_invalid_field_value(factory, client):
+    put_body = {
+        "factory_type": "not-a-valid-type",
+    }
+    resp = client.put(
+        f"/api/factories/{factory.id}",
+        data=put_body,
+        content_type="application/json",
+    )
+    assert resp.status_code == 400

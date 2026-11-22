@@ -288,3 +288,63 @@ def test_get_total(client):
     count = resp.json()["臺北市"][DocumentDisplayStatusConst.POWER_OUTED]
     assert count == 10, f"expect 10 but {count}"
 
+
+def test_get_statistics_factories_invalid_source(client):
+    resp = client.get("/api/statistics/factories?source=X")
+    assert resp.status_code == 400
+    assert b"source: ['G' or 'U']" in resp.content
+
+
+def test_get_statistics_factories_invalid_level(client):
+    resp = client.get("/api/statistics/factories?level=village")
+    assert resp.status_code == 400
+    assert b"level should be city or town" in resp.content
+
+
+def test_get_statistics_factories_invalid_townname(client):
+    resp = client.get("/api/statistics/factories?townname=火星市外星區")
+    assert resp.status_code == 400
+    assert b"invalid townname" in resp.content
+
+
+def test_get_statistics_factories_invalid_display_status(client):
+    resp = client.get("/api/statistics/factories?display_status=bogus")
+    assert resp.status_code == 400
+    assert b"display_status:" in resp.content
+
+
+def test_get_statistics_images_invalid_display_status(client):
+    resp = client.get("/api/statistics/images?display_status=bogus")
+    assert resp.status_code == 400
+    assert b"display_status:" in resp.content
+
+
+def test_get_statistics_report_records_invalid_display_status(client):
+    resp = client.get("/api/statistics/report_records?display_status=bogus")
+    assert resp.status_code == 400
+    assert b"display_status:" in resp.content
+
+
+def test_get_statistics_total_counts_demolished(client):
+    factory_id = create_factory(client)
+    Document.objects.create(
+        cet_staff="AAA",
+        code="123456",
+        factory=Factory.objects.get(id=factory_id),
+        display_status=DocumentDisplayStatusEnum.INDICES[DocumentDisplayStatusConst.DEMOLISHED],
+    )
+
+    resp = client.get("/api/statistics/total")
+    assert resp.status_code == 200
+    assert resp.json()["臺北市"][DocumentDisplayStatusConst.DEMOLISHED] == 1
+
+
+def test_get_action_change(client):
+    resp = client.get("/api/statistics/action_change")
+    assert resp.status_code == 200
+
+    data = resp.json()
+    assert data["report_records"] == 0
+    assert data["documents"] == 0
+    assert data["factories"] == 0
+
