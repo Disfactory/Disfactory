@@ -81,10 +81,7 @@ INSTALLED_APPS = [
 if DEBUG:
     DJANGO_LOGGER_HANDLER = ["file", "console"]
 else:
-    DJANGO_LOGGER_HANDLER = [
-        "file",
-        "console",
-    ]  # no need to log to console and file since we cannot access both on middle2
+    DJANGO_LOGGER_HANDLER = ["file", "console"]
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
