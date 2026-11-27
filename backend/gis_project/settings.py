@@ -191,6 +191,13 @@ STATIC_ROOT = os.environ.get("STATIC_ROOT", os.path.join(BASE_DIR, "static"))
 
 STATICFILES_DIRS = []
 
+# Hashed file names so a changed file gets a new URL; see gis_project/storage.py.
+# start_prod.sh runs collectstatic on every start, which writes the manifest.
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "gis_project.storage.FallbackManifestStaticFilesStorage"},
+}
+
 AUTH_USER_MODEL = "users.CustomUser"
 
 IMGUR_CLIENT_ID = os.environ.get("DISFACTORY_IMGUR_CLIENT_ID")
