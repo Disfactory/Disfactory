@@ -50,6 +50,13 @@ else:
 
 ALLOWED_HOSTS = allowed_hosts
 
+# Caddy terminates TLS and proxies plain HTTP to gunicorn, setting X-Forwarded-Proto.
+# Without this, Django sees every request as http:// and, since 4.0, rejects the
+# browser's `Origin: https://…` on admin POSTs as a CSRF failure (#716).
+# Safe only because gunicorn is reachable from the host's loopback alone (see
+# docker-compose.yml), so clients can't reach it without going through Caddy.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
 # Application definition
 
 INSTALLED_APPS = [
