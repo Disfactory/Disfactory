@@ -29,6 +29,7 @@ from .views import (
     get_report_records_count_by_townname,
     get_statistics_total,
     get_factory_location,
+    get_factory_timeline,
     get_action_change,
 )
 
@@ -39,6 +40,7 @@ urlpatterns = [
     path("factories/<factory_id>/report_records", get_factory_report),
     path("factories/<factory_id>/images", post_factory_image_url),
     path("factories/<factory_id>/location", get_factory_location),
+    path("factories/<factory_id>/timeline", get_factory_timeline),
     path("statistics/factories", get_factories_count_by_townname),
     path("statistics/images", get_images_count_by_townname),
     path("statistics/report_records", get_report_records_count_by_townname),
