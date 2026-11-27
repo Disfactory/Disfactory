@@ -26,8 +26,9 @@ from .utils import _get_client_ip
 
 LOGGER = logging.getLogger("django")
 
-# Allowed image extensions
+# Allowed image extensions and matching Pillow format names
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp"}
+ALLOWED_IMAGE_FORMATS = ["JPEG", "PNG", "GIF", "WEBP"]
 
 # Maximum file size (10MB)
 MAX_FILE_SIZE = 10 * 1024 * 1024
@@ -55,8 +56,8 @@ def _is_allowed_file(filename: str) -> bool:
 def _validate_image_content(uploaded_file) -> bool:
     """Validate that the uploaded file is actually a valid image."""
     try:
-        img = PILImage.open(uploaded_file)
-        img.verify()  # Verify it's a valid image
+        with PILImage.open(uploaded_file, formats=ALLOWED_IMAGE_FORMATS) as img:
+            img.verify()  # Verify it's a valid image
         uploaded_file.seek(0)  # Reset file pointer after verify
         return True
     except Exception:
@@ -188,21 +189,7 @@ def upload_image(request):
             status=400,
         )
 
-    # Validate actual image content
-    if not _validate_image_content(uploaded_file):
-        LOGGER.warning(
-            f"upload_image: Invalid image content {uploaded_file.name} from {user_ip}"
-        )
-        return JsonResponse(
-            {
-                "data": {"error": "File is not a valid image"},
-                "success": False,
-                "status": 400,
-            },
-            status=400,
-        )
-
-    # Validate file size
+    # Validate file size before parsing image bytes
     if uploaded_file.size > MAX_FILE_SIZE:
         LOGGER.warning(
             f"upload_image: File too large ({uploaded_file.size} bytes) from {user_ip}"
@@ -216,6 +203,20 @@ def upload_image(request):
                 "status": 413,
             },
             status=413,
+        )
+
+    # Validate actual image content
+    if not _validate_image_content(uploaded_file):
+        LOGGER.warning(
+            f"upload_image: Invalid image content {uploaded_file.name} from {user_ip}"
+        )
+        return JsonResponse(
+            {
+                "data": {"error": "File is not a valid image"},
+                "success": False,
+                "status": 400,
+            },
+            status=400,
         )
 
     try:

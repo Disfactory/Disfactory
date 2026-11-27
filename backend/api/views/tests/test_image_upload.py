@@ -301,6 +301,31 @@ def test_upload_image_storage_error(client, settings, monkeypatch):
 
 
 @pytest.mark.django_db
+def test_upload_image_disallowed_format_with_allowed_extension(client, settings):
+    """Test upload with an allowed extension but a disallowed image format (e.g. BMP)."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        settings.MEDIA_ROOT = temp_dir
+
+        image_buffer = create_test_image(format="BMP")
+        image_file = SimpleUploadedFile(
+            name="spoofed.jpg",
+            content=image_buffer.read(),
+            content_type="image/jpeg",
+        )
+
+        resp = client.post(
+            "/api/upload",
+            data={"image": image_file},
+            format="multipart",
+        )
+
+        assert resp.status_code == 400
+        resp_data = resp.json()
+        assert resp_data["success"] is False
+        assert "not a valid image" in resp_data["data"]["error"]
+
+
+@pytest.mark.django_db
 def test_upload_image_unexpected_error(client, settings, monkeypatch):
     """Non-OSError failure while saving returns a generic 500."""
     with tempfile.TemporaryDirectory() as temp_dir:
